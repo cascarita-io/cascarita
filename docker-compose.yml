@@ -15,6 +15,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=Host(`server.localhost`)"
       - "traefik.http.services.server.loadbalancer.server.port=3000"
+    volumes:
+      - ./server:/app
     depends_on:
       db:
         condition: service_healthy
@@ -33,6 +35,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=Host(`client.localhost`)"
       - "traefik.http.services.client.loadbalancer.server.port=80"
+    volumes:
+      - ./client/src:/app/src
     depends_on:
       - server
 
