@@ -8,26 +8,43 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Role.hasMany(models.UserRoles, {
-        foreignKey: "role_id",
-        sourceKey: "id",
-      });
+      // define association here
     }
   }
   Role.init(
     {
-      role_type: {
-        type: DataTypes.STRING,
+      id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
+      },
+      description: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
     },
     {
       sequelize,
       modelName: "Role",
-      createdAt: "created_at",
-      updatedAt: "updated_at",
-    },
+      tableName: "Roles",
+      timestamps: false,
+      underscored: true, // Converts camelCase columns to snake_case in DB
+    }
   );
   return Role;
 };
