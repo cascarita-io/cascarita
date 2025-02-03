@@ -84,7 +84,6 @@ const Leagues = () => {
   }
 
   return (
-    // <Page title={t("title")}>
     <Page title={t("title")}>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>

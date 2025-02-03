@@ -83,8 +83,4 @@
   .logoutButton {
     display: flex;
   }
-
-  .logoutButton:hover {
-    background-color: #f4f7fb;
-  }
 }
