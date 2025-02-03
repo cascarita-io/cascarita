@@ -24,14 +24,14 @@ const SideNav = () => {
         </div>
         <div className={styles.avatarCard}>
           <Avatar
-            src="https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?&w=64&h=64&dpr=2&q=70&crop=focalpoint&fp-x=0.67&fp-y=0.5&fp-z=1.4&fit=crop"
+            src={user && user.picture}
             fallback="A"
             radius="full"
             className={styles.avatar}
           />
 
           <Text as="div" size="1" weight="bold" className={styles.avatarText}>
-            {user && user.email}
+            {user && user.name}
           </Text>
         </div>
       </div>
