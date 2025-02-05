@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./TeamForm.module.css";
 import {
   CreateNewTeamData,
@@ -16,7 +16,9 @@ import {
 } from "../../../api/teams/mutations";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
-
+import { fetchUser } from "../../../api/users/service";
+import Cookies from "js-cookie";
+import { User } from "../../../api/users/types";
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
@@ -26,8 +28,17 @@ const TeamForm: React.FC<TeamFormProps> = ({
 }) => {
   const { t } = useTranslation("Teams");
   const [teamName, setTeamName] = React.useState("");
-  const { user } = useAuth0();
-  const currentUser = user;
+  const { getAccessTokenSilently } = useAuth0();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const token = await getAccessTokenSilently();
+      const email = Cookies.get("email") || "";
+      const user = await fetchUser(email, token);
+      setCurrentUser(user);
+    })();
+  }, []);
 
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
@@ -44,7 +55,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
       formData: {
         name: teamName,
         team_logo: teamLogo,
-        group_id: currentUser?.currentUser?.group_id,
+        group_id: currentUser?.group_id,
         division_id: divisionId,
         season_id: seasonId,
       },
@@ -78,7 +89,8 @@ const TeamForm: React.FC<TeamFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={handleSubmit}
-          className={styles.form}>
+          className={styles.form}
+        >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -115,7 +127,8 @@ const TeamForm: React.FC<TeamFormProps> = ({
             <div>
               <button
                 type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}>
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
                 {t("formContent.submit")}
               </button>
             </div>
