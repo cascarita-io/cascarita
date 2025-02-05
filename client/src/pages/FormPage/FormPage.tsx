@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getMongoFormById } from "../../api/forms/service";
@@ -9,6 +9,7 @@ import FormHeader from "../../components/FormHeader/FormHeader";
 import FormFooter from "../../components/FormFooter/FormFooter";
 import styles from "./FormPage.module.css";
 import { Answer, AnswerType, Field } from "../../api/forms/types";
+import ProgressBar from "../../components/ProgressBar/ProgressBar";
 
 const FormPage = () => {
   const { formId } = useParams();
@@ -28,11 +29,28 @@ const FormPage = () => {
         : Promise.reject(new Error("Form ID is undefined")),
   });
 
-  const methods = useForm<{ answers: Answer[] }>({
-    defaultValues: { answers: [] },
-  });
+  const total = form?.form_data.fields.length ?? 0;
+  const [used, setUsed] = useState(1);
 
-  // TODO: These will be components that have styles
+  // TODO: MAKE THE DEFAULT ANSWER HERE IN A FORM WHERE WE CAN ADD MULTIPLE
+  // FIELDS FOR THE NORMALIZATION PROCESS
+  const methods = useForm<{ answers: Answer }>({
+    defaultValues: { answers: {} },
+  });
+  const [currentField, setCurrentField] = useState<Field | undefined>(
+    undefined
+  );
+  const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    if (form) {
+      setCurrentField(form.form_data.fields[used - 1]);
+      setCurrentAnswer(methods.watch("answers.0"));
+    }
+  }, [form, used, methods]);
+
   if (isLoading) return <div>Loading...</div>; // Show loading state
   if (error) return <div>An error occurred: {error.message}</div>; // Show error state
 
@@ -56,16 +74,13 @@ const FormPage = () => {
       if (stripeComponentRef.current) {
         const success = await stripeComponentRef.current.handlePayment();
         if (!success) {
-          // The error message is already set within handlePayment
-          // You can add any additional handling here if needed
           return;
         }
       }
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers,
+        normalizedAnswers
       );
-      // TODO: Redirect to a success page / thank you page?
       navigate("/forms");
       return responsesData;
     } catch (error) {
@@ -74,37 +89,101 @@ const FormPage = () => {
     }
   };
 
+  console.log("used: ", used);
+  console.log("currentField", currentField);
+  console.log("currentAnswer", currentAnswer);
+  console.log("all anwers", methods.watch("answers"));
+  console.log("field type: ", currentField?.type);
+
   return (
     <>
       <FormHeader />
+      <div className={styles.progressBarContainer}>
+        <ProgressBar used={used} total={total} />
+      </div>
       <div className={styles.container}>
         {form != null && (
           <FormProvider {...methods}>
             <form
               className={styles.formContent}
-              onSubmit={methods.handleSubmit(onSubmit)}>
+              onSubmit={methods.handleSubmit(onSubmit)}
+            >
               <h1 className={styles.title}>{form?.form_data.title}</h1>
-              {form.form_data.fields.map((field: Field, index: number) => {
-                const FieldComponent = FieldComponents[field.type];
-                if (!FieldComponent) return null;
-                if (FieldComponent === FieldComponents.payment) {
+              {form.form_data.fields
+                .filter((_, index: number) => index === used - 1)
+                .map((field: Field, index: number) => {
+                  const FieldComponent = FieldComponents[field.type];
+                  if (!FieldComponent) return null;
+                  if (FieldComponent === FieldComponents.payment) {
+                    return (
+                      <FieldComponent
+                        key={field.id}
+                        ref={stripeComponentRef}
+                        field={field}
+                        sqlFormId={form.sql_form_id}
+                        index={index}
+                      />
+                    );
+                  }
                   return (
                     <FieldComponent
                       key={field.id}
-                      ref={stripeComponentRef}
                       field={field}
-                      sqlFormId={form.sql_form_id}
                       index={index}
                     />
                   );
-                }
-                return (
-                  <FieldComponent key={field.id} field={field} index={index} />
-                );
-              })}
-              <button type="submit" className={styles.submitButton}>
-                Submit
-              </button>
+                })}
+              <div className={styles.buttonContainer}>
+                {used > 1 && (
+                  <button
+                    type="button"
+                    className={styles.prevButton}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setUsed((prev) => prev - 1);
+                    }}
+                  >
+                    Back
+                  </button>
+                )}
+                {used === total ? (
+                  <button
+                    type="submit"
+                    className={styles.submitButton}
+                    disabled={
+                      currentField?.validations?.required &&
+                      (currentAnswer === undefined ||
+                        currentAnswer[`${currentField.type}` as AnswerType] ===
+                          "")
+                    }
+                  >
+                    Submit
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.nextButton}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setUsed((prev) => prev + 1);
+                      console.log("currentField", currentField);
+                      console.log("currentAnswer", currentAnswer);
+                      // TODO FIGURE OUT A WAY TO VALIDATE DATA BEFORE MOVING FORWARD
+                      // methods.trigger(`answers.${currentField?.id}`).then((isValid) => {
+                      setCurrentField(form?.form_data.fields[used - 1]);
+                      setCurrentAnswer(methods.watch(`answers.${used - 1}`));
+                    }}
+                    disabled={
+                      currentField?.validations?.required &&
+                      (currentAnswer === undefined ||
+                        currentAnswer[`${currentField.type}` as AnswerType] ===
+                          "")
+                    }
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
             </form>
           </FormProvider>
         )}
