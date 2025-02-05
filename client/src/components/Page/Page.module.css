@@ -1,10 +1,10 @@
 .page {
   background-color: #fff;
-  width: -webkit-fill-available;
-  width: -moz-available;
   margin-right: 35px;
   border-radius: 6px;
-  height: 87dvh;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  width: 82vw;
   margin-bottom: 35px;
   position: fixed;
   padding: 30px;
