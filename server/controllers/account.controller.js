@@ -134,7 +134,6 @@ const AccountController = function () {
       const accounts = await UserStripeAccounts.findAll({
         attributes: [
           "id",
-          "user_id",
           "stripe_account_id",
           "stripe_account_name",
           "platform_account_name",

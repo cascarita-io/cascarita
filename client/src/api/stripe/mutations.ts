@@ -19,12 +19,11 @@ const normalizePriceToCents = (price: string | number | undefined): number => {
 
 export const useCreatePaymentIntent = (
   field: Field,
-  sqlFormId: string,
+  sqlFormId: string
 ): UseMutationResult<PaymentIntent, Error, void, unknown> => {
   return useMutation({
     mutationFn: async () => {
-      const stripeAccountId =
-        field.properties?.stripe_account?.stripe_account_id;
+      const stripeAccountId = "acct_1Pwrm0R4osRmT1sy";
       if (!stripeAccountId) {
         throw new Error("No Stripe Account ID");
       }
@@ -33,7 +32,7 @@ export const useCreatePaymentIntent = (
         throw new Error("Form has no SQL id");
       }
 
-      const stripeAccountInternalId = field.properties?.stripe_account?.id;
+      const stripeAccountInternalId = "acct_1Pwrm0R4osRmT1sy";
       if (!stripeAccountInternalId) {
         throw new Error("No Stripe Account Internal ID");
       }
@@ -42,11 +41,11 @@ export const useCreatePaymentIntent = (
       const feeValue = normalizePriceToCents(field.properties?.price?.feeValue);
 
       const paymentIntent = await createPaymentIntent(
-        stripeAccountId,
+        "acct_1Pwrm0R4osRmT1sy",
         sqlFormId,
         stripeAccountInternalId,
         priceValue,
-        feeValue,
+        feeValue
       );
 
       if (!paymentIntent) {

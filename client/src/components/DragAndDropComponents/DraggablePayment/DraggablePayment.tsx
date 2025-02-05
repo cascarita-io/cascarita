@@ -26,7 +26,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContainerWidthMaxed, setIsContainerWidthMaxed] = useState(false);
   const [paymentFee, setPaymentFee] = useState(
-    formField.properties?.price?.feeValue ?? "",
+    formField.properties?.price?.feeValue ?? ""
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,14 +41,21 @@ const DraggablePayment: React.FC<DraggableProps> = ({
   };
 
   // TODO: Make a DB call to get our user related with Auth0 user id
-  const groupId = nullthrows(user?.group_id, "User does not have a group ID");
-
+  //const groupId = nullthrows(user?.group_id, "User does not have a group ID");
+  const groupId = 1;
   const { data: stripeAccounts = [], isLoading } = useQuery({
     queryKey: ["stripeAccounts", groupId],
     queryFn: () => getStripeAccounts(groupId),
   });
 
   useEffect(() => {
+    if (stripeAccounts.length > 0) {
+      console.log("here is the stripe id : " + stripeAccounts[0].id);
+      console.log(
+        "here is the stripe account id : " + stripeAccounts[0].stripe_account_id
+      );
+    }
+
     if (
       stripeAccounts.length > 0 &&
       formField.properties?.stripe_account &&
@@ -65,7 +72,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
     const handleResize = () => {
       if (containerRef.current) {
         setIsContainerWidthMaxed(
-          containerRef.current.offsetWidth < SMALL_DRAGGABLE_CONTAINER_WIDTH,
+          containerRef.current.offsetWidth < SMALL_DRAGGABLE_CONTAINER_WIDTH
         );
       }
     };
@@ -89,7 +96,8 @@ const DraggablePayment: React.FC<DraggableProps> = ({
         value={JSON.stringify({
           id: account.id,
           stripe_account_id: account.stripe_account_id,
-        })}>
+        })}
+      >
         {account.first_name}&apos;s Account
       </option>
     ));
@@ -103,7 +111,8 @@ const DraggablePayment: React.FC<DraggableProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          onClick={handleClick}>
+          onClick={handleClick}
+        >
           <div style={{ position: "relative" }} ref={containerRef}>
             <p className={styles.textElementTypeText}>{t("payment")}</p>
             <div className={styles.draggableContainer}>
@@ -152,12 +161,12 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                             value={formatPayment(field.value)}
                             onChange={(e) => {
                               const newFee = formatPayment(
-                                calculateStripeFee(+e.target.value).toString(),
+                                calculateStripeFee(+e.target.value).toString()
                               );
                               setPaymentFee(newFee);
                               setValue(
                                 `fields.${index}.properties.price.feeValue`,
-                                newFee,
+                                newFee
                               );
                               field.onChange(e.target.value);
                             }}
@@ -241,7 +250,8 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                         className={styles.addStripeAccountButton}
                         onClick={() =>
                           (window.location.href = "/settings/payment")
-                        }>
+                        }
+                      >
                         Add Stripe Account
                       </button>
                     ) : (
@@ -260,15 +270,16 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                               } catch (error) {
                                 console.error(
                                   "Invalid JSON value:",
-                                  e.target.value,
+                                  e.target.value
                                 );
                                 // reset the value to the default account
                                 field.onChange(
-                                  formField?.properties?.stripe_account,
+                                  formField?.properties?.stripe_account
                                 );
                               }
                             }}
-                            value={JSON.stringify(field.value)}>
+                            value={JSON.stringify(field.value)}
+                          >
                             {displayStripeAccountOptions()}
                           </select>
                         )}
@@ -279,7 +290,8 @@ const DraggablePayment: React.FC<DraggableProps> = ({
               <div
                 className={`${styles.extraOptions} ${
                   isContainerWidthMaxed ? styles.containerSmall : ""
-                }`}>
+                }`}
+              >
                 {formField.validations?.required != null && (
                   <>
                     <p className={styles.requiredText}>{t("requiredText")}</p>
