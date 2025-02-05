@@ -26,23 +26,30 @@ interface CheckoutFormRef {
 const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
   const { t } = useTranslation("FormComponents");
   const [options, setOptions] = useState<StripeElementsOptions | undefined>(
-    undefined,
+    undefined
   );
   const [stripePromise, setStripePromise] = useState<Stripe | null>(null);
   const [clientSecret, setClientSecret] = useState("");
 
   const checkoutFormRef = useRef<CheckoutFormRef>(null);
 
+  console.log(
+    "here is the object " +
+      //@ts-ignore
+      JSON.stringify(field.properties.stripe_account)
+  );
   const { data: stripePromiseData } = useStripePromise(
-    nullthrows(
-      field.properties?.stripe_account?.stripe_account_id,
-      "Stripe Account ID is missing",
-    ),
+    //nullthrows(
+    //@ts-ignore
+    field.properties?.stripe_account?.stripe_account_id
+    //,
+    // "Stripe Account ID is missing",
+    // ),
   );
 
   const { mutateAsync: createPaymentIntent } = useCreatePaymentIntent(
     field,
-    nullthrows(sqlFormId, "SQL Form ID is missing"),
+    nullthrows(sqlFormId, "SQL Form ID is missing")
   );
 
   useEffect(() => {
