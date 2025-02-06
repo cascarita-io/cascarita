@@ -59,7 +59,7 @@ export const FieldComponents = {
 export const AnswerMap = {
   multiple_choice: "choice",
   short_text: "short_text",
-  dropdown: "text",
+  dropdown: "dropdown",
   long_text: "long_text",
   email: "email",
   phone_number: "phone_number",

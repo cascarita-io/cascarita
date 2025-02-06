@@ -32,11 +32,13 @@ const FormPage = () => {
   const total = form?.form_data.fields.length ?? 0;
   const [used, setUsed] = useState(1);
 
-  // TODO: MAKE THE DEFAULT ANSWER HERE IN A FORM WHERE WE CAN ADD MULTIPLE
-  // FIELDS FOR THE NORMALIZATION PROCESS
-  const methods = useForm<{ answers: Answer }>({
+  const methods = useForm<{
+    answers: Record<string, Answer>;
+  }>({
     defaultValues: { answers: {} },
+    mode: "onChange",
   });
+
   const [currentField, setCurrentField] = useState<Field | undefined>(
     undefined
   );
@@ -47,14 +49,14 @@ const FormPage = () => {
   useEffect(() => {
     if (form) {
       setCurrentField(form.form_data.fields[used - 1]);
-      setCurrentAnswer(methods.watch("answers.0"));
+      setCurrentAnswer(methods.watch(`answers.${used - 1}`));
     }
-  }, [form, used, methods]);
+  }, [form, used]);
 
   if (isLoading) return <div>Loading...</div>; // Show loading state
   if (error) return <div>An error occurred: {error.message}</div>; // Show error state
 
-  const onSubmit = async (data: { answers: Answer[] }) => {
+  const onSubmit = async (data: { answers: Record<string, Answer> }) => {
     const normalizedAnswers: Answer[] =
       form?.form_data.fields.map((field: Field, index: number) => {
         const answerType =
@@ -81,7 +83,8 @@ const FormPage = () => {
         formId ?? "",
         normalizedAnswers
       );
-      navigate("/forms");
+      // TODO: Redirect to a thank you page!
+      navigate("/");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);
@@ -89,11 +92,20 @@ const FormPage = () => {
     }
   };
 
-  console.log("used: ", used);
-  console.log("currentField", currentField);
-  console.log("currentAnswer", currentAnswer);
-  console.log("all anwers", methods.watch("answers"));
-  console.log("field type: ", currentField?.type);
+  const hasErrors = () => {
+    return (
+      methods.formState.errors.answers !== undefined &&
+      methods.formState.errors.answers[`${used - 1}`] !== undefined
+    );
+  };
+
+  const isNotEmpty = () => {
+    return (
+      currentField?.validations?.required &&
+      (currentAnswer === undefined ||
+        currentAnswer[`${currentField.type}` as AnswerType] === "")
+    );
+  };
 
   return (
     <>
@@ -111,7 +123,7 @@ const FormPage = () => {
               <h1 className={styles.title}>{form?.form_data.title}</h1>
               {form.form_data.fields
                 .filter((_, index: number) => index === used - 1)
-                .map((field: Field, index: number) => {
+                .map((field: Field) => {
                   const FieldComponent = FieldComponents[field.type];
                   if (!FieldComponent) return null;
                   if (FieldComponent === FieldComponents.payment) {
@@ -121,7 +133,7 @@ const FormPage = () => {
                         ref={stripeComponentRef}
                         field={field}
                         sqlFormId={form.sql_form_id}
-                        index={index}
+                        index={used - 1}
                       />
                     );
                   }
@@ -129,7 +141,7 @@ const FormPage = () => {
                     <FieldComponent
                       key={field.id}
                       field={field}
-                      index={index}
+                      index={used - 1}
                     />
                   );
                 })}
@@ -150,12 +162,7 @@ const FormPage = () => {
                   <button
                     type="submit"
                     className={styles.submitButton}
-                    disabled={
-                      currentField?.validations?.required &&
-                      (currentAnswer === undefined ||
-                        currentAnswer[`${currentField.type}` as AnswerType] ===
-                          "")
-                    }
+                    disabled={hasErrors() || isNotEmpty()}
                   >
                     Submit
                   </button>
@@ -166,19 +173,8 @@ const FormPage = () => {
                     onClick={(e) => {
                       e.preventDefault();
                       setUsed((prev) => prev + 1);
-                      console.log("currentField", currentField);
-                      console.log("currentAnswer", currentAnswer);
-                      // TODO FIGURE OUT A WAY TO VALIDATE DATA BEFORE MOVING FORWARD
-                      // methods.trigger(`answers.${currentField?.id}`).then((isValid) => {
-                      setCurrentField(form?.form_data.fields[used - 1]);
-                      setCurrentAnswer(methods.watch(`answers.${used - 1}`));
                     }}
-                    disabled={
-                      currentField?.validations?.required &&
-                      (currentAnswer === undefined ||
-                        currentAnswer[`${currentField.type}` as AnswerType] ===
-                          "")
-                    }
+                    disabled={hasErrors() || isNotEmpty()}
                   >
                     Next
                   </button>

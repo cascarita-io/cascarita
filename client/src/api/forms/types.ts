@@ -87,8 +87,8 @@ export interface Answer {
   };
   type: AnswerType;
   number?: number;
-  short_text?: string[];
-  long_text?: string[];
+  short_text?: string;
+  long_text?: string;
   phone_number?: string;
   email?: string;
   date?: Date;
