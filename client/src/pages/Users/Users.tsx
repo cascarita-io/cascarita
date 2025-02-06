@@ -122,7 +122,8 @@ const Users = () => {
       ) : (
         <DashboardTable
           headers={["Name", "Email", "Role", "Options"]}
-          headerColor="light">
+          headerColor="light"
+        >
           {isLoading ? (
             <tr>
               <td>Loading...</td>
@@ -155,7 +156,8 @@ const Users = () => {
                 <td className={styles.tableData}>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      onClick={() => handleEditUser(user)}>
+                      onClick={() => handleEditUser(user)}
+                    >
                       Edit
                     </DropdownMenuButton.Item>
 
@@ -164,7 +166,8 @@ const Users = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => handleDeleteUser(user)}>
+                      onClick={() => handleDeleteUser(user)}
+                    >
                       Delete
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>
@@ -187,7 +190,8 @@ const Users = () => {
       </Modal>
       <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
         <Modal.Content
-          title={`Edit ${selectedUser ? formatName(selectedUser) : ""}`}>
+          title={`Edit ${selectedUser ? formatName(selectedUser) : ""}`}
+        >
           <UserForm
             afterSave={() => setIsEditOpen(false)}
             requestType="PATCH"
@@ -198,7 +202,8 @@ const Users = () => {
       </Modal>
       <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <Modal.Content
-          title={`Delete ${selectedUser ? formatName(selectedUser) : ""}`}>
+          title={`Delete ${selectedUser ? formatName(selectedUser) : ""}`}
+        >
           <UserForm
             afterSave={() => setIsDeleteOpen(false)}
             requestType="DELETE"

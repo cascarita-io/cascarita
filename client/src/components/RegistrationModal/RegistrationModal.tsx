@@ -108,11 +108,13 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
           state.page === 1
             ? "If you would like to connect to existing organization, please select 'Yes' and select from list"
             : "We just need a few details before we begin"
-        }>
+        }
+      >
         {state.page === 1 && (
           <form
             onSubmit={handleRegistrationComplete}
-            className={styles.formContainer}>
+            className={styles.formContainer}
+          >
             <div className={styles.inputContainer}>
               <p>Are you connecting to an existing organization?</p>
 
@@ -128,7 +130,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                     value: updatedValue,
                   });
                 }}
-                required>
+                required
+              >
                 <div>
                   <label htmlFor="rd-Yes">Yes</label>
                   <RadioSelect.Item value="Yes" id="rd-Yes" />
@@ -148,7 +151,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                     dispatch({ type: "SET_FIELD", field: "org", value })
                   }
                   name="groupId"
-                  className={styles.selectMenu1}>
+                  className={styles.selectMenu1}
+                >
                   {data?.map((group: GroupType) => (
                     <SelectMenu.Item key={group.id} value={group.id.toString()}>
                       {group.name}
@@ -163,7 +167,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             ) : (
               <button
                 onClick={incrementPageNumber}
-                className={styles.finishRegisterBtn}>
+                className={styles.finishRegisterBtn}
+              >
                 Next
               </button>
             )}
@@ -173,7 +178,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         {state.page === 2 && (
           <form
             onSubmit={handleRegistrationComplete}
-            className={styles.formContainer}>
+            className={styles.formContainer}
+          >
             <div className={styles.inputContainer}>
               <label htmlFor="orgName">Organization Name</label>
               <input
@@ -224,7 +230,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                     dispatch({ type: "SET_FIELD", field: "state", value })
                   }
                   name="state"
-                  className={styles.selectMenu2}>
+                  className={styles.selectMenu2}
+                >
                   {states.map((state, idx) => (
                     <SelectMenu.Item key={idx} value={state.abbreviation}>
                       {state.abbreviation}

@@ -51,7 +51,7 @@ const Home = () => {
   return (
     <>
       {isAuthenticated ? (
-        <div>
+        <>
           {!registered && (
             <RegisterModal
               open={isRegisterModalOpen}
@@ -63,7 +63,7 @@ const Home = () => {
           )}
           {/*TODO: Find out why the League Component gets rendered twice  */}
           <Leagues />
-        </div>
+        </>
       ) : (
         <p>Not authenticated...</p>
       )}

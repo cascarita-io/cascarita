@@ -23,9 +23,7 @@ const Layout: React.FC<LayoutProps> = () => {
         <main className={styles.layout}>
           <Header />
 
-          <section className={styles.dashboard}>
-            <Outlet />
-          </section>
+          <Outlet />
 
           <SideNav
             selectedItem={selectedItem}

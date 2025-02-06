@@ -132,7 +132,8 @@ const Forms = () => {
               placeholder={t("sortOptions.item1")}
               name="sorts"
               value={sorts}
-              onValueChange={(value) => setSorts(value)}>
+              onValueChange={(value) => setSorts(value)}
+            >
               <SelectMenu.Group>
                 {sortStatuses.map((status, idx) => (
                   <SelectMenu.Item key={idx} value={status}>
@@ -177,7 +178,8 @@ const Forms = () => {
                     handleShareClick(
                       `${window.location.origin}/forms/${form._id}`,
                     )
-                  }>
+                  }
+                >
                   <ShareButton />
                 </button>
               </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styles from "./Teams.module.css";
+import styles from "../pages.module.css";
 import Page from "../../components/Page/Page";
 import Search from "../../components/Search/Search";
 // import SelectMenu from "../../components/SelectMenu/SelectMenu";
@@ -13,6 +13,7 @@ import { TeamType } from "./types";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
 import { useTranslation } from "react-i18next";
+import { FaPlus } from "react-icons/fa";
 
 const Teams = () => {
   const { seasonId, divisionId, divisionName } = useParams<{
@@ -65,34 +66,20 @@ const Teams = () => {
   );
 
   return (
-    <Page>
-      <h1 className={styles.h1}>{divisionName}</h1>
-
+    <Page title={divisionName}>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>
           <Search onSearchChange={setSearchQuery} />
-          {/* NOTE: WILL UNCOMMENT ONCE ACTIVE STATUS ADDED TO VIEW
-            <div className={styles.filterContainer}>
-            <SelectMenu
-              placeholder="Sort By"
-              name="sort"
-              value={sorts}
-              onValueChange={(value) => setSorts(value)}
-              className={styles.selectMenu}>
-              <SelectMenu.Item value="alphabetical">
-                Alphabetical
-              </SelectMenu.Item>
-              <SelectMenu.Item value="lastCreated">
-                Last Created
-              </SelectMenu.Item>
-            </SelectMenu>
-          </div> */}
         </div>
 
         <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <Modal.Button asChild className={styles.btn}>
-            <PrimaryButton onClick={() => setIsCreateOpen(true)}>
-              {t("addButton")}
+          <Modal.Button asChild className={styles.modalTrigger}>
+            <PrimaryButton
+              className={styles.primaryBtn}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <p className={styles.btnTextDesktop}>{t("addButton")}</p>
+              <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
           </Modal.Button>
 
@@ -112,7 +99,8 @@ const Teams = () => {
       ) : (
         <DashboardTable
           headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
-          headerColor="light">
+          headerColor="light"
+        >
           {isLoading ? (
             <tr>
               <td>{t("loading")}</td>
@@ -130,7 +118,8 @@ const Teams = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
-                    }}>
+                    }}
+                  >
                     <img src={team.team_logo} />
                     {team.name}
                   </div>
@@ -138,7 +127,8 @@ const Teams = () => {
                 <td>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      onClick={() => handleEdit(team.name, team.id)}>
+                      onClick={() => handleEdit(team.name, team.id)}
+                    >
                       {t("edit")}
                     </DropdownMenuButton.Item>
 
@@ -147,7 +137,8 @@ const Teams = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => handleDelete(team.name, team.id)}>
+                      onClick={() => handleDelete(team.name, team.id)}
+                    >
                       {t("delete")}
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>

@@ -1,4 +1,4 @@
-import styles from "./Leagues.module.css";
+import styles from "../pages.module.css";
 import Search from "../../components/Search/Search";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
@@ -16,6 +16,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useAuth0 } from "@auth0/auth0-react";
 import { fetchUser } from "../../api/users/service";
+import { FaPlus } from "react-icons/fa";
 
 const Leagues = () => {
   const { t } = useTranslation("Leagues");
@@ -86,32 +87,19 @@ const Leagues = () => {
   return (
     <Page title={t("title")}>
       <div className={styles.filterSearch}>
+        {/*TODO: Create a reusable component for Filter and Search  */}
         <div className={styles.dropdown}>
           <Search onSearchChange={setSearchQuery} />
-
-          {/* NOTE: WILL UNCOMMENT ONCE ACTIVE STATUS ADDED TO VIEW
-          <div className={styles.filterContainer}>
-            <p className={styles.filterSubTitle}>{t("sort")}</p>
-            <SelectMenu
-              placeholder={t("sortOptions.item1")}
-              name="sorts"
-              value={sorts}
-              onValueChange={(value) => setSorts(value)}>
-              <SelectMenu.Group>
-                {sortStatuses.map((status, idx) => (
-                  <SelectMenu.Item key={idx} value={status}>
-                    {status}
-                  </SelectMenu.Item>
-                ))}
-              </SelectMenu.Group>
-            </SelectMenu>
-          </div> */}
         </div>
 
         <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <Modal.Button asChild className={styles.btn}>
-            <PrimaryButton onClick={() => setIsCreateOpen(true)}>
-              {t("button")}
+          <Modal.Button asChild className={styles.modalTrigger}>
+            <PrimaryButton
+              className={styles.primaryBtn}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <p className={styles.btnTextDesktop}>{t("button")}</p>
+              <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
           </Modal.Button>
           <Modal.Content title={t("formContent.title")}>
