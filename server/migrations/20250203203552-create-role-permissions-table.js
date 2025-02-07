@@ -13,20 +13,10 @@ module.exports = {
       role_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: "Roles",
-          key: "id",
-        },
-        onDelete: "CASCADE",
       },
       permission_id: {
         type: Sequelize.BIGINT,
         allowNull: false,
-        references: {
-          model: "Permissions",
-          key: "id",
-        },
-        onDelete: "CASCADE",
       },
       created_at: {
         type: Sequelize.DATE,
@@ -41,13 +31,41 @@ module.exports = {
     });
 
     await queryInterface.addConstraint("RolePermissions", {
+      fields: ["role_id"],
+      type: "foreign key",
+      name: "fk_rolepermissions_role_id",
+      references: {
+        table: "Roles",
+        field: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    });
+
+    await queryInterface.addConstraint("RolePermissions", {
+      fields: ["permission_id"],
+      type: "foreign key",
+      name: "fk_rolepermissions_permission_id",
+      references: {
+        table: "Permissions",
+        field: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    });
+
+    await queryInterface.addConstraint("RolePermissions", {
       fields: ["role_id", "permission_id"],
       type: "unique",
       name: "unique_role_permission",
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeConstraint("RolePermissions", "fk_rolepermissions_role_id");
+    await queryInterface.removeConstraint("RolePermissions", "fk_rolepermissions_permission_id");
+    await queryInterface.removeConstraint("RolePermissions", "unique_role_permission");
+
     await queryInterface.dropTable("RolePermissions");
   }
 };

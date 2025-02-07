@@ -10,7 +10,10 @@ module.exports = {
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeConstraint("UserRoles", "UserRoles_ibfk_1");
+    await queryInterface.removeConstraint("UserRoles", "UserRoles_ibfk_2");
+
     await queryInterface.removeConstraint("UserRoles", "unique_user_role");
   }
 };
