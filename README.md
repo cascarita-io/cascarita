@@ -68,6 +68,12 @@ After this is finished make sure to stop any local `mysql` processes with:
 brew services stop mysql
 ```
 
+## Docker Permissions
+
+In order for us to have hot-reloads for frontend and backend changes with our docker containers, you need to grant Docker Desktop the following permissions by going to `Docker Settings -> Resources -> File Sharing` and add the paths to your `client` and `server` directories.
+
+![Docker Permissions](./assets/docker-permissions.png)
+
 ## Other commands
 
 - `make database` to run the latest migrations
@@ -75,7 +81,8 @@ brew services stop mysql
 - `make build` to build new containers as needed
 - `make test` will run backend related tests using jest
 
-###  License
+### License
+
 Copyright (c) 2025 Cascarita.io
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use the Software for personal or academic purposes only, subject to the following conditions:
