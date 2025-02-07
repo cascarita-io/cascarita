@@ -11,7 +11,7 @@ module.exports = {
         primaryKey: true,
       },
       role_id: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: "Roles",
