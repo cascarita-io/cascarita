@@ -23,7 +23,7 @@ const NewForm = () => {
   const location = useLocation();
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
   const [formId, setFormId] = useState<string | null>(
-    (location.state?.id as string) ?? null,
+    (location.state?.id as string) ?? null
   );
   const defaultItems = fields
     ? fields.map((field) => ({
@@ -33,10 +33,10 @@ const NewForm = () => {
     : [];
   const [droppedItems, setDroppedItems] = useState<DroppedItem[]>(defaultItems);
   const [description, setDescription] = useState(
-    location.state?.description ?? "",
+    location.state?.description ?? ""
   );
   const [title, setTitle] = useState(
-    location.state?.title ?? t("formTitlePlaceHolder"),
+    location.state?.title ?? t("formTitlePlaceHolder")
   );
   const [formLink, setFormLink] = useState(location.state?.link ?? null);
   const canvasRef = useRef<DNDCanvasRef>(null);
@@ -54,11 +54,11 @@ const NewForm = () => {
   const draggableButtons = [
     "Short Text",
     "Long Text",
-    "Dropdown",
     "Multiple Choice",
     "Email",
     "Phone Number",
     "Payment",
+    "Player",
   ];
 
   const handleDrop = (label: FieldType) => {
@@ -100,7 +100,7 @@ const NewForm = () => {
       title,
       description,
       currentUser?.group_id,
-      currentUser?.id,
+      currentUser?.id
     );
     setFormLink(`${window.location.origin}/forms/${response._id}`);
     setFormId(response._id);
@@ -117,7 +117,7 @@ const NewForm = () => {
       formId,
       title,
       description,
-      currentUser,
+      currentUser
     );
     setFields(response.fields);
   };
@@ -133,13 +133,15 @@ const NewForm = () => {
             <button
               type="button"
               onClick={handleCancel}
-              className={styles.cancelButton}>
+              className={styles.cancelButton}
+            >
               {t("cancelButton")}
             </button>
             <button
               type="button"
               onClick={handleSubmit}
-              className={styles.submitButton}>
+              className={styles.submitButton}
+            >
               {formId == null ? t("createButton") : t("saveButton")}
             </button>
             {formLink && (
@@ -158,7 +160,8 @@ const NewForm = () => {
                 ? styles.activeSection
                 : styles.questionsNav
             }
-            onClick={() => setActiveSection("questions")}>
+            onClick={() => setActiveSection("questions")}
+          >
             {t("formNavOptions.questions")}
           </li>
           {formId != null && (
@@ -168,7 +171,8 @@ const NewForm = () => {
                   ? styles.activeSection
                   : styles.responsesNav
               }
-              onClick={() => setActiveSection("responses")}>
+              onClick={() => setActiveSection("responses")}
+            >
               {t("formNavOptions.responses")}
             </li>
           )}

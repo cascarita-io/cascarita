@@ -8,7 +8,8 @@ export type FieldType =
   | "dropdown"
   | "email"
   | "phone_number"
-  | "payment";
+  | "payment"
+  | "player";
 
 export interface Validation {
   max_length?: number;
