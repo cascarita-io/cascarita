@@ -3,7 +3,7 @@ import { Text } from "@radix-ui/themes";
 import { Avatar } from "@radix-ui/themes";
 import { useAuth0 } from "@auth0/auth0-react";
 import LanguagePreferenceButton from "../LanguagePreferenceButton/LanguagePreferenceButton";
-import cascaritaDefault from "../../assets/Logos/CascaritaLogo/cascarita_default.svg";
+import CascaritaDefault from "../../assets/Logos/CascaritaLogo/CascaritaDefault";
 
 const Header = () => {
   const { user } = useAuth0();
@@ -11,7 +11,7 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.logoContainer}>
-        <img src={cascaritaDefault} alt="Cascarita Logo" />
+        <CascaritaDefault />
 
         <span className={styles.logoText}>
           <Text>cascarita</Text>

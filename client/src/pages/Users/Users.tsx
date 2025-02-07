@@ -11,6 +11,7 @@ import { fetchUser, getUsersByGroupId } from "../../api/users/service";
 // import { useAuth } from "../../components/AuthContext/AuthContext";
 import Page from "../../components/Page/Page";
 import styles from "./Users.module.css";
+import pagesStyles from "../pages.module.css";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import { User } from "./types";
@@ -20,6 +21,7 @@ import Modal from "../../components/Modal/Modal";
 import UserForm from "../../components/Forms/UserForm/UserForm";
 import { useAuth0 } from "@auth0/auth0-react";
 import Cookies from "js-cookie";
+import { FaPlus } from "react-icons/fa";
 
 const mapRoles = (role_id: number) => {
   switch (role_id) {
@@ -114,7 +116,25 @@ const Users = () => {
         <div className={styles.dropdown}>
           <Search onSearchChange={setSearchQuery} />
         </div>
-        <PrimaryButton onClick={handleAddUser}>{t("addUser")}</PrimaryButton>
+        <Modal open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+          <Modal.Button asChild className={pagesStyles.modalTrigger}>
+            <PrimaryButton
+              className={pagesStyles.primaryBtn}
+              onClick={handleAddUser}
+            >
+              <p className={pagesStyles.btnTextDesktop}>{t("addUser")}</p>
+              <FaPlus className={pagesStyles.btnTextMobile} />
+            </PrimaryButton>
+          </Modal.Button>
+          <Modal.Content title="Add User">
+            <UserForm
+              afterSave={() => setIsAddUserOpen(false)}
+              requestType="POST"
+              selectedUserId={selectedUser?.id}
+              parentUserGroupId={groupId}
+            />
+          </Modal.Content>
+        </Modal>
       </div>
 
       {filteredUsers == null || filteredUsers.length == 0 ? (
@@ -178,16 +198,6 @@ const Users = () => {
         </DashboardTable>
       )}
 
-      <Modal open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-        <Modal.Content title="Add User">
-          <UserForm
-            afterSave={() => setIsAddUserOpen(false)}
-            requestType="POST"
-            selectedUserId={selectedUser?.id}
-            parentUserGroupId={groupId}
-          />
-        </Modal.Content>
-      </Modal>
       <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
         <Modal.Content
           title={`Edit ${selectedUser ? formatName(selectedUser) : ""}`}

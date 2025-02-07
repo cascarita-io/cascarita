@@ -5,6 +5,7 @@ import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenu
 import { useEffect, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import styles from "./Forms.module.css";
+import pagesStyles from "../pages.module.css";
 import ShareButton from "../../components/ShareButton/ShareButton";
 import { useNavigate } from "react-router-dom";
 import { Form } from "./types";
@@ -20,6 +21,7 @@ import React from "react";
 import ShareForm from "../../components/Forms/ShareForm/ShareForm";
 import Cookies from "js-cookie";
 import { fetchUser } from "../../api/users/service";
+import { FaPlus } from "react-icons/fa";
 
 interface ShareModalProps {
   formLink: string;
@@ -108,7 +110,7 @@ const Forms = () => {
 
   const filteredData = forms
     ?.filter((form: Form) =>
-      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase()),
+      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase())
     )
     ?.sort((a: Form, b: Form) => {
       if (sorts === t("sortOptions.item1")) {
@@ -144,8 +146,12 @@ const Forms = () => {
             </SelectMenu>
           </div>
         </div>
-        <PrimaryButton onClick={handleNewFormClick}>
-          {t("button")}
+        <PrimaryButton
+          className={pagesStyles.primaryBtn}
+          onClick={handleNewFormClick}
+        >
+          <p className={pagesStyles.btnTextDesktop}>{t("button")}</p>
+          <FaPlus className={pagesStyles.btnTextMobile} />
         </PrimaryButton>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
@@ -176,7 +182,7 @@ const Forms = () => {
                 <button
                   onClick={() =>
                     handleShareClick(
-                      `${window.location.origin}/forms/${form._id}`,
+                      `${window.location.origin}/forms/${form._id}`
                     )
                   }
                 >
