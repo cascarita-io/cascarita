@@ -49,6 +49,7 @@ const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
     <nav className={styles.navbar}>
       <div className={styles.navbarTop}>
         <CascaritaLogo width={180} height={80} />
+
         <ul className={styles.navbarList}>
           <NavItem
             icon={<RiHomeLine />}
