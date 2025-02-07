@@ -1,54 +1,42 @@
-.content {
-  display: flex;
-  align-items: center; /* Center items vertically */
-}
-
-.li {
-  margin-bottom: 16px;
-}
-
-.icon {
-  margin-right: 8px; /* Adjust margin between icon and button */
-}
-
+/* Mobile Styles */
 .icon-selected {
-  margin-right: 8px; /* Adjust margin between icon and button */
-  color: #8308ae;
-}
-
-.label {
-  margin-left: 12px; /* Adjust margin between icon and label */
+  color: #170cb4;
 }
 
 .label-selected {
-  margin-left: 12px; /* Adjust margin between icon and button */
-  color: #8308ae;
+  color: #170cb4;
 }
 
 .button-selected {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px; /* Adjust padding as needed */
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  outline: none;
-  width: 190px; /* Set a fixed width for the buttons */
-  background-color: #f4f7fb;
+  background-color: transparent;
 }
 
 .button {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px; /* Adjust padding as needed */
   border: none;
-  border-radius: 8px;
   cursor: pointer;
-  outline: none;
-  width: 190px; /* Set a fixed width for the buttons */
 }
 
-/* Hover effect for the buttons */
-.button:hover {
-  background-color: #f4f7fb; /* You can change the hover button background color */
+.button:hover,
+.button:focus {
+  border: 1px solid #170cb4;
+}
+
+/* Desktop Styles */
+@media screen and (min-width: 769px) {
+  .icon-selected {
+    color: #ffffff;
+  }
+
+  .label-selected {
+    color: #ffffff;
+  }
+
+  .button-selected {
+    background-color: #d0d0d026;
+  }
+
+  .button:hover,
+  .button:focus {
+    background-color: #f4f7fb;
+  }
 }

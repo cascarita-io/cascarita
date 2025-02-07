@@ -1,17 +1,92 @@
-/* SideNav.module.css */
+/* Mobile Styles*/
+.navbar {
+  width: 100%;
+}
 
-/* Style for the side navigation bar */
-.sidenav {
-  font-family: "Poppins";
-  font-weight: 500;
-  height: 100%;
-  width: 210px;
-  margin-top: 80px;
+.navbar > h3 {
+  display: none;
+}
+
+.navbarList {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 30px 10px;
   position: fixed;
+  bottom: 0;
+  width: 100%;
   background-color: #fff;
-  top: 0;
-  left: 0;
-  padding-top: 20px;
-  padding-left: 10px;
-  padding-right: 10px;
+  z-index: 1000;
+}
+
+.navbarListItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.navbar img {
+  display: none;
+}
+
+.logoutButton {
+  display: none;
+}
+
+/* Desktop Styles*/
+
+@media screen and (min-width: 769px) {
+  .navbar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    order: -1;
+    background: linear-gradient(#170cb4, #830aaf);
+    padding: 17px 15px;
+  }
+
+  .navbarTop {
+    display: flex;
+    flex-direction: column;
+    gap: 55px;
+  }
+
+  .navbarBottom {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .navbar img {
+    display: block;
+    width: 170px;
+    padding-left: 8px;
+  }
+
+  .navbar > h3 {
+    display: block;
+    font-size: 2rem;
+  }
+
+  .navbarList {
+    flex-direction: column;
+    gap: 24px;
+    padding: 0;
+    position: static;
+    background-color: transparent;
+  }
+
+  .navbarListItem {
+    flex-direction: row;
+    gap: 14px;
+    align-items: center;
+    color: white;
+    padding: 12px 0 12px 8px;
+    width: 100%;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+
+  .logoutButton {
+    display: flex;
+  }
 }

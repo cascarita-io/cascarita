@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styles from "./Division.module.css";
+import styles from "../pages.module.css";
 import { useParams, Link, useLocation, Outlet } from "react-router-dom";
 // import { useTranslation } from "react-i18next";
 import { DivisionType } from "./types";
@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getDivisionsBySeasonId } from "../../api/divisions/service";
 import DivisionForm from "../../components/Forms/DivisionForm/DivisionForm";
 import { useTranslation } from "react-i18next";
+import { FaPlus } from "react-icons/fa";
 
 const Divisions = () => {
   const { t } = useTranslation("Divisions");
@@ -74,9 +75,7 @@ const Divisions = () => {
   }
 
   return (
-    <Page>
-      <h1 className={styles.h1}>{seasonName}</h1>
-
+    <Page title={seasonName}>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>
           <Search onSearchChange={setSearchQuery} />
@@ -117,9 +116,13 @@ const Divisions = () => {
         </div>
 
         <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <Modal.Button asChild className={styles.btn}>
-            <PrimaryButton onClick={() => setIsCreateOpen(true)}>
-              {t("addButton")}
+          <Modal.Button asChild className={styles.modalTrigger}>
+            <PrimaryButton
+              className={styles.primaryBtn}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <p className={styles.btnTextDesktop}>{t("addButton")}</p>
+              <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
           </Modal.Button>
           <Modal.Content title={t("formContent.title")}>
@@ -137,7 +140,8 @@ const Divisions = () => {
       ) : (
         <DashboardTable
           headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
-          headerColor="light">
+          headerColor="light"
+        >
           {isLoading ? (
             <tr>
               <td>{t("loading")}</td>
@@ -151,14 +155,16 @@ const Divisions = () => {
               <tr key={idx} className={styles.tableRow}>
                 <td className={styles.tableData}>
                   <Link
-                    to={`teams/seasons/${seasonIdNumber}/division/${division.id}/${division.name}`}>
+                    to={`teams/seasons/${seasonIdNumber}/division/${division.id}/${division.name}`}
+                  >
                     {division.name}
                   </Link>
                 </td>
                 <td>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      onClick={() => handleEdit(division.name, division.id)}>
+                      onClick={() => handleEdit(division.name, division.id)}
+                    >
                       {t("edit")}
                     </DropdownMenuButton.Item>
 
@@ -167,7 +173,8 @@ const Divisions = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => handleDelete(division.name, division.id)}>
+                      onClick={() => handleDelete(division.name, division.id)}
+                    >
                       {t("delete")}
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>

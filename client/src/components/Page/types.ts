@@ -1,4 +1,4 @@
-export interface PageProps {
+export interface DashboardProps {
   children: React.ReactNode;
   title?: string;
 }

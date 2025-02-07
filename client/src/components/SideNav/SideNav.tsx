@@ -11,6 +11,7 @@ import NavItem from "../NavItem/NavItem";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import CascaritaLogo from "../../assets/Logos/CascaritaLogo/CascaritaLogo";
 
 const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
   const navigate = useNavigate();
@@ -45,23 +46,28 @@ const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
   };
 
   return (
-    <nav className={styles.sidenav}>
-      <ul>
-        <NavItem
-          icon={<RiHomeLine />}
-          label={t("item1")}
-          labelType="item1"
-          selected={selectedItem === "" || selectedItem.includes("season")}
-          onItemClick={handleItemClick}
-        />
-        <NavItem
-          icon={<FiUser />}
-          label={t("item2")}
-          labelType="item2"
-          selected={selectedItem === "users"}
-          onItemClick={handleItemClick}
-        />
-        {/* NOTE: UNCOMMENT ONCE SCHEDULING ADDED
+    <nav className={styles.navbar}>
+      <div className={styles.navbarTop}>
+        <CascaritaLogo width={180} height={80} />
+
+        <ul className={styles.navbarList}>
+          <NavItem
+            icon={<RiHomeLine />}
+            label={t("item1")}
+            labelType="item1"
+            selected={selectedItem === "" || selectedItem.includes("season")}
+            onItemClick={handleItemClick}
+            className={styles.navbarListItem}
+          />
+          <NavItem
+            icon={<FiUser />}
+            label={t("item2")}
+            labelType="item2"
+            selected={selectedItem === "users"}
+            onItemClick={handleItemClick}
+            className={styles.navbarListItem}
+          />
+          {/* NOTE: UNCOMMENT ONCE SCHEDULING ADDED
           <NavItem
           icon={<MdOutlineCalendarToday />}
           label={t("item3")}
@@ -69,23 +75,31 @@ const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
           selected={selectedItem === "schedule"}
           onItemClick={handleItemClick}
         /> */}
-        <NavItem
-          icon={<HiOutlinePencilAlt />}
-          label={t("item4")}
-          labelType="item4"
-          selected={selectedItem.includes("forms")}
-          onItemClick={handleItemClick}
+          <NavItem
+            icon={<HiOutlinePencilAlt />}
+            label={t("item4")}
+            labelType="item4"
+            selected={selectedItem.includes("forms")}
+            onItemClick={handleItemClick}
+            className={styles.navbarListItem}
+          />
+          <NavItem
+            icon={<IoSettingsOutline />}
+            label={t("item5")}
+            labelType="item5"
+            selected={selectedItem.includes("settings")}
+            onItemClick={handleItemClick}
+            className={styles.navbarListItem}
+          />
+        </ul>
+      </div>
+
+      <div className={styles.navbarBotton}>
+        <LogoutButton
+          className={`${styles.logoutButton} ${styles.navbarListItem} `}
+          icon={<TbLogout />}
+          label={t("item6")}
         />
-        <NavItem
-          icon={<IoSettingsOutline />}
-          label={t("item5")}
-          labelType="item5"
-          selected={selectedItem.includes("settings")}
-          onItemClick={handleItemClick}
-        />
-      </ul>
-      <div>
-        <LogoutButton icon={<TbLogout />} label={t("item6")} />
       </div>
     </nav>
   );
