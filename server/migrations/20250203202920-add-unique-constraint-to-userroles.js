@@ -15,5 +15,29 @@ module.exports = {
     await queryInterface.removeConstraint("UserRoles", "UserRoles_ibfk_2");
 
     await queryInterface.removeConstraint("UserRoles", "unique_user_role");
+
+    await queryInterface.addConstraint("UserRoles", {
+      fields: ["user_id"],
+      type: "foreign key",
+      name: "UserRoles_ibfk_1",
+      references: {
+        table: "Permissions",
+        field: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    });
+
+    await queryInterface.addConstraint("UserRoles", {
+      fields: ["role_id"],
+      type: "foreign key",
+      name: "UserRoles_ibfk_2",
+      references: {
+        table: "Permissions",
+        field: "id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    });
   }
 };
