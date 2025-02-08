@@ -11,7 +11,7 @@ import NavItem from "../NavItem/NavItem";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import cascaritaLogo from "../../assets/Logos/CascaritaLogo/cascarita_logo_white.svg";
+import CascaritaLogo from "../../assets/Logos/CascaritaLogo/CascaritaLogo";
 
 const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbarTop}>
-        <img src={cascaritaLogo} alt="" />
+        <CascaritaLogo width={180} height={80} />
 
         <ul className={styles.navbarList}>
           <NavItem

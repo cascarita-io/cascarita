@@ -10,8 +10,12 @@
 .navbarList {
   display: flex;
   justify-content: space-between;
-  list-style-type: none;
-  padding: 20px 30px 10px 30px;
+  padding: 20px 30px 10px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #fff;
+  z-index: 1000;
 }
 
 .navbarListItem {
@@ -67,6 +71,8 @@
     flex-direction: column;
     gap: 24px;
     padding: 0;
+    position: static;
+    background-color: transparent;
   }
 
   .navbarListItem {

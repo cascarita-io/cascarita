@@ -1,7 +1,7 @@
 /* Mobile Styles */
 .page {
   position: relative;
-  padding: 30px 21px;
+  padding: 24px 12px 8px 18px;
 }
 
 .title {
@@ -14,6 +14,7 @@
 @media screen and (min-width: 769px) {
   .page {
     padding: 32px;
+    padding-right: 18px;
   }
 
   .title {
