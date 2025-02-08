@@ -1,19 +1,25 @@
+/* Mobile Styles */
 .page {
-  background-color: #fff;
-  width: -webkit-fill-available;
-  width: -moz-available;
-  margin-right: 35px;
-  border-radius: 6px;
-  height: 87dvh;
-  margin-bottom: 35px;
-  position: fixed;
-  padding: 30px;
-  overflow: hidden;
+  position: relative;
+  padding: 30px 21px;
 }
 
 .title {
-  font-size: 2.25rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  position: relative;
   margin-bottom: 16px;
+}
+
+/* Desktop Styles */
+@media screen and (min-width: 769px) {
+  .page {
+    padding: 32px;
+  }
+
+  .title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    position: relative;
+    margin-bottom: 16px;
+  }
 }

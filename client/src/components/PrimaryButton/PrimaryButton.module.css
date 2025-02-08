@@ -1,10 +1,6 @@
 .primary {
   background-color: #4238d5;
   color: #fff;
-  border-radius: 20px;
-  text-align: center;
-  padding: 10px;
-  min-width: 150px;
 }
 
 .primary:active {

@@ -133,13 +133,15 @@ const NewForm = () => {
             <button
               type="button"
               onClick={handleCancel}
-              className={styles.cancelButton}>
+              className={styles.cancelButton}
+            >
               {t("cancelButton")}
             </button>
             <button
               type="button"
               onClick={handleSubmit}
-              className={styles.submitButton}>
+              className={styles.submitButton}
+            >
               {formId == null ? t("createButton") : t("saveButton")}
             </button>
             {formLink && (
@@ -158,7 +160,8 @@ const NewForm = () => {
                 ? styles.activeSection
                 : styles.questionsNav
             }
-            onClick={() => setActiveSection("questions")}>
+            onClick={() => setActiveSection("questions")}
+          >
             {t("formNavOptions.questions")}
           </li>
           {formId != null && (
@@ -168,7 +171,8 @@ const NewForm = () => {
                   ? styles.activeSection
                   : styles.responsesNav
               }
-              onClick={() => setActiveSection("responses")}>
+              onClick={() => setActiveSection("responses")}
+            >
               {t("formNavOptions.responses")}
             </li>
           )}

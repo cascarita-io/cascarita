@@ -8,24 +8,23 @@ const NavItem: React.FC<NavButtonProps> = ({
   labelType,
   selected,
   onItemClick,
+  className,
 }) => {
   const handleClick = () => {
     onItemClick(labelType);
   };
 
   return (
-    <li className={styles.li}>
+    <li>
       <Button
         onClick={handleClick}
         variant="soft"
-        className={selected ? styles["button-selected"] : styles.button}
+        className={
+          selected ? `${styles["button-selected"]} ${className}` : className
+        }
       >
-        <span className={selected ? styles["icon-selected"] : styles.icon}>
-          {icon}
-        </span>
-        <span className={selected ? styles["label-selected"] : styles.label}>
-          {label}
-        </span>
+        <span className={selected && styles["icon-selected"]}>{icon}</span>
+        <span className={selected && styles["label-selected"]}>{label}</span>
       </Button>
     </li>
   );

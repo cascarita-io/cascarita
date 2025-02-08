@@ -1,26 +1,5 @@
 .button {
-  position: fixed;
-  bottom: 0;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-  padding: 8px 16px; /* Adjust padding as needed */
   border: none;
-  border-radius: 8px;
   cursor: pointer;
   outline: none;
-  width: 190px; /* Set a fixed width for the buttons */
-}
-
-/* Hover effect for the buttons */
-.button:hover {
-  background-color: #f4f7fb; /* You can change the hover button background color */
-}
-
-.icon {
-  margin-right: 8px; /* Adjust margin between icon and button */
-}
-
-.label {
-  margin-left: 12px; /* Adjust margin between icon and label */
 }
