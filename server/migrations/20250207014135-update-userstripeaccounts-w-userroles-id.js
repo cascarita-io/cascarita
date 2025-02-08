@@ -42,59 +42,54 @@ module.exports = {
         { transaction },
       );
 
-      // If we have existing accounts, we need to preserve the relationships
-      if (stripeAccounts[0].length > 0) {
-        const userRoles = await queryInterface.sequelize.query(
-          `SELECT id, user_id FROM "UserRoles" WHERE id IN (?)`,
+      let accountsArr = stripeAccounts[0];
+      const hasStripeAccounts = accountsArr.length > 0;
+
+      await queryInterface.addColumn(
+        "UserStripeAccounts",
+        "user_id",
+        {
+          allowNull: hasStripeAccounts,
+          type: Sequelize.INTEGER,
+          references: {
+            model: "Users",
+            key: "id",
+          },
+          onUpdate: "CASCADE",
+          onDelete: "CASCADE",
+        },
+        { transaction },
+      );
+
+      if (hasStripeAccounts) {
+        const userRoleIds = accountsArr.map((act) => act.user_role_id);
+
+        const users = await queryInterface.sequelize.query(
+          `SELECT id, user_id FROM UserRoles WHERE id IN (:userRoleIds)`,
           {
-            replacements: [
-              stripeAccounts[0].map((account) => account.user_role_id),
-            ],
+            replacements: { userRoleIds },
             transaction,
           },
         );
 
-        const roleToUserMapping = userRoles[0].reduce((acc, role) => {
-          acc[role.id] = role.user_id;
-          return acc;
+        const userRoleMap = users[0].reduce((map, user) => {
+          map[user.id] = user.user_id;
+          return map;
         }, {});
 
-        await queryInterface.addColumn(
-          "UserStripeAccounts",
-          "user_id",
-          {
-            type: Sequelize.INTEGER,
-            allowNull: true,
-          },
-          { transaction },
-        );
+        accountsArr.forEach((account) => {
+          account.user_id = userRoleMap[account.user_role_id];
+        });
 
-        for (const account of stripeAccounts[0]) {
-          const userId = roleToUserMapping[account.user_role_id];
-          if (!userId) {
-            throw new Error(
-              `No user_id found for user_role_id: ${account.user_role_id}. ` +
-                `This could mean the UserRole was deleted. ` +
-                `Migration cannot proceed safely.`,
-            );
-          }
-
+        for (const account of accountsArr) {
           await queryInterface.sequelize.query(
             `UPDATE "UserStripeAccounts" SET user_id = ? WHERE id = ?`,
             {
-              replacements: [userId, account.id],
+              replacements: [account.user_id, account.id],
               transaction,
             },
           );
         }
-
-        await queryInterface.removeColumn(
-          "UserStripeAccounts",
-          "user_role_id",
-          {
-            transaction,
-          },
-        );
 
         await queryInterface.changeColumn(
           "UserStripeAccounts",
@@ -111,32 +106,11 @@ module.exports = {
           },
           { transaction },
         );
-      } else {
-        // If no data exists, we can do a simple rollback
-        await queryInterface.removeColumn(
-          "UserStripeAccounts",
-          "user_role_id",
-          {
-            transaction,
-          },
-        );
-
-        await queryInterface.addColumn(
-          "UserStripeAccounts",
-          "user_id",
-          {
-            allowNull: false,
-            type: Sequelize.INTEGER,
-            references: {
-              model: "Users",
-              key: "id",
-            },
-            onUpdate: "CASCADE",
-            onDelete: "CASCADE",
-          },
-          { transaction },
-        );
       }
+
+      await queryInterface.removeColumn("UserStripeAccounts", "user_role_id", {
+        transaction,
+      });
 
       await transaction.commit();
     } catch (error) {
