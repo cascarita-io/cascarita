@@ -16,5 +16,7 @@ module.exports = (checkJwt) => {
     AccountController.getClientSecret,
   );
 
+  router.get("/:group_id", AccountController.getAllAccountsByGroupId);
+  router.get("/key/publishable", AccountController.getPublishableKey);
   return router;
 };
