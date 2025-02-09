@@ -38,7 +38,7 @@ module.exports = {
 
     try {
       const stripeAccounts = await queryInterface.sequelize.query(
-        `SELECT id, user_role_id FROM UserStripeAccounts`,
+        `SELECT id, user_role_id FROM \`UserStripeAccounts\``,
         { transaction },
       );
 
@@ -65,7 +65,7 @@ module.exports = {
         const userRoleIds = accountsArr.map((act) => act.user_role_id);
 
         const users = await queryInterface.sequelize.query(
-          `SELECT id, user_id FROM UserRoles WHERE id IN (:userRoleIds)`,
+          `SELECT id, user_id FROM \`UserRoles\` WHERE id IN (:userRoleIds)`,
           {
             replacements: { userRoleIds },
             transaction,
@@ -83,7 +83,7 @@ module.exports = {
 
         for (const account of accountsArr) {
           await queryInterface.sequelize.query(
-            `UPDATE "UserStripeAccounts" SET user_id = ? WHERE id = ?`,
+            `UPDATE \`UserStripeAccounts\` SET user_id = ? WHERE id = ?`,
             {
               replacements: [account.user_id, account.id],
               transaction,
