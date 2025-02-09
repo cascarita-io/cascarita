@@ -48,8 +48,8 @@ const DNDCanvas = forwardRef(
       long_text: DraggableLongText,
       email: DraggableEmail,
       phone_number: DraggablePhoneNumber,
-      payment: DraggablePayment,
       player: DraggablePlayer,
+      payment: DraggablePayment,
     };
 
     const appendField = (item: DroppedItem) => {
@@ -99,6 +99,14 @@ const DNDCanvas = forwardRef(
           validations: { required: false },
           type: item.type,
         },
+        player: {
+          title: "",
+          id: item.id,
+          ref: item.id,
+          properties: { default_country_code: "US" },
+          validations: { required: false },
+          type: item.type,
+        },
         payment: {
           title: "",
           id: item.id,
@@ -114,14 +122,6 @@ const DNDCanvas = forwardRef(
             stripe_account: { id: "", stripe_account_id: "" },
             description: "",
           },
-          validations: { required: false },
-          type: item.type,
-        },
-        player: {
-          title: "",
-          id: item.id,
-          ref: item.id,
-          properties: { default_country_code: "US" },
           validations: { required: false },
           type: item.type,
         },

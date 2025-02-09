@@ -57,8 +57,8 @@ const NewForm = () => {
     "Multiple Choice",
     "Email",
     "Phone Number",
-    "Payment",
     "Player",
+    "Payment",
   ];
 
   const handleDrop = (label: FieldType) => {
