@@ -30,7 +30,6 @@ const iconMapping: { [key: string]: IconType } = {
 };
 
 const DraggableButton: React.FC<DraggableButtonProps> = ({ label, onDrop }) => {
-  console.log("label", label);
   const { t } = useTranslation("DraggableButtons");
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
 

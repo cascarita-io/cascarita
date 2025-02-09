@@ -7,6 +7,18 @@ import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
 import Switch from "react-switch";
 // import { useTranslation } from "react-i18next";
 import { DraggableProps } from "../types";
+import { getLeagueByGroupId } from "../../../api/leagues/service";
+import { getSeasonsByLeagueId } from "../../../api/seasons/services";
+import { useAuth0 } from "@auth0/auth0-react";
+import { fetchUser } from "../../../api/users/service";
+import { User } from "../../../api/users/types";
+import Cookies from "js-cookie";
+import { LeagueType } from "../../../pages/Leagues/types";
+import { SeasonType } from "../../../pages/Seasons/types";
+import { getDivisionsBySeasonId } from "../../../api/divisions/service";
+import { DivisionType } from "../../../pages/Division/types";
+import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
+import { TeamType } from "../../../pages/Teams/types";
 
 const DraggablePlayer: React.FC<DraggableProps> = ({
   index,
@@ -15,6 +27,100 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   onCopy,
 }) => {
   //   const { t } = useTranslation("DraggableFields");
+  const { getAccessTokenSilently } = useAuth0();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [leagues, setLeagues] = useState<LeagueType[]>([]);
+  const [seasons, setSeasons] = useState<SeasonType[]>([]);
+  const [divisions, setDivisions] = useState<DivisionType[]>([]);
+  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
+  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
+  const [divisionsToTeamsMap, setDivisionsToTeamsMap] = useState<
+    Map<string, string[]>
+  >(new Map());
+
+  useEffect(() => {
+    if (currentUser !== null) {
+      const fetchLeagues = async () => {
+        const leaguesData = await getLeagueByGroupId({
+          queryKey: ["league", currentUser.group_id],
+          signal: new AbortController().signal,
+          meta: undefined,
+        });
+        setLeagues([...leagues, ...leaguesData]);
+      };
+      fetchLeagues();
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (selectedLeague !== null) {
+      const fetchSeasons = async () => {
+        const seasonsData = await Promise.all(
+          leagues.map(async (league) => {
+            const leagueId = league.id as number;
+            const seasons = await getSeasonsByLeagueId({
+              queryKey: ["season", leagueId],
+              signal: new AbortController().signal,
+              meta: undefined,
+            });
+            return seasons;
+          })
+        );
+        const allSeasons = seasonsData.flat();
+        setSeasons(allSeasons);
+      };
+      fetchSeasons();
+      setSelectedSeason(null);
+      setDivisionsToTeamsMap(new Map());
+    }
+  }, [selectedLeague]);
+
+  useEffect(() => {
+    if (selectedSeason !== null) {
+      const seasonId = Number(selectedSeason.split(".")[1]);
+      const fetchDivisions = async () => {
+        const divisionData = await getDivisionsBySeasonId({
+          queryKey: ["division", seasonId],
+          signal: new AbortController().signal,
+          meta: undefined,
+        });
+        setDivisions([...divisions, ...divisionData]);
+        setDivisionsToTeamsMap(new Map());
+      };
+      fetchDivisions();
+    }
+  }, [selectedSeason]);
+
+  useEffect(() => {
+    if (divisions.length > 0 && selectedSeason !== null) {
+      const seasonId = Number(selectedSeason.split(".")[1]);
+      const fetchTeams = async () => {
+        const teamsData = await Promise.all(
+          divisions.map(async (division) => {
+            const divisionId = division.id as number;
+            const teamsData = await getTeamsBySeasonDivisionId({
+              queryKey: ["team", seasonId, divisionId],
+              signal: new AbortController().signal,
+              meta: undefined,
+            });
+            const teams = teamsData.map((team: TeamType) => team.name);
+            setDivisionsToTeamsMap((prev) => prev.set(division.name, teams));
+            append({ division: division.name, teams: teams });
+          })
+        );
+      };
+      fetchTeams();
+    }
+  }, [divisions, selectedSeason]);
+
+  useEffect(() => {
+    (async () => {
+      const token = await getAccessTokenSilently();
+      const email = Cookies.get("email") || "";
+      const currentUser = await fetchUser(email, token);
+      setCurrentUser(currentUser);
+    })();
+  }, []);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -26,10 +132,8 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `fields.${index}.properties.choices`,
+    name: `fields.${index}.properties.player_block_choices`,
   });
-
-  useEffect(() => {}, [fields]);
 
   return (
     <Draggable draggableId={formField.id} index={index}>
@@ -71,74 +175,63 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
               )}
               <div className={styles.playerContainer}>
                 <p className={styles.title}>Player</p>
-                <Controller
-                  key={index}
-                  name={`fields.${index}.title`}
-                  control={control}
-                  defaultValue={formField.title}
-                  render={({ field }) => (
-                    <>
-                      <div className={styles.playerContainerItem}>
-                        <p className={styles.subtitle}>League: </p>
-                        <Controller
-                          name={`fields.${index}.league`}
-                          control={control}
-                          render={({ field }) => (
-                            <select {...field}>
-                              <option value="">League 1</option>
-                              <option value="">League 2</option>
-                              {/* Add league options here */}
-                            </select>
-                          )}
-                        />
-                      </div>
-                      <div className={styles.playerContainerItem}>
-                        <p className={styles.subtitle}>Season: </p>
-                        <Controller
-                          name={`fields.${index}.season`}
-                          control={control}
-                          render={({ field }) => (
-                            <select {...field}>
-                              <option value="">Season 1</option>
-                              <option value="">Season 2</option>
-                              {/* Add season options here */}
-                            </select>
-                          )}
-                        />
-                      </div>
-                      <Controller
-                        name={`fields.${index}.division`}
-                        control={control}
-                        render={({ field }) => (
-                          <select
-                            {...field}
-                            disabled
-                            className={styles.dropdown}
-                            style={{ display: "none" }}
-                          >
-                            <option value="">Division 1</option>
-                            {/* Add division options here */}
-                          </select>
+
+                <div className={styles.playerContainerItem}>
+                  <p className={styles.subtitle}>League: </p>
+                  <Controller
+                    name={`fields.${index}.league`}
+                    control={control}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        onChange={(e) => {
+                          console.log(e);
+                          field.onChange(e);
+                          setSelectedLeague(e.target.value);
+                        }}
+                      >
+                        {selectedLeague === null && (
+                          <option value="">Select a league</option>
                         )}
-                      />
-                      <Controller
-                        name={`fields.${index}.team`}
-                        control={control}
-                        render={({ field }) => (
-                          <select
-                            {...field}
-                            disabled
-                            className={styles.dropdown}
-                            style={{ display: "none" }}
-                          >
-                            <option value="">Team 1</option>
-                            {/* Add team options here */}
-                          </select>
-                        )}
-                      />
-                    </>
-                  )}
-                />
+                        {leagues.map((league) => (
+                          <option key={league.id} value={league.name}>
+                            {league.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  />
+                </div>
+                {selectedLeague !== null && (
+                  <div className={styles.playerContainerItem}>
+                    <p className={styles.subtitle}>Season: </p>
+                    <Controller
+                      name={`fields.${index}.season`}
+                      control={control}
+                      render={({ field }) => (
+                        <select
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setSelectedSeason(e.target.value);
+                          }}
+                        >
+                          {selectedSeason === null && (
+                            <option value="">Select a season</option>
+                          )}
+                          {seasons.map((season) => (
+                            <option
+                              key={season.id}
+                              value={`${season.name}.${season.id}`}
+                            >
+                              {season.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                  </div>
+                )}
               </div>
               {isMenuOpen && (
                 <DraggableSubMenu

@@ -22,6 +22,11 @@ export interface Label {
   label: string;
 }
 
+export interface PlayerBlockChoices {
+  division: string;
+  teams: string[];
+}
+
 export interface Properties {
   choices?: Label[];
   allow_multiple_selection?: boolean;
@@ -38,6 +43,7 @@ export interface Properties {
     id: string;
     stripe_account_id: string;
   };
+  player_block_choices?: PlayerBlockChoices[];
 }
 
 export interface Field {
@@ -47,6 +53,8 @@ export interface Field {
   validations?: Validation;
   properties?: Properties;
   type: FieldType;
+  season?: string;
+  league?: string;
 }
 
 export interface Form {
