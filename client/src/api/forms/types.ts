@@ -74,8 +74,10 @@ export interface GetFormsParams {
   order_by?: OrderBy | null;
 }
 
+// TODO: ADD MORE EXPLICIT TYPING AS NEEDED
 export type AnswerType =
-  | "text"
+  | "short_text"
+  | "long_text"
   | "number"
   | "date"
   | "choice"
@@ -94,7 +96,8 @@ export interface Answer {
   };
   type: AnswerType;
   number?: number;
-  text?: string;
+  short_text?: string;
+  long_text?: string;
   phone_number?: string;
   email?: string;
   date?: Date;

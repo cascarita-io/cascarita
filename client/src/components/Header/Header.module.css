@@ -1,0 +1,47 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background-color: #fff;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding-left: 20px;
+}
+
+.logoContainer img {
+  width: 45px;
+}
+
+.settingsContainer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-right: 20px;
+}
+
+.settingsBtn {
+  width: 32px;
+  height: 32px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.avatar > img {
+  border-radius: 50%;
+}
+
+/* Styles for Desktop */
+@media screen and (min-width: 769px) {
+  .header {
+    display: none;
+  }
+}

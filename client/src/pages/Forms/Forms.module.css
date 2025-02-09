@@ -35,6 +35,11 @@
 .table {
   overflow: scroll;
   height: 70%;
+  scrollbar-width: none; /* For Firefox */
+}
+
+.table::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }
 
 .cols {

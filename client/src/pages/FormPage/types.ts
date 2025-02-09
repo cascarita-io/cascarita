@@ -57,11 +57,12 @@ export const FieldComponents = {
   player: PlayerBlock,
 };
 
+// TODO: more appropriate mapping for data normalization
 export const AnswerMap = {
   multiple_choice: "choice",
-  short_text: "text",
-  dropdown: "text",
-  long_text: "text",
+  short_text: "short_text",
+  dropdown: "dropdown",
+  long_text: "long_text",
   email: "email",
   phone_number: "phone_number",
   payment: "payment",

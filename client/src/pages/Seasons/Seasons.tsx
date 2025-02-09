@@ -12,8 +12,9 @@ import { useParams, Link, Outlet } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getSeasonsByLeagueId } from "../../api/seasons/services";
 import { SeasonType } from "./types";
-import styles from "../Leagues/Leagues.module.css";
+import styles from "../pages.module.css";
 import { useLocation } from "react-router-dom";
+import { FaPlus } from "react-icons/fa";
 
 const Seasons = () => {
   const { leagueId, leagueName } = useParams<{
@@ -91,29 +92,10 @@ const Seasons = () => {
   }
 
   return (
-    <Page>
-      <h1 className={styles.h1}> {leagueName} </h1>
-
+    <Page title={leagueName}>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>
           <Search onSearchChange={setSearchQuery} />
-          {/* NOTE: WILL UNCOMMENT ONCE ACTIVE STATUS ADDED TO VIEW
-          <div className={styles.filterContainer}>
-            <p className={styles.filterSubTitle}>{t("filter")}</p>
-            <SelectMenu
-              placeholder={t("filterOptions.item1")}
-              name="filter"
-              value={filter}
-              onValueChange={(value) => setFilter(value)}>
-              <SelectMenu.Group>
-                {filterStatuses.map((status, idx) => (
-                  <SelectMenu.Item key={idx} value={status}>
-                    {status}
-                  </SelectMenu.Item>
-                ))}
-              </SelectMenu.Group>
-            </SelectMenu>
-          </div> */}
 
           <div className={styles.filterContainer}>
             <p className={styles.filterSubTitle}>{t("sort")}</p>
@@ -121,7 +103,8 @@ const Seasons = () => {
               placeholder={t("sortOptions.item1")}
               name="sorts"
               value={sorts}
-              onValueChange={(value) => setSorts(value)}>
+              onValueChange={(value) => setSorts(value)}
+            >
               <SelectMenu.Group>
                 {sortStatuses.map((status, idx) => (
                   <SelectMenu.Item key={idx} value={status}>
@@ -134,9 +117,13 @@ const Seasons = () => {
         </div>
 
         <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <Modal.Button asChild>
-            <PrimaryButton onClick={() => setIsCreateOpen(true)}>
-              {t("button")}
+          <Modal.Button asChild className={styles.modalTrigger}>
+            <PrimaryButton
+              className={styles.primaryBtn}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <p className={styles.btnTextDesktop}>{t("button")}</p>
+              <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
           </Modal.Button>
           <Modal.Content title={t("formContent.title")}>
@@ -154,7 +141,8 @@ const Seasons = () => {
       ) : (
         <DashboardTable
           headers={[t("col1"), t("col2"), t("col3"), t("col4")]}
-          headerColor="light">
+          headerColor="light"
+        >
           {isLoading ? (
             <tr>
               <td>{t("loading")}</td>
@@ -180,7 +168,8 @@ const Seasons = () => {
                 <td>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      onClick={() => handleEdit(season.name, season.id)}>
+                      onClick={() => handleEdit(season.name, season.id)}
+                    >
                       {t("edit")}
                     </DropdownMenuButton.Item>
 
@@ -189,7 +178,8 @@ const Seasons = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => handleDelete(season.name, season.id)}>
+                      onClick={() => handleDelete(season.name, season.id)}
+                    >
                       {t("delete")}
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>

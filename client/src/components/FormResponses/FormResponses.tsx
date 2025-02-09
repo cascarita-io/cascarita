@@ -12,7 +12,7 @@ import { Answer, Field } from "../../api/forms/types";
 const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formFields, setFormFields] = useState<Field[]>([]);
   const [formResponsesMap, setFormResponsesMap] = useState<AnswerRecordMap>(
-    new Map(),
+    new Map()
   );
   const { t } = useTranslation("FormResponses");
 
@@ -33,7 +33,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
           result.set(responseId, answersMap);
           return result;
         },
-        new Map(),
+        new Map()
       );
 
       setFormResponsesMap(responsesMap);
@@ -42,7 +42,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
 
   const formatAnswer = (answer: Answer) => {
     const typeFormatters: Record<string, () => string | JSX.Element> = {
-      text: () => answer.text ?? "",
+      short_text: () => answer.short_text ?? "",
+      long_text: () => answer.long_text ?? "",
       number: () => String(answer.number ?? ""),
       email: () => answer.email ?? "",
       phone_number: () => answer.phone_number ?? "",
@@ -79,7 +80,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                 <td key={field.id}>
                   {formResponsesMap.get(responseId)?.get(field.id)?.type &&
                     formatAnswer(
-                      formResponsesMap.get(responseId)?.get(field.id) as Answer,
+                      formResponsesMap.get(responseId)?.get(field.id) as Answer
                     )}
                 </td>
               ))}

@@ -4,4 +4,5 @@ export interface NavButtonProps {
   labelType: string;
   selected: boolean;
   onItemClick: (label: string) => void;
+  className?: string;
 }
