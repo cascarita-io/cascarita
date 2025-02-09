@@ -63,10 +63,10 @@ const FormPage = () => {
       }
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers,
+        normalizedAnswers
       );
       // TODO: Redirect to a success page / thank you page?
-      navigate("/forms");
+      navigate("/forms/thanks");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);
@@ -82,7 +82,8 @@ const FormPage = () => {
           <FormProvider {...methods}>
             <form
               className={styles.formContent}
-              onSubmit={methods.handleSubmit(onSubmit)}>
+              onSubmit={methods.handleSubmit(onSubmit)}
+            >
               <h1 className={styles.title}>{form?.form_data.title}</h1>
               {form.form_data.fields.map((field: Field, index: number) => {
                 const FieldComponent = FieldComponents[field.type];

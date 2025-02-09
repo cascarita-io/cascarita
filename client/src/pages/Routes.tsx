@@ -25,6 +25,7 @@ import {
   DivisionBreadcrumb,
   TeamBreadcrumb,
 } from "../components/BreadCrumb/BreadCrumbComponents";
+import ThankYou from "./ThankYou/ThankYou";
 
 export const useRouter = () =>
   createBrowserRouter(
@@ -36,12 +37,14 @@ export const useRouter = () =>
             <Route
               path="season/:leagueId/:leagueName"
               element={<Seasons />}
-              handle={{ crumb: <SeasonBreadcrumb /> }}>
+              handle={{ crumb: <SeasonBreadcrumb /> }}
+            >
               <Route
                 path="division/:seasonId/:seasonName"
                 element={<Divisions />}
                 id="division"
-                handle={{ crumb: <DivisionBreadcrumb /> }}>
+                handle={{ crumb: <DivisionBreadcrumb /> }}
+              >
                 <Route
                   path="teams/seasons/:seasonId/division/:divisionId/:divisionName"
                   element={<Teams />}
@@ -64,7 +67,8 @@ export const useRouter = () =>
           </Route>
         </Route>
         <Route path="forms/:formId" element={<FormPage />} />
+        <Route path="forms/thanks" element={<ThankYou />} />
         <Route path="login" element={<Login />} />
-      </Route>,
-    ),
+      </Route>
+    )
   );
