@@ -43,11 +43,50 @@
   line-height: 21px;
   border-radius: 21.5px;
 }
+.submitButton:disabled,
+.nextButton:disabled,
+.prevButton:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
 
 .submitButton:hover,
 .submitButton:focus {
   outline: 1px solid blue;
   background-color: #2f26b7;
+}
+
+.nextButton,
+.prevButton {
+  display: block;
+  margin: 0 auto;
+  outline: 1px solid #000;
+  background: transparent;
+  font-family: "DM Sans";
+  width: 117px;
+  height: 43px;
+  font-size: 16px;
+  line-height: 21px;
+  border-radius: 21.5px;
+}
+
+.nextButton:hover,
+.nextButton:focus,
+.prevButton:hover,
+.prevButton:focus {
+  background-color: #f1f1f1;
+  outline: 1px solid black;
+  color: #000;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.progressBarContainer {
+  padding-top: 80px;
 }
 
 @media (max-width: 600px) {

@@ -13,8 +13,8 @@ const ShortText = ({ field, index }: FieldProps) => {
   const { required, max_length: maxLength } = field.validations ?? {};
 
   const fieldError = (
-    errors.answers as { [key: number]: { text?: FieldError } } | undefined
-  )?.[index]?.text;
+    errors.answers as { [key: number]: { short_text?: FieldError } } | undefined
+  )?.[index]?.short_text;
 
   return (
     <section className={styles.container}>
@@ -33,7 +33,7 @@ const ShortText = ({ field, index }: FieldProps) => {
         className={styles.input}
         type="text"
         placeholder={t("shortText.placeholder")}
-        {...register(`answers.${index}.text`, {
+        {...register(`answers.${index}.short_text`, {
           required: required && t("required"),
           maxLength: maxLength && {
             value: maxLength,
