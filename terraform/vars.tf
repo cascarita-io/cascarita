@@ -99,17 +99,32 @@ variable "purpose_tg" {
   default     = "LoadBalancing"
 }
 
-variable "port" {
-  description = "The port exposed load balancer, target group, and container."
+variable "client_port" {
+  description = "The port exposed load balancer, target group, and client container."
   default     = 80
 }
 
-variable "container_name" {
-  description = "The name of the container in the task definition."
+variable "server_port" {
+  description = "The port exposed server container."
+  default     = 3000
+}
+
+variable "client_container" {
+  description = "The name of the container in the task definition for client."
+  default     = "cascarita-client"
+}
+
+variable "server_container" {
+  description = "The name of the container in the task definition for server."
   default     = "cascarita-server"
 }
 
-variable "container_image" {
+variable "client_container_image" {
+  description = "The container image to be used in the task definition."
+  default     = "658488939163.dkr.ecr.us-west-1.amazonaws.com/cascarita-client"
+}
+
+variable "server_container_image" {
   description = "The container image to be used in the task definition."
   default     = "658488939163.dkr.ecr.us-west-1.amazonaws.com/cascarita-server"
 }
@@ -200,7 +215,7 @@ locals {
 variable "acm_certificate_arn" {
   description = "ARN of the ACM certificate for HTTPS"
   type        = string
-  default     = "arn:aws:acm:us-west-1:658488939163:certificate/1a163a09-441d-4700-8127-4c166f8bf87a"
+  default     = "arn:aws:acm:us-west-1:658488939163:certificate/595b2806-8769-495b-9c53-f1d1f683ebf2"
 }
 
 variable "subdomain" {

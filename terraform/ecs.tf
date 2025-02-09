@@ -44,28 +44,80 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 resource "aws_ecs_task_definition" "ecs_task_definition" {
   family       = local.task_family_name
   network_mode = "host"
-  cpu          = var.cpu_allocation
+  cpu          = 1024
+  memory = 2048
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
   }
   container_definitions = jsonencode([
     {
-      name      = var.container_name
-      image     = var.container_image
+      name      = var.client_container
+      image     = var.client_container_image
       cpu       = var.cpu_allocation
       memory    = var.memory_allocation
       essential = true
       portMappings = [
         {
-          containerPort = var.port
-          hostPort      = var.port
+          containerPort = var.client_port
+          hostPort      = var.client_port
           protocol      = "tcp"
         },
         {
           containerPort = 443            # HTTPS port
           hostPort      = 443            # HTTPS port
           protocol      = "tcp"
+        }
+      ]
+    },
+    {
+      name      = var.server_container
+      image     = var.server_container_image
+      cpu       = var.cpu_allocation
+      memory    = var.memory_allocation
+      essential = true
+      portMappings = [
+        {
+          containerPort = var.server_port
+          hostPort      = var.server_port
+        }
+      ]
+      # TODO: Externally add env variables rather than keep in container
+      # environment = [
+      #   {
+      #     name  = "NODE_ENV"
+      #     value = "production"
+      #   }
+      # ]
+    },
+    {
+      name      = "traefik"
+      image     = "traefik:v2.10"
+      cpu       = var.cpu_allocation
+      memory    = var.memory_allocation
+      essential = true
+      portMappings = [
+        {
+          containerPort = 8080
+          hostPort      = 8080
+        },
+        {
+          containerPort = 8081
+          hostPort      = 8081
+        }
+      ]
+      command = [
+        "--api.insecure=true",
+        "--providers.docker=true",
+        "--entrypoints.web.address=:3000"
+      ]
+      volumesFrom = [
+        {
+          sourceContainer = var.server_container
+        },
+        {
+          sourceContainer = var.client_container
         }
       ]
     }
@@ -92,7 +144,7 @@ resource "aws_ecs_service" "ecs_service" {
   }
 
   triggers = {
-    redeployment = timestamp()
+    redeployment = aws_ecs_task_definition.ecs_task_definition.revision
   }
 
   capacity_provider_strategy {
@@ -102,8 +154,8 @@ resource "aws_ecs_service" "ecs_service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_tg.arn
-    container_name   = var.container_name
-    container_port   = var.port
+    container_name   = var.client_container
+    container_port   = var.client_port
   }
 
   tags = {
