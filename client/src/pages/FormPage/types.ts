@@ -5,6 +5,7 @@ import LongText from "../../components/FormInputComponents/LongText/LongText";
 import MultipleChoice from "../../components/FormInputComponents/MultipleChoice/MultipleChoice";
 import PhoneNumber from "../../components/FormInputComponents/PhoneNumber/PhoneNumber";
 import ShortText from "../../components/FormInputComponents/ShortText/ShortText";
+import PlayerBlock from "../../components/FormInputComponents/PlayerBlock/PlayerBlock";
 import StripeComponent from "../../components/FormInputComponents/Stripe/StripeComponent";
 
 export interface WelcomeScreen {
@@ -53,6 +54,7 @@ export const FieldComponents = {
   email: Email,
   phone_number: PhoneNumber,
   payment: StripeComponent,
+  player: PlayerBlock,
 };
 
 // TODO: more appropriate mapping for data normalization
@@ -64,4 +66,5 @@ export const AnswerMap = {
   email: "email",
   phone_number: "phone_number",
   payment: "payment",
+  player: "player",
 };
