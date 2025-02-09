@@ -3,13 +3,14 @@
 require("dotenv").config();
 
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
+const Db = require("../models");
 const {
   UserStripeAccounts,
   FormPaymentIntents,
-  User,
   StripeStatus,
   Group,
 } = require("../models");
+const { QueryTypes } = require("sequelize");
 const modelByPk = require("./utility");
 
 const AccountController = function () {
@@ -131,51 +132,29 @@ const AccountController = function () {
       const groupId = req.params.group_id;
       await modelByPk(res, Group, groupId);
 
-      const accounts = await UserStripeAccounts.findAll({
-        attributes: [
-          "id",
-          "user_id",
-          "stripe_account_id",
-          "stripe_account_name",
-          "platform_account_name",
-          "platform_account_description",
-          "account_email",
-          "support_email",
-        ],
-        include: [
-          {
-            model: User,
-            as: "User",
-            where: {
-              group_id: groupId,
-            },
-            attributes: ["first_name", "last_name", "email"],
-          },
-          {
-            model: StripeStatus,
-            as: "StripeStatus",
-            attributes: ["id", "status"],
-          },
-        ],
-      });
+      const stripeAccounts = await Db.sequelize.query(
+        `SELECT
+        u.first_name,
+        u.last_name,
+        usa.id,
+        usa.user_role_id,
+        usa.stripe_account_id,
+        usa.stripe_account_name,
+        usa.platform_account_name,
+        usa.platform_account_description,
+        usa.account_email,
+        usa.support_email
+      FROM \`UserStripeAccounts\` usa
+      JOIN \`UserRoles\` ur ON ur.user_id = usa.user_role_id
+      JOIN \`Users\` u ON u.id = ur.user_id
+      WHERE u.group_id = :group_id;`,
+        {
+          replacements: { group_id: groupId },
+          type: QueryTypes.SELECT,
+        },
+      );
 
-      const flattenedAccounts = accounts.map((account) => ({
-        id: account.id,
-        stripe_account_id: account.stripe_account_id,
-        stripe_account_name: account.stripe_account_name,
-        platform_account_name: account.platform_account_name,
-        platform_account_description: account.platform_account_description,
-        account_email: account.account_email,
-        support_email: account.support_email,
-        stripe_status_id: account.StripeStatus.id,
-        stripe_status: account.StripeStatus.status,
-        user_id: account.user_id,
-        first_name: account.User.first_name,
-        last_name: account.User.last_name,
-        user_email: account.User.email,
-      }));
-
-      let data = flattenedAccounts.length != 0 ? flattenedAccounts : [];
+      const data = stripeAccounts.length > 0 ? stripeAccounts : [];
 
       res.status(200).json(data);
     } catch (error) {
