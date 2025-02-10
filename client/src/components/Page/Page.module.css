@@ -1,26 +1,27 @@
 /* Mobile Styles */
 .page {
+  display: grid;
+  grid-template-rows: 45px 75px 1fr;
   position: relative;
-  padding: 24px 12px 8px 18px;
+  min-height: 100dvh;
+  padding: 80px 12px 80px 18px;
 }
 
 .title {
+  margin-top: 8px;
   font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 16px;
 }
 
 /* Desktop Styles */
 @media screen and (min-width: 769px) {
   .page {
-    padding: 32px;
-    padding-right: 18px;
+    padding: 32px 18px 8px 32px;
+    max-height: 100dvh;
   }
 
   .title {
+    margin-top: 0;
     font-size: 2.25rem;
-    font-weight: 800;
-    position: relative;
-    margin-bottom: 16px;
   }
 }

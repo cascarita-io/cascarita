@@ -132,7 +132,7 @@ const Users = () => {
       {filteredUsers == null || filteredUsers.length == 0 ? (
         <p className={styles.noUsersMessage}>No users to display...</p>
       ) : (
-        <DashboardTable headers={["Name", "Options"]} headerColor="light">
+        <DashboardTable headers={["Name", "Options"]}>
           {isLoading ? (
             <tr>
               <td>Loading...</td>
@@ -302,6 +302,27 @@ const mockUsers = [
   },
   {
     id: 13,
+    first_name: "Nessy",
+    last_name: "Winspear",
+    email: "nwinspearc@google.com",
+    role: "Human Resources Assistant III",
+  },
+  {
+    id: 14,
+    first_name: "Albina",
+    last_name: "Abba",
+    email: "aabbaa@technorati.com",
+    role: "GIS Technical Architect",
+  },
+  {
+    id: 15,
+    first_name: "Sallyanne",
+    last_name: "Emanueli",
+    email: "semanuelib@home.pl",
+    role: "Software Test Engineer I",
+  },
+  {
+    id: 16,
     first_name: "Nessy",
     last_name: "Winspear",
     email: "nwinspearc@google.com",

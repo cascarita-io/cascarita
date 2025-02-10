@@ -1,8 +1,8 @@
+/* Mobile Styles */
 .filterSearch {
   justify-content: space-between;
   display: flex;
   align-items: center;
-  margin: 20px 0;
   flex-wrap: wrap;
 }
 
@@ -18,7 +18,7 @@
 
 .modalTrigger {
   position: absolute;
-  bottom: 30px;
+  bottom: 120px;
   right: 21px;
 }
 
@@ -33,27 +33,6 @@
 
 .btnTextMobile {
   display: block;
-}
-
-@media (min-width: 769px) {
-  .modalTrigger {
-    position: relative;
-    bottom: 0;
-    right: 0;
-  }
-
-  .primaryBtn {
-    padding: 16px 32px;
-    border-radius: 28px;
-  }
-
-  .btnTextDesktop {
-    display: block;
-  }
-
-  .btnTextMobile {
-    display: none;
-  }
 }
 
 .groupLabel {
@@ -81,11 +60,10 @@
 
 .tableRow {
   border-bottom: 1px solid #ccc;
-  padding: 10px 0;
 }
 
 .tableData {
-  padding: 12px 10px;
+  padding: 16px 10px;
 }
 
 .tableData:first-child {
@@ -106,4 +84,26 @@
   border-bottom: 1px solid #c8cbd0;
   margin-bottom: 3px;
   margin-top: 3px;
+}
+
+/* Desktop Styles */
+@media (min-width: 769px) {
+  .modalTrigger {
+    position: relative;
+    bottom: 0;
+    right: 0;
+  }
+
+  .primaryBtn {
+    padding: 16px 32px;
+    border-radius: 28px;
+  }
+
+  .btnTextDesktop {
+    display: block;
+  }
+
+  .btnTextMobile {
+    display: none;
+  }
 }
