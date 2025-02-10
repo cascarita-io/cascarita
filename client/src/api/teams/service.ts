@@ -22,7 +22,7 @@ const getTeamsBySeasonDivisionId = async ({
           "Content-Type": "application/json",
         },
         mode: "cors",
-      },
+      }
     );
     return response.json();
   } catch (error) {
@@ -32,7 +32,7 @@ const getTeamsBySeasonDivisionId = async ({
 };
 
 const createNewTeam = async (
-  data: CreateNewTeamData,
+  data: CreateNewTeamData
 ): Promise<TeamResponse> => {
   try {
     const response = await fetch(`/api/teams`, {
