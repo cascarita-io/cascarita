@@ -17,7 +17,7 @@ const DashboardTable: React.FC<TableProps> = ({
   const tableStyles = `${styles.table} ${className}`;
   const headColor =
     headerColor === "light"
-      ? "#F4F7FB"
+      ? "rgb(234 237 250)"
       : headerColor === "strong"
         ? "gray"
         : "";

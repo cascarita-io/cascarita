@@ -1,4 +1,4 @@
-// TODO: Remove when done testing
+// TODO: Remove once we start fetching data from db
 //@ts-ignore
 
 // Libraries
@@ -132,7 +132,7 @@ const Users = () => {
       {filteredUsers == null || filteredUsers.length == 0 ? (
         <p className={styles.noUsersMessage}>No users to display...</p>
       ) : (
-        <DashboardTable headers={["Name", "Options"]}>
+        <DashboardTable headers={["Name", "Options"]} headerColor="light">
           {isLoading ? (
             <tr>
               <td>Loading...</td>
@@ -164,6 +164,7 @@ const Users = () => {
                 <td className={styles.tableData}>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
+                      //TODO: Remove these silencers once we start retrieving users from db
                       // @ts-ignore
                       onClick={() => handleEditUser(user)}
                     >
@@ -175,6 +176,7 @@ const Users = () => {
                     />
 
                     <DropdownMenuButton.Item
+                      //TODO: Remove these silencers once we start retrieving users from db
                       // @ts-ignore
                       onClick={() => handleDeleteUser(user)}
                     >
