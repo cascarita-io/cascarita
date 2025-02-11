@@ -1,6 +1,6 @@
 import Leagues from "../Leagues/Leagues";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import RegisterModal from "../../components/RegistrationModal/RegistrationModal";
 import { fetchUser } from "../../api/users/service";
@@ -41,21 +41,29 @@ const Home = () => {
     setIsRegisterModalOpen(false);
   };
 
+  const location = useLocation();
+  const isSeasonRoute = location.pathname.includes("season");
+
+  if (isSeasonRoute) {
+    return <Outlet />;
+  }
+
   return (
     <>
       {isAuthenticated ? (
-        <div>
+        <>
           {!registered && (
             <RegisterModal
               open={isRegisterModalOpen}
               onOpenChange={setIsRegisterModalOpen}
-              onRegistrationComplete={handleRegistrationComplete}>
+              onRegistrationComplete={handleRegistrationComplete}
+            >
               <></>
             </RegisterModal>
           )}
+          {/*TODO: Find out why the League Component gets rendered twice  */}
           <Leagues />
-          <Outlet />
-        </div>
+        </>
       ) : (
         <p>Not authenticated...</p>
       )}

@@ -6,10 +6,6 @@
   flex-wrap: wrap;
 }
 
-.filterSearch > button {
-  margin-right: 50px;
-}
-
 .dropdown {
   display: flex;
   align-items: end;
@@ -20,31 +16,44 @@
   padding-left: 15px;
 }
 
-.h1 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  position: relative;
+.modalTrigger {
+  position: absolute;
+  bottom: 30px;
+  right: 21px;
 }
 
-.breadcrumb {
-  display: flex;
-  font-size: 0.8rem;
-  gap: 5px;
-  margin-bottom: 20px;
+.primaryBtn {
+  padding: 23px 23px;
+  border-radius: 50%;
 }
 
-.breadcrumb a:last-child {
-  font-weight: bold;
+.btnTextDesktop {
+  display: none;
 }
 
-.breadcrumb a:not(:last-child),
-.breadcrumb h3:not(:last-child) {
-  color: #ccc;
+.btnTextMobile {
+  display: block;
 }
 
-.breadcrumb a:not(:last-child):hover {
-  color: black;
-  text-decoration: underline;
+@media (min-width: 769px) {
+  .modalTrigger {
+    position: relative;
+    bottom: 0;
+    right: 0;
+  }
+
+  .primaryBtn {
+    padding: 16px 32px;
+    border-radius: 28px;
+  }
+
+  .btnTextDesktop {
+    display: block;
+  }
+
+  .btnTextMobile {
+    display: none;
+  }
 }
 
 .groupLabel {
@@ -76,7 +85,7 @@
 }
 
 .tableData {
-  padding: 12px 0;
+  padding: 12px 10px;
 }
 
 .separator {

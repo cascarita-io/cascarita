@@ -4,8 +4,13 @@ import styles from "./LogoutButton.module.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import Cookies from "js-cookie";
 
-const LogoutButton: React.FC<LogoutButtonProps> = ({ icon, label }) => {
+const LogoutButton: React.FC<LogoutButtonProps> = ({
+  icon,
+  label,
+  className,
+}) => {
   const { logout } = useAuth0();
+  const btnStyles = `${styles.button} ${className}`;
   return (
     <Button
       onClick={() => {
@@ -13,9 +18,10 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ icon, label }) => {
         Cookies.remove("email");
       }}
       variant="soft"
-      className={styles.button}>
-      <span className={styles.icon}>{icon}</span>
-      <span className={styles.label}>{label}</span>
+      className={btnStyles}
+    >
+      <span>{icon}</span>
+      <span>{label}</span>
     </Button>
   );
 };

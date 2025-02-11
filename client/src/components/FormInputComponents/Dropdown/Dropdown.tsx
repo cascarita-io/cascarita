@@ -13,8 +13,8 @@ const Dropdown = ({ field, index }: FieldProps) => {
   const { required } = field.validations ?? {};
 
   const fieldError = (
-    errors.answers as { [key: number]: { text?: FieldError } } | undefined
-  )?.[index]?.text;
+    errors.answers as { [key: number]: { drop_down?: FieldError } } | undefined
+  )?.[index]?.drop_down;
 
   return (
     <section className={styles.container}>
@@ -31,9 +31,10 @@ const Dropdown = ({ field, index }: FieldProps) => {
       )}
       <select
         className={styles.input}
-        {...register(`answers.${index}.text`, {
+        {...register(`answers.${index}.dropdown`, {
           required: required && t("required"),
-        })}>
+        })}
+      >
         <option value="">{t("dropdown.placeholder")}</option>
         {field.properties?.choices?.map((choice) => (
           <option key={choice.id} value={choice.label}>

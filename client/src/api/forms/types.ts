@@ -8,7 +8,8 @@ export type FieldType =
   | "dropdown"
   | "email"
   | "phone_number"
-  | "payment";
+  | "payment"
+  | "player";
 
 export interface Validation {
   max_length?: number;
@@ -19,6 +20,11 @@ export interface Label {
   id: string;
   ref: string;
   label: string;
+}
+
+export interface PlayerBlockChoices {
+  division: string;
+  teams: string[];
 }
 
 export interface Properties {
@@ -37,6 +43,7 @@ export interface Properties {
     id: string;
     stripe_account_id: string;
   };
+  player_block_choices?: PlayerBlockChoices[];
 }
 
 export interface Field {
@@ -46,6 +53,8 @@ export interface Field {
   validations?: Validation;
   properties?: Properties;
   type: FieldType;
+  season?: string;
+  league?: string;
 }
 
 export interface Form {
@@ -65,8 +74,10 @@ export interface GetFormsParams {
   order_by?: OrderBy | null;
 }
 
+// TODO: ADD MORE EXPLICIT TYPING AS NEEDED
 export type AnswerType =
-  | "text"
+  | "short_text"
+  | "long_text"
   | "number"
   | "date"
   | "choice"
@@ -85,7 +96,8 @@ export interface Answer {
   };
   type: AnswerType;
   number?: number;
-  text?: string;
+  short_text?: string;
+  long_text?: string;
   phone_number?: string;
   email?: string;
   date?: Date;

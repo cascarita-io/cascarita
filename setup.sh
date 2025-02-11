@@ -89,5 +89,5 @@ fi
 echo "----------------------------------------"
 echo "Step 6: Build and run docker containers"
 echo "----------------------------------------"
-docker compose build --no-cache
+docker compose build 
 docker compose up -d
