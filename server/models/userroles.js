@@ -17,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "role_id",
         targetKey: "id",
       });
+
+      UserRoles.hasMany(models.UserStripeAccounts, {
+        foreignKey: "user_role_id",
+        sourceKey: "id",
+      });
     }
   }
   UserRoles.init(

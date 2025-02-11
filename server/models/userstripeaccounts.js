@@ -8,8 +8,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      UserStripeAccounts.belongsTo(models.User, {
-        foreignKey: "user_id",
+      UserStripeAccounts.belongsTo(models.UserRoles, {
+        foreignKey: "user_role_id",
         targetKey: "id",
       });
       UserStripeAccounts.belongsTo(models.StripeStatus, {
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   UserStripeAccounts.init(
     {
-      user_id: {
+      user_role_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

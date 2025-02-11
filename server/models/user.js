@@ -32,10 +32,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "updated_by_id",
         sourceKey: "id",
       });
-      User.hasMany(models.UserStripeAccounts, {
-        foreignKey: "user_id",
-        sourceKey: "id",
-      });
       User.hasMany(models.AuthCode, {
         foreignKey: "user_id",
         sourceKey: "id",
