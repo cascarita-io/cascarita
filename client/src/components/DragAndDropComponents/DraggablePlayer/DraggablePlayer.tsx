@@ -34,12 +34,6 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
-  const [divisionsToTeamsMap, setDivisionsToTeamsMap] = useState<
-    Map<string, string[]>
-  >(new Map());
-
-  //TODO: Added this line to scilence eslint warning; remove promptly
-  console.log(divisionsToTeamsMap);
 
   useEffect(() => {
     if (currentUser !== null) {
@@ -74,7 +68,6 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
       };
       fetchSeasons();
       setSelectedSeason(null);
-      setDivisionsToTeamsMap(new Map());
     }
   }, [selectedLeague]);
 
@@ -88,7 +81,6 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
           meta: undefined,
         });
         setDivisions([...divisions, ...divisionData]);
-        setDivisionsToTeamsMap(new Map());
       };
       fetchDivisions();
     }
@@ -107,7 +99,6 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
               meta: undefined,
             });
             const teams = teamsData.map((team: TeamType) => team.name);
-            setDivisionsToTeamsMap((prev) => prev.set(division.name, teams));
             append({ division: division.name, teams: teams });
           }),
         );
