@@ -38,6 +38,9 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
     Map<string, string[]>
   >(new Map());
 
+  //TODO: Added this line to scilence eslint warning; remove promptly
+  console.log(divisionsToTeamsMap);
+
   useEffect(() => {
     if (currentUser !== null) {
       const fetchLeagues = async () => {
@@ -64,7 +67,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
               meta: undefined,
             });
             return seasons;
-          })
+          }),
         );
         const allSeasons = seasonsData.flat();
         setSeasons(allSeasons);
@@ -95,7 +98,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
     if (divisions.length > 0 && selectedSeason !== null) {
       const seasonId = Number(selectedSeason.split(".")[1]);
       const fetchTeams = async () => {
-        const teamsData = await Promise.all(
+        await Promise.all(
           divisions.map(async (division) => {
             const divisionId = division.id as number;
             const teamsData = await getTeamsBySeasonDivisionId({
@@ -106,7 +109,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
             const teams = teamsData.map((team: TeamType) => team.name);
             setDivisionsToTeamsMap((prev) => prev.set(division.name, teams));
             append({ division: division.name, teams: teams });
-          })
+          }),
         );
       };
       fetchTeams();
@@ -130,7 +133,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const { fields, append, remove } = useFieldArray({
+  const { append } = useFieldArray({
     control,
     name: `fields.${index}.properties.player_block_choices`,
   });

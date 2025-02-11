@@ -1,6 +1,3 @@
-// TODO: Remove once we start fetching data from db
-//@ts-ignore
-
 // Libraries
 import { useTranslation } from "react-i18next";
 import * as Avatar from "@radix-ui/react-avatar";
@@ -164,8 +161,8 @@ const Users = () => {
                 <td className={styles.tableData}>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      //TODO: Remove these silencers once we start retrieving users from db
-                      // @ts-ignore
+                      // @ts-expect-error - TODO: Remove these silencers once we start retrieving users from db
+
                       onClick={() => handleEditUser(user)}
                     >
                       Edit
@@ -176,8 +173,7 @@ const Users = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      //TODO: Remove these silencers once we start retrieving users from db
-                      // @ts-ignore
+                      // @ts-expect-error - TODO: Remove these silencers once we start retrieving users from db
                       onClick={() => handleDeleteUser(user)}
                     >
                       Delete
