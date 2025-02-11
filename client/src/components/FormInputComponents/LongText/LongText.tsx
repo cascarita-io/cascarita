@@ -33,7 +33,6 @@ const LongText = ({ field, index }: FieldProps) => {
     initialHeight: string = "auto",
     maxHeight: number = 500,
   ) => {
-    setTextAreaValue(event.target.value);
     const textArea = event.target;
     textArea.style.height = initialHeight;
     textArea.style.height = `${Math.min(textArea.scrollHeight, maxHeight)}px`;
