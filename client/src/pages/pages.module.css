@@ -71,6 +71,14 @@
   align-items: center;
 }
 
+.showInDesktop {
+  display: none;
+}
+
+.showInMobile {
+  display: revert;
+}
+
 .avatar {
   z-index: -1;
   width: 50px;
@@ -104,6 +112,14 @@
   }
 
   .btnTextMobile {
+    display: none;
+  }
+
+  .showInDesktop {
+    display: revert;
+  }
+
+  .showInMobile {
     display: none;
   }
 }

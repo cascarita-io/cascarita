@@ -22,6 +22,7 @@ import UserForm from "../../components/Forms/UserForm/UserForm";
 import { useAuth0 } from "@auth0/auth0-react";
 import Cookies from "js-cookie";
 import { FaPlus } from "react-icons/fa";
+import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 
 const Users = () => {
   // Confligure translation
@@ -50,6 +51,10 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState<User>();
 
   const groupId = currentUser?.group_id;
+  const tableHeaders = useResponsiveHeader(
+    ["Name", "Role", "Options"],
+    ["Name", "Options"],
+  );
 
   const {
     data: users,
@@ -129,7 +134,7 @@ const Users = () => {
       {filteredUsers == null || filteredUsers.length == 0 ? (
         <p className={styles.noUsersMessage}>No users to display...</p>
       ) : (
-        <DashboardTable headers={["Name", "Options"]} headerColor="light">
+        <DashboardTable headers={tableHeaders} headerColor="light">
           {isLoading ? (
             <tr>
               <td>Loading...</td>
@@ -155,8 +160,15 @@ const Users = () => {
                   </Avatar.Root>
                   <div style={{ display: "grid" }}>
                     <p>{`${user.first_name} ${user.last_name}`}</p>
-                    <p style={{ fontSize: "0.7rem" }}>{`${user.role}`}</p>
+                    <p
+                      className={styles.showInMobile}
+                      style={{ fontSize: "0.7rem" }}
+                    >{`${user.role}`}</p>
                   </div>
+                </td>
+
+                <td className={`${styles.tableData} ${styles.showInDesktop}`}>
+                  {user.role}
                 </td>
                 <td className={styles.tableData}>
                   <DropdownMenuButton>
@@ -219,112 +231,112 @@ const mockUsers = [
     first_name: "Kelly",
     last_name: "Frazer",
     email: "kfrazer0@patch.com",
-    role: "Food Chemist",
+    role: "Admin",
   },
   {
     id: 2,
     first_name: "Felix",
     last_name: "Magnay",
     email: "fmagnay1@bloglines.com",
-    role: "Systems Administrator III",
+    role: "Admin",
   },
   {
     id: 3,
     first_name: "Nicolis",
     last_name: "McNirlan",
     email: "nmcnirlan2@google.de",
-    role: "Electrical Engineer",
+    role: "Admin",
   },
   {
     id: 4,
     first_name: "Miltie",
     last_name: "Monelle",
     email: "mmonelle3@e-recht24.de",
-    role: "Technical Writer",
+    role: "Player",
   },
   {
     id: 5,
     first_name: "Benedetto",
     last_name: "Finder",
     email: "bfinder4@ameblo.jp",
-    role: "Senior Cost Accountant",
+    role: "Player",
   },
   {
     id: 6,
     first_name: "Gaynor",
     last_name: "Hehir",
     email: "ghehir5@imdb.com",
-    role: "Accountant I",
+    role: "Admin",
   },
   {
     id: 7,
     first_name: "Madelina",
     last_name: "Grebbin",
     email: "mgrebbin6@amazon.com",
-    role: "Product Engineer",
+    role: "Admin",
   },
   {
     id: 8,
     first_name: "Sherri",
     last_name: "Assandri",
     email: "sassandri7@cdc.gov",
-    role: "Community Outreach Specialist",
+    role: "Player",
   },
   {
     id: 9,
     first_name: "Hale",
     last_name: "Cannon",
     email: "hcannon8@deviantart.com",
-    role: "Senior Cost Accountant",
+    role: "Admin",
   },
   {
     id: 10,
     first_name: "Levi",
     last_name: "Auchinleck",
     email: "lauchinleck9@sina.com.cn",
-    role: "Speech Pathologist",
+    role: "Player",
   },
   {
     id: 11,
     first_name: "Albina",
     last_name: "Abba",
     email: "aabbaa@technorati.com",
-    role: "GIS Technical Architect",
+    role: "Admin",
   },
   {
     id: 12,
     first_name: "Sallyanne",
     last_name: "Emanueli",
     email: "semanuelib@home.pl",
-    role: "Software Test Engineer I",
+    role: "Player",
   },
   {
     id: 13,
     first_name: "Nessy",
     last_name: "Winspear",
     email: "nwinspearc@google.com",
-    role: "Human Resources Assistant III",
+    role: "Admin",
   },
   {
     id: 14,
     first_name: "Albina",
     last_name: "Abba",
     email: "aabbaa@technorati.com",
-    role: "GIS Technical Architect",
+    role: "Player",
   },
   {
     id: 15,
     first_name: "Sallyanne",
     last_name: "Emanueli",
     email: "semanuelib@home.pl",
-    role: "Software Test Engineer I",
+    role: "Admin",
   },
   {
     id: 16,
     first_name: "Nessy",
     last_name: "Winspear",
     email: "nwinspearc@google.com",
-    role: "Human Resources Assistant III",
+    role: "Player",
   },
 ];
 
