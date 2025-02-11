@@ -146,7 +146,7 @@ const AccountController = function () {
         usa.account_email,
         usa.support_email
       FROM \`UserStripeAccounts\` usa
-      JOIN \`UserRoles\` ur ON ur.user_id = usa.user_role_id
+      JOIN \`UserRoles\` ur ON ur.id = usa.user_role_id
       JOIN \`Users\` u ON u.id = ur.user_id
       WHERE u.group_id = :group_id;`,
         {
