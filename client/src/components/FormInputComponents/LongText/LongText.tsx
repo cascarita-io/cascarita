@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
 import styles from "./LongText.module.css";
@@ -10,7 +10,8 @@ const LongText = ({ field, index }: FieldProps) => {
     register,
     formState: { errors },
   } = useFormContext();
-  const [textAreaValue, setTextAreaValue] = useState("");
+
+  // const [textAreaValue, setTextAreaValue] = useState("");
   const { required, max_length: maxLength } = field.validations ?? {};
 
   const fieldError = (
@@ -25,13 +26,13 @@ const LongText = ({ field, index }: FieldProps) => {
         value: maxLength,
         message: `${t("longText.maxLength")} ${maxLength}`,
       },
-    },
+    }
   );
 
   const handleTextAreaChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
     initialHeight: string = "auto",
-    maxHeight: number = 500,
+    maxHeight: number = 500
   ) => {
     const textArea = event.target;
     textArea.style.height = initialHeight;
@@ -57,7 +58,7 @@ const LongText = ({ field, index }: FieldProps) => {
         placeholder={t("longText.placeholder")}
         rows={1}
         onChange={(e) => handleTextAreaChange(e, "42px")}
-        value={textAreaValue}
+        // value={textAreaValue}
         {...registerProps}
       />
       <p className={styles.longTextToolTip}>

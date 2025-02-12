@@ -43,9 +43,7 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 
 resource "aws_ecs_task_definition" "ecs_task_definition" {
   family       = local.task_family_name
-  network_mode = "host"
-  cpu          = 1024
-  memory = 2048
+  network_mode = "bridge"
 
   runtime_platform {
     operating_system_family = "LINUX"
@@ -53,20 +51,35 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   }
   container_definitions = jsonencode([
     {
+      name = var.proxy_container
+      image = var.proxy_container_image
+      cpu = var.low_cpu_allocation
+      memory = var.low_memory_allocation
+      essential = true
+      portMappings = [
+        {
+          containerPort = var.proxy_port
+          hostPort = var.proxy_port
+          protocol = "tcp"
+        },
+        {
+          containerPort = 443
+          hostPort = 443
+          protocol = "tcp"
+        }
+      ],
+      links = [var.client_container, var.server_container]
+    },
+    {
       name      = var.client_container
       image     = var.client_container_image
-      cpu       = var.cpu_allocation
-      memory    = var.memory_allocation
+      cpu       = var.low_cpu_allocation
+      memory    = var.high_memory_allocation
       essential = true
       portMappings = [
         {
           containerPort = var.client_port
           hostPort      = var.client_port
-          protocol      = "tcp"
-        },
-        {
-          containerPort = 443            # HTTPS port
-          hostPort      = 443            # HTTPS port
           protocol      = "tcp"
         }
       ]
@@ -74,50 +87,13 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
     {
       name      = var.server_container
       image     = var.server_container_image
-      cpu       = var.cpu_allocation
-      memory    = var.memory_allocation
+      cpu       = var.low_cpu_allocation
+      memory    = var.medium_memory_allocation
       essential = true
       portMappings = [
         {
           containerPort = var.server_port
           hostPort      = var.server_port
-        }
-      ]
-      # TODO: Externally add env variables rather than keep in container
-      # environment = [
-      #   {
-      #     name  = "NODE_ENV"
-      #     value = "production"
-      #   }
-      # ]
-    },
-    {
-      name      = "traefik"
-      image     = "traefik:v2.10"
-      cpu       = var.cpu_allocation
-      memory    = var.memory_allocation
-      essential = true
-      portMappings = [
-        {
-          containerPort = 8080
-          hostPort      = 8080
-        },
-        {
-          containerPort = 8081
-          hostPort      = 8081
-        }
-      ]
-      command = [
-        "--api.insecure=true",
-        "--providers.docker=true",
-        "--entrypoints.web.address=:3000"
-      ]
-      volumesFrom = [
-        {
-          sourceContainer = var.server_container
-        },
-        {
-          sourceContainer = var.client_container
         }
       ]
     }
@@ -138,6 +114,11 @@ resource "aws_ecs_service" "ecs_service" {
   task_definition = aws_ecs_task_definition.ecs_task_definition.arn
   desired_count   = var.desired_count
 
+  network_configuration {
+    subnets          = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+    security_groups  = [aws_security_group.security_group.id]
+  }
+
   force_new_deployment = true
   placement_constraints {
     type = "distinctInstance"
@@ -154,8 +135,8 @@ resource "aws_ecs_service" "ecs_service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_tg.arn
-    container_name   = var.client_container
-    container_port   = var.client_port
+    container_name   = var.proxy_container
+    container_port   = var.proxy_port
   }
 
   tags = {

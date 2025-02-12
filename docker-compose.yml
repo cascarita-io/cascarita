@@ -26,7 +26,7 @@ services:
       dockerfile: client/Dockerfile
     ports:
       - "8080:8080"
-    command: npm run dev
+    command: pnpm run dev
     volumes:
       - ./client/src:/app/src
     depends_on:

@@ -12,3 +12,5 @@ RUN npm install
 COPY ./server .
 
 EXPOSE 3000
+
+CMD ["npm", "run", "server"]

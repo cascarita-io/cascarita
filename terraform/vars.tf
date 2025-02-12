@@ -99,9 +99,13 @@ variable "purpose_tg" {
   default     = "LoadBalancing"
 }
 
+variable "proxy_port" {
+  description = "The port exposed by the proxy container."
+  default     = 80
+}
 variable "client_port" {
   description = "The port exposed load balancer, target group, and client container."
-  default     = 80
+  default     = 8080
 }
 
 variable "server_port" {
@@ -111,12 +115,17 @@ variable "server_port" {
 
 variable "client_container" {
   description = "The name of the container in the task definition for client."
-  default     = "cascarita-client"
+  default     = "client"
 }
 
 variable "server_container" {
   description = "The name of the container in the task definition for server."
-  default     = "cascarita-server"
+  default     = "server"
+}
+
+variable "proxy_container" {
+  description = "The name of the container in the task definition for server."
+  default     = "nginx"
 }
 
 variable "client_container_image" {
@@ -129,14 +138,34 @@ variable "server_container_image" {
   default     = "658488939163.dkr.ecr.us-west-1.amazonaws.com/cascarita-server"
 }
 
-variable "cpu_allocation" {
+variable "proxy_container_image" {
+  description = "The container image to be used in the task definition."
+  default     = "658488939163.dkr.ecr.us-west-1.amazonaws.com/cascarita-nginx"
+}
+
+variable "low_cpu_allocation" {
   description = "The amount of CPU units to allocate for the task and container."
   default     = 256
 }
 
-variable "memory_allocation" {
+variable "medium_cpu_allocation" {
+  description = "The amount of CPU units to allocate for the task and container."
+  default     = 512
+}
+
+variable low_memory_allocation {
+  description = "The amount of memory in MB to allocate for the container."
+  default     = 256
+}
+
+variable "medium_memory_allocation" {
   description = "The amount of memory in MB to allocate for the container."
   default     = 512
+}
+
+variable "high_memory_allocation" {
+  description = "The amount of memory in MB to allocate for the container."
+  default     = 1024
 }
 
 variable "desired_count" {
