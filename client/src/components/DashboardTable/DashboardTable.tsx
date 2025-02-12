@@ -14,17 +14,17 @@ const DashboardTable: React.FC<TableProps> = ({
   children,
   className,
 }) => {
-  const tableClassName = `${styles.table} ${className}`;
+  const tableStyles = `${styles.table} ${className}`;
   const headColor =
     headerColor === "light"
-      ? "#F4F7FB"
+      ? "rgb(234 237 250)"
       : headerColor === "strong"
         ? "gray"
         : "";
 
   return (
     <div className={styles.tableContainer}>
-      <table className={tableClassName}>
+      <table className={tableStyles}>
         <thead>
           <tr>
             {headers.map((header, idx) => {
@@ -32,7 +32,8 @@ const DashboardTable: React.FC<TableProps> = ({
                 <th
                   key={idx}
                   className={styles.header}
-                  style={{ backgroundColor: headColor }}>
+                  style={{ backgroundColor: headColor }}
+                >
                   {header}
                 </th>
               );
