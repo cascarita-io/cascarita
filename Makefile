@@ -13,3 +13,6 @@ database:
 
 test:
 	cd server && npm run test
+
+eslint:
+	cd client && npm run eslint

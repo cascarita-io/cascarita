@@ -10,16 +10,14 @@ const LongText = ({ field, index }: FieldProps) => {
     register,
     formState: { errors },
   } = useFormContext();
-
-  // const [textAreaValue, setTextAreaValue] = useState("");
   const { required, max_length: maxLength } = field.validations ?? {};
 
   const fieldError = (
-    errors.answers as { [key: number]: { text?: FieldError } } | undefined
-  )?.[index]?.text;
+    errors.answers as { [key: number]: { long_text?: FieldError } } | undefined
+  )?.[index]?.long_text;
 
   const { onChange: registerOnChange, ...registerProps } = register(
-    `answers.${index}.text`,
+    `answers.${index}.long_text`,
     {
       required: required && t("required"),
       maxLength: maxLength && {
@@ -58,7 +56,6 @@ const LongText = ({ field, index }: FieldProps) => {
         placeholder={t("longText.placeholder")}
         rows={1}
         onChange={(e) => handleTextAreaChange(e, "42px")}
-        // value={textAreaValue}
         {...registerProps}
       />
       <p className={styles.longTextToolTip}>

@@ -5,6 +5,7 @@ import {
   DropResult,
   DroppableProvided,
 } from "react-beautiful-dnd";
+import DraggablePlayer from "../DraggablePlayer/DraggablePlayer";
 import DraggableMultipleChoice from "../DraggableMultipleChoice/DraggableMultipleChoice";
 import DraggableShortText from "../DraggableShortText/DraggableShortText";
 import DraggableDropdown from "../DraggableDropdown/DraggableDropdown";
@@ -28,7 +29,7 @@ const DNDCanvas = forwardRef(
       saveForm,
       importedFields,
     }: DNDCanvasProps,
-    ref,
+    ref
   ) => {
     const methods = useForm<{ fields: Field[] }>({
       defaultValues: { fields: importedFields ?? [] },
@@ -47,6 +48,7 @@ const DNDCanvas = forwardRef(
       long_text: DraggableLongText,
       email: DraggableEmail,
       phone_number: DraggablePhoneNumber,
+      player: DraggablePlayer,
       payment: DraggablePayment,
     };
 
@@ -90,6 +92,14 @@ const DNDCanvas = forwardRef(
           type: item.type,
         },
         phone_number: {
+          title: "",
+          id: item.id,
+          ref: item.id,
+          properties: { default_country_code: "US" },
+          validations: { required: false },
+          type: item.type,
+        },
+        player: {
           title: "",
           id: item.id,
           ref: item.id,
@@ -157,17 +167,17 @@ const DNDCanvas = forwardRef(
       // Ensure the copied fields has the same fields as the original
       methods.setValue(
         `fields.${index + 1}.title`,
-        methods.getValues(`fields.${index}.title`),
+        methods.getValues(`fields.${index}.title`)
       );
 
       methods.setValue(
         `fields.${index + 1}.validations`,
-        methods.getValues(`fields.${index}.validations`),
+        methods.getValues(`fields.${index}.validations`)
       );
 
       methods.setValue(
         `fields.${index + 1}.properties`,
-        methods.getValues(`fields.${index}.properties`),
+        methods.getValues(`fields.${index}.properties`)
       );
     };
 
@@ -188,7 +198,8 @@ const DNDCanvas = forwardRef(
                 padding: "16px",
                 background: "white",
                 minHeight: "400px",
-              }}>
+              }}
+            >
               {items.length === 0 ? (
                 <EmptyDNDCanvas />
               ) : (
@@ -217,7 +228,7 @@ const DNDCanvas = forwardRef(
         </StrictModeDroppable>
       </DragDropContext>
     );
-  },
+  }
 );
 
 DNDCanvas.displayName = "DNDCanvas";

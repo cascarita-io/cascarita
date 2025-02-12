@@ -1,22 +1,24 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  class Role extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
+  class Permission extends Model {
+      static associate(models) {
+        Permission.belongsToMany(models.Role, {
+        through: "RolePermissions",
+        foreignKey: "permission_id",
+        otherKey: "role_id",
+        onDelete: "CASCADE",
+      });
     }
   }
-  Role.init(
+  Permission.init(
     {
       id: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         primaryKey: true,
+        allowNull: false,
       },
       name: {
         type: DataTypes.STRING(255),
@@ -27,12 +29,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-      },
-      updated_at: {
+          },
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
@@ -40,11 +42,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Role",
-      tableName: "Roles",
-      timestamps: false,
-      underscored: true, // Converts camelCase columns to snake_case in DB
+      modelName: 'Permission',
+      tableName: 'Permissions',
+      timestamps: true,
+      underscored: true,
     }
   );
-  return Role;
+
+  return Permission;
 };

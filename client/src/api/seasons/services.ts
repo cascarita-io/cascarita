@@ -28,7 +28,7 @@ const getSeasonsByLeagueId = async ({
 };
 
 const createNewSeason = async (
-  data: CreateNewSeasonData,
+  data: CreateNewSeasonData
 ): Promise<SeasonResponse> => {
   try {
     const response = await fetch("/api/seasons", {
@@ -46,7 +46,7 @@ const createNewSeason = async (
 };
 
 const updateSeason = async (
-  data: UpdateSeasonData,
+  data: UpdateSeasonData
 ): Promise<SeasonResponse> => {
   try {
     const response = await fetch(`/api/seasons/${data.id}`, {
