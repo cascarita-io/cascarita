@@ -98,7 +98,7 @@ const Leagues = () => {
               className={styles.primaryBtn}
               onClick={() => setIsCreateOpen(true)}
             >
-              <p className={styles.btnTextDesktop}>{t("button")}</p>
+              <p className={styles.btnTextDeskto}>{t("button")}</p>
               <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
           </Modal.Button>
