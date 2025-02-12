@@ -36,7 +36,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   onOpen,
 }) => (
   <Modal open={isOpen} onOpenChange={onOpen}>
-    <Modal.Button asChild className={styles.btn}>
+    <Modal.Button asChild className={styles.modalTrigger}>
       <button onClick={() => onOpen(true)}>
         <ShareButton />
       </button>
@@ -60,7 +60,7 @@ const Forms = () => {
   const { getAccessTokenSilently } = useAuth0();
 
   const headers = useResponsiveHeader(
-    [t("col1"), t("col2"), t("col3"), t("col4"), t("col5")],
+    [t("col1"), t("col2"), t("col4"), t("col5")],
     [t("col1"), t("col5")],
   );
 
@@ -154,7 +154,7 @@ const Forms = () => {
         </div>
 
         <PrimaryButton
-          className={`${styles.primaryBtn} ${styles.noShowMobile}`}
+          className={`${styles.primaryBtn} ${styles.showInDesktop}`}
           onClick={handleNewFormClick}
         >
           <p className={styles.btnTextDesktop}>{t("button")}</p>
@@ -175,15 +175,11 @@ const Forms = () => {
                 </p>
               </td>
 
-              <td className={`${styles.tableData} ${styles.noShowMobile}`}>
+              <td className={`${styles.tableData} ${styles.showInDesktop}`}>
                 <p>{form.created_by?.first_name ?? ""}</p>
               </td>
 
-              <td className={`${styles.tableData} ${styles.noShowMobile}`}>
-                {" "}
-                <p>{new Date(form.updatedAt).toLocaleString()}</p>
-              </td>
-              <td className={`${styles.tableData} ${styles.noShowMobile}`}>
+              <td className={`${styles.tableData} ${styles.showInDesktop}`}>
                 <DropdownMenuButton
                   onDelete={() => onDelete(form._id)}
                   onEdit={() => onEdit(form._id)}
