@@ -8,8 +8,8 @@ const Settings = () => {
   return (
     <Page title="Settings">
       <Navbar>
-        <Navbar.Item href="">Plan</Navbar.Item>
-        <Navbar.Item href="payment">Payment</Navbar.Item>
+        <Navbar.Item href="">{t("navBar.plan")}</Navbar.Item>
+        <Navbar.Item href="payment">{t("navBar.payment")}</Navbar.Item>
       </Navbar>
 
       <Outlet />
