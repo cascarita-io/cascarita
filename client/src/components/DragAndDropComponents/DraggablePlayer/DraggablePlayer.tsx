@@ -61,7 +61,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
               meta: undefined,
             });
             return seasons;
-          })
+          }),
         );
         const allSeasons = seasonsData.flat();
         setSeasons(allSeasons);
@@ -100,7 +100,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
             });
             const teams = teamsData.map((team: TeamType) => team.name);
             append({ division: division.name, teams: teams });
-          })
+          }),
         );
       };
       fetchTeams();
