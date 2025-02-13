@@ -20,6 +20,7 @@ const Home = () => {
           const token = await getAccessTokenSilently();
           const response = await fetchUser(user.email || "", token);
           setRegistered(response?.isSigningUp ? false : true);
+          Cookies.set("group_id", response?.group_id || 0);
         } catch (error) {
           console.error("Error checking registration status:", error);
           setRegistered(false);

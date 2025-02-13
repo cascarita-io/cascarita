@@ -7,11 +7,12 @@ import SeasonForm from "../../components/Forms/SeasonForm/SeasonForm";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getSeasonsByLeagueId } from "../../api/seasons/services";
+import { useQueries } from "@tanstack/react-query";
+import { getSeasonsByGroupId } from "../../api/seasons/services";
 import styles from "../pages.module.css";
 import { FaPlus } from "react-icons/fa";
+import { getLeagueByGroupId } from "../../api/leagues/service";
+import Cookies from "js-cookie";
 
 interface SeasonType {
   id: number;
@@ -22,15 +23,10 @@ interface SeasonType {
   created_at: Date;
   updated_at: Date;
   league_id: number;
+  league_name: string;
 }
 
 const Seasons = () => {
-  const { leagueId, leagueName } = useParams<{
-    leagueId: string;
-    leagueName: string;
-  }>();
-  const leagueIdNumber = leagueId ? parseInt(leagueId, 10) : 0;
-
   const { t } = useTranslation("Seasons");
 
   // const [filter, setFilter] = useState("");
@@ -46,11 +42,37 @@ const Seasons = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["seasons", leagueIdNumber],
-    queryFn: getSeasonsByLeagueId,
-    enabled: currentSeasonId !== 0,
+  const groupId = Number(Cookies.get("group_id")) || 0;
+
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["seasons", groupId],
+        queryFn: async () =>
+          await getSeasonsByGroupId({
+            queryKey: ["seasons", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["leagues", groupId],
+        queryFn: () =>
+          getLeagueByGroupId({
+            queryKey: ["leagues", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+    ],
   });
+
+  const [seasonsQuery, leaguesQuery] = results;
+  const data = seasonsQuery.data;
+  const isLoading = seasonsQuery.isLoading;
+  const isError = seasonsQuery.isError;
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -137,7 +159,8 @@ const Seasons = () => {
               <SeasonForm
                 afterSave={() => setIsCreateOpen(false)}
                 requestType="POST"
-                leagueId={leagueIdNumber}
+                //@ts-ignore
+                leagueData={leaguesQuery.data}
               />
             </Modal.Content>
           </Modal>
@@ -147,7 +170,7 @@ const Seasons = () => {
           <p className={styles.noItemsMessage}>{t("empty")}</p>
         ) : (
           <DashboardTable
-            headers={[t("col1"), t("col2"), t("col3"), t("col4")]}
+            headers={[t("col1"), t("col2"), t("col3"), t("col4"), t("col5")]}
             headerColor="light"
           >
             {isLoading ? (
@@ -161,11 +184,8 @@ const Seasons = () => {
             ) : (
               filteredData?.map((season: SeasonType, idx: number) => (
                 <tr key={idx} className={styles.tableRow}>
-                  <td className={styles.tableData}>
-                    <Link to={`division/${season.id}/${season.name}`}>
-                      {season.name}
-                    </Link>
-                  </td>
+                  <td className={styles.tableData}>{season.name}</td>
+                  <td className={styles.tableData}>{season.league_name}</td>
                   <td className={styles.tableData}>
                     {formatDate(season.start_date)}
                   </td>

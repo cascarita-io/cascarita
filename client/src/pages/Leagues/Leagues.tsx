@@ -129,11 +129,7 @@ const Leagues = () => {
             ) : (
               filteredData?.map((league: LeagueType, idx: number) => (
                 <tr key={idx} className={styles.tableRow}>
-                  <td className={styles.tableData}>
-                    <Link to={`/season/${league.id}/${league.name}`}>
-                      {league.name}
-                    </Link>
-                  </td>
+                  <td className={styles.tableData}>{league.name}</td>
                   <td className={styles.tableData}>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item
