@@ -106,4 +106,16 @@
   .btnTextMobile {
     display: none;
   }
+
+  .wrapper {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    height: 70vh;
+    padding-top: 16px;
+  }
+
+  .sectionWrapper {
+    margin-bottom: 32px;
+  }
 }

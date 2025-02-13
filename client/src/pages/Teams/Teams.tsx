@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import styles from "../pages.module.css";
-import Page from "../../components/Page/Page";
 import Search from "../../components/Search/Search";
 // import SelectMenu from "../../components/SelectMenu/SelectMenu";
 import Modal from "../../components/Modal/Modal";
@@ -16,10 +15,9 @@ import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
 
 const Teams = () => {
-  const { seasonId, divisionId, divisionName } = useParams<{
+  const { seasonId, divisionId } = useParams<{
     seasonId: string;
     divisionId: string;
-    divisionName: string;
   }>();
   const { t } = useTranslation("Teams");
   const seasonIdNumber = seasonId ? parseInt(seasonId, 10) : 0;
@@ -66,113 +64,117 @@ const Teams = () => {
   );
 
   return (
-    <Page title={divisionName}>
-      <div className={styles.filterSearch}>
-        <div className={styles.dropdown}>
-          <Search onSearchChange={setSearchQuery} />
+    <section className={styles.wrapper}>
+      <div className={styles.sectionWrapper}>
+        <div className={styles.filterSearch}>
+          <div className={styles.dropdown}>
+            {data && data.length > 0 && (
+              <Search onSearchChange={setSearchQuery} />
+            )}
+          </div>
+
+          <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <Modal.Button asChild className={styles.modalTrigger}>
+              <PrimaryButton
+                className={styles.primaryBtn}
+                onClick={() => setIsCreateOpen(true)}
+              >
+                <p className={styles.btnTextDesktop}>{t("addButton")}</p>
+                <FaPlus className={styles.btnTextMobile} />
+              </PrimaryButton>
+            </Modal.Button>
+
+            <Modal.Content title={t("formContent.title")}>
+              <TeamForm
+                afterSave={() => setIsCreateOpen(false)}
+                seasonId={seasonIdNumber}
+                divisionId={divisionIdNumber}
+                requestType="POST"
+              />
+            </Modal.Content>
+          </Modal>
         </div>
 
-        <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <Modal.Button asChild className={styles.modalTrigger}>
-            <PrimaryButton
-              className={styles.primaryBtn}
-              onClick={() => setIsCreateOpen(true)}
-            >
-              <p className={styles.btnTextDesktop}>{t("addButton")}</p>
-              <FaPlus className={styles.btnTextMobile} />
-            </PrimaryButton>
-          </Modal.Button>
+        {filteredData == null || filteredData?.length === 0 ? (
+          <p className={styles.noItemsMessage}>{t("empty")}</p>
+        ) : (
+          <DashboardTable
+            headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
+            headerColor="light"
+          >
+            {isLoading ? (
+              <tr>
+                <td>{t("loading")}</td>
+              </tr>
+            ) : isError || !data ? (
+              <tr>
+                <td>{t("error")}</td>
+              </tr>
+            ) : (
+              data?.map((team: TeamType, idx: number) => (
+                <tr key={idx} className={styles.tableRow}>
+                  <td className={styles.tableData}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <img src={team.team_logo} />
+                      {team.name}
+                    </div>
+                  </td>
+                  <td>
+                    <DropdownMenuButton>
+                      <DropdownMenuButton.Item
+                        onClick={() => handleEdit(team.name, team.id)}
+                      >
+                        {t("edit")}
+                      </DropdownMenuButton.Item>
 
-          <Modal.Content title={t("formContent.title")}>
+                      <DropdownMenuButton.Separator
+                        className={styles.separator}
+                      />
+
+                      <DropdownMenuButton.Item
+                        onClick={() => handleDelete(team.name, team.id)}
+                      >
+                        {t("delete")}
+                      </DropdownMenuButton.Item>
+                    </DropdownMenuButton>
+                  </td>
+                </tr>
+              ))
+            )}
+          </DashboardTable>
+        )}
+
+        <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <Modal.Content title={`${t("edit")} ${currentTeamName}`}>
             <TeamForm
-              afterSave={() => setIsCreateOpen(false)}
-              seasonId={seasonIdNumber}
+              afterSave={() => setIsEditOpen(false)}
+              requestType="PATCH"
               divisionId={divisionIdNumber}
-              requestType="POST"
+              seasonId={seasonIdNumber}
+              teamId={currentTeamId}
+            />
+          </Modal.Content>
+        </Modal>
+
+        <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <Modal.Content title={`${t("delete")} ${currentTeamName}`}>
+            <TeamForm
+              afterSave={() => setIsDeleteOpen(false)}
+              requestType="DELETE"
+              divisionId={divisionIdNumber}
+              seasonId={seasonIdNumber}
+              teamId={currentTeamId}
             />
           </Modal.Content>
         </Modal>
       </div>
-
-      {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noItemsMessage}>{t("empty")}</p>
-      ) : (
-        <DashboardTable
-          headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
-          headerColor="light"
-        >
-          {isLoading ? (
-            <tr>
-              <td>{t("loading")}</td>
-            </tr>
-          ) : isError || !data ? (
-            <tr>
-              <td>{t("error")}</td>
-            </tr>
-          ) : (
-            data?.map((team: TeamType, idx: number) => (
-              <tr key={idx} className={styles.tableRow}>
-                <td className={styles.tableData}>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <img src={team.team_logo} />
-                    {team.name}
-                  </div>
-                </td>
-                <td>
-                  <DropdownMenuButton>
-                    <DropdownMenuButton.Item
-                      onClick={() => handleEdit(team.name, team.id)}
-                    >
-                      {t("edit")}
-                    </DropdownMenuButton.Item>
-
-                    <DropdownMenuButton.Separator
-                      className={styles.separator}
-                    />
-
-                    <DropdownMenuButton.Item
-                      onClick={() => handleDelete(team.name, team.id)}
-                    >
-                      {t("delete")}
-                    </DropdownMenuButton.Item>
-                  </DropdownMenuButton>
-                </td>
-              </tr>
-            ))
-          )}
-        </DashboardTable>
-      )}
-
-      <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <Modal.Content title={`${t("edit")} ${currentTeamName}`}>
-          <TeamForm
-            afterSave={() => setIsEditOpen(false)}
-            requestType="PATCH"
-            divisionId={divisionIdNumber}
-            seasonId={seasonIdNumber}
-            teamId={currentTeamId}
-          />
-        </Modal.Content>
-      </Modal>
-
-      <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <Modal.Content title={`${t("delete")} ${currentTeamName}`}>
-          <TeamForm
-            afterSave={() => setIsDeleteOpen(false)}
-            requestType="DELETE"
-            divisionId={divisionIdNumber}
-            seasonId={seasonIdNumber}
-            teamId={currentTeamId}
-          />
-        </Modal.Content>
-      </Modal>
-    </Page>
+    </section>
   );
 };
 

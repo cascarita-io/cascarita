@@ -1,10 +1,11 @@
-import Leagues from "../Leagues/Leagues";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import RegisterModal from "../../components/RegistrationModal/RegistrationModal";
 import { fetchUser } from "../../api/users/service";
 import Cookies from "js-cookie";
+import Navbar from "../../components/NavBar/NavBar";
+import Page from "../../components/Page/Page";
 
 const Home = () => {
   const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
@@ -50,13 +51,6 @@ const Home = () => {
     setIsRegisterModalOpen(false);
   };
 
-  const location = useLocation();
-  const isSeasonRoute = location.pathname.includes("season");
-
-  if (isSeasonRoute) {
-    return <Outlet />;
-  }
-
   if (registered === null) {
     return <></>;
   }
@@ -75,7 +69,17 @@ const Home = () => {
             </RegisterModal>
           )}
           {/*TODO: Find out why the League Component gets rendered twice  */}
-          <Leagues />
+          {/* <Leagues /> */}
+          <Page title="Welcome!">
+            <Navbar>
+              <Navbar.Item href="">Leagues</Navbar.Item>
+              <Navbar.Item href="seasons">Seasons</Navbar.Item>
+              <Navbar.Item href="divisions">Divisions</Navbar.Item>
+              <Navbar.Item href="teams">Teams</Navbar.Item>
+            </Navbar>
+
+            <Outlet />
+          </Page>
         </>
       ) : (
         <p>Not authenticated...</p>
