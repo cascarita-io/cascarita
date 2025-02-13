@@ -35,6 +35,9 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
 
+  //TODO: Added this line to scilence eslint warning; remove promptly
+  console.log(divisionsToTeamsMap);
+
   useEffect(() => {
     if (currentUser !== null) {
       const fetchLeagues = async () => {
