@@ -9,16 +9,19 @@ import Modal from "../../components/Modal/Modal";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import { useQuery } from "@tanstack/react-query";
-import { getDivisionsBySeasonId } from "../../api/divisions/service";
+import { useQueries } from "@tanstack/react-query";
+import { getDivisionByGroupId } from "../../api/divisions/service";
+import { getLeagueByGroupId } from "../../api/leagues/service";
+import { getSeasonsByGroupId } from "../../api/seasons/services";
 import DivisionForm from "../../components/Forms/DivisionForm/DivisionForm";
 import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
+import Cookies from "js-cookie";
 
 const Divisions = () => {
   const { t } = useTranslation("Divisions");
-  const { seasonId } = useParams<{ seasonId: string }>();
-  const seasonIdNumber = seasonId ? parseInt(seasonId, 10) : 0;
+  // const { seasonId } = useParams<{ seasonId: string }>();
+  // const seasonIdNumber = seasonId ? parseInt(seasonId, 10) : 0;
 
   // const { t } = useTranslation("Leagues");
 
@@ -35,6 +38,8 @@ const Divisions = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
+  const groupId = Number(Cookies.get("group_id")) || 0;
+
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -45,10 +50,37 @@ const Divisions = () => {
     };
   }, [searchQuery]);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["divisions", seasonIdNumber],
-    queryFn: getDivisionsBySeasonId,
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["seasons", groupId],
+        queryFn: async () =>
+          await getSeasonsByGroupId({
+            queryKey: ["seasons", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["divisions", groupId],
+        queryFn: async () =>
+          await getDivisionByGroupId({
+            queryKey: ["divisions", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+    ],
   });
+
+  const [seasonsQuery, divisionsQuery] = results;
+  const data = divisionsQuery.data;
+  const isLoading = divisionsQuery.isLoading;
+  const isError = divisionsQuery.isError;
+
+  console.log(data);
 
   const handleEdit = (divisionName: string, divisionId: number) => {
     setCurrentDivisionName(divisionName);
@@ -130,7 +162,7 @@ const Divisions = () => {
               <DivisionForm
                 afterSave={() => setIsCreateOpen(false)}
                 requestType="POST"
-                seasonId={seasonIdNumber}
+                seasonData={seasonsQuery.data}
               />
             </Modal.Content>
           </Modal>
@@ -140,7 +172,12 @@ const Divisions = () => {
           <p className={styles.noItemsMessage}>{t("empty")}</p>
         ) : (
           <DashboardTable
-            headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
+            headers={[
+              t("tableHeaders.name"),
+              t("tableHeaders.leagueName"),
+              t("tableHeaders.seasonName"),
+              t("tableHeaders.options"),
+            ]}
             headerColor="light"
           >
             {isLoading ? (
@@ -154,13 +191,9 @@ const Divisions = () => {
             ) : (
               data?.map((division: DivisionType, idx: number) => (
                 <tr key={idx} className={styles.tableRow}>
-                  <td className={styles.tableData}>
-                    <Link
-                      to={`teams/seasons/${seasonIdNumber}/division/${division.id}/${division.name}`}
-                    >
-                      {division.name}
-                    </Link>
-                  </td>
+                  <td className={styles.tableData}>{division.name}</td>
+                  <td className={styles.tableData}>{division.league_name}</td>
+                  <td className={styles.tableData}>{division.season_name}</td>
                   <td>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item

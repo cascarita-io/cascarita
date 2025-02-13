@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import {
@@ -12,33 +12,24 @@ import {
   useUpdateDivision,
   useDeleteDivision,
 } from "../../../api/divisions/mutations";
-import { useAuth0 } from "@auth0/auth0-react";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import Cookies from "js-cookie";
-import { fetchUser } from "../../../api/users/service";
-import { User } from "../../../api/users/types";
 import { useTranslation } from "react-i18next";
+import { SeasonType } from "../../../pages/Seasons/types";
 
 const DivisionForm: React.FC<DivisionFormProps> = ({
   afterSave,
   divisionId,
   requestType,
-  seasonId,
+  // seasonId,
+  seasonData,
 }) => {
   const { t } = useTranslation("Divisions");
   const [divisionName, setDivisionName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { getAccessTokenSilently } = useAuth0();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [seasonId, setSeasonId] = useState(0);
 
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const user = await fetchUser(email, token);
-      setCurrentUser(user);
-    })();
-  }, []);
+  const groupId = Cookies.get("group_id") || 0;
 
   const createDivisionMutation = useCreateDivision();
   const updateDivisionMutation = useUpdateDivision();
@@ -48,13 +39,13 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
     event.preventDefault();
     setIsLoading(true);
     const { divisionName } = Object.fromEntries(
-      new FormData(event.currentTarget),
+      new FormData(event.currentTarget)
     );
 
     const data = {
       formData: {
         name: divisionName,
-        group_id: currentUser?.group_id,
+        group_id: groupId,
         season_id: seasonId,
       },
     };
@@ -87,7 +78,8 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
         <DeleteForm
           className={styles.form}
           destructBtnLabel={t("formContent.delete")}
-          onSubmit={handleSubmit}>
+          onSubmit={handleSubmit}
+        >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -108,6 +100,22 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
               }
             />
           </div>
+          <div className={styles.inputContainer}>
+            <label className={styles.label}>{t("formContent.season")}</label>
+            <select
+              id="seasonId"
+              name="seasonId"
+              value={seasonId}
+              onChange={(e) => setSeasonId(Number(e.target.value))}
+              className={styles.input}
+            >
+              {seasonData?.map((season: SeasonType) => (
+                <option key={season.id} value={season.id}>
+                  {season.name} - {season.league_name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className={styles.formBtnContainer}>
             <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
@@ -116,7 +124,8 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
 
             <button
               type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}>
+              className={`${styles.btn} ${styles.submitBtn}`}
+            >
               {isLoading === true
                 ? t("formContent.submitting")
                 : t("formContent.submit")}

@@ -13,18 +13,7 @@ import styles from "../pages.module.css";
 import { FaPlus } from "react-icons/fa";
 import { getLeagueByGroupId } from "../../api/leagues/service";
 import Cookies from "js-cookie";
-
-interface SeasonType {
-  id: number;
-  name: string;
-  start_date: string;
-  end_date: string;
-  is_active: boolean;
-  created_at: Date;
-  updated_at: Date;
-  league_id: number;
-  league_name: string;
-}
+import { SeasonType } from "./types";
 
 const Seasons = () => {
   const { t } = useTranslation("Seasons");
