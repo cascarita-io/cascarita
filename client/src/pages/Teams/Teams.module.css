@@ -35,11 +35,12 @@
   width: 150px;
 }
 
-.noLeagueMessage {
+/* in pages module */
+/* .noLeagueMessage {
   text-align: center;
   margin-top: 200px;
   font-size: 2rem;
-}
+} */
 
 .tableRow {
   border-bottom: 1px solid #ccc;

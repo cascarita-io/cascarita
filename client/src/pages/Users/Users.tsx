@@ -127,7 +127,7 @@ const Users = () => {
       </div>
 
       {filteredUsers == null || filteredUsers.length == 0 ? (
-        <p className={styles.noUsersMessage}>No users to display...</p>
+        <p className={pagesStyles.noItemsMessage}>No users to display...</p>
       ) : (
         <DashboardTable headers={["Name", "Options"]} headerColor="light">
           {isLoading ? (

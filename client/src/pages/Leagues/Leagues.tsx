@@ -74,7 +74,7 @@ const Leagues = () => {
   };
 
   const filteredData = data?.filter((league: LeagueType) =>
-    league.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+    league.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   const location = useLocation();
@@ -112,7 +112,7 @@ const Leagues = () => {
       </div>
 
       {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noLeagueMessage}>{t("empty")}</p>
+        <p className={styles.noItemsMessage}>{t("empty")}</p>
       ) : (
         <DashboardTable
           headers={[t("tableHeaders.name"), t("tableHeaders.options")]}

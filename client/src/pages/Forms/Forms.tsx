@@ -155,7 +155,7 @@ const Forms = () => {
         </PrimaryButton>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noLeagueMessage}>No divisions to display...</p>
+        <p className={pagesStyles.noItemsMessage}>No forms to display...</p>
       ) : (
         <div className={styles.table}>
           <div className={styles.cols}>

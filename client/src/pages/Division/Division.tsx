@@ -65,7 +65,7 @@ const Divisions = () => {
   };
 
   const filteredData = data?.filter((division: DivisionType) =>
-    division.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+    division.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   const location = useLocation();
@@ -136,7 +136,7 @@ const Divisions = () => {
       </div>
 
       {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noLeagueMessage}>{t("empty")}</p>
+        <p className={styles.noItemsMessage}>{t("empty")}</p>
       ) : (
         <DashboardTable
           headers={[t("tableHeaders.name"), t("tableHeaders.options")]}

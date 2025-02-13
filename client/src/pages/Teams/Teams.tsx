@@ -62,7 +62,7 @@ const Teams = () => {
   };
 
   const filteredData = data?.filter((team: TeamType) =>
-    team.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+    team.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   return (
@@ -95,7 +95,7 @@ const Teams = () => {
       </div>
 
       {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noLeagueMessage}>{t("empty")}</p>
+        <p className={styles.noItemsMessage}>{t("empty")}</p>
       ) : (
         <DashboardTable
           headers={[t("tableHeaders.name"), t("tableHeaders.options")]}

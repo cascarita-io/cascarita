@@ -71,7 +71,7 @@ const Seasons = () => {
 
   const filteredData = data
     ?.filter((season: SeasonType) =>
-      season.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+      season.name.toLowerCase().includes(debouncedQuery.toLowerCase())
     )
     ?.sort((a: SeasonType, b: SeasonType) => {
       if (sorts === t("sortOptions.item1")) {
@@ -137,7 +137,7 @@ const Seasons = () => {
       </div>
 
       {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noLeagueMessage}>{t("empty")}</p>
+        <p className={styles.noItemsMessage}>{t("empty")}</p>
       ) : (
         <DashboardTable
           headers={[t("col1"), t("col2"), t("col3"), t("col4")]}
