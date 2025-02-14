@@ -84,7 +84,7 @@ export const getPublishableKey = async (): Promise<string> => {
 };
 
 export const getStripeAccounts = async (
-  groupId: number,
+  groupId: number | undefined,
 ): Promise<StripeAccount[]> => {
   try {
     const response = await fetch(`/api/accounts/${groupId}`);

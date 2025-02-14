@@ -86,6 +86,7 @@ const ConnectAccountController = function () {
 
   return {
     handleEvent,
+    verifyRequest,
   };
 };
 

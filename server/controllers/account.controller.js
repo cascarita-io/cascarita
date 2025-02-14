@@ -81,7 +81,12 @@ const AccountController = function () {
           automatic_payment_methods: {
             enabled: true,
           },
-          application_fee_amount: productObj.fee,
+          application_fee_amount: 200,
+          payment_method_options: {
+            card: {
+              capture_method: "manual",
+            },
+          },
         },
         {
           stripeAccount: req.params["account_id"],
