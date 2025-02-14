@@ -34,9 +34,9 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
   const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
-  const [divisionsToTeamsMap, setDivisionsToTeamsMap] = useState<
-    Map<string, string[]>
-  >(new Map());
+
+  //TODO: Added this line to scilence eslint warning; remove promptly
+  console.log(divisionsToTeamsMap);
 
   useEffect(() => {
     if (currentUser !== null) {
@@ -64,14 +64,13 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
               meta: undefined,
             });
             return seasons;
-          })
+          }),
         );
         const allSeasons = seasonsData.flat();
         setSeasons(allSeasons);
       };
       fetchSeasons();
       setSelectedSeason(null);
-      setDivisionsToTeamsMap(new Map());
     }
   }, [selectedLeague]);
 
@@ -85,7 +84,6 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
           meta: undefined,
         });
         setDivisions([...divisions, ...divisionData]);
-        setDivisionsToTeamsMap(new Map());
       };
       fetchDivisions();
     }
@@ -95,7 +93,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
     if (divisions.length > 0 && selectedSeason !== null) {
       const seasonId = Number(selectedSeason.split(".")[1]);
       const fetchTeams = async () => {
-        const teamsData = await Promise.all(
+        await Promise.all(
           divisions.map(async (division) => {
             const divisionId = division.id as number;
             const teamsData = await getTeamsBySeasonDivisionId({
@@ -104,9 +102,8 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
               meta: undefined,
             });
             const teams = teamsData.map((team: TeamType) => team.name);
-            setDivisionsToTeamsMap((prev) => prev.set(division.name, teams));
             append({ division: division.name, teams: teams });
-          })
+          }),
         );
       };
       fetchTeams();
@@ -130,7 +127,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const { fields, append, remove } = useFieldArray({
+  const { append } = useFieldArray({
     control,
     name: `fields.${index}.properties.player_block_choices`,
   });

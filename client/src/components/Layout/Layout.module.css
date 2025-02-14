@@ -1,11 +1,8 @@
+/* Mobile styles */
 .layout {
   display: grid;
-  grid-template-rows: 80px 1fr 80px;
-  height: 100dvh;
-}
-
-.dashboard {
-  padding: 32px 32px;
+  grid-template-rows: 80px 1fr;
+  min-height: 100dvh;
 }
 
 /* Desktop styles */
@@ -13,9 +10,5 @@
   .layout {
     grid-template-columns: minmax(100px, 256px) 1fr;
     grid-template-rows: none;
-  }
-
-  .dashboard {
-    padding: 42px 46px;
   }
 }
