@@ -1,16 +1,5 @@
 "use strict";
-const {
-  Team,
-  Group,
-  Season,
-  League,
-  Division,
-  TeamsSession,
-  Session,
-} = require("./../models");
-const { Sequelize, Op } = require("sequelize");
-const TeamsSessionController = require("../controllers/teamSession.controller");
-const { getSessionByDivisionAndSeasonId } = require("./session.controller");
+const { Team, Group, Division, TeamsSession, Session } = require("./../models");
 
 const TeamController = function () {
   var getTeamsByGroupId = async function (req, res, next) {
@@ -121,8 +110,8 @@ const TeamController = function () {
   };
 
   var createTeam = async function (req, res, next) {
-    const { group_id, name, team_logo, division_id, season_id } = req.body;
-    const newTeam = { group_id, name, team_logo, division_id, season_id };
+    const { group_id, name, team_logo, division_id } = req.body;
+    const newTeam = { group_id, name, team_logo, division_id };
 
     try {
       const group = await Group.findOne({
@@ -148,16 +137,19 @@ const TeamController = function () {
       await Team.build(newTeam).validate();
       const result = await Team.create(newTeam);
 
-      if (division_id && season_id) {
-        const session_id = await getSessionByDivisionAndSeasonId(
-          division_id,
-          season_id,
-        );
-        const team_id = result.id;
-        const newTeamSession = { team_id, session_id };
-        await TeamsSession.build(newTeamSession).validate();
-        await TeamsSession.create(newTeamSession);
-      }
+      // TODO: add season_id to return specific division tied to season in future
+      let session = await Session.findOne({
+        where: {
+          division_id: division_id,
+        },
+      });
+      console.log("division_id", division_id);
+      console.log("division_id", session);
+
+      const team_id = result.id;
+      const newTeamSession = { team_id, session_id: session.id };
+      await TeamsSession.build(newTeamSession).validate();
+      await TeamsSession.create(newTeamSession);
 
       return res.status(201).json(result);
     } catch (error) {

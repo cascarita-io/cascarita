@@ -35,8 +35,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
 
-  console.log("divisionData ", divisionsData);
-  useEffect(() => {}, [divisionsData]);
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -116,6 +114,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
               onChange={(e) => setDivisionId(Number(e.target.value))}
               required
             >
+              <option value="">Select a division</option>
               {divisionsData?.map((division: ShortDivisionType) => (
                 <option key={division.id} value={division.id}>
                   {division.name}

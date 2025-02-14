@@ -68,16 +68,16 @@ const Teams = () => {
 
   let divisionsData: ShortDivisionType[] = [];
   if (data) {
-    console.log("data", data.divisions);
-    data?.forEach((team: TeamType[]) => {
+    data?.forEach((team: TeamType) => {
+      console.log("TEAM: ", team);
       const divisions = team.divisions;
       divisions.forEach((d: ShortDivisionType) => {
-        console.log(d);
-        divisionsData.push({ ...d });
+        if (!divisionsData.some((division) => division.id === d.id)) {
+          divisionsData.push({ ...d });
+        }
       });
     });
   }
-  console.log("OG Data: ", data);
 
   return (
     <section className={styles.wrapper}>
@@ -103,7 +103,7 @@ const Teams = () => {
             <Modal.Content title={t("formContent.title")}>
               <TeamForm
                 afterSave={() => setIsCreateOpen(false)}
-                divisionsData={(data && data.divisions) || []}
+                divisionsData={divisionsData}
                 // seasonId={seasonIdNumber}
                 // divisionId={divisionIdNumber}
                 requestType="POST"
@@ -116,7 +116,11 @@ const Teams = () => {
           <p className={styles.noItemsMessage}>{t("empty")}</p>
         ) : (
           <DashboardTable
-            headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
+            headers={[
+              t("tableHeaders.name"),
+              t("tableHeaders.division"),
+              t("tableHeaders.options"),
+            ]}
             headerColor="light"
           >
             {isLoading ? (
@@ -141,6 +145,17 @@ const Teams = () => {
                       <img src={team.team_logo} />
                       {team.name}
                     </div>
+                  </td>
+                  <td>
+                    {team.divisions.map((d, index) => (
+                      <span key={d.id}>
+                        {d.name}
+                        {index < team.divisions.length - 1 &&
+                        team.divisions.length > 1
+                          ? ", "
+                          : ""}
+                      </span>
+                    ))}
                   </td>
                   <td>
                     <DropdownMenuButton>

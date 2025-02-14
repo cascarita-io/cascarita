@@ -18,6 +18,7 @@
   },
   "tableHeaders": {
     "name": "Team Name",
+    "division": "Division",
     "options": "Options"
   }
 }
