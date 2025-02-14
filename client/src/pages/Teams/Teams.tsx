@@ -7,8 +7,9 @@ import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import { getTeamsByGroupId } from "../../api/teams/service";
 // import { useParams } from "react-router-dom";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import { useQuery } from "@tanstack/react-query";
-import { ShortDivisionType, TeamType } from "./types";
+import { useQueries } from "@tanstack/react-query";
+import { TeamType } from "./types";
+import { getDivisionByGroupId } from "../../api/divisions/service";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
 import { useTranslation } from "react-i18next";
@@ -29,16 +30,35 @@ const Teams = () => {
 
   const groupId = Number(Cookies.get("group_id")) || 0;
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["teams", groupId],
-    queryFn: async () =>
-      await getTeamsByGroupId({
+  const results = useQueries({
+    queries: [
+      {
         queryKey: ["teams", groupId],
-        meta: undefined,
-        signal: new AbortController().signal,
-      }),
-    enabled: groupId !== 0,
+        queryFn: async () =>
+          await getTeamsByGroupId({
+            queryKey: ["teams", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["divisions", groupId],
+        queryFn: async () =>
+          await getDivisionByGroupId({
+            queryKey: ["divisions", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+    ],
   });
+
+  const [teamsQuery, divisionsQuery] = results;
+  const data = teamsQuery.data;
+  const isLoading = teamsQuery.isLoading;
+  const isError = teamsQuery.isError;
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -66,19 +86,6 @@ const Teams = () => {
     team.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
-  let divisionsData: ShortDivisionType[] = [];
-  if (data) {
-    data?.forEach((team: TeamType) => {
-      console.log("TEAM: ", team);
-      const divisions = team.divisions;
-      divisions.forEach((d: ShortDivisionType) => {
-        if (!divisionsData.some((division) => division.id === d.id)) {
-          divisionsData.push({ ...d });
-        }
-      });
-    });
-  }
-
   return (
     <section className={styles.wrapper}>
       <div className={styles.sectionWrapper}>
@@ -103,9 +110,7 @@ const Teams = () => {
             <Modal.Content title={t("formContent.title")}>
               <TeamForm
                 afterSave={() => setIsCreateOpen(false)}
-                divisionsData={divisionsData}
-                // seasonId={seasonIdNumber}
-                // divisionId={divisionIdNumber}
+                divisionsData={divisionsQuery.data}
                 requestType="POST"
               />
             </Modal.Content>
@@ -146,17 +151,7 @@ const Teams = () => {
                       {team.name}
                     </div>
                   </td>
-                  <td>
-                    {team.divisions.map((d, index) => (
-                      <span key={d.id}>
-                        {d.name}
-                        {index < team.divisions.length - 1 &&
-                        team.divisions.length > 1
-                          ? ", "
-                          : ""}
-                      </span>
-                    ))}
-                  </td>
+                  <td>{team.division_name}</td>
                   <td>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item
@@ -184,6 +179,7 @@ const Teams = () => {
 
         <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
           <Modal.Content title={`${t("edit")} ${currentTeamName}`}>
+            {/* TODO: Plug in division id number */}
             <TeamForm
               afterSave={() => setIsEditOpen(false)}
               requestType="PATCH"
@@ -196,6 +192,7 @@ const Teams = () => {
 
         <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
           <Modal.Content title={`${t("delete")} ${currentTeamName}`}>
+            {/* TODO: Plug in division id number */}
             <TeamForm
               afterSave={() => setIsDeleteOpen(false)}
               requestType="DELETE"

@@ -11,7 +11,7 @@ import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getLeagueByGroupId } from "../../api/leagues/service";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useAuth0 } from "@auth0/auth0-react";
 import { fetchUser } from "../../api/users/service";

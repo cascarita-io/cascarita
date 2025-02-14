@@ -1,4 +1,4 @@
-import { ShortDivisionType } from "../../../pages/Teams/types";
+import { DivisionType } from "../../../pages/Division/types";
 
 interface TeamFormProps {
   //Use to set open state from true to false after form submission
@@ -7,7 +7,7 @@ interface TeamFormProps {
   teamId?: number;
   divisionId?: number;
   seasonId?: number;
-  divisionsData?: ShortDivisionType[];
+  divisionsData?: DivisionType[];
 }
 
 interface TeamFormData {

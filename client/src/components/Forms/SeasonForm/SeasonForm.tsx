@@ -102,11 +102,13 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
           <div className={styles.inputContainer}>
             <label className={styles.label}>League</label>
             <select
+              required
               id="leagueId"
               name="leagueId"
               value={leagueId}
               onChange={(e) => setLeagueId(Number(e.target.value))}
             >
+              <option value="">Select a league</option>
               {leagueData?.map((league) => (
                 <option key={league.id} value={league.id}>
                   {league.name}

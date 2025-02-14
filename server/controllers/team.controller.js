@@ -2,26 +2,6 @@
 const { Team, Group, Division, TeamsSession, Session } = require("./../models");
 
 const TeamController = function () {
-  var getTeamsByGroupId = async function (req, res, next) {
-    const groupId = req.params["id"];
-
-    try {
-      const result = await Team.findAll({
-        where: {
-          group_id: groupId,
-        },
-      });
-
-      if (Object.keys(result).length === 0) {
-        throw new Error("group with given id has no teams");
-      }
-
-      return res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
-
   var getTeamsBySeasonDivisionId = async function (req, res, next) {
     const seasonId = req.params["seasonId"];
     const divisionId = req.params["divisionId"];
@@ -71,29 +51,31 @@ const TeamController = function () {
           "updated_at",
           "group_id",
         ],
-        include: [
-          {
-            model: Group,
-            attributes: ["id", "name"],
-            include: [
-              {
-                model: Division,
-                attributes: ["id", "name"],
-              },
-            ],
-          },
-        ],
       });
+      let finalTeams = teams;
+      await Promise.all(
+        teams.map(async (team, index) => {
+          const teamSession = await TeamsSession.findOne({
+            where: {
+              team_id: team.id,
+            },
+          });
+          const session = await Session.findOne({
+            where: {
+              id: teamSession.session_id,
+            },
+          });
+          const division = await Division.findOne({
+            where: {
+              id: session.division_id,
+            },
+          });
+          finalTeams[index].dataValues.division_name = division.name;
+          finalTeams[index].dataValues.division_id = division.id;
+        }),
+      );
 
-      const modifiedTeams = teams.map((team) => {
-        const { Group, ...rest } = team.toJSON();
-        return {
-          ...rest,
-          divisions: Group ? Group.Divisions : [],
-        };
-      });
-
-      res.status(200).json(modifiedTeams);
+      res.status(200).json(finalTeams);
     } catch (error) {
       next(error);
     }
@@ -143,8 +125,6 @@ const TeamController = function () {
           division_id: division_id,
         },
       });
-      console.log("division_id", division_id);
-      console.log("division_id", session);
 
       const team_id = result.id;
       const newTeamSession = { team_id, session_id: session.id };

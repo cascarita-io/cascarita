@@ -148,7 +148,6 @@ const Seasons = () => {
               <SeasonForm
                 afterSave={() => setIsCreateOpen(false)}
                 requestType="POST"
-                //@ts-ignore
                 leagueData={leaguesQuery.data}
               />
             </Modal.Content>

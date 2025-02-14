@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "../pages.module.css";
-import { useParams, Link, useLocation, Outlet } from "react-router-dom";
+import { useLocation, Outlet } from "react-router-dom";
 // import { useTranslation } from "react-i18next";
 import { DivisionType } from "./types";
 import Search from "../../components/Search/Search";
@@ -11,7 +11,6 @@ import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenu
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import { useQueries } from "@tanstack/react-query";
 import { getDivisionByGroupId } from "../../api/divisions/service";
-import { getLeagueByGroupId } from "../../api/leagues/service";
 import { getSeasonsByGroupId } from "../../api/seasons/services";
 import DivisionForm from "../../components/Forms/DivisionForm/DivisionForm";
 import { useTranslation } from "react-i18next";
@@ -20,10 +19,6 @@ import Cookies from "js-cookie";
 
 const Divisions = () => {
   const { t } = useTranslation("Divisions");
-  // const { seasonId } = useParams<{ seasonId: string }>();
-  // const seasonIdNumber = seasonId ? parseInt(seasonId, 10) : 0;
-
-  // const { t } = useTranslation("Leagues");
 
   // const [filter, setFilter] = useState("");
   // const [sorts, setSorts] = useState("");
@@ -79,8 +74,6 @@ const Divisions = () => {
   const data = divisionsQuery.data;
   const isLoading = divisionsQuery.isLoading;
   const isError = divisionsQuery.isError;
-
-  console.log(data);
 
   const handleEdit = (divisionName: string, divisionId: number) => {
     setCurrentDivisionName(divisionName);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "./TeamForm.module.css";
 import {
   CreateNewTeamData,
@@ -15,15 +15,14 @@ import {
 } from "../../../api/teams/mutations";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
-import { ShortDivisionType } from "../../../pages/Teams/types";
 import Cookies from "js-cookie";
+import { DivisionType } from "../../../pages/Division/types";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
   teamId,
   seasonId,
-  // divisionId,
   divisionsData,
 }) => {
   const { t } = useTranslation("Teams");
@@ -52,6 +51,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
       },
     };
 
+    // TODO: Refactor mutations to not rely on season but rather division
     switch (requestType) {
       case "POST":
         createTeamMutation.mutate(data as CreateNewTeamData);
@@ -115,7 +115,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
               required
             >
               <option value="">Select a division</option>
-              {divisionsData?.map((division: ShortDivisionType) => (
+              {divisionsData?.map((division: DivisionType) => (
                 <option key={division.id} value={division.id}>
                   {division.name}
                 </option>

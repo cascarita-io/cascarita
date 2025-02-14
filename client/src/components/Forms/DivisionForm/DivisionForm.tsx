@@ -103,12 +103,14 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
           <div className={styles.inputContainer}>
             <label className={styles.label}>{t("formContent.season")}</label>
             <select
+              required
               id="seasonId"
               name="seasonId"
               value={seasonId}
               onChange={(e) => setSeasonId(Number(e.target.value))}
               className={styles.input}
             >
+              <option>Select a season</option>
               {seasonData?.map((season: SeasonType) => (
                 <option key={season.id} value={season.id}>
                   {season.name} - {season.league_name}
