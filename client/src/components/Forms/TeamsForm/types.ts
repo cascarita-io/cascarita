@@ -1,3 +1,5 @@
+import { ShortDivisionType } from "../../../pages/Teams/types";
+
 interface TeamFormProps {
   //Use to set open state from true to false after form submission
   afterSave: () => void;
@@ -5,6 +7,7 @@ interface TeamFormProps {
   teamId?: number;
   divisionId?: number;
   seasonId?: number;
+  divisionsData?: ShortDivisionType[];
 }
 
 interface TeamFormData {

@@ -10,6 +10,7 @@
     "delete": "Yes, I'm sure",
     "deleteMessage": "Are you sure you want to delete this team?",
     "name": "Team Name",
+    "division": "Division",
     "namePlaceholder": "Team Name",
     "logo": "Team Logo",
     "submit": "Submit",

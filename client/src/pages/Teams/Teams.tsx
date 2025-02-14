@@ -4,24 +4,19 @@ import Search from "../../components/Search/Search";
 // import SelectMenu from "../../components/SelectMenu/SelectMenu";
 import Modal from "../../components/Modal/Modal";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import { getTeamsBySeasonDivisionId } from "../../api/teams/service";
-import { useParams } from "react-router-dom";
+import { getTeamsByGroupId } from "../../api/teams/service";
+// import { useParams } from "react-router-dom";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useQuery } from "@tanstack/react-query";
-import { TeamType } from "./types";
+import { ShortDivisionType, TeamType } from "./types";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
 import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
+import Cookies from "js-cookie";
 
 const Teams = () => {
-  const { seasonId, divisionId } = useParams<{
-    seasonId: string;
-    divisionId: string;
-  }>();
   const { t } = useTranslation("Teams");
-  const seasonIdNumber = seasonId ? parseInt(seasonId, 10) : 0;
-  const divisionIdNumber = divisionId ? parseInt(divisionId, 10) : 0;
   // const [sorts, setSorts] = useState("");
   const [currentTeamName, setCurrentTeamName] = useState("");
   const [currentTeamId, setCurrentTeamId] = useState(0);
@@ -32,9 +27,17 @@ const Teams = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
+  const groupId = Number(Cookies.get("group_id")) || 0;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["teams", seasonIdNumber, divisionIdNumber],
-    queryFn: getTeamsBySeasonDivisionId,
+    queryKey: ["teams", groupId],
+    queryFn: async () =>
+      await getTeamsByGroupId({
+        queryKey: ["teams", groupId],
+        meta: undefined,
+        signal: new AbortController().signal,
+      }),
+    enabled: groupId !== 0,
   });
 
   useEffect(() => {
@@ -63,6 +66,19 @@ const Teams = () => {
     team.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
+  let divisionsData: ShortDivisionType[] = [];
+  if (data) {
+    console.log("data", data.divisions);
+    data?.forEach((team: TeamType[]) => {
+      const divisions = team.divisions;
+      divisions.forEach((d: ShortDivisionType) => {
+        console.log(d);
+        divisionsData.push({ ...d });
+      });
+    });
+  }
+  console.log("OG Data: ", data);
+
   return (
     <section className={styles.wrapper}>
       <div className={styles.sectionWrapper}>
@@ -87,8 +103,9 @@ const Teams = () => {
             <Modal.Content title={t("formContent.title")}>
               <TeamForm
                 afterSave={() => setIsCreateOpen(false)}
-                seasonId={seasonIdNumber}
-                divisionId={divisionIdNumber}
+                divisionsData={(data && data.divisions) || []}
+                // seasonId={seasonIdNumber}
+                // divisionId={divisionIdNumber}
                 requestType="POST"
               />
             </Modal.Content>
@@ -155,8 +172,8 @@ const Teams = () => {
             <TeamForm
               afterSave={() => setIsEditOpen(false)}
               requestType="PATCH"
-              divisionId={divisionIdNumber}
-              seasonId={seasonIdNumber}
+              // divisionId={divisionIdNumber}
+              // seasonId={seasonIdNumber}
               teamId={currentTeamId}
             />
           </Modal.Content>
@@ -167,8 +184,8 @@ const Teams = () => {
             <TeamForm
               afterSave={() => setIsDeleteOpen(false)}
               requestType="DELETE"
-              divisionId={divisionIdNumber}
-              seasonId={seasonIdNumber}
+              // divisionId={divisionIdNumber}
+              // seasonId={seasonIdNumber}
               teamId={currentTeamId}
             />
           </Modal.Content>

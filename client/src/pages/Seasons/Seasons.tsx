@@ -47,8 +47,8 @@ const Seasons = () => {
       },
       {
         queryKey: ["leagues", groupId],
-        queryFn: () =>
-          getLeagueByGroupId({
+        queryFn: async () =>
+          await getLeagueByGroupId({
             queryKey: ["leagues", groupId],
             meta: undefined,
             signal: new AbortController().signal,

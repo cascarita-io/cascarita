@@ -1,3 +1,7 @@
+interface ShortDivisionType {
+  id: number;
+  name: string;
+}
 interface TeamType {
   id: number;
   name: string;
@@ -5,6 +9,7 @@ interface TeamType {
   created_at: Date;
   updated_at: Date;
   group_id: number;
+  divisions: ShortDivisionType[];
 }
 
-export type { TeamType };
+export type { TeamType, ShortDivisionType };

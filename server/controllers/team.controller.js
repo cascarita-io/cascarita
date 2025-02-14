@@ -1,5 +1,14 @@
 "use strict";
-const { Team, Group, Division, TeamsSession, Session } = require("./../models");
+const {
+  Team,
+  Group,
+  Season,
+  League,
+  Division,
+  TeamsSession,
+  Session,
+} = require("./../models");
+const { Sequelize, Op } = require("sequelize");
 const TeamsSessionController = require("../controllers/teamSession.controller");
 const { getSessionByDivisionAndSeasonId } = require("./session.controller");
 
@@ -60,6 +69,46 @@ const TeamController = function () {
     }
   };
 
+  var getTeamsByGroupId = async function (req, res, next) {
+    const groupId = req.params.id;
+    try {
+      const teams = await Team.findAll({
+        where: { group_id: groupId },
+        attributes: [
+          "id",
+          "name",
+          "team_logo",
+          "created_at",
+          "updated_at",
+          "group_id",
+        ],
+        include: [
+          {
+            model: Group,
+            attributes: ["id", "name"],
+            include: [
+              {
+                model: Division,
+                attributes: ["id", "name"],
+              },
+            ],
+          },
+        ],
+      });
+
+      const modifiedTeams = teams.map((team) => {
+        const { Group, ...rest } = team.toJSON();
+        return {
+          ...rest,
+          divisions: Group ? Group.Divisions : [],
+        };
+      });
+
+      res.status(200).json(modifiedTeams);
+    } catch (error) {
+      next(error);
+    }
+  };
   var isNameUniqueWithinDivision = async function (groupId, teamName) {
     let teamFound = await Team.findOne({
       where: {

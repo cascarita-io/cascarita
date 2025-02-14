@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./TeamForm.module.css";
 import {
   CreateNewTeamData,
@@ -8,7 +8,6 @@ import {
 } from "./types";
 import FileUpload from "../../FileUpload/FileUpload";
 import Modal from "../../Modal/Modal";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   useCreateTeam,
   useDeleteTeam,
@@ -16,23 +15,28 @@ import {
 } from "../../../api/teams/mutations";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
+import { ShortDivisionType } from "../../../pages/Teams/types";
+import Cookies from "js-cookie";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
   teamId,
   seasonId,
-  divisionId,
+  // divisionId,
+  divisionsData,
 }) => {
   const { t } = useTranslation("Teams");
-  const [teamName, setTeamName] = React.useState("");
-  const { user } = useAuth0();
-  const currentUser = user;
+  const [teamName, setTeamName] = useState("");
+  const [divisionId, setDivisionId] = useState(0);
+  const groupId = Number(Cookies.get("group_id")) || 0;
 
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
 
+  console.log("divisionData ", divisionsData);
+  useEffect(() => {}, [divisionsData]);
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -44,7 +48,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
       formData: {
         name: teamName,
         team_logo: teamLogo,
-        group_id: currentUser?.currentUser?.group_id,
+        group_id: groupId,
         division_id: divisionId,
         season_id: seasonId,
       },
@@ -78,7 +82,8 @@ const TeamForm: React.FC<TeamFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={handleSubmit}
-          className={styles.form}>
+          className={styles.form}
+        >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -102,6 +107,24 @@ const TeamForm: React.FC<TeamFormProps> = ({
           </div>
 
           <div className={styles.inputContainer}>
+            <label className={styles.label}>{t("formContent.division")}</label>
+            <select
+              id="divisionId"
+              name="divisionId"
+              value={divisionId}
+              className={styles.input}
+              onChange={(e) => setDivisionId(Number(e.target.value))}
+              required
+            >
+              {divisionsData?.map((division: ShortDivisionType) => (
+                <option key={division.id} value={division.id}>
+                  {division.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.inputContainer}>
             <label className={styles.label}>{t("formContent.logo")}</label>
 
             <FileUpload className={styles.logoInputContainer} />
@@ -115,7 +138,8 @@ const TeamForm: React.FC<TeamFormProps> = ({
             <div>
               <button
                 type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}>
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
                 {t("formContent.submit")}
               </button>
             </div>
