@@ -31,8 +31,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       <Progress.ProgressIndicator
         className={styles.progressIndicator}
         style={{
-          width: `${(used / total) * 100}%`,
-          transition: "width 0.5s ease-in-out",
+          transform: `translateX(-${100 - used}%)`,
         }}
       >
         {children}

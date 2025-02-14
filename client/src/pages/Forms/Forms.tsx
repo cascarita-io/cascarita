@@ -4,8 +4,7 @@ import SelectMenu from "../../components/SelectMenu/SelectMenu";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import { useEffect, useState } from "react";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import styles from "./Forms.module.css";
-import pagesStyles from "../pages.module.css";
+import styles from "../pages.module.css";
 import ShareButton from "../../components/ShareButton/ShareButton";
 import { useNavigate } from "react-router-dom";
 import { Form } from "./types";
@@ -22,6 +21,8 @@ import ShareForm from "../../components/Forms/ShareForm/ShareForm";
 import Cookies from "js-cookie";
 import { fetchUser } from "../../api/users/service";
 import { FaPlus } from "react-icons/fa";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 
 interface ShareModalProps {
   formLink: string;
@@ -35,7 +36,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   onOpen,
 }) => (
   <Modal open={isOpen} onOpenChange={onOpen}>
-    <Modal.Button asChild className={styles.btn}>
+    <Modal.Button asChild className={styles.modalTrigger}>
       <button onClick={() => onOpen(true)}>
         <ShareButton />
       </button>
@@ -57,6 +58,11 @@ const Forms = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
   const { getAccessTokenSilently } = useAuth0();
+
+  const headers = useResponsiveHeader(
+    [t("col1"), t("col2"), t("col4"), t("col5")],
+    [t("col1"), t("col5")]
+  );
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -146,39 +152,41 @@ const Forms = () => {
             </SelectMenu>
           </div>
         </div>
+
         <PrimaryButton
-          className={pagesStyles.primaryBtn}
+          className={`${styles.primaryBtn} ${styles.showInDesktop}`}
           onClick={handleNewFormClick}
         >
-          <p className={pagesStyles.btnTextDesktop}>{t("button")}</p>
-          <FaPlus className={pagesStyles.btnTextMobile} />
+          <p className={styles.btnTextDesktop}>{t("button")}</p>
+          <FaPlus className={styles.btnTextMobile} />
         </PrimaryButton>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
-        <p className={pagesStyles.noItemsMessage}>No forms to display...</p>
+        <p className={styles.noItemsMessage}>No forms to display...</p>
       ) : (
-        <div className={styles.table}>
-          <div className={styles.cols}>
-            <h3>{t("col1")}</h3>
-            <h3>{t("col2")}</h3>
-            <h3>{t("col3")}</h3>
-            <h3>{t("col4")}</h3>
-            <h3>{t("col5")}</h3>
-          </div>
-          <div>
-            {filteredData.map((form, index) => (
-              <div className={styles.cols} key={index}>
+        <DashboardTable headers={headers} headerColor="light">
+          {filteredData?.map((form, index) => (
+            <tr key={index} className={styles.tableRow}>
+              <td className={styles.tableData}>
                 <p>
                   <a href={`/forms/${form._id}`} style={{ cursor: "pointer" }}>
                     {form.form_data.title}
                   </a>
                 </p>
+              </td>
+
+              <td className={`${styles.tableData} ${styles.showInDesktop}`}>
                 <p>{form.created_by?.first_name ?? ""}</p>
-                <p>{new Date(form.updatedAt).toLocaleString()}</p>
+              </td>
+
+              <td className={`${styles.tableData} ${styles.showInDesktop}`}>
                 <DropdownMenuButton
                   onDelete={() => onDelete(form._id)}
                   onEdit={() => onEdit(form._id)}
                 />
+              </td>
+
+              <td className={styles.tableData}>
                 <button
                   onClick={() =>
                     handleShareClick(
@@ -188,10 +196,10 @@ const Forms = () => {
                 >
                   <ShareButton />
                 </button>
-              </div>
-            ))}
-          </div>
-        </div>
+              </td>
+            </tr>
+          ))}
+        </DashboardTable>
       )}
 
       {isOpen && (
