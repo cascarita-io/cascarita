@@ -41,10 +41,6 @@
   flex-wrap: wrap;
 }
 
-.filterSearch > button {
-  margin-right: 50px;
-}
-
 .dropdown {
   display: flex;
   align-items: end;

@@ -15,7 +15,6 @@
   bottom: 0;
   width: 100%;
   background-color: #fff;
-  z-index: 1000;
 }
 
 .navbarListItem {
@@ -25,7 +24,7 @@
   align-items: center;
 }
 
-.navbar img {
+.logo {
   display: none;
 }
 
@@ -56,7 +55,7 @@
     flex-direction: column;
   }
 
-  .navbar img {
+  .logo {
     display: block;
     width: 170px;
     padding-left: 8px;
