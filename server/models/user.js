@@ -98,6 +98,22 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      date_of_birth: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      phone_number: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      internally_created: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
       group_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
