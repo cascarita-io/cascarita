@@ -2,79 +2,89 @@
 
 const { Op } = require("sequelize");
 const { League, Season, Session, Team, TeamsSession } = require("../models");
+const {
+  SeasonSchema,
+  SeasonsSchema,
+  CreateSeasonSchema,
+  UpdateSeasonSchema,
+} = require("../schemas/season.schema");
+const { errorMessageSchema } = require("../schemas/utils.schema");
 
 const SeasonController = {
   async getSeasonsByLeagueId(req, res, next) {
-    const leagueId = req.params.id;
-
     try {
-      const league = await League.findByPk(leagueId);
+      let { league_id } = req.params;
+      league_id = parseInt(league_id, 10);
+      const league = await League.findByPk(league_id);
       if (!league) {
-        res.status(404);
-        throw new Error(`no such league with id ${id}`);
+        const message = errorMessageSchema.parse({
+          message: `League with id ${league_id} not found`,
+        });
+        return res.status(404).json(message);
       }
-      const seasons = await Season.findAll({
+      const allSeasons = await Season.findAll({
         where: {
           league_id: league.id,
         },
       });
-
-      res.json(seasons);
+      let seasons = SeasonsSchema.parse(
+        allSeasons.map((season) => SeasonSchema.parse(season.dataValues)),
+      );
+      return res.status(200).json(seasons);
     } catch (error) {
       next(error);
     }
   },
+
   async getAllSeasons(req, res, next) {
     try {
-      const { query } = req;
+      let { name, leagueId, isActive } = req.query;
+      leagueId = parseInt(leagueId, 10);
       const whereClause = {};
 
-      if (query.name) {
+      if (name) {
         whereClause["$Season.name$"] = {
-          [Op.substring]: query.name.toLowerCase().trim(),
+          [Op.substring]: name.toLowerCase().trim(),
         };
       }
 
-      if (query.league) {
-        const league = parseInt(query.league, 10);
-        if (isNaN(league)) {
-          whereClause["$League.name$"] = {
-            [Op.substring]: query.league.toLowerCase().trim(),
-          };
-        } else {
-          whereClause["$League.id$"] = league;
-        }
+      if (leagueId) {
+        whereClause["$League.id$"] = leagueId;
       }
-      if (query.is_active) {
-        whereClause["is_active"] = query.is_active.toLowerCase() === "true";
+
+      if (isActive) {
+        whereClause["is_active"] = isActive.toLowerCase() === "true";
       }
 
       const seasons = await Season.findAll({
         where: whereClause,
         include: League,
       });
-      return res.json(seasons);
+      const allSeasons = SeasonsSchema.parse(
+        seasons.map((season) => SeasonSchema.parse(season.dataValues)),
+      );
+      return res.status(200).json(allSeasons);
     } catch (error) {
       next(error);
     }
   },
+
   async getSeason(req, res, next) {
     try {
-      const { id } = req.params;
-      if (isNaN(id)) {
-        res.status(400);
-        throw new Error("season id must be an integer");
-      }
+      let { season_id } = req.params;
+      season_id = parseInt(season_id, 10);
 
-      const season = await Season.findByPk(id, {
+      const season = await Season.findByPk(season_id, {
         include: League,
       });
       if (!season) {
-        res.status(404);
-        throw new Error(`no such season with id ${id}`);
+        const message = errorMessageSchema.parse({
+          message: `Season with id ${season_id} not found`,
+        });
+        return res.status(404).json(message);
       }
 
-      return res.status(200).json(season);
+      return res.status(200).json(SeasonSchema.parse(season.dataValues));
     } catch (error) {
       next(error);
     }
@@ -126,72 +136,83 @@ const SeasonController = {
     }
   },
   async createSeason(req, res, next) {
-    const form = {
-      name: req.body.name,
-      start_date: req.body.start_date,
-      end_date: req.body.end_date,
-      is_active: req.body.is_active,
-      league_id: req.body.league_id,
-    };
-
     try {
+      const parsedBody = CreateSeasonSchema.parse(req.body);
       const isUnique = await isNameUniqueWithinLeague(
-        form.name,
-        form.league_id,
+        parsedBody.name,
+        parsedBody.league_id,
       );
       if (!isUnique) {
-        res.status(400);
-        throw new Error("name is not unique");
+        const message = errorMessageSchema.parse({
+          message: `Season name is not unique within league with id: ${league_id}`,
+        });
+        return res.status(400).json(message);
       }
-
-      await Season.build(form).validate();
-      const season = await Season.create(form);
-
-      res.status(201).json(season);
+      await Season.build(parsedBody).validate();
+      const season = await Season.create(parsedBody);
+      const createdSeason = SeasonSchema.parse(season.dataValues);
+      return res.status(201).json(createdSeason);
     } catch (error) {
-      res.status(400);
       next(error);
     }
   },
   async updateSeason(req, res, next) {
-    const { id } = req.params;
     try {
-      const season = await Season.findByPk(id);
+      let { season_id } = req.params;
+      season_id = parseInt(season_id, 10);
+      const parsedBody = UpdateSeasonSchema.parse(req.body);
+
+      let season = await Season.findByPk(season_id);
       if (!season) {
-        res.status(404);
-        throw new Error(`no such season with id ${id}`);
+        const message = errorMessageSchema.parse({
+          message: `Season with id ${season_id} not found`,
+        });
+        return res.status(404).json(message);
       }
 
-      Object.keys(req.body).forEach((key) => {
+      Object.keys(parsedBody).forEach((key) => {
         if (key !== "league_id") {
-          season[key] = req.body[key] ? req.body[key] : season[key];
+          season[key] = parsedBody[key] ? parsedBody[key] : season[key];
         }
       });
 
       const { name, league_id } = season;
       const isUnique = await isNameUniqueWithinLeague(name, league_id);
       if (!isUnique) {
-        res.status(400);
-        throw new Error("name is not unique");
+        const message = errorMessageSchema.parse({
+          message: `Season name is not unique within league with id: ${league_id}`,
+        });
+        return res.status(400).json(message);
       }
 
       await season.validate();
-      await season.save();
-      res.json(season);
+      season = await season.save();
+      const updatedSeason = SeasonSchema.parse(season.dataValues);
+      return res.status(200).json(updatedSeason);
     } catch (error) {
       next(error);
     }
   },
   async deleteSeason(req, res, next) {
-    const { id } = req.params;
     try {
-      let season = await Season.findByPk(id);
-      if (season === null) {
-        res.status(404);
-        throw new Error(`no such season with id ${id}`);
+      let { season_id } = req.params;
+      season_id = parseInt(season_id, 10);
+      let season = await Season.findByPk(season_id);
+      if (!season) {
+        const message = errorMessageSchema.parse({
+          message: `Season with id ${season_id} not found`,
+        });
+        return res.status(404).json(message);
       }
 
       await season.destroy();
+      season = await Season.findByPk(season_id);
+      if (season) {
+        const message = errorMessageSchema.parse({
+          message: `Season with id ${season_id} was not deleted`,
+        });
+        return res.status(400).json(message);
+      }
       res.status(204).json();
     } catch (error) {
       next(error);

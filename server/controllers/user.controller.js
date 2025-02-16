@@ -1,6 +1,6 @@
 /*
 ###  License
-Copyright (c) 2024 Cascarita.io
+Copyright (c) 2025 Cascarita.io
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use the Software for personal or academic purposes only, subject to the following conditions:
 
@@ -24,7 +24,15 @@ By using this Software, you agree to the terms and conditions stated herein. If 
 "use strict";
 
 const { User } = require("../models");
-const GroupController = require("./group.controller");
+const {
+  UserSchema,
+  UserNotFoundSchema,
+  UsersSchema,
+  UpdateUserSchema,
+  RegisterUserSchema,
+} = require("../schemas/user.schema");
+const { errorMessageSchema } = require("../schemas/utils.schema");
+// const GroupController = require("./group.controller");
 const getUserInfoFromAuth0 = require("../utilityFunctions/auth0");
 
 const UserController = function () {
@@ -39,32 +47,57 @@ const UserController = function () {
     return userFound == null;
   };
 
-  var registerUser = async function (req, res, next) {
-    const { group_id, name, streetAddress, city, state, zipCode, logoUrl } =
-      req.body;
+  /*
+    GET /api/users/groups/:group_id
+  */
+  var getUsersByGroupId = async function (req, res, next) {
+    try {
+      let { group_id } = req.params;
+      group_id = parseInt(group_id, 10);
+
+      if (isNaN(group_id)) {
+        throw new Error("Group id must be an integer");
+      }
+
+      const users = await User.findAll({
+        where: {
+          group_id: group_id,
+        },
+      });
+
+      if (!users) {
+        const message = errorMessageSchema.parse({
+          message: `No users were found within group with id: ${group_id}`,
+        });
+        return res.status(404).json(message);
+      }
+
+      const usersInGroup = UsersSchema.parse(
+        users.map((user) => UserSchema.parse(user.dataValues)),
+      );
+      return res.status(200).json(usersInGroup);
+    } catch (error) {
+      console.error(error);
+      const message = errorMessageSchema.parse({
+        message: error.message,
+      });
+      return res.status(500).json(message);
+    }
+  };
+
+  /*
+    POST /api/users/groups/:group_id
+  */
+  var registerUserFromAuth0 = async function (req, res, next) {
+    let { group_id } = req.params;
+    group_id = parseInt(group_id, 10);
+
+    if (isNaN(group_id)) {
+      throw new Error("Group id must be an integer");
+    }
 
     const userBasicInfo = await getUserInfoFromAuth0(req.headers.authorization);
 
-    let groupId = group_id;
-    // const groups = await GroupController.getGroupByName(name);
-    // groupId = groups[0].id;
-
-    if (!groupId) {
-      try {
-        const newGroup = {
-          name: name,
-          street_address: streetAddress,
-          city,
-          state,
-          zip_code: zipCode,
-          logo_url: logoUrl,
-        };
-
-        groupId = await GroupController.createGroup(newGroup);
-      } catch (error) {
-        next(error);
-      }
-    }
     const first_name =
       userBasicInfo.given_name ||
       (userBasicInfo.name ? userBasicInfo.name.split(" ")[0] : "");
@@ -81,7 +114,7 @@ const UserController = function () {
       email: userBasicInfo.email,
       picture: userBasicInfo.picture,
       language_id: 1,
-      group_id: groupId,
+      group_id: group_id,
     };
 
     try {
@@ -91,79 +124,142 @@ const UserController = function () {
       );
 
       if (!userFound) {
-        res.status(400);
-        throw new Error("email is not unique");
+        const errorMessage = `Email already exists within the group ${newUser.group_id}: ${newUser.email}`;
+        const message = errorMessageSchema.parse({ message: errorMessage });
+        return res.status(400).json(message);
       }
 
       await User.build(newUser).validate();
       const result = await User.create(newUser);
-
-      return res.status(201).json(result);
+      const registeredUser = UserSchema.parse(result.dataValues);
+      return res.status(201).json(registeredUser);
     } catch (error) {
       console.error(error);
-      next(error);
+      const message = errorMessageSchema.parse({
+        message: error.message,
+      });
+      return res.status(500).json(message);
     }
   };
 
-  var logInUser = function (req, res) {
-    if (!req.user) {
-      return res.status(401).json({ message: "unauthorized" });
-    }
-
-    res.status(200).json({ user: req.user });
-  };
-
-  var getUserByUserId = async function (req, res, next) {
+  /*
+    GET /api/users/:id
+  */
+  var getUser = async function (req, res, next) {
     try {
-      const { id } = req.params;
+      let { user_id } = req.params;
+      user_id = parseInt(user_id, 10);
 
-      if (isNaN(id)) {
-        res.status(400);
+      if (isNaN(user_id)) {
         throw new Error("user id must be an integer");
       }
 
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(user_id);
       if (!user) {
-        res.status(404);
-        throw new Error(`no user was found with id ${id}`);
+        const message = errorMessageSchema.parse({
+          message: `No user was found with id: ${user_id}`,
+        });
+        return res.status(404).json(message);
       }
-
-      return res.json(user);
+      const foundUser = UserSchema.parse(user.dataValues);
+      return res.status(200).json(foundUser);
     } catch (error) {
-      next(error);
+      console.error(error);
+      const message = errorMessageSchema.parse({
+        message: error.message,
+      });
+      return res.status(500).json(message);
     }
   };
 
-  var updateUserById = async function (req, res, next) {
+  /*
+    POST /api/users/:id
+  */
+  var updateUser = async function (req, res, next) {
     try {
-      const { id } = req.params;
+      let { user_id } = req.params;
+      user_id = parseInt(user_id, 10);
 
-      if (isNaN(id)) {
-        res.status(400);
+      if (isNaN(user_id)) {
         throw new Error("user id must be an integer");
       }
 
-      let currentUser = await User.findByPk(id);
+      let user = await User.findByPk(user_id);
 
-      if (!currentUser) {
-        res.status(404);
-        throw new Error(`no user was found with id ${id}`);
+      if (!user) {
+        const message = errorMessageSchema.parse({
+          message: `No user was found with id: ${user_id}`,
+        });
+        return res.status(404).json(message);
       }
 
-      Object.keys(req.body).forEach((key) => {
-        currentUser[key] = req.body[key] ? req.body[key] : currentUser[key];
+      const parsedBody = UpdateUserSchema.parse(req.body);
+
+      Object.keys(parsedBody).forEach((key) => {
+        user[key] = parsedBody[key] !== undefined ? parsedBody[key] : user[key];
       });
 
-      await currentUser.validate();
-      await currentUser.save();
-
-      res.json(currentUser);
+      await user.validate();
+      user = await user.save();
+      const updatedUser = UserSchema.parse(user.dataValues);
+      res.status(200).json(updatedUser);
     } catch (error) {
-      next(error);
+      console.error(error);
+      const message = errorMessageSchema.parse({
+        message: error.message,
+      });
+      return res.status(500).json(message);
     }
   };
 
-  var fetchUser = async function (req, res, next) {
+  /*
+    DELETE /api/users/:id
+  */
+  var deleteUser = async function (req, res, next) {
+    try {
+      let { user_id } = req.params;
+      user_id = parseInt(user_id, 10);
+
+      if (isNaN(user_id)) {
+        throw new Error("user id must be an integer");
+      }
+
+      let user = await User.findByPk(user_id);
+
+      if (!user) {
+        const message = errorMessageSchema.parse({
+          message: `No user was found with id: ${user_id}`,
+        });
+        return res.status(404).json(message);
+      }
+
+      await User.destroy({
+        where: {
+          id: user_id,
+        },
+      });
+      let deletedUser = await User.findByPk(user_id);
+      if (!deletedUser) {
+        return res.status(204).json();
+      } else {
+        const message = errorMessageSchema.parse({
+          message: `Failure to delete user with id: ${user_id}`,
+        });
+        return res.status(500).json(message);
+      }
+    } catch (error) {
+      console.error(error);
+      const message = errorMessageSchema.parse({
+        message: error.message,
+      });
+      return res.status(500).json(message);
+    }
+  };
+
+  /*
+    GET /api/users
+   */
+  var getUserByEmail = async function (req, res, next) {
     try {
       // Access the email from the query parameters
       const email = req.query.email;
@@ -175,152 +271,72 @@ const UserController = function () {
       });
 
       if (user) {
-        return res.status(200).json(user);
+        const validatedUser = UserSchema.parse(user);
+        return res.status(200).json(validatedUser);
       } else {
-        // TODO Not the best practice below. Was previously .status(404)
-        return res.json({
+        const notFoundResponse = UserNotFoundSchema.parse({
           message: `User with email: '${email}' not found.`,
-          authorization: req.headers.authorization,
           isSigningUp: true,
         });
+        return res.status(404).json(notFoundResponse);
       }
     } catch (error) {
-      console.error("Failed to fetch existing user:", error);
-      next(error);
+      console.error(error);
+      const message = errorMessageSchema.parse({
+        message: error.message,
+      });
+      return res.status(500).json(message);
     }
   };
 
-  var getUsersByGroupId = async function (req, res, next) {
-    try {
-      const { group_id } = req.params;
-
-      if (isNaN(group_id)) {
-        res.status(400);
-        throw new Error("group id must be an integer");
-      }
-
-      const users = await User.findAll({
-        where: {
-          group_id: group_id,
-        },
-        attributes: {
-          exclude: [
-            "password",
-            "created_at",
-            "updated_at",
-            "group_id",
-            "language_id",
-          ],
-        },
-      });
-
-      if (!users) {
-        res.status(404);
-        throw new Error(`no users were found with group id ${group_id}`);
-      }
-      return res.status(200).json(users);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  var deleteUserById = async function (req, res, next) {
-    try {
-      let deleteUser = await User.destroy({
-        where: {
-          id: req.params["id"],
-        },
-      });
-
-      if (deleteUser === 0) {
-        throw new Error("no user found with the given id");
-      }
-
-      return res.status(200).json();
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  var updateUserById = async function (req, res, next) {
-    try {
-      let currentUser = await User.findOne({
-        where: {
-          id: req.params["id"],
-        },
-        // Cannot exlude password, created_at, updated_at because of "SequelizeValidationError: notNull Violation: password field is required" comming from "/server/models/user.js"
-        // attributes: { exclude: ["password", "created_at", "updated_at"] },
-      });
-
-      if (!currentUser) {
-        res.status(400);
-        throw new Error("user with given id was not found");
-      }
-
-      if (req.body?.email) {
-        const { group_id, email } = req.body;
-        const existingUser = await User.findOne({ where: { group_id, email } });
-        if (existingUser) {
-          return res
-            .status(400)
-            .json({ error: "Email already exists within the group" });
-        }
-      }
-
-      Object.keys(req.body).forEach((key) => {
-        currentUser[key] = req.body[key] ? req.body[key] : currentUser[key];
-      });
-
-      await currentUser.validate();
-      await currentUser.save();
-
-      return res.status(200).json(currentUser);
-    } catch (error) {
-      next(error);
-    }
-  };
-
+  /*
+    POST /api/users
+  */
   var addUser = async function (req, res, next) {
     try {
-      const { first_name, last_name, email, group_id } = req.body;
+      const parsedBody = RegisterUserSchema.parse(req.body);
+      const { first_name, last_name, email, group_id, language_id, picture } =
+        parsedBody;
 
       // Check if email is unique within the group, so email can appear once per group but can appear across multiple groups
       const existingUser = await User.findOne({ where: { email, group_id } });
       if (existingUser) {
-        // TODO: Give client feedback that email already exists within the group
-
-        return res
-          .status(400)
-          .json({ error: "Email already exists within the group" });
+        const message = errorMessageSchema.parse({
+          message: `Email already exists within the group ${group_id}: ${email}`,
+        });
+        return res.status(400).json(message);
       }
 
       const newUser = {
         first_name,
         last_name,
         email,
-        language_id: 1,
+        language_id,
         group_id,
+        picture,
       };
 
       await User.build(newUser).validate();
       const result = await User.create(newUser);
-
-      return res.status(201).json(result);
+      const newUserCreated = UserSchema.parse(result.dataValues);
+      return res.status(201).json(newUserCreated);
     } catch (error) {
-      next(error);
+      console.error(error);
+      const message = errorMessageSchema.parse({
+        message: error.message,
+      });
+      return res.status(500).json(message);
     }
   };
 
   return {
-    registerUser,
-    logInUser,
-    getUserByUserId,
-    updateUserById,
+    registerUserFromAuth0,
+    getUser,
+    updateUser,
     getUsersByGroupId,
-    deleteUserById,
-    updateUserById,
+    deleteUser,
     addUser,
-    fetchUser,
+    getUserByEmail,
   };
 };
 

@@ -21,34 +21,49 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 By using this Software, you agree to the terms and conditions stated herein. If you do not agree, you may not use, modify, or distribute this Software.
 */
-"use strict";
+const { z } = require("zod");
 
-const express = require("express");
-const router = express.Router();
-const UserController = require("../controllers/user.controller");
-const UserRolesController = require("../controllers/userRoles.controller");
+const UserSchema = z.object({
+  id: z.number(),
+  first_name: z.string(),
+  last_name: z.string().nullable(),
+  email: z.string().email(),
+  group_id: z.number(),
+  language_id: z.number(),
+  picture: z.string().url().nullable(),
+  created_at: z.date(),
+  updated_at: z.date(),
+});
 
-module.exports = (checkJwt) => {
-  router.get("/loginReactPageHere", (req, res) => {
-    res.json({ message: "Invalid email or password, try again" });
-  });
+const UpdateUserSchema = z.object({
+  first_name: z.string().nullable().optional(),
+  last_name: z.string().nullable().optional(),
+  email: z.string().email().optional(),
+  group_id: z.number().optional(),
+  language_id: z.number().optional(),
+  picture: z.string().url().nullable().optional(),
+});
 
-  router.get("/", checkJwt, UserController.getUserByEmail);
+const RegisterUserSchema = z.object({
+  first_name: z.string(),
+  last_name: z.string().nullable().optional(),
+  email: z.string().email(),
+  group_id: z.number(),
+  language_id: z.number(),
+  picture: z.string().url().nullable().optional(),
+});
 
-  router.get("/:user_id", UserController.getUser);
-  router.put("/:user_id", UserController.updateUser);
-  router.delete("/:user_id", UserController.deleteUser);
+const UsersSchema = z.array(UserSchema);
 
-  router.get("/groups/:group_id", UserController.getUsersByGroupId);
-  router.post(
-    "/groups/:group_id",
-    checkJwt,
-    UserController.registerUserFromAuth0,
-  );
+const UserNotFoundSchema = z.object({
+  message: z.string(),
+  isSigningUp: z.boolean(),
+});
 
-  router.post("/", UserController.addUser);
-
-  // router.get("/roles/:id", UserRolesController.getUserRolesByUserId);
-  // router.patch("/roles/:id", UserRolesController.updateUserRole);
-  return router;
+module.exports = {
+  UserSchema,
+  UserNotFoundSchema,
+  UsersSchema,
+  UpdateUserSchema,
+  RegisterUserSchema,
 };

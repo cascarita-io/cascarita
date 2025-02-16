@@ -1,0 +1,1322 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Cascarita APIs",
+    "version": "1.0.0",
+    "description": "Backend Cascartia APIs"
+  },
+  "paths": {
+    "/api/users": {
+      "get": {
+        "operationId": "getUserByEmail",
+        "summary": "Get User By Email",
+        "description": "Get user details from email. Note will require authorization bearer token set.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "email",
+            "required": true,
+            "schema": {
+              "title": "email",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserNotFoundSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Users"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "addUser",
+        "summary": "Add User Manually",
+        "description": "Register a user manually by specifying key attributes like first_name, email, group_id, and language_id. Note, password still needs to set up on Auth0 end.",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": ["Users"]
+      }
+    },
+    "/api/users/{user_id}": {
+      "get": {
+        "operationId": "getUser",
+        "summary": "Get users by user ID",
+        "description": "Get users by user ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "user_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Users"]
+      },
+      "put": {
+        "operationId": "updateUser",
+        "summary": "Update users by user ID",
+        "description": "Update users by user ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "user_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": ["Users"]
+      },
+      "delete": {
+        "operationId": "deleteUser",
+        "summary": "Delete users by user ID",
+        "description": "Delete users by user ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "user_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failure to delete user (or other internal server error)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Users"]
+      }
+    },
+    "/api/users/groups/{group_id}": {
+      "get": {
+        "operationId": "getUsersByGroupId",
+        "summary": "Get Users by Group ID",
+        "description": "Get users by group ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "group_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSchema"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Group not found",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Users"]
+      },
+      "post": {
+        "operationId": "register_user_auth0",
+        "summary": "Register User from Auth0",
+        "description": "Register a new user from auth0 token. The authorization bearer token will be used to set attributes like first_name, last_name, email, picture, language_id (defaults to English) within our database.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "group_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created (OK)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User already present!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Users"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/teams/groups/{group_id}": {
+      "get": {
+        "operationId": "getTeamsByGroupId",
+        "summary": "Get teams By group ID",
+        "description": "Get teams by group ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "group_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamSchema"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Group not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Teams"]
+      }
+    },
+    "/api/teams": {
+      "post": {
+        "operationId": "createTeam",
+        "summary": "Create Team",
+        "description": "Create a team.",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Team name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Group not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": ["Teams"]
+      }
+    },
+    "/api/teams/{team_id}": {
+      "get": {
+        "operationId": "getTeam",
+        "summary": "Get Team",
+        "description": "Get a team.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "team_id",
+            "required": true,
+            "schema": {
+              "title": "team_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Team not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Teams"]
+      },
+      "put": {
+        "operationId": "updateTeam",
+        "summary": "Update Team",
+        "description": "Update a team.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "team_id",
+            "required": true,
+            "schema": {
+              "title": "team_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Team not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Team with name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTeamSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": ["Teams"]
+      },
+      "delete": {
+        "operationId": "deleteTeam",
+        "summary": "Delete Team",
+        "description": "Delete a team.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "team_id",
+            "required": true,
+            "schema": {
+              "title": "team_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Team not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Failure to delete team",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Teams"]
+      }
+    },
+    "/api/teams/seasons/{season_id}/divisions/{division_id}": {
+      "get": {
+        "operationId": "getTeamsBySeasonDivisionId",
+        "summary": "Get Teams by Seasons and Divisions",
+        "description": "Get seasons divisions by season ID and division ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season_id",
+            "required": true,
+            "schema": {
+              "title": "season_id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "division_id",
+            "required": true,
+            "schema": {
+              "title": "division_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamSchema"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Teams"]
+      }
+    },
+    "/api/seasons/leagues/{league_id}": {
+      "get": {
+        "operationId": "getSeasonsByLeagueId",
+        "summary": "Get Seasons by League ID",
+        "description": "Get seasons by league ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "league_id",
+            "required": true,
+            "schema": {
+              "title": "league_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeasonSchema"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "League not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Seasons"]
+      }
+    },
+    "/api/seasons": {
+      "get": {
+        "operationId": "getAllSeasons",
+        "summary": "Get All Seasons",
+        "description": "Get all seasons where you can filter down with the isActive, leagueId, and name query parameters.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "isActive",
+            "required": false,
+            "schema": {
+              "title": "isActive",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "leagueId",
+            "required": false,
+            "schema": {
+              "title": "leagueId",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "title": "name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeasonSchema"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Seasons"]
+      },
+
+      "post": {
+        "operationId": "createSeason",
+        "summary": "Create Season",
+        "description": "Create a season.",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Season name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSeasonSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": ["Seasons"]
+      }
+    },
+    "/api/seasons/{season_id}": {
+      "get": {
+        "operationId": "getSeason",
+        "summary": "Get Season",
+        "description": "Get a season.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season_id",
+            "required": true,
+            "schema": {
+              "title": "season_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Season not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Seasons"]
+      },
+      "put": {
+        "operationId": "updateSeason",
+        "summary": "Update Season",
+        "description": "Update a season.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season_id",
+            "required": true,
+            "schema": {
+              "title": "season_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Season not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Season with name already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSeasonSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": ["Seasons"]
+      },
+      "delete": {
+        "operationId": "deleteSeason",
+        "summary": "Delete Season",
+        "description": "Delete a season.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "season_id",
+            "required": true,
+            "schema": {
+              "title": "season_id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Season not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Failure to delete season",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessageSchema"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Seasons"]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateTeamSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "group_id": {
+            "type": "integer"
+          },
+          "team_logo": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateTeamSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "group_id": {
+            "type": "integer"
+          },
+          "team_logo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["group_id", "name", "team_logo"],
+        "tags": ["Teams"]
+      },
+      "TeamSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "group_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "team_logo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "tags": ["Teams"]
+      },
+      "UserSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "group_id": {
+            "type": "integer"
+          },
+          "language_id": {
+            "type": "integer"
+          },
+          "picture": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "tags": ["Users"]
+      },
+      "UserNotFoundSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "integer"
+          },
+          "isSigningUp": {
+            "type": "boolean"
+          }
+        },
+        "tags": ["Users"]
+      },
+      "UpdateUserSchema": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "group_id": {
+            "type": "integer"
+          },
+          "language_id": {
+            "type": "integer"
+          },
+          "picture": {
+            "type": "string",
+            "format": "url",
+            "nullable": true
+          }
+        },
+        "required": [],
+        "tags": ["Users"]
+      },
+      "RegisterUserSchema": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "group_id": {
+            "type": "integer"
+          },
+          "language_id": {
+            "type": "integer"
+          },
+          "picture": {
+            "type": "string",
+            "format": "url",
+            "nullable": true
+          }
+        },
+        "required": ["first_name", "email", "group_id", "language_id"],
+        "tags": ["Users"]
+      },
+      "ErrorMessageSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "tags": ["Utility"]
+      },
+      "SeasonSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "league_id": {
+            "type": "integer"
+          },
+          "is_active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateSeasonSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "league_id": {
+            "type": "integer"
+          },
+          "is_active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["name", "league_id", "start_date", "end_date"],
+        "tags": ["Seasons"]
+      },
+      "UpdateSeasonSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "league_id": {
+            "type": "integer"
+          },
+          "is_active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [],
+        "tags": ["Seasons"]
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "servers": null
+}

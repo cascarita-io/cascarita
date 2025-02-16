@@ -21,34 +21,12 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 By using this Software, you agree to the terms and conditions stated herein. If you do not agree, you may not use, modify, or distribute this Software.
 */
-"use strict";
+const { z } = require("zod");
 
-const express = require("express");
-const router = express.Router();
-const UserController = require("../controllers/user.controller");
-const UserRolesController = require("../controllers/userRoles.controller");
+const errorMessageSchema = z.object({
+  message: z.string(),
+});
 
-module.exports = (checkJwt) => {
-  router.get("/loginReactPageHere", (req, res) => {
-    res.json({ message: "Invalid email or password, try again" });
-  });
-
-  router.get("/", checkJwt, UserController.getUserByEmail);
-
-  router.get("/:user_id", UserController.getUser);
-  router.put("/:user_id", UserController.updateUser);
-  router.delete("/:user_id", UserController.deleteUser);
-
-  router.get("/groups/:group_id", UserController.getUsersByGroupId);
-  router.post(
-    "/groups/:group_id",
-    checkJwt,
-    UserController.registerUserFromAuth0,
-  );
-
-  router.post("/", UserController.addUser);
-
-  // router.get("/roles/:id", UserRolesController.getUserRolesByUserId);
-  // router.patch("/roles/:id", UserRolesController.updateUserRole);
-  return router;
+module.exports = {
+  errorMessageSchema,
 };

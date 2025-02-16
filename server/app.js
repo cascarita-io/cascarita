@@ -3,6 +3,8 @@ const cors = require("cors");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger/swagger.json");
 const http = require("http");
 const helmet = require("helmet");
 const path = require("path");
@@ -71,6 +73,8 @@ app.use("/api/teams", TeamRoutes);
 app.use("/api/users", UserRoutes);
 app.use("/api/forms", FormRoutes);
 app.use("/api/accounts", AccountRoutes);
+
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 http.createServer(app).listen(app.get("port"), function () {
   console.log("Express server listening on port " + app.get("port"));

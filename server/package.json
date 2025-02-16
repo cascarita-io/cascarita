@@ -40,9 +40,10 @@
     "sequelize-cli": "^6.6.2",
     "stripe": "^17.3.1",
     "supertest": "^7.0.0",
+    "swagger-ui-express": "^5.0.1",
     "typescript": "^5.3.3",
     "validator": "^13.11.0",
-    "zod": "^3.23.8"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.6",

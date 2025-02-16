@@ -21,34 +21,36 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 By using this Software, you agree to the terms and conditions stated herein. If you do not agree, you may not use, modify, or distribute this Software.
 */
-"use strict";
+const { z } = require("zod");
 
-const express = require("express");
-const router = express.Router();
-const UserController = require("../controllers/user.controller");
-const UserRolesController = require("../controllers/userRoles.controller");
+const TeamSchema = z.object({
+  id: z.number(),
+  name: z.string().nullable(),
+  group_id: z.number(),
+  //TODO: add url constraint
+  team_logo: z.string().nullable(),
+  created_at: z.date(),
+  updated_at: z.date(),
+});
 
-module.exports = (checkJwt) => {
-  router.get("/loginReactPageHere", (req, res) => {
-    res.json({ message: "Invalid email or password, try again" });
-  });
+const CreateTeamSchema = z.object({
+  name: z.string().nullable(),
+  group_id: z.number(),
+  //TODO: add url constraint
+  team_logo: z.string().nullable(),
+});
 
-  router.get("/", checkJwt, UserController.getUserByEmail);
+const UpdateTeamSchema = z.object({
+  name: z.string().nullable().optional(),
+  team_logo: z.string().nullable().optional(),
+  group_id: z.number().optional(),
+});
 
-  router.get("/:user_id", UserController.getUser);
-  router.put("/:user_id", UserController.updateUser);
-  router.delete("/:user_id", UserController.deleteUser);
+const TeamsSchema = z.array(TeamSchema);
 
-  router.get("/groups/:group_id", UserController.getUsersByGroupId);
-  router.post(
-    "/groups/:group_id",
-    checkJwt,
-    UserController.registerUserFromAuth0,
-  );
-
-  router.post("/", UserController.addUser);
-
-  // router.get("/roles/:id", UserRolesController.getUserRolesByUserId);
-  // router.patch("/roles/:id", UserRolesController.updateUserRole);
-  return router;
+module.exports = {
+  CreateTeamSchema,
+  UpdateTeamSchema,
+  TeamSchema,
+  TeamsSchema,
 };
