@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      form_type: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       created_by: {
         type: DataTypes.INTEGER,
         allowNull: false,
