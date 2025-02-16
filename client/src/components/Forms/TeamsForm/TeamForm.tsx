@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./TeamForm.module.css";
 import {
   CreateNewTeamData,
@@ -22,13 +22,23 @@ const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
   teamId,
-  seasonId,
   divisionsData,
+  seasonsData,
 }) => {
   const { t } = useTranslation("Teams");
   const [teamName, setTeamName] = useState("");
   const [divisionId, setDivisionId] = useState(0);
+  const [seasonId, setSeasonId] = useState(0);
+  const [linkToSeason, setLinkToSeason] = useState(true);
   const groupId = Number(Cookies.get("group_id")) || 0;
+
+  console.log("seasonsData", seasonsData);
+
+  useEffect(() => {
+    if (seasonId !== 0) {
+      setLinkToSeason(true);
+    }
+  }, [seasonId]);
 
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
@@ -48,6 +58,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
         group_id: groupId,
         division_id: divisionId,
         season_id: seasonId,
+        link_to_season: linkToSeason,
       },
     };
 
@@ -105,22 +116,58 @@ const TeamForm: React.FC<TeamFormProps> = ({
           </div>
 
           <div className={styles.inputContainer}>
-            <label className={styles.label}>{t("formContent.division")}</label>
+            <label className={styles.label}>{t("formContent.season")}</label>
             <select
-              id="divisionId"
-              name="divisionId"
-              value={divisionId}
+              id="seasonId"
+              name="seasonId"
+              value={seasonId}
               className={styles.input}
-              onChange={(e) => setDivisionId(Number(e.target.value))}
-              required
+              onChange={(e) => setSeasonId(Number(e.target.value))}
+              required={linkToSeason}
             >
-              <option value="">Select a division</option>
-              {divisionsData?.map((division: DivisionType) => (
-                <option key={division.id} value={division.id}>
-                  {division.name}
+              <option value="">Select a season</option>
+              {seasonsData?.map((season: any) => (
+                <option key={season.id} value={season.id}>
+                  {season.name}
                 </option>
               ))}
             </select>
+          </div>
+
+          {seasonId !== 0 && (
+            <div className={styles.inputContainer}>
+              <label className={styles.label}>
+                {t("formContent.division")}
+              </label>
+              <select
+                id="divisionId"
+                name="divisionId"
+                value={divisionId}
+                className={styles.input}
+                onChange={(e) => setDivisionId(Number(e.target.value))}
+                required={linkToSeason}
+              >
+                <option value="">Select a division</option>
+                {divisionsData?.map((division: DivisionType) => (
+                  <option key={division.id} value={division.id}>
+                    {division.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className={styles.inputContainer}>
+            <label className={styles.label}>
+              {t("formContent.linkToSeason")}
+            </label>
+            <input
+              type="checkbox"
+              id="linkToSeason"
+              name="linkToSeason"
+              checked={linkToSeason}
+              onChange={(e) => setLinkToSeason(e.target.checked)}
+            />
           </div>
 
           <div className={styles.inputContainer}>

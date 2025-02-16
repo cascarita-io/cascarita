@@ -74,7 +74,12 @@ const Seasons = () => {
   }, [searchQuery]);
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString();
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   const handleEdit = (seasonName: string, seasonId: number) => {
@@ -211,6 +216,7 @@ const Seasons = () => {
               afterSave={() => setIsEditOpen(false)}
               requestType="PATCH"
               seasonId={currentSeasonId}
+              leagueData={leaguesQuery.data}
             />
           </Modal.Content>
         </Modal>

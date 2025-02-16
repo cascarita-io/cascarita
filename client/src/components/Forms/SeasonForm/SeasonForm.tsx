@@ -106,6 +106,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
               id="leagueId"
               name="leagueId"
               value={leagueId}
+              className={styles.input}
               onChange={(e) => setLeagueId(Number(e.target.value))}
             >
               <option value="">Select a league</option>

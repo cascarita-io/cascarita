@@ -1,5 +1,7 @@
 "use strict";
+const { link } = require("../app");
 const { Team, Group, Division, TeamsSession, Session } = require("./../models");
+const { getSessionByDivisionAndSeasonId } = require("./session.controller");
 
 const TeamController = function () {
   var getTeamsBySeasonDivisionId = async function (req, res, next) {
@@ -60,11 +62,17 @@ const TeamController = function () {
               team_id: team.id,
             },
           });
+          if (!teamSession) {
+            return;
+          }
           const session = await Session.findOne({
             where: {
               id: teamSession.session_id,
             },
           });
+          if (!session) {
+            return;
+          }
           const division = await Division.findOne({
             where: {
               id: session.division_id,
@@ -92,8 +100,15 @@ const TeamController = function () {
   };
 
   var createTeam = async function (req, res, next) {
-    const { group_id, name, team_logo, division_id } = req.body;
-    const newTeam = { group_id, name, team_logo, division_id };
+    const {
+      group_id,
+      name,
+      team_logo,
+      division_id,
+      season_id,
+      link_to_season,
+    } = req.body;
+    const newTeam = { group_id, name, team_logo, division_id, season_id };
 
     try {
       const group = await Group.findOne({
@@ -118,20 +133,22 @@ const TeamController = function () {
 
       await Team.build(newTeam).validate();
       const result = await Team.create(newTeam);
+      if (!link_to_season) {
+        return res.status(201).json(result);
+      } else {
+        if (division_id && season_id) {
+          const session_id = await getSessionByDivisionAndSeasonId(
+            division_id,
+            season_id,
+          );
+          const team_id = result.id;
+          const newTeamSession = { team_id, session_id };
+          await TeamsSession.build(newTeamSession).validate();
+          await TeamsSession.create(newTeamSession);
+        }
 
-      // TODO: add season_id to return specific division tied to season in future
-      let session = await Session.findOne({
-        where: {
-          division_id: division_id,
-        },
-      });
-
-      const team_id = result.id;
-      const newTeamSession = { team_id, session_id: session.id };
-      await TeamsSession.build(newTeamSession).validate();
-      await TeamsSession.create(newTeamSession);
-
-      return res.status(201).json(result);
+        return res.status(201).json(result);
+      }
     } catch (error) {
       next(error);
     }

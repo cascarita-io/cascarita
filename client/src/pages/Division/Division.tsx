@@ -218,6 +218,7 @@ const Divisions = () => {
               afterSave={() => setIsEditOpen(false)}
               requestType="PATCH"
               divisionId={currentDivisionId}
+              seasonData={seasonsQuery.data}
             />
           </Modal.Content>
         </Modal>

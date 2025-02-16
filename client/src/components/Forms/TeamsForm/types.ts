@@ -1,13 +1,13 @@
 import { DivisionType } from "../../../pages/Division/types";
+import { SeasonType } from "../../../pages/Seasons/types";
 
 interface TeamFormProps {
   //Use to set open state from true to false after form submission
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
   teamId?: number;
-  divisionId?: number;
-  seasonId?: number;
   divisionsData?: DivisionType[];
+  seasonsData?: SeasonType[];
 }
 
 interface TeamFormData {

@@ -5,7 +5,7 @@ import Search from "../../components/Search/Search";
 import Modal from "../../components/Modal/Modal";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import { getTeamsByGroupId } from "../../api/teams/service";
-// import { useParams } from "react-router-dom";
+import { getSeasonsByGroupId } from "../../api/seasons/services";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useQueries } from "@tanstack/react-query";
 import { TeamType } from "./types";
@@ -43,6 +43,16 @@ const Teams = () => {
         enabled: groupId !== 0,
       },
       {
+        queryKey: ["seasons", groupId],
+        queryFn: async () =>
+          await getSeasonsByGroupId({
+            queryKey: ["seasons", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
         queryKey: ["divisions", groupId],
         queryFn: async () =>
           await getDivisionByGroupId({
@@ -55,7 +65,7 @@ const Teams = () => {
     ],
   });
 
-  const [teamsQuery, divisionsQuery] = results;
+  const [teamsQuery, seasonsQuery, divisionsQuery] = results;
   const data = teamsQuery.data;
   const isLoading = teamsQuery.isLoading;
   const isError = teamsQuery.isError;
@@ -111,6 +121,7 @@ const Teams = () => {
               <TeamForm
                 afterSave={() => setIsCreateOpen(false)}
                 divisionsData={divisionsQuery.data}
+                seasonsData={seasonsQuery.data}
                 requestType="POST"
               />
             </Modal.Content>
@@ -151,7 +162,9 @@ const Teams = () => {
                       {team.name}
                     </div>
                   </td>
-                  <td>{team.division_name}</td>
+                  <td>
+                    {team.division_name || <span>Not linked to season</span>}
+                  </td>
                   <td>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item
@@ -179,12 +192,11 @@ const Teams = () => {
 
         <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
           <Modal.Content title={`${t("edit")} ${currentTeamName}`}>
-            {/* TODO: Plug in division id number */}
             <TeamForm
               afterSave={() => setIsEditOpen(false)}
               requestType="PATCH"
-              // divisionId={divisionIdNumber}
-              // seasonId={seasonIdNumber}
+              divisionsData={divisionsQuery.data}
+              seasonsData={seasonsQuery.data}
               teamId={currentTeamId}
             />
           </Modal.Content>
@@ -192,12 +204,9 @@ const Teams = () => {
 
         <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
           <Modal.Content title={`${t("delete")} ${currentTeamName}`}>
-            {/* TODO: Plug in division id number */}
             <TeamForm
               afterSave={() => setIsDeleteOpen(false)}
               requestType="DELETE"
-              // divisionId={divisionIdNumber}
-              // seasonId={seasonIdNumber}
               teamId={currentTeamId}
             />
           </Modal.Content>
