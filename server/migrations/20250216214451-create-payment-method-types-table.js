@@ -14,6 +14,11 @@ module.exports = {
             primaryKey: true,
             type: Sequelize.INTEGER,
           },
+          code: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            unique: true,
+          },
           name: {
             type: Sequelize.STRING,
             allowNull: false,
@@ -39,12 +44,14 @@ module.exports = {
         "PaymentMethods",
         [
           {
+            code: "stripe_payment_intent",
             name: "Stripe",
             description: "Use stripe payment intent to accept card payment",
             created_at: new Date(),
             updated_at: new Date(),
           },
           {
+            code: "cash",
             name: "Cash",
             description: "this option is for users handing cash to admin ",
             created_at: new Date(),
@@ -53,6 +60,8 @@ module.exports = {
         ],
         { transaction },
       );
+
+      await transaction.commit();
     } catch (error) {
       await transaction.rollback();
       throw error;
