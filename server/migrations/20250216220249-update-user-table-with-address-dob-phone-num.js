@@ -14,7 +14,7 @@ module.exports = {
     });
 
     await queryInterface.addColumn("Users", "phone_number", {
-      type: Sequelize.STRING(10),
+      type: Sequelize.STRING(20),
       allowNull: true,
     });
 
