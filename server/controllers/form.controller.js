@@ -77,6 +77,7 @@ const FormController = {
         created_by: req.params.user_id,
         updated_by: null,
         document_id: result.id,
+        form_type: 1, // temp, only type on DB table and allowNull is False
       };
 
       await Form.build(newForm).validate();
