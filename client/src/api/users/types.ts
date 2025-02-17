@@ -23,6 +23,9 @@ export interface User {
 
 export interface RegisterUser {
   group_id: string | number | null; // they might be joining an existing group
+  first_name: string | null;
+  last_name: string | null;
+  language_id: string | number | null;
   name: string | null;
   streetAddress: string | null;
   city: string | null;

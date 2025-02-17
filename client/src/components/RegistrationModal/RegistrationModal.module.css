@@ -7,8 +7,9 @@
 }
 
 .inlineFields {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 5fr 4fr;
+  gap: 30px;
 }
 
 .formContainer {
@@ -158,13 +159,14 @@
   align-items: center;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 769px) {
   .selectMenu {
     margin-bottom: 8px;
   }
 
   .inlineFields {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 

@@ -1,4 +1,5 @@
 import styles from "../pages.module.css";
+import formStyles from "../../components/Forms/Form.module.css";
 import Search from "../../components/Search/Search";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
