@@ -11,6 +11,7 @@ module.exports = (checkJwt) => {
   router.get("/", SeasonController.getAllSeasons);
   router.get("/:id", SeasonController.getSeason);
   router.get("/:id/leagues", SeasonController.getSeasonsByLeagueId);
+  router.get("/group/:id", SeasonController.getSeasonsByGroupId);
   router.get("/:id/divisions", DivisionController.getBySeasonId);
   router.get("/:seasonId/seasonId", DivisionController.getAllDivsionsBySeason);
   router.post("/", SeasonController.createSeason);

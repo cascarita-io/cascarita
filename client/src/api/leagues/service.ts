@@ -6,11 +6,11 @@ import {
   DeleteLeagueData,
 } from "../../components/Forms/LeagueForm/types";
 
-type UserQueryKey = [string, number];
+type LeagueQueryKey = [string, number];
 
 const getLeagueByGroupId = async ({
   queryKey,
-}: QueryFunctionContext<UserQueryKey>) => {
+}: QueryFunctionContext<LeagueQueryKey>) => {
   const [, groupId] = queryKey;
   try {
     const response = await fetch(`/api/groups/${groupId}/leagues`, {
@@ -28,7 +28,7 @@ const getLeagueByGroupId = async ({
 };
 
 const createNewLeague = async (
-  data: CreateNewLeagueData,
+  data: CreateNewLeagueData
 ): Promise<LeagueResponse> => {
   try {
     const response = await fetch("/api/leagues", {
@@ -47,7 +47,7 @@ const createNewLeague = async (
 };
 
 const updateLeague = async (
-  data: UpdateLeagueData,
+  data: UpdateLeagueData
 ): Promise<LeagueResponse> => {
   try {
     const response = await fetch(`/api/leagues/${data.id}`, {

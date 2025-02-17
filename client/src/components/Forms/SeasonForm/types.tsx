@@ -1,9 +1,11 @@
+import { LeagueType } from "../../../pages/Leagues/types";
+
 interface SeasonFormProps {
   //Use to set open state from true to false after form submission
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
   seasonId?: number;
-  leagueId?: number;
+  leagueData?: LeagueType[];
 }
 
 interface SeasonFormData {

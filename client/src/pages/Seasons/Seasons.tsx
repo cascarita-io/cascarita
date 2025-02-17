@@ -1,28 +1,21 @@
 import Search from "../../components/Search/Search";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
-import Page from "../../components/Page/Page";
 import SelectMenu from "../../components/SelectMenu/SelectMenu";
 import Modal from "../../components/Modal/Modal";
 import SeasonForm from "../../components/Forms/SeasonForm/SeasonForm";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams, Link, Outlet } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getSeasonsByLeagueId } from "../../api/seasons/services";
-import { SeasonType } from "./types";
+import { useQueries } from "@tanstack/react-query";
+import { getSeasonsByGroupId } from "../../api/seasons/services";
 import styles from "../pages.module.css";
-import { useLocation } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
+import { getLeagueByGroupId } from "../../api/leagues/service";
+import Cookies from "js-cookie";
+import { SeasonType } from "./types";
 
 const Seasons = () => {
-  const { leagueId, leagueName } = useParams<{
-    leagueId: string;
-    leagueName: string;
-  }>();
-  const leagueIdNumber = leagueId ? parseInt(leagueId, 10) : 0;
-
   const { t } = useTranslation("Seasons");
 
   // const [filter, setFilter] = useState("");
@@ -38,10 +31,37 @@ const Seasons = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["seasons", leagueIdNumber],
-    queryFn: getSeasonsByLeagueId,
+  const groupId = Number(Cookies.get("group_id")) || 0;
+
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["seasons", groupId],
+        queryFn: async () =>
+          await getSeasonsByGroupId({
+            queryKey: ["seasons", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["leagues", groupId],
+        queryFn: async () =>
+          await getLeagueByGroupId({
+            queryKey: ["leagues", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+    ],
   });
+
+  const [seasonsQuery, leaguesQuery] = results;
+  const data = seasonsQuery.data;
+  const isLoading = seasonsQuery.isLoading;
+  const isError = seasonsQuery.isError;
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -54,7 +74,12 @@ const Seasons = () => {
   }, [searchQuery]);
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleString();
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   const handleEdit = (seasonName: string, seasonId: number) => {
@@ -71,7 +96,7 @@ const Seasons = () => {
 
   const filteredData = data
     ?.filter((season: SeasonType) =>
-      season.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+      season.name.toLowerCase().includes(debouncedQuery.toLowerCase())
     )
     ?.sort((a: SeasonType, b: SeasonType) => {
       if (sorts === t("sortOptions.item1")) {
@@ -84,132 +109,129 @@ const Seasons = () => {
       return 0;
     });
 
-  const location = useLocation();
-  const isDivisionRoute = location.pathname.includes("division");
-
-  if (isDivisionRoute) {
-    return <Outlet />;
-  }
-
   return (
-    <Page title={leagueName}>
-      <div className={styles.filterSearch}>
-        <div className={styles.dropdown}>
-          <Search onSearchChange={setSearchQuery} />
+    <section className={styles.wrapper}>
+      <div className={styles.sectionWrapper}>
+        <div className={styles.filterSearch}>
+          <div className={styles.dropdown}>
+            {data && data.length > 0 && (
+              <Search onSearchChange={setSearchQuery} />
+            )}
 
-          <div className={styles.filterContainer}>
-            <p className={styles.filterSubTitle}>{t("sort")}</p>
-            <SelectMenu
-              placeholder={t("sortOptions.item1")}
-              name="sorts"
-              value={sorts}
-              onValueChange={(value) => setSorts(value)}
-            >
-              <SelectMenu.Group>
-                {sortStatuses.map((status, idx) => (
-                  <SelectMenu.Item key={idx} value={status}>
-                    {status}
-                  </SelectMenu.Item>
-                ))}
-              </SelectMenu.Group>
-            </SelectMenu>
+            {data && data.length > 0 && (
+              <div className={styles.filterContainer}>
+                <p className={styles.filterSubTitle}>{t("sort")}</p>
+                <SelectMenu
+                  placeholder={t("sortOptions.item1")}
+                  name="sorts"
+                  value={sorts}
+                  onValueChange={(value) => setSorts(value)}
+                >
+                  <SelectMenu.Group>
+                    {sortStatuses.map((status, idx) => (
+                      <SelectMenu.Item key={idx} value={status}>
+                        {status}
+                      </SelectMenu.Item>
+                    ))}
+                  </SelectMenu.Group>
+                </SelectMenu>
+              </div>
+            )}
           </div>
+
+          <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <Modal.Button asChild className={styles.modalTrigger}>
+              <PrimaryButton
+                className={styles.primaryBtn}
+                onClick={() => setIsCreateOpen(true)}
+              >
+                <p className={styles.btnTextDesktop}>{t("button")}</p>
+                <FaPlus className={styles.btnTextMobile} />
+              </PrimaryButton>
+            </Modal.Button>
+            <Modal.Content title={t("formContent.title")}>
+              <SeasonForm
+                afterSave={() => setIsCreateOpen(false)}
+                requestType="POST"
+                leagueData={leaguesQuery.data}
+              />
+            </Modal.Content>
+          </Modal>
         </div>
 
-        <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <Modal.Button asChild className={styles.modalTrigger}>
-            <PrimaryButton
-              className={styles.primaryBtn}
-              onClick={() => setIsCreateOpen(true)}
-            >
-              <p className={styles.btnTextDesktop}>{t("button")}</p>
-              <FaPlus className={styles.btnTextMobile} />
-            </PrimaryButton>
-          </Modal.Button>
-          <Modal.Content title={t("formContent.title")}>
+        {filteredData == null || filteredData?.length === 0 ? (
+          <p className={styles.noItemsMessage}>{t("empty")}</p>
+        ) : (
+          <DashboardTable
+            headers={[t("col1"), t("col2"), t("col3"), t("col4"), t("col5")]}
+            headerColor="light"
+          >
+            {isLoading ? (
+              <tr>
+                <td>{t("loading")}</td>
+              </tr>
+            ) : isError || !data ? (
+              <tr>
+                <td>{t("error")}</td>
+              </tr>
+            ) : (
+              filteredData?.map((season: SeasonType, idx: number) => (
+                <tr key={idx} className={styles.tableRow}>
+                  <td className={styles.tableData}>{season.name}</td>
+                  <td className={styles.tableData}>{season.league_name}</td>
+                  <td className={styles.tableData}>
+                    {formatDate(season.start_date)}
+                  </td>
+                  <td className={styles.tableData}>
+                    {formatDate(season.end_date)}
+                  </td>
+                  <td>
+                    <DropdownMenuButton>
+                      <DropdownMenuButton.Item
+                        onClick={() => handleEdit(season.name, season.id)}
+                      >
+                        {t("edit")}
+                      </DropdownMenuButton.Item>
+
+                      <DropdownMenuButton.Separator
+                        className={styles.separator}
+                      />
+
+                      <DropdownMenuButton.Item
+                        onClick={() => handleDelete(season.name, season.id)}
+                      >
+                        {t("delete")}
+                      </DropdownMenuButton.Item>
+                    </DropdownMenuButton>
+                  </td>
+                </tr>
+              ))
+            )}
+          </DashboardTable>
+        )}
+
+        <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <Modal.Content title={`${t("edit")} ${currentSeasonName}`}>
             <SeasonForm
-              afterSave={() => setIsCreateOpen(false)}
-              requestType="POST"
-              leagueId={leagueIdNumber}
+              afterSave={() => setIsEditOpen(false)}
+              requestType="PATCH"
+              seasonId={currentSeasonId}
+              leagueData={leaguesQuery.data}
+            />
+          </Modal.Content>
+        </Modal>
+
+        <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <Modal.Content title={`${t("delete")} ${currentSeasonName}`}>
+            <SeasonForm
+              afterSave={() => setIsDeleteOpen(false)}
+              requestType="DELETE"
+              seasonId={currentSeasonId}
             />
           </Modal.Content>
         </Modal>
       </div>
-
-      {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noLeagueMessage}>{t("empty")}</p>
-      ) : (
-        <DashboardTable
-          headers={[t("col1"), t("col2"), t("col3"), t("col4")]}
-          headerColor="light"
-        >
-          {isLoading ? (
-            <tr>
-              <td>{t("loading")}</td>
-            </tr>
-          ) : isError || !data ? (
-            <tr>
-              <td>{t("error")}</td>
-            </tr>
-          ) : (
-            filteredData?.map((season: SeasonType, idx: number) => (
-              <tr key={idx} className={styles.tableRow}>
-                <td className={styles.tableData}>
-                  <Link to={`division/${season.id}/${season.name}`}>
-                    {season.name}
-                  </Link>
-                </td>
-                <td className={styles.tableData}>
-                  {formatDate(season.start_date)}
-                </td>
-                <td className={styles.tableData}>
-                  {formatDate(season.end_date)}
-                </td>
-                <td>
-                  <DropdownMenuButton>
-                    <DropdownMenuButton.Item
-                      onClick={() => handleEdit(season.name, season.id)}
-                    >
-                      {t("edit")}
-                    </DropdownMenuButton.Item>
-
-                    <DropdownMenuButton.Separator
-                      className={styles.separator}
-                    />
-
-                    <DropdownMenuButton.Item
-                      onClick={() => handleDelete(season.name, season.id)}
-                    >
-                      {t("delete")}
-                    </DropdownMenuButton.Item>
-                  </DropdownMenuButton>
-                </td>
-              </tr>
-            ))
-          )}
-        </DashboardTable>
-      )}
-
-      <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <Modal.Content title={`${t("edit")} ${currentSeasonName}`}>
-          <SeasonForm
-            afterSave={() => setIsEditOpen(false)}
-            requestType="PATCH"
-            seasonId={currentSeasonId}
-          />
-        </Modal.Content>
-      </Modal>
-
-      <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <Modal.Content title={`${t("delete")} ${currentSeasonName}`}>
-          <SeasonForm
-            afterSave={() => setIsDeleteOpen(false)}
-            requestType="DELETE"
-            seasonId={currentSeasonId}
-          />
-        </Modal.Content>
-      </Modal>
-    </Page>
+    </section>
   );
 };
 
