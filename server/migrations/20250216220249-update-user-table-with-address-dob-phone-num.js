@@ -9,12 +9,12 @@ module.exports = {
     });
 
     await queryInterface.addColumn("Users", "date_of_birth", {
-      type: Sequelize.DATE,
+      type: Sequelize.DATEONLY,
       allowNull: true,
     });
 
     await queryInterface.addColumn("Users", "phone_number", {
-      type: Sequelize.STRING(255),
+      type: Sequelize.STRING(10),
       allowNull: true,
     });
 

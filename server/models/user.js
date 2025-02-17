@@ -103,12 +103,18 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       date_of_birth: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: true,
       },
       phone_number: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(10),
         allowNull: true,
+        validate: {
+          len: {
+            args: [9, 10],
+            msg: "phone number must be between 9 and 10 characters",
+          },
+        },
       },
       internally_created: {
         type: DataTypes.BOOLEAN,
