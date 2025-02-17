@@ -27,6 +27,7 @@ const {
   User,
   UserRoles,
   Role,
+  Session,
   UserSessions,
   TeamsSession,
   Team,
@@ -197,11 +198,145 @@ const UserController = function () {
     }
   };
 
+  var getPlayersByGroupId = async function (req, res, next) {
+    try {
+      const { group_id } = req.params;
+
+      let users = await User.findAll({
+        where: {
+          group_id: group_id,
+        },
+        attributes: {
+          exclude: [
+            "password",
+            "created_at",
+            "updated_at",
+            "group_id",
+            "language_id",
+          ],
+        },
+      });
+
+      if (!users) {
+        res.status(404);
+        throw new Error(`no users were found with group id ${group_id}`);
+      }
+
+      const playerRole = await Role.findOne({
+        where: {
+          name: "player",
+        },
+      });
+      const userRoles = await UserRoles.findAll({
+        where: {
+          role_id: playerRole.id,
+        },
+      });
+
+      if (!userRoles) {
+        res.status(404);
+        throw new Error(`no users were found with role 'player'`);
+      }
+
+      const usersWithPlayerRole = users.filter((user) =>
+        userRoles.some((userRole) => userRole.user_id === user.id),
+      );
+
+      users = usersWithPlayerRole;
+
+      let playersWithTeams = users;
+      await Promise.all(
+        users.map(async (user, index) => {
+          const userSessions = await UserSessions.findAll({
+            where: {
+              user_id: user.id,
+            },
+          });
+          const teams = await Promise.all(
+            userSessions.map(async (userSession) => {
+              const team = await Team.findByPk(userSession.team_id);
+              if (team) {
+                const teamSession = await TeamsSession.findOne({
+                  where: {
+                    team_id: team.id,
+                  },
+                });
+                return {
+                  id: team.id,
+                  name: team.name,
+                  session_id: teamSession.session_id,
+                };
+              }
+            }),
+          );
+          playersWithTeams[index].dataValues.teams = teams;
+        }),
+      );
+
+      users = playersWithTeams;
+      return res.status(200).json(users);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  var updatePlayerTeams = async function (req, res, next) {
+    try {
+      const { user_id } = req.params;
+      const { session_id, team_id } = req.body;
+
+      const userSession = await UserSessions.findOne({
+        where: {
+          user_id: user_id,
+          session_id: session_id,
+        },
+      });
+
+      console.log("userSession", userSession);
+
+      // making a new player team association
+      if (!userSession) {
+        await UserSessions.create({
+          user_id,
+          team_id,
+          session_id,
+        });
+      } else {
+        // updating an existing player team association
+        userSession.team_id = team_id;
+        await userSession.save();
+      }
+
+      return res.status(204).json();
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  var getSession = async function (req, res, next) {
+    try {
+      const { division_id, season_id } = req.body;
+      const session = await Session.findOne({
+        where: {
+          division_id,
+          season_id,
+        },
+      });
+      if (!session) {
+        res.status(404);
+        throw new Error(
+          `no session found with division id ${division_id} and season id ${season_id}`,
+        );
+      }
+      return res.status(200).json(session);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   var getUsersByGroupId = async function (req, res, next) {
     try {
       const { group_id } = req.params;
-      const role = req.query.role;
-      const getTeams = req.query.getTeams;
 
       if (isNaN(group_id)) {
         res.status(400);
@@ -226,66 +361,6 @@ const UserController = function () {
       if (!users) {
         res.status(404);
         throw new Error(`no users were found with group id ${group_id}`);
-      }
-
-      if (role) {
-        const searchRole = await Role.findOne({
-          where: {
-            name: role,
-          },
-        });
-        const userRoles = await UserRoles.findAll({
-          where: {
-            role_id: searchRole.id,
-          },
-        });
-
-        if (!userRoles) {
-          res.status(404);
-          throw new Error(`no users were found with role ${role}`);
-        }
-
-        const usersWithRole = users.filter((user) =>
-          userRoles.some((userRole) => userRole.user_id === user.id),
-        );
-        users = usersWithRole;
-      }
-      if (getTeams && getTeams === "true") {
-        console.log("Getting teams");
-        let usersWithTeams = users;
-        await Promise.all(
-          users.map(async (user, index) => {
-            const userSessions = await UserSessions.findOne({
-              where: {
-                user_id: user.id,
-              },
-            });
-            console.log("User sessions", userSessions);
-
-            if (userSessions) {
-              const teamSession = await TeamsSession.findAll({
-                where: {
-                  session_id: userSessions.session_id,
-                },
-              });
-              console.log("Team session", teamSession);
-              if (teamSession) {
-                let teams = await Promise.all(
-                  teamSession.map(async (teamSession) => {
-                    const team = await Team.findOne({
-                      where: {
-                        id: teamSession.team_id,
-                      },
-                    });
-                    return { id: team.id, name: team.name };
-                  }),
-                );
-                usersWithTeams[index].dataValues.teams = teams;
-              }
-            }
-          }),
-        );
-        users = usersWithTeams;
       }
       return res.status(200).json(users);
     } catch (error) {
@@ -390,6 +465,9 @@ const UserController = function () {
     updateUserById,
     addUser,
     fetchUser,
+    getPlayersByGroupId,
+    updatePlayerTeams,
+    getSession,
   };
 };
 

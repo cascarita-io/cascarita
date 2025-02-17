@@ -13,11 +13,13 @@ module.exports = (checkJwt) => {
   router.patch("/:id", UserController.updateUserById);
   router.post("/register", UserController.registerUser);
   router.get("/", checkJwt, UserController.fetchUser);
+  router.get("/group/:group_id/players", UserController.getPlayersByGroupId);
+  router.patch("/:user_id/players/teams", UserController.updatePlayerTeams);
+  router.post("/session", UserController.getSession);
   router.get("/group/:group_id", UserController.getUsersByGroupId);
   router.delete("/:id", UserController.deleteUserById);
   router.patch("/:id", UserController.updateUserById);
   router.post("/", UserController.addUser);
-
   router.get("/roles/:id", UserRolesController.getUserRolesByUserId);
   router.patch("/roles/:id", UserRolesController.updateUserRole);
   return router;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "../pages.module.css";
 import Search from "../../components/Search/Search";
-import { getUsersByGroupId } from "../../api/users/service";
+import { getPlayersByGroupId } from "../../api/users/service";
 import * as Avatar from "@radix-ui/react-avatar";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useQueries } from "@tanstack/react-query";
@@ -10,7 +10,10 @@ import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
 import { PlayerType } from "./types";
 import Modal from "../../components/Modal/Modal";
+import { getDivisionByGroupId } from "../../api/divisions/service";
+import { getSeasonsByGroupId } from "../../api/seasons/services";
 import { getTeamsByGroupId } from "../../api/teams/service";
+import { getLeagueByGroupId } from "../../api/leagues/service";
 import PlayerForm from "../../components/Forms/PlayerForm/PlayerForm";
 
 const Players = () => {
@@ -29,8 +32,38 @@ const Players = () => {
       {
         queryKey: ["users", groupId],
         queryFn: async () =>
-          await getUsersByGroupId({
-            queryKey: ["teams", groupId, { role: "player", getTeams: true }],
+          await getPlayersByGroupId({
+            queryKey: ["teams", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["seasons", groupId],
+        queryFn: async () =>
+          await getSeasonsByGroupId({
+            queryKey: ["seasons", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["divisions", groupId],
+        queryFn: async () =>
+          await getDivisionByGroupId({
+            queryKey: ["divisions", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["leagues", groupId],
+        queryFn: async () =>
+          await getLeagueByGroupId({
+            queryKey: ["leagues", groupId],
             meta: undefined,
             signal: new AbortController().signal,
           }),
@@ -49,7 +82,8 @@ const Players = () => {
     ],
   });
 
-  const [playersQuery, teamsQuery] = result;
+  const [playersQuery, seasonsQuery, divisionsQuery, leaguesQuery, teamsQuery] =
+    result;
   const { data, isLoading, isError } = playersQuery;
 
   const handleEdit = (player: PlayerType) => {
@@ -66,6 +100,10 @@ const Players = () => {
       clearTimeout(handleDebounce);
     };
   }, [searchQuery]);
+
+  useEffect(() => {
+    playersQuery.refetch();
+  }, [isEditOpen]);
 
   const filteredData = data?.filter((player: PlayerType) =>
     player.first_name.toLowerCase().includes(debouncedQuery.toLowerCase())
@@ -105,28 +143,25 @@ const Players = () => {
               data?.map((player: PlayerType, idx: number) => (
                 <tr key={idx} className={styles.tableRow}>
                   <td className={styles.tableData}>
-                    <td className={styles.tableData}>
-                      <Avatar.Root className="AvatarRoot">
-                        <Avatar.Image
-                          className={styles.avatar}
-                          src={
-                            player.picture ||
-                            "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
-                          }
+                    {/* <td className={styles.tableData}> */}
+                    <Avatar.Root className="AvatarRoot" key={player.picture}>
+                      <Avatar.Image
+                        className={styles.avatar}
+                        src={player.picture || ""}
+                        alt={player.first_name + " " + player.last_name}
+                      />
+                      <Avatar.Fallback className="AvatarFallback">
+                        <img
+                          src="https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg"
                           alt={player.first_name + " " + player.last_name}
+                          className={styles.avatar}
                         />
-                        <Avatar.Fallback
-                          className="AvatarFallback"
-                          delayMs={600}
-                        >
-                          {player.first_name.charAt(0).toUpperCase() +
-                            player.last_name.charAt(0).toUpperCase}
-                        </Avatar.Fallback>
-                      </Avatar.Root>
-                      <div style={{ display: "grid" }}>
-                        <p>{`${player.first_name} ${player.last_name}`}</p>
-                      </div>
-                    </td>
+                      </Avatar.Fallback>
+                    </Avatar.Root>
+                    <div style={{ display: "grid" }}>
+                      <p>{`${player.first_name} ${player.last_name}`}</p>
+                    </div>
+                    {/* </td> */}
                   </td>
                   <td>
                     {player.teams && player.teams.length > 0 ? (
@@ -150,15 +185,29 @@ const Players = () => {
           </DashboardTable>
         )}
 
-        <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <Modal
+          open={isEditOpen}
+          onOpenChange={(isOpen) => {
+            setIsEditOpen(isOpen);
+            if (!isOpen) {
+              playersQuery.refetch();
+            }
+          }}
+        >
           <Modal.Content
             title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name} Teams`}
           >
             {currentPlayer && (
               <PlayerForm
-                afterSave={() => setIsEditOpen(false)}
+                afterSave={() => {
+                  setIsEditOpen(false);
+                  playersQuery.refetch();
+                }}
                 requestType="PATCH"
                 player={currentPlayer}
+                leagues={leaguesQuery.data}
+                divisions={divisionsQuery.data}
+                seasons={seasonsQuery.data}
                 teams={teamsQuery.data}
               />
             )}

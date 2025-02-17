@@ -2,6 +2,8 @@ import { QueryFunctionContext } from "@tanstack/react-query";
 import {
   DeleteUserData,
   UpdateUserData,
+  GetSessionData,
+  UpdatePlayerTeamsData,
   AddUserData,
 } from "../../components/Forms/UserForm/types";
 import { UserResponse, LanguageCodeToLanguageId, RegisterUser } from "./types";
@@ -51,24 +53,34 @@ const registerUser = async (data: RegisterUser) => {
   }
 };
 
-type UserQueryKey = [string, number, { role?: string; getTeams?: boolean }?];
+type UserQueryKey = [string, number];
 
 const getUsersByGroupId = async ({
   queryKey,
 }: QueryFunctionContext<UserQueryKey>) => {
-  const [, groupId, params] = queryKey;
-  const url = new URL(`/api/users/group/${groupId}`, window.location.origin);
-
-  if (params?.role) {
-    url.searchParams.append("role", params.role);
-  }
-
-  if (params?.getTeams) {
-    url.searchParams.append("getTeams", params.getTeams.toString());
-  }
-
+  const [, groupId] = queryKey;
   try {
-    const response = await fetch(url.toString(), {
+    const response = await fetch(`/api/users/group/${groupId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
+const getPlayersByGroupId = async ({
+  queryKey,
+}: QueryFunctionContext<UserQueryKey>) => {
+  const [, groupId] = queryKey;
+  try {
+    const response = await fetch(`/api/users/group/${groupId}/players`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -169,6 +181,44 @@ const fetchUser = async (email: string, token: string) => {
   }
 };
 
+const updatePlayerTeams = async (
+  data: UpdatePlayerTeamsData
+): Promise<UserResponse> => {
+  try {
+    const response = await fetch(`/api/users/${data.id}/players/teams`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data.formData),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};
+
+const getSession = async (data: GetSessionData) => {
+  try {
+    const response = await fetch(`/api/users/session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data.formData),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
 export {
   updateUsersLanguages,
   registerUser,
@@ -177,4 +227,7 @@ export {
   updateUser,
   addUser,
   fetchUser,
+  updatePlayerTeams,
+  getPlayersByGroupId,
+  getSession,
 };

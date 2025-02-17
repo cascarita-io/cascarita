@@ -1,6 +1,7 @@
 export interface ShortTeamType {
   id: number;
   name: string;
+  session_id: number;
 }
 
 export interface PlayerType {
