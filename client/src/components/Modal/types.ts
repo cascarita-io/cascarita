@@ -1,5 +1,3 @@
-import { GroupType } from "../../api/groups/types";
-
 interface ModalProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -35,4 +33,4 @@ type Action =
   | { type: "PREVIOUS_PAGE" }
   | { type: "RESET_FORM" };
 
-export type { ModalProps, ModalContentProps };
+export type { ModalProps, ModalContentProps, Action };
