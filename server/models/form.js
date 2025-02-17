@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       form_type: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM("registration", "blank"),
         allowNull: true,
       },
       created_by: {

@@ -4,7 +4,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.addColumn("Forms", "form_type", {
-      type: Sequelize.STRING(255),
+      type: Sequelize.ENUM("registration", "blank"),
       allowNull: true,
     });
   },
