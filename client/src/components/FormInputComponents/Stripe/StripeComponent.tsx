@@ -26,8 +26,9 @@ interface CheckoutFormRef {
 const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
   const { t } = useTranslation("FormComponents");
   const [options, setOptions] = useState<StripeElementsOptions | undefined>(
-    undefined,
+    undefined
   );
+  const [paymentIntentCreated, setPaymentIntentCreated] = useState(false);
   const [stripePromise, setStripePromise] = useState<Stripe | null>(null);
   const [clientSecret, setClientSecret] = useState("");
 
@@ -36,13 +37,13 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
   const { data: stripePromiseData } = useStripePromise(
     nullthrows(
       field.properties?.stripe_account?.stripe_account_id,
-      "Stripe Account ID is missing",
-    ),
+      "Stripe Account ID is missing"
+    )
   );
 
   const { mutateAsync: createPaymentIntent } = useCreatePaymentIntent(
     field,
-    nullthrows(sqlFormId, "SQL Form ID is missing"),
+    nullthrows(sqlFormId, "SQL Form ID is missing")
   );
 
   useEffect(() => {
@@ -76,8 +77,9 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
       setStripePromise(stripePromiseData);
     }
 
-    if (stripePromise) {
+    if (stripePromise && !paymentIntentCreated) {
       handleCreatePaymentIntent();
+      setPaymentIntentCreated(true);
     }
   }, [stripePromiseData, stripePromise, createPaymentIntent]);
 
