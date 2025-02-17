@@ -7,6 +7,7 @@ import {
 } from "../../components/Forms/TeamsForm/types";
 
 type UserQueryKey = [string, number, number];
+type TeamQueryKey = [string, number];
 
 const getTeamsBySeasonDivisionId = async ({
   queryKey,
@@ -24,6 +25,26 @@ const getTeamsBySeasonDivisionId = async ({
         mode: "cors",
       }
     );
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching league: ", error);
+    throw error;
+  }
+};
+
+const getTeamsByGroupId = async ({
+  queryKey,
+}: QueryFunctionContext<TeamQueryKey>) => {
+  const [, groupId] = queryKey;
+
+  try {
+    const response = await fetch(`/api/teams/group/${groupId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    });
     return response.json();
   } catch (error) {
     console.error("Error fetching league: ", error);
@@ -88,4 +109,10 @@ const deleteTeam = async (data: DeleteTeamData): Promise<void> => {
   }
 };
 
-export { getTeamsBySeasonDivisionId, createNewTeam, updateTeam, deleteTeam };
+export {
+  getTeamsBySeasonDivisionId,
+  createNewTeam,
+  updateTeam,
+  deleteTeam,
+  getTeamsByGroupId,
+};

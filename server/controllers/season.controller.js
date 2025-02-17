@@ -1,9 +1,41 @@
 "use strict";
 
-const { Op } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const { League, Season, Session, Team, TeamsSession } = require("../models");
 
 const SeasonController = {
+  async getSeasonsByGroupId(req, res, next) {
+    const groupId = req.params.id;
+    try {
+      const seasons = await Season.findAll({
+        include: {
+          model: League,
+          attributes: [],
+          where: { group_id: groupId },
+        },
+        attributes: [
+          "id",
+          "name",
+          "start_date",
+          "end_date",
+          "is_active",
+          "created_at",
+          "updated_at",
+          [Sequelize.col("League.id"), "league_id"],
+          [Sequelize.col("League.name"), "league_name"],
+        ],
+      });
+
+      if (!seasons || seasons.length === 0) {
+        res.status(404);
+        throw new Error(`no seasons found with group_id ${groupId}`);
+      }
+
+      res.json(seasons);
+    } catch (error) {
+      next(error);
+    }
+  },
   async getSeasonsByLeagueId(req, res, next) {
     const leagueId = req.params.id;
 

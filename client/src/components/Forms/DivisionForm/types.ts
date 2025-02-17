@@ -1,9 +1,12 @@
+import { SeasonType } from "../../../pages/Seasons/types";
+
 interface DivisionFormProps {
   //Use to set open state from true to false after form submission
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
   divisionId?: number;
   seasonId?: number;
+  seasonData?: SeasonType[];
 }
 
 interface DivisionFormData {

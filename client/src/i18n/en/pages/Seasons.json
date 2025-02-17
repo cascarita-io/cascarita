@@ -12,9 +12,10 @@
   },
   "button": "Add Season",
   "col1": "Season Name",
-  "col2": "Start",
-  "col3": "End",
-  "col4": "Options",
+  "col2": "League Name",
+  "col3": "Start",
+  "col4": "End",
+  "col5": "Options",
   "formContent": {
     "title": "Create Season",
     "name": "Name",
