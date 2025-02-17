@@ -1,9 +1,10 @@
 "use strict";
 
-const { Session, Season, Division, Group } = require("../models");
+const { League, Session, Season, Division, Group } = require("../models");
 const { Op } = require("sequelize");
 const modelByPk = require("./utility");
 const sessionController = require("./session.controller");
+const { Sequelize } = require("sequelize");
 
 const isDivisionNameUnique = async (groupId, name) => {
   const division = await Division.findOne({
@@ -123,6 +124,40 @@ const DivisionController = {
     });
 
     return res.json(sessions);
+  },
+  getAllDivisionsByGroupId: async function (req, res, next) {
+    const { id } = req.params;
+    const divisions = await Division.findAll({
+      where: { group_id: id },
+      attributes: {
+        include: [
+          [Sequelize.col("Sessions->Season.id"), "season_id"],
+          [Sequelize.col("Sessions->Season.name"), "season_name"],
+          [Sequelize.col("Sessions->Season->League.id"), "league_id"],
+          [Sequelize.col("Sessions->Season->League.name"), "league_name"],
+        ],
+      },
+      include: [
+        {
+          model: Session,
+          attributes: [],
+          include: [
+            {
+              model: Season,
+              attributes: [],
+              include: [
+                {
+                  model: League,
+                  attributes: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    return res.json(divisions);
   },
 };
 

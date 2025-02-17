@@ -1,29 +1,9 @@
 "use strict";
+const { link } = require("../app");
 const { Team, Group, Division, TeamsSession, Session } = require("./../models");
-const TeamsSessionController = require("../controllers/teamSession.controller");
 const { getSessionByDivisionAndSeasonId } = require("./session.controller");
 
 const TeamController = function () {
-  var getTeamsByGroupId = async function (req, res, next) {
-    const groupId = req.params["id"];
-
-    try {
-      const result = await Team.findAll({
-        where: {
-          group_id: groupId,
-        },
-      });
-
-      if (Object.keys(result).length === 0) {
-        throw new Error("group with given id has no teams");
-      }
-
-      return res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
-
   var getTeamsBySeasonDivisionId = async function (req, res, next) {
     const seasonId = req.params["seasonId"];
     const divisionId = req.params["divisionId"];
@@ -60,6 +40,54 @@ const TeamController = function () {
     }
   };
 
+  var getTeamsByGroupId = async function (req, res, next) {
+    const groupId = req.params.id;
+    try {
+      const teams = await Team.findAll({
+        where: { group_id: groupId },
+        attributes: [
+          "id",
+          "name",
+          "team_logo",
+          "created_at",
+          "updated_at",
+          "group_id",
+        ],
+      });
+      let finalTeams = teams;
+      await Promise.all(
+        teams.map(async (team, index) => {
+          const teamSession = await TeamsSession.findOne({
+            where: {
+              team_id: team.id,
+            },
+          });
+          if (!teamSession) {
+            return;
+          }
+          const session = await Session.findOne({
+            where: {
+              id: teamSession.session_id,
+            },
+          });
+          if (!session) {
+            return;
+          }
+          const division = await Division.findOne({
+            where: {
+              id: session.division_id,
+            },
+          });
+          finalTeams[index].dataValues.division_name = division.name;
+          finalTeams[index].dataValues.division_id = division.id;
+        }),
+      );
+
+      res.status(200).json(finalTeams);
+    } catch (error) {
+      next(error);
+    }
+  };
   var isNameUniqueWithinDivision = async function (groupId, teamName) {
     let teamFound = await Team.findOne({
       where: {
@@ -72,7 +100,14 @@ const TeamController = function () {
   };
 
   var createTeam = async function (req, res, next) {
-    const { group_id, name, team_logo, division_id, season_id } = req.body;
+    const {
+      group_id,
+      name,
+      team_logo,
+      division_id,
+      season_id,
+      link_to_season,
+    } = req.body;
     const newTeam = { group_id, name, team_logo, division_id, season_id };
 
     try {
@@ -98,19 +133,22 @@ const TeamController = function () {
 
       await Team.build(newTeam).validate();
       const result = await Team.create(newTeam);
+      if (!link_to_season) {
+        return res.status(201).json(result);
+      } else {
+        if (division_id && season_id) {
+          const session_id = await getSessionByDivisionAndSeasonId(
+            division_id,
+            season_id,
+          );
+          const team_id = result.id;
+          const newTeamSession = { team_id, session_id };
+          await TeamsSession.build(newTeamSession).validate();
+          await TeamsSession.create(newTeamSession);
+        }
 
-      if (division_id && season_id) {
-        const session_id = await getSessionByDivisionAndSeasonId(
-          division_id,
-          season_id,
-        );
-        const team_id = result.id;
-        const newTeamSession = { team_id, session_id };
-        await TeamsSession.build(newTeamSession).validate();
-        await TeamsSession.create(newTeamSession);
+        return res.status(201).json(result);
       }
-
-      return res.status(201).json(result);
     } catch (error) {
       next(error);
     }

@@ -19,10 +19,10 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   afterSave,
   requestType,
   seasonId,
-  leagueId,
+  leagueData,
 }) => {
   const { t } = useTranslation("Seasons");
-
+  const [leagueId, setLeagueId] = React.useState(0);
   const [seasonName, setSeasonName] = React.useState("");
   const [startDate, setStartDate] = React.useState("");
   const [endDate, setEndDate] = React.useState("");
@@ -36,7 +36,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
     event.preventDefault();
     setIsLoading(true);
     const { seasonName, startDate, endDate } = Object.fromEntries(
-      new FormData(event.currentTarget),
+      new FormData(event.currentTarget)
     );
 
     const data = {
@@ -77,7 +77,8 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={handleSubmit}
-          className={styles.form}>
+          className={styles.form}
+        >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -98,7 +99,24 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
               }
             />
           </div>
-
+          <div className={styles.inputContainer}>
+            <label className={styles.label}>League</label>
+            <select
+              required
+              id="leagueId"
+              name="leagueId"
+              value={leagueId}
+              className={styles.input}
+              onChange={(e) => setLeagueId(Number(e.target.value))}
+            >
+              <option value="">Select a league</option>
+              {leagueData?.map((league) => (
+                <option key={league.id} value={league.id}>
+                  {league.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className={styles.inputContainer}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="startDate">
@@ -137,7 +155,8 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
 
             <button
               type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}>
+              className={`${styles.btn} ${styles.submitBtn}`}
+            >
               {isLoading === true ? "Saving..." : t("formContent.submit")}
             </button>
           </div>

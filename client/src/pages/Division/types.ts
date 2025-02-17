@@ -1,14 +1,14 @@
 interface DivisionType {
   id: number;
   name: string;
-  // start_date: Date;
-  // end_date: Date;
-  start_date: string;
-  end_date: string;
+  group_id: number;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
   league_id: number;
+  league_name: string;
+  season_id: number;
+  season_name: string;
 }
 
 export type { DivisionType };
