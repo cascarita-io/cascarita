@@ -89,6 +89,27 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     dispatch({ type: "PREVIOUS_PAGE" });
   };
 
+  const getIsPageComplete = (pageNumber: number) => {
+    switch (pageNumber) {
+      case 1:
+        return state.firstName.trim() !== "" && state.lastName.trim() !== "";
+
+      case 2:
+        return state.org.trim() !== "";
+
+      case 3:
+        return (
+          state.selectedOrg.trim() !== "" &&
+          state.address.trim() !== "" &&
+          state.city.trim() !== "" &&
+          state.state !== "" &&
+          state.zipCode.trim() !== ""
+        );
+      default:
+        return false;
+    }
+  };
+
   const handleRegistrationComplete = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -183,6 +204,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               <button
                 className={styles.registerBtn}
                 onClick={incrementPageNumber}
+                disabled={!getIsPageComplete(1)}
               >
                 Next
               </button>
@@ -354,7 +376,11 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 >
                   Go Back
                 </button>
-                <button type="submit" className={styles.registerBtn}>
+                <button
+                  type="submit"
+                  className={styles.registerBtn}
+                  disabled={!getIsPageComplete(3)}
+                >
                   Register
                 </button>
               </div>

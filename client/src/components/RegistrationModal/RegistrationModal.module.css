@@ -60,14 +60,18 @@
   border-radius: 26px;
 }
 
+.registerBtn:disabled {
+  opacity: 0.5;
+}
+
 .backBtn {
   outline: 1px solid #000;
   background-color: transparent;
   color: #000;
 }
 
-.registerBtn:hover,
-.registerBtn:focus {
+.registerBtn:not(:disabled):hover,
+.registerBtn:not(:disabled):focus {
   transition: ease-in 200ms;
   background-color: transparent;
   outline: 1px solid black;
