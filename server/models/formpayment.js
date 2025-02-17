@@ -13,12 +13,12 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
       });
 
-      FormPayment.belongsTo(models.Users, {
+      FormPayment.belongsTo(models.User, {
         foreignKey: "internal_status_updated_by",
         targetKey: "id",
       });
 
-      FormPayment.belongsTo(models.Users, {
+      FormPayment.belongsTo(models.User, {
         foreignKey: "collected_by",
         targetKey: "id",
       });
