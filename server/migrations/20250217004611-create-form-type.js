@@ -35,8 +35,8 @@ module.exports = {
 
     queryInterface.bulkInsert("FormTypes", [
       {
-        name: "Registration",
-        code: "0000",
+        name: "registration",
+        code: "reg",
         created_at: new Date(),
         updated_at: new Date(),
       },
