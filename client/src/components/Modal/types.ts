@@ -35,14 +35,4 @@ type Action =
   | { type: "PREVIOUS_PAGE" }
   | { type: "RESET_FORM" };
 
-interface OrganizationFormProps {
-  state: State;
-  dispatch: React.Dispatch<Action>;
-  handleRegistrationComplete: (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => Promise<void>;
-  data: GroupType;
-  incrementPageNumber: () => void;
-}
-
-export type { ModalProps, ModalContentProps, OrganizationFormProps };
+export type { ModalProps, ModalContentProps };
