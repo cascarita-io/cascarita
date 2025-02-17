@@ -8,7 +8,7 @@ import { UserResponse, LanguageCodeToLanguageId, RegisterUser } from "./types";
 
 const updateUsersLanguages = async (
   user_id: number,
-  language: string,
+  language: string
 ): Promise<UserResponse> => {
   const language_id = LanguageCodeToLanguageId[language as "en" | "esp"];
 
@@ -51,14 +51,24 @@ const registerUser = async (data: RegisterUser) => {
   }
 };
 
-type UserQueryKey = [string, number];
+type UserQueryKey = [string, number, { role?: string; getTeams?: boolean }?];
 
 const getUsersByGroupId = async ({
   queryKey,
 }: QueryFunctionContext<UserQueryKey>) => {
-  const [, groupId] = queryKey;
+  const [, groupId, params] = queryKey;
+  const url = new URL(`/api/users/group/${groupId}`, window.location.origin);
+
+  if (params?.role) {
+    url.searchParams.append("role", params.role);
+  }
+
+  if (params?.getTeams) {
+    url.searchParams.append("getTeams", params.getTeams.toString());
+  }
+
   try {
-    const response = await fetch(`/api/users/group/${groupId}`, {
+    const response = await fetch(url.toString(), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -143,7 +153,7 @@ const fetchUser = async (email: string, token: string) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
 
     // Check if the response is OK (status in the range 200-299)

@@ -23,7 +23,14 @@ By using this Software, you agree to the terms and conditions stated herein. If 
 */
 "use strict";
 
-const { User } = require("../models");
+const {
+  User,
+  UserRoles,
+  Role,
+  UserSessions,
+  TeamsSession,
+  Team,
+} = require("../models");
 const GroupController = require("./group.controller");
 const getUserInfoFromAuth0 = require("../utilityFunctions/auth0");
 
@@ -193,13 +200,15 @@ const UserController = function () {
   var getUsersByGroupId = async function (req, res, next) {
     try {
       const { group_id } = req.params;
+      const role = req.query.role;
+      const getTeams = req.query.getTeams;
 
       if (isNaN(group_id)) {
         res.status(400);
         throw new Error("group id must be an integer");
       }
 
-      const users = await User.findAll({
+      let users = await User.findAll({
         where: {
           group_id: group_id,
         },
@@ -217,6 +226,66 @@ const UserController = function () {
       if (!users) {
         res.status(404);
         throw new Error(`no users were found with group id ${group_id}`);
+      }
+
+      if (role) {
+        const searchRole = await Role.findOne({
+          where: {
+            name: role,
+          },
+        });
+        const userRoles = await UserRoles.findAll({
+          where: {
+            role_id: searchRole.id,
+          },
+        });
+
+        if (!userRoles) {
+          res.status(404);
+          throw new Error(`no users were found with role ${role}`);
+        }
+
+        const usersWithRole = users.filter((user) =>
+          userRoles.some((userRole) => userRole.user_id === user.id),
+        );
+        users = usersWithRole;
+      }
+      if (getTeams && getTeams === "true") {
+        console.log("Getting teams");
+        let usersWithTeams = users;
+        await Promise.all(
+          users.map(async (user, index) => {
+            const userSessions = await UserSessions.findOne({
+              where: {
+                user_id: user.id,
+              },
+            });
+            console.log("User sessions", userSessions);
+
+            if (userSessions) {
+              const teamSession = await TeamsSession.findAll({
+                where: {
+                  session_id: userSessions.session_id,
+                },
+              });
+              console.log("Team session", teamSession);
+              if (teamSession) {
+                let teams = await Promise.all(
+                  teamSession.map(async (teamSession) => {
+                    const team = await Team.findOne({
+                      where: {
+                        id: teamSession.team_id,
+                      },
+                    });
+                    return { id: team.id, name: team.name };
+                  }),
+                );
+                usersWithTeams[index].dataValues.teams = teams;
+              }
+            }
+          }),
+        );
+        users = usersWithTeams;
       }
       return res.status(200).json(users);
     } catch (error) {
