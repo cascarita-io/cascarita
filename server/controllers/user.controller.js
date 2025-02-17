@@ -40,8 +40,18 @@ const UserController = function () {
   };
 
   var registerUser = async function (req, res, next) {
-    const { group_id, name, streetAddress, city, state, zipCode, logoUrl } =
-      req.body;
+    const {
+      group_id,
+      first_name,
+      last_name,
+      language_id,
+      name,
+      streetAddress,
+      city,
+      state,
+      zipCode,
+      logoUrl,
+    } = req.body;
 
     const userBasicInfo = await getUserInfoFromAuth0(req.headers.authorization);
 
@@ -65,22 +75,27 @@ const UserController = function () {
         next(error);
       }
     }
-    const first_name =
+    const auth0_first_name =
       userBasicInfo.given_name ||
       (userBasicInfo.name ? userBasicInfo.name.split(" ")[0] : "");
 
-    const last_name =
+    const auth0_last_name =
       userBasicInfo.family_name ||
       (userBasicInfo.name
         ? userBasicInfo.name.split(" ").slice(1).join(" ")
         : "");
 
+    let language = 1;
+    if (language_id === "spanish") {
+      language = 2;
+    }
+
     const newUser = {
-      first_name: first_name,
-      last_name: last_name,
+      first_name: first_name ? first_name : auth0_first_name,
+      last_name: last_name ? last_name : auth0_last_name,
       email: userBasicInfo.email,
       picture: userBasicInfo.picture,
-      language_id: 1,
+      language_id: language,
       group_id: groupId,
     };
 
