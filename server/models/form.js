@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
       });
       Form.belongsTo(models.FormType, {
-        foreignKey: "form_type_id",
+        foreignKey: "form_type",
         targetKey: "id",
       });
       Form.hasMany(models.FormPaymentIntents, {
@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      form_type_id: {
+      form_type: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

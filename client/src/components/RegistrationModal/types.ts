@@ -1,5 +1,8 @@
 export interface State {
   page: number;
+  firstName: string;
+  lastName: string;
+  language_id: number | string;
   isExistingOrg: boolean;
   org: string;
   address: string;

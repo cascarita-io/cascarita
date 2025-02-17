@@ -73,7 +73,7 @@ const Leagues = () => {
   };
 
   const filteredData = data?.filter((league: LeagueType) =>
-    league.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+    league.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
   );
 
   const location = useLocation();
