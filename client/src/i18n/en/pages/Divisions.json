@@ -1,7 +1,9 @@
 {
   "tableHeaders": {
     "name": "Division Name",
-    "options": "Options"
+    "options": "Options",
+    "seasonName": "Season Name",
+    "leagueName": "League Name"
   },
   "addButton": "Add Division",
   "formContent": {
@@ -9,6 +11,7 @@
     "name": "Name",
     "namePlaceholder": "Division name",
     "submit": "Submit",
+    "season": "Season",
     "submitting": "Submitting...",
     "cancel": "Cancel",
     "delete": "Yes, I'm sure",

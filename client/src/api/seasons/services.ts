@@ -6,11 +6,30 @@ import {
   UpdateSeasonData,
 } from "../../components/Forms/SeasonForm/types";
 
-type UserQueryKey = [string, number];
+type SeasonQueryKey = [string, number];
+
+const getSeasonsByGroupId = async ({
+  queryKey,
+}: QueryFunctionContext<SeasonQueryKey>) => {
+  const [, groupId] = queryKey;
+  try {
+    const response = await fetch(`/api/seasons/group/${groupId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    });
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching seasons by league id: ", error);
+    throw error;
+  }
+};
 
 const getSeasonsByLeagueId = async ({
   queryKey,
-}: QueryFunctionContext<UserQueryKey>) => {
+}: QueryFunctionContext<SeasonQueryKey>) => {
   const [, leagueId] = queryKey;
   try {
     const response = await fetch(`/api/seasons/${leagueId}/leagues`, {
@@ -86,4 +105,10 @@ const deleteSeason = async (data: DeleteSeasonData): Promise<void> => {
   }
 };
 
-export { createNewSeason, getSeasonsByLeagueId, updateSeason, deleteSeason };
+export {
+  createNewSeason,
+  getSeasonsByGroupId,
+  getSeasonsByLeagueId,
+  updateSeason,
+  deleteSeason,
+};

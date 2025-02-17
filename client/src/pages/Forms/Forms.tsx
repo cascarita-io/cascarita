@@ -185,7 +185,7 @@ const Forms = () => {
         </PrimaryButton>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
-        <p className={styles.noLeagueMessage}>No divisions to display...</p>
+        <p className={styles.noItemsMessage}>No forms to display...</p>
       ) : (
         <DashboardTable headers={headers} headerColor="light">
           {filteredData?.map((form, index) => (

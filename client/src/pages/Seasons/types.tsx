@@ -1,4 +1,4 @@
-interface SeasonType {
+export interface SeasonType {
   id: number;
   name: string;
   start_date: string;
@@ -7,6 +7,5 @@ interface SeasonType {
   created_at: Date;
   updated_at: Date;
   league_id: number;
+  league_name: string;
 }
-
-export type { SeasonType };
