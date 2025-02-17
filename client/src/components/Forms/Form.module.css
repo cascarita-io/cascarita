@@ -1,14 +1,11 @@
 .form {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 20px;
-  margin-bottom: 15px;
 }
 
 .inputContainer {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  display: grid;
+  gap: 4px;
 }
 
 .inputShare {
@@ -170,3 +167,4 @@
 .spacer {
   width: 20px;
 }
+
