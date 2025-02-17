@@ -30,6 +30,7 @@ const {
   Session,
   UserSessions,
   TeamsSession,
+  Season,
   Team,
 } = require("../models");
 const GroupController = require("./group.controller");
@@ -252,6 +253,9 @@ const UserController = function () {
               user_id: user.id,
             },
           });
+          let season_id;
+          let division_id;
+          let league_id;
           const teams = await Promise.all(
             userSessions.map(async (userSession) => {
               const team = await Team.findByPk(userSession.team_id);
@@ -261,6 +265,11 @@ const UserController = function () {
                     team_id: team.id,
                   },
                 });
+                const session = await Session.findByPk(teamSession.session_id);
+                division_id = session.division_id;
+                season_id = session.season_id;
+                const season = await Season.findByPk(season_id);
+                league_id = season.league_id;
                 return {
                   id: team.id,
                   name: team.name,
@@ -269,7 +278,13 @@ const UserController = function () {
               }
             }),
           );
-          playersWithTeams[index].dataValues.teams = teams;
+          const filteredTeams = teams.filter(
+            (team) => team !== null && team !== undefined,
+          );
+          playersWithTeams[index].dataValues.teams = filteredTeams;
+          playersWithTeams[index].dataValues.division_id = division_id;
+          playersWithTeams[index].dataValues.season_id = season_id;
+          playersWithTeams[index].dataValues.league_id = league_id;
         }),
       );
 
@@ -285,6 +300,11 @@ const UserController = function () {
       const { user_id } = req.params;
       const { session_id, team_id } = req.body;
 
+      let team_ref = team_id;
+      if (team_id === -1) {
+        team_ref = null;
+      }
+
       const userSession = await UserSessions.findOne({
         where: {
           user_id: user_id,
@@ -292,18 +312,16 @@ const UserController = function () {
         },
       });
 
-      console.log("userSession", userSession);
-
       // making a new player team association
       if (!userSession) {
         await UserSessions.create({
           user_id,
-          team_id,
+          team_ref,
           session_id,
         });
       } else {
         // updating an existing player team association
-        userSession.team_id = team_id;
+        userSession.team_id = team_ref;
         await userSession.save();
       }
 

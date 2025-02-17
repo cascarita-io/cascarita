@@ -15,4 +15,7 @@ export interface PlayerType {
   internally_created: boolean | null;
   picture: string | null;
   teams?: ShortTeamType[];
+  season_id?: number;
+  division_id?: number;
+  league_id?: number;
 }
