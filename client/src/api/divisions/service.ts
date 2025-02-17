@@ -6,11 +6,30 @@ import {
   UpdateDivisionData,
 } from "../../components/Forms/DivisionForm/types";
 
-type UserQueryKey = [string, number];
+type divisionQueryKey = [string, number];
+
+const getDivisionByGroupId = async ({
+  queryKey,
+}: QueryFunctionContext<divisionQueryKey>) => {
+  const [, groupId] = queryKey;
+  try {
+    const response = await fetch(`/api/divisions/group/${groupId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    });
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching division: ", error);
+    throw error;
+  }
+};
 
 const getDivisionsBySeasonId = async ({
   queryKey,
-}: QueryFunctionContext<UserQueryKey>) => {
+}: QueryFunctionContext<divisionQueryKey>) => {
   const [, seasonId] = queryKey;
 
   try {
@@ -29,7 +48,7 @@ const getDivisionsBySeasonId = async ({
 };
 
 const createDivision = async (
-  data: CreateNewDivisionData,
+  data: CreateNewDivisionData
 ): Promise<DivisionResponse> => {
   try {
     const response = await fetch("/api/divisions", {
@@ -47,7 +66,7 @@ const createDivision = async (
 };
 
 const updateDivision = async (
-  data: UpdateDivisionData,
+  data: UpdateDivisionData
 ): Promise<DivisionResponse> => {
   try {
     const response = await fetch(`/api/divisions/${data.id}`, {
@@ -88,6 +107,7 @@ const deleteDivision = async (data: DeleteDivisionData): Promise<void> => {
 };
 export {
   getDivisionsBySeasonId,
+  getDivisionByGroupId,
   createDivision,
   updateDivision,
   deleteDivision,

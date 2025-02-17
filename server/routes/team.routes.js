@@ -9,7 +9,7 @@ module.exports = (checkJwt) => {
     "/seasons/:seasonId/divisions/:divisionId",
     TeamController.getTeamsBySeasonDivisionId,
   );
-  router.get("/groups/:id", TeamController.getTeamsByGroupId);
+  router.get("/group/:id", TeamController.getTeamsByGroupId);
   router.post("/", TeamController.createTeam);
   router.patch("/:id", TeamController.updateTeam);
   router.delete("/:id", TeamController.deleteTeam);

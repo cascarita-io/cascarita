@@ -7,6 +7,7 @@ import Home from "./Home/Home";
 import Login from "./Login/Login";
 import Layout from "../components/Layout/Layout";
 import { Route } from "react-router-dom";
+import Leagues from "./Leagues/Leagues";
 import Seasons from "./Seasons/Seasons";
 import Users from "./Users/Users";
 import Divisions from "./Division/Division";
@@ -18,13 +19,8 @@ import FormPage from "./FormPage/FormPage";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import Plan from "./Settings/Plan/Plan";
 import Payment from "./Settings/Payment/Payment";
-import {
-  HomeCrumb,
-  UserCrumb,
-  SeasonBreadcrumb,
-  DivisionBreadcrumb,
-  TeamBreadcrumb,
-} from "../components/BreadCrumb/BreadCrumbComponents";
+import { UserCrumb } from "../components/BreadCrumb/BreadCrumbComponents";
+import NotFound from "./NotFound/NotFound";
 
 export const useRouter = () =>
   createBrowserRouter(
@@ -32,16 +28,27 @@ export const useRouter = () =>
       <Route path="/" element={<Layout />}>
         <Route path="login" element={<Login />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Home />} handle={{ crumb: <HomeCrumb /> }}>
+          <Route path="/" element={<Home />}>
+            {/* <Route index element={<Plan />} /> */}
+            {/* <Route path="payment" element={<Payment />} /> */}
+            <Route index element={<Leagues />} />
+            <Route path="seasons" element={<Seasons />} />
+            <Route path="divisions" element={<Divisions />} />
+            <Route path="teams" element={<Teams />} />
+          </Route>
+
+          {/* <Route path="/" element={<Home />} handle={{ crumb: <HomeCrumb /> }}>
             <Route
-              path="season/:leagueId/:leagueName"
+            path="season/:leagueId/:leagueName"
               element={<Seasons />}
-              handle={{ crumb: <SeasonBreadcrumb /> }}>
+              handle={{ crumb: <SeasonBreadcrumb /> }}
+            >
               <Route
                 path="division/:seasonId/:seasonName"
                 element={<Divisions />}
                 id="division"
-                handle={{ crumb: <DivisionBreadcrumb /> }}>
+                handle={{ crumb: <DivisionBreadcrumb /> }}
+              >
                 <Route
                   path="teams/seasons/:seasonId/division/:divisionId/:divisionName"
                   element={<Teams />}
@@ -50,7 +57,7 @@ export const useRouter = () =>
                 />
               </Route>
             </Route>
-          </Route>
+          </Route> */}
           <Route
             path="users"
             element={<Users />}
@@ -65,6 +72,7 @@ export const useRouter = () =>
         </Route>
         <Route path="forms/:formId" element={<FormPage />} />
         <Route path="login" element={<Login />} />
-      </Route>,
-    ),
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    )
   );

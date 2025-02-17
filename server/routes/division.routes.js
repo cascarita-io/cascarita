@@ -8,6 +8,6 @@ module.exports = (checkJwt) => {
   router.post("/", DivisionController.create);
   router.patch("/:id", DivisionController.update);
   router.delete("/:id", DivisionController.delete);
-
+  router.get("/group/:id", DivisionController.getAllDivisionsByGroupId);
   return router;
 };
