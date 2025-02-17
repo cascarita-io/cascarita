@@ -9,7 +9,10 @@ export type FieldType =
   | "email"
   | "phone_number"
   | "payment"
-  | "player";
+  | "player"
+  | "liability"
+  | "date"
+  | "signature";
 
 export interface Validation {
   max_length?: number;
@@ -22,9 +25,14 @@ export interface Label {
   label: string;
 }
 
+interface Team {
+  team_id: number;
+  team_name: string;
+}
 export interface PlayerBlockChoices {
-  division: string;
-  teams: string[];
+  division_name: string;
+  division_id: number;
+  teams: Team[];
 }
 
 export interface Properties {
@@ -53,8 +61,11 @@ export interface Field {
   validations?: Validation;
   properties?: Properties;
   type: FieldType;
-  season?: string;
-  league?: string;
+  secondary_type?: string;
+  season_name?: string;
+  season_id?: number;
+  league_name?: string;
+  league_id?: number;
 }
 
 export interface Form {
@@ -83,6 +94,9 @@ export type AnswerType =
   | "choice"
   | "choices"
   | "email"
+  | "liability"
+  | "signature"
+  | "date"
   | "phone_number"
   | "boolean"
   | "file_url"
@@ -99,6 +113,8 @@ export interface Answer {
   short_text?: string;
   long_text?: string;
   phone_number?: string;
+  liability?: boolean;
+  signature?: string;
   email?: string;
   date?: Date;
   boolean?: boolean;

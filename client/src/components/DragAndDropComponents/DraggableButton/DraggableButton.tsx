@@ -14,18 +14,23 @@ import { GrTextAlignFull } from "react-icons/gr";
 import { TiPhoneOutline } from "react-icons/ti";
 import { useTranslation } from "react-i18next";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
-import { FaDollarSign } from "react-icons/fa6";
-import { FaUser } from "react-icons/fa6";
+import { FaDollarSign, FaUser } from "react-icons/fa6";
+import { FaRegCalendarTimes } from "react-icons/fa";
+import { FaPenNib } from "react-icons/fa";
+import { FaRegNewspaper } from "react-icons/fa6";
 
 const iconMapping: { [key: string]: IconType } = {
   shorttext: MdOutlineShortText,
   longtext: GrTextAlignFull,
-  dateandtime: LuCalendar,
+  // dateandtime: LuCalendar,
   dropdown: MdOutlineArrowDropDownCircle,
   multiplechoice: FaListUl,
   email: MdOutlineMailOutline,
   phonenumber: TiPhoneOutline,
   payment: FaDollarSign,
+  date: FaRegCalendarTimes,
+  liability: FaRegNewspaper,
+  signature: FaPenNib,
   player: FaUser,
 };
 
@@ -52,12 +57,12 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ label, onDrop }) => {
 
   const IconComponent = getIcon(label);
 
-  const additionalClass =
-    label.toLowerCase() === "section"
-      ? styles.sectionStyle
-      : label.toLowerCase() === "signature"
-        ? styles.penStyle
-        : "styles.baseStyle";
+  // const additionalClass =
+  //   label.toLowerCase() === "section"
+  //     ? styles.sectionStyle
+  //     : label.toLowerCase() === "signature"
+  //       ? styles.penStyle
+  //       : "styles.baseStyle";
 
   return (
     <div className={styles.container}>
@@ -67,7 +72,7 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ label, onDrop }) => {
         onDrag={(_, data) => setDragPosition({ x: data.x, y: data.y })}
       >
         <button
-          className={`${styles.buttonContainer} ${additionalClass} ${
+          className={`${styles.buttonContainer} ${
             label === "Payment" ? styles.paymentButton : styles.standardButton
           }`}
         >

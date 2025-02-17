@@ -58,6 +58,9 @@ const NewForm = () => {
     "Email",
     "Phone Number",
     "Player",
+    "Liability",
+    "Signature",
+    "Date",
     "Payment",
   ];
 

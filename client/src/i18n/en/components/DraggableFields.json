@@ -1,6 +1,9 @@
 {
   "dropDown": "Dropdown",
   "email": "Email",
+  "liability": "Liability",
+  "signature": "Signature",
+  "date": "Date",
   "longText": "Long Text",
   "multipleChoice": "Multiple Choice",
   "phoneNumber": "Phone Number",

@@ -23,6 +23,7 @@ import { fetchUser } from "../../api/users/service";
 import { FaPlus } from "react-icons/fa";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
+import FormTemplateForm from "../../components/Forms/FormTemplateForm/FormTemplateForm";
 
 interface ShareModalProps {
   formLink: string;
@@ -47,11 +48,32 @@ const ShareModal: React.FC<ShareModalProps> = ({
   </Modal>
 );
 
+interface CreateTemplateModalProps {
+  isOpen: boolean;
+  onOpen: (isOpen: boolean) => void;
+}
+
+const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
+  isOpen,
+  onOpen,
+}) => (
+  <Modal open={isOpen} onOpenChange={onOpen}>
+    <Modal.Content title="Create Form">
+      <FormTemplateForm
+        afterSave={() => {
+          onOpen(false);
+        }}
+      />
+    </Modal.Content>
+  </Modal>
+);
+
 const Forms = () => {
   const { t } = useTranslation("Forms");
   const [sorts, setSorts] = useState("");
   const [forms, setForms] = useState<Form[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [currentFormLink, setCurrentFormLink] = useState("");
   const navigate = useNavigate();
   const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
@@ -61,7 +83,7 @@ const Forms = () => {
 
   const headers = useResponsiveHeader(
     [t("col1"), t("col2"), t("col4"), t("col5")],
-    [t("col1"), t("col5")],
+    [t("col1"), t("col5")]
   );
 
   useEffect(() => {
@@ -85,7 +107,8 @@ const Forms = () => {
   }, []);
 
   const handleNewFormClick = () => {
-    navigate("/forms/check");
+    setIsCreateOpen(true);
+    // navigate("/forms/check");
   };
 
   const handleShareClick = (formLink: string) => {
@@ -116,7 +139,7 @@ const Forms = () => {
 
   const filteredData = forms
     ?.filter((form: Form) =>
-      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase()),
+      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase())
     )
     ?.sort((a: Form, b: Form) => {
       if (sorts === t("sortOptions.item1")) {
@@ -190,7 +213,7 @@ const Forms = () => {
                 <button
                   onClick={() =>
                     handleShareClick(
-                      `${window.location.origin}/forms/${form._id}`,
+                      `${window.location.origin}/forms/${form._id}`
                     )
                   }
                 >
@@ -207,6 +230,13 @@ const Forms = () => {
           formLink={currentFormLink}
           isOpen={isOpen}
           onOpen={(isOpen: boolean) => setIsOpen(isOpen)}
+        />
+      )}
+
+      {isCreateOpen && (
+        <CreateTemplateModal
+          isOpen={isCreateOpen}
+          onOpen={(isOpen: boolean) => setIsCreateOpen(isOpen)}
         />
       )}
     </Page>
