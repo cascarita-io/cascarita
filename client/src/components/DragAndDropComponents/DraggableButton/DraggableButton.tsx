@@ -6,7 +6,6 @@ import {
   MdOutlineShortText,
   MdOutlineMailOutline,
 } from "react-icons/md";
-import { FaListUl } from "react-icons/fa6";
 import { IconType } from "react-icons";
 import styles from "./DraggableButton.module.css";
 import { DraggableButtonKeys, DraggableButtonProps } from "./types";
@@ -14,15 +13,12 @@ import { GrTextAlignFull } from "react-icons/gr";
 import { TiPhoneOutline } from "react-icons/ti";
 import { useTranslation } from "react-i18next";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
-import { FaDollarSign, FaUser } from "react-icons/fa6";
-import { FaRegCalendarTimes } from "react-icons/fa";
-import { FaPenNib } from "react-icons/fa";
-import { FaRegNewspaper } from "react-icons/fa6";
+import { FaDollarSign, FaUser, FaRegNewspaper } from "react-icons/fa6";
+import { FaListUl, FaRegCalendarTimes, FaPenNib } from "react-icons/fa";
 
 const iconMapping: { [key: string]: IconType } = {
   shorttext: MdOutlineShortText,
   longtext: GrTextAlignFull,
-  // dateandtime: LuCalendar,
   dropdown: MdOutlineArrowDropDownCircle,
   multiplechoice: FaListUl,
   email: MdOutlineMailOutline,
@@ -56,13 +52,6 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ label, onDrop }) => {
   };
 
   const IconComponent = getIcon(label);
-
-  // const additionalClass =
-  //   label.toLowerCase() === "section"
-  //     ? styles.sectionStyle
-  //     : label.toLowerCase() === "signature"
-  //       ? styles.penStyle
-  //       : "styles.baseStyle";
 
   return (
     <div className={styles.container}>

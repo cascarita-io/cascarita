@@ -2,6 +2,7 @@ import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
 import styles from "./PlayerBlock.module.css";
 import { useTranslation } from "react-i18next";
+import { ShortTeam } from "../../../api/forms/types";
 
 const PlayerBlock = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
@@ -23,10 +24,16 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
       <div>
         <div>
           <h4 className={styles.question}>League</h4>
-          <p>{field.league}</p>
+          <p>{field.league_name}</p>
+          <p hidden {...register(`answers.${index}.player.league_id`)}>
+            {field.league_id}
+          </p>
 
           <h4 className={styles.question}>Season</h4>
-          <p>{field.season}</p>
+          <p>{field.season_name}</p>
+          <p hidden {...register(`answers.${index}.player.season_id`)}>
+            {field.season_id}
+          </p>
         </div>
         <div style={{ display: "flex" }}>
           <h4 className={styles.question}>Division</h4>
@@ -38,14 +45,14 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
 
         <select
           className={styles.input}
-          {...register(`answers.${index}.player.division`, {
+          {...register(`answers.${index}.player.division_id`, {
             required: required && t("required"),
           })}
         >
           <option value="">{t("dropdown.placeholder")}</option>
           {field.properties?.player_block_choices?.map((choice) => (
-            <option key={choice.division} value={choice.division}>
-              {choice.division}
+            <option key={choice.division_id} value={choice.division_id}>
+              {choice.division_name}
             </option>
           ))}
         </select>
@@ -59,15 +66,15 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
 
         <select
           className={styles.input}
-          {...register(`answers.${index}.text`, {
+          {...register(`answers.${index}.player.team_id`, {
             required: required && t("required"),
           })}
         >
           <option value="">{t("dropdown.placeholder")}</option>
           {field.properties?.player_block_choices?.map((choice) =>
-            choice.teams.map((team) => (
-              <option key={team} value={team}>
-                {team}
+            choice.teams.map((team: ShortTeam) => (
+              <option key={team.team_id} value={team.team_id}>
+                {team.team_name}
               </option>
             ))
           )}

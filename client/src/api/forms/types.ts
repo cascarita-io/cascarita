@@ -25,14 +25,14 @@ export interface Label {
   label: string;
 }
 
-interface Team {
+export interface ShortTeam {
   team_id: number;
   team_name: string;
 }
 export interface PlayerBlockChoices {
   division_name: string;
   division_id: number;
-  teams: Team[];
+  teams: ShortTeam[];
 }
 
 export interface Properties {
@@ -121,5 +121,9 @@ export interface Answer {
   choice?: { label: string };
   choices?: { labels: string[] };
   file_url?: string;
+  player?: {
+    division_id: number | null;
+    team_id: number | null;
+  };
   payment?: string;
 }

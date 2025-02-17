@@ -30,13 +30,17 @@ const Liability = ({ field, index }: FieldProps) => {
         <span className={styles.errorMessage}>{fieldError.message}</span>
       )}
       <p>{field.properties?.description}</p>
-      <input
-        type="checkbox"
-        className={styles.input}
-        {...register(`answers.${index}.liability`, {
-          required: required && t("required"),
-        })}
-      />
+      <div style={{ display: "flex", gap: "10px" }}>
+        <label htmlFor={`liability-${index}`}>{"I have read and agree"}</label>
+        <input
+          type="checkbox"
+          className={styles.input}
+          id={`liability-${index}`}
+          {...register(`answers.${index}.liability`, {
+            required: required && t("required"),
+          })}
+        />
+      </div>
     </section>
   );
 };

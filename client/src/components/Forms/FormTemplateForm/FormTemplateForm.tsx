@@ -6,17 +6,27 @@ import { FormTemplateFormProps } from "./types";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { useAuth0 } from "@auth0/auth0-react";
-import { fetchUser } from "../../../api/users/service";
 import { createMongoForm } from "../../../api/forms/service";
 import { Field, Form } from "../../../api/forms/types";
+import { useQueries } from "@tanstack/react-query";
+import { fetchUser } from "../../../api/users/service";
+import { getSeasonsByGroupId } from "../../../api/seasons/services";
+import { getLeagueByGroupId } from "../../../api/leagues/service";
+import { useAuth0 } from "@auth0/auth0-react";
+import { LeagueType } from "../../../pages/Leagues/types";
+import { SeasonType } from "../../../pages/Seasons/types";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
 const signatureText =
   "By providing my e-signature below, I consent that I have read, reviewed and accept the terms contained within this registration form.";
 
-const createRegistrationFormData = (): Form => {
+const createRegistrationFormData = (
+  leagueId: number,
+  leagueName: string,
+  seasonId: number,
+  seasonName: string
+): Form => {
   const first_name_id = uuidv4();
   const last_name_id = uuidv4();
   const email_id = uuidv4();
@@ -142,10 +152,10 @@ const createRegistrationFormData = (): Form => {
       ref: player_block_id,
       title: "Player Block",
       type: "player",
-      season_name: "2022",
-      season_id: 1,
-      league_name: "Salinas Soccer Femenil",
-      league_id: 1,
+      season_name: seasonName,
+      season_id: seasonId,
+      league_name: leagueName,
+      league_id: leagueId,
       properties: {
         player_block_choices: [
           {
@@ -175,21 +185,64 @@ const createRegistrationFormData = (): Form => {
 
 const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
   const [template, setTemplate] = useState("");
+  const [title, setTitle] = useState("Registration Form");
+  const [leagueName, setLeagueName] = useState("");
+  const [leagueId, setLeagueId] = useState(0);
+  const [seasonName, setSeasonName] = useState("");
+  const [seasonId, setSeasonId] = useState(0);
+  const [description, setDescription] = useState(
+    "Please fill out all details for the registration form!"
+  );
   const navigate = useNavigate();
+  const groupId = Number(Cookies.get("group_id")) || 0;
+  const email = Cookies.get("email") || "";
   const { getAccessTokenSilently } = useAuth0();
+
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["seasons", groupId],
+        queryFn: async () =>
+          await getSeasonsByGroupId({
+            queryKey: ["seasons", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["leagues", groupId],
+        queryFn: async () =>
+          await getLeagueByGroupId({
+            queryKey: ["leagues", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+    ],
+  });
+
+  const [seasonsQuery, leaguesQuery] = results;
+  //   const data = seasonsQuery.data;
+  //   const isLoading = seasonsQuery.isLoading;
+  //   const isError = seasonsQuery.isError;
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (template !== "registration") {
       navigate("/forms/check");
     } else {
-      const data = createRegistrationFormData();
+      const data = createRegistrationFormData(
+        leagueId,
+        leagueName,
+        seasonId,
+        seasonName
+      );
       const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
       let currentUser = await fetchUser(email, token);
 
-      const title = "Registration Form";
-      const description = "Example registration form";
       const form = await createMongoForm(
         data,
         title,
@@ -230,18 +283,66 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
         </select>
       </div>
       {template === "registration" && (
-        <div className={styles.inputContainer}>
-          <label className={styles.label} htmlFor="leagueName">
-            League Name
-          </label>
-          <input
-            className={styles.input}
-            type="text"
-            name="leagueName"
-            id="leagueName"
-            required
-          />
-        </div>
+        <>
+          <div className={styles.inputContainer}>
+            <label className={styles.label} htmlFor="leagueName">
+              Form Title
+            </label>
+            <input
+              className={styles.input}
+              type="text"
+              placeholder="Title"
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+          <div className={styles.inputContainer}>
+            <label className={styles.label} htmlFor="leagueName">
+              League Name
+            </label>
+            <select
+              className={styles.input}
+              name="leagueName"
+              id="leagueName"
+              required
+              onChange={(e) => {
+                const [name, id] = e.target.value.split(".");
+                setLeagueName(name);
+                setLeagueId(Number(id));
+              }}
+            >
+              <option value="">Select a league</option>
+              {leaguesQuery.data?.map((league: LeagueType) => (
+                <option key={league.id} value={`${league.name}.${league.id}`}>
+                  {league.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.inputContainer}>
+            <label className={styles.label} htmlFor="seasonName">
+              Season Name
+            </label>
+            <select
+              className={styles.input}
+              name="leagueName"
+              id="leagueName"
+              required
+              onChange={(e) => {
+                const [name, id] = e.target.value.split(".");
+                setSeasonName(name);
+                setSeasonId(Number(id));
+              }}
+            >
+              <option value="">Select a season</option>
+              {seasonsQuery.data?.map((season: SeasonType) => (
+                <option key={season.id} value={`${season.name}.${season.id}`}>
+                  {season.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </>
       )}
       <div className={styles.formBtnContainer}>
         <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
