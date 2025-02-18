@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import { FormTemplateFormProps } from "./types";
@@ -7,14 +7,21 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { createMongoForm } from "../../../api/forms/service";
-import { Field, Form } from "../../../api/forms/types";
+import { Currency, Field, Form } from "../../../api/forms/types";
 import { useQueries } from "@tanstack/react-query";
 import { fetchUser } from "../../../api/users/service";
 import { getSeasonsByGroupId } from "../../../api/seasons/services";
 import { getLeagueByGroupId } from "../../../api/leagues/service";
+import { getDivisionByGroupId } from "../../../api/divisions/service";
+import { getTeamsByGroupId } from "../../../api/teams/service";
+
 import { useAuth0 } from "@auth0/auth0-react";
 import { LeagueType } from "../../../pages/Leagues/types";
 import { SeasonType } from "../../../pages/Seasons/types";
+import { DivisionType } from "../../../pages/Division/types";
+import { TeamType } from "../../../pages/Teams/types";
+import { getStripeAccounts } from "../../../api/stripe/service";
+import { StripeAccount } from "../../DragAndDropComponents/DraggablePayment/types";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
@@ -25,7 +32,13 @@ const createRegistrationFormData = (
   leagueId: number,
   leagueName: string,
   seasonId: number,
-  seasonName: string
+  seasonName: string,
+  divisions: DivisionType[],
+  teams: TeamType[][],
+  price: number,
+  feeValue: number,
+  stripeUser: string,
+  stripeAccountId: string
 ): Form => {
   const first_name_id = uuidv4();
   const last_name_id = uuidv4();
@@ -38,6 +51,7 @@ const createRegistrationFormData = (
   const liability_id = uuidv4();
   const signature_id = uuidv4();
   const player_block_id = uuidv4();
+  const payment_block_id = uuidv4();
 
   const data: Field[] = [
     {
@@ -158,26 +172,34 @@ const createRegistrationFormData = (
       league_id: leagueId,
       properties: {
         player_block_choices: [
-          {
-            division_name: "Division 1",
-            division_id: 1,
-            teams: [
-              {
-                team_name: "team 1",
-                team_id: 1,
-              },
-              {
-                team_name: "team 2",
-                team_id: 2,
-              },
-              {
-                team_name: "team 3",
-                team_id: 3,
-              },
-            ],
-          },
+          ...divisions.map((division, index) => ({
+            division_name: division.name,
+            division_id: division.id,
+            teams: teams[index].map((team) => ({
+              team_name: team.name,
+              team_id: team.id,
+            })),
+          })),
         ],
       },
+    },
+    {
+      title: "Payment",
+      type: "payment",
+      id: payment_block_id,
+      ref: payment_block_id,
+      properties: {
+        price: {
+          type: "fixed",
+          value: price.toString(),
+          feeValue: feeValue.toString(),
+          currency: Currency.USD,
+          isCustomerPayingFee: false,
+        },
+        stripe_account: { id: stripeUser, stripe_account_id: stripeAccountId },
+        description: "payment block",
+      },
+      validations: { required: false },
     },
   ];
   return { fields: data };
@@ -190,13 +212,26 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
   const [leagueId, setLeagueId] = useState(0);
   const [seasonName, setSeasonName] = useState("");
   const [seasonId, setSeasonId] = useState(0);
-  const [description, setDescription] = useState(
-    "Please fill out all details for the registration form!"
-  );
+  const [divisions, setDivisions] = useState<DivisionType[]>([]);
+  const [teams, setTeams] = useState<TeamType[][]>([]);
+  const [price, setPrice] = useState(0);
+  const [feeValue, setFeeValue] = useState(0);
+  const [stripeAccountId, setStripeAccountId] = useState("");
+  const [stripeUser, setStripeUser] = useState("");
+  const description = "Please fill out all details for the registration form!";
+
   const navigate = useNavigate();
   const groupId = Number(Cookies.get("group_id")) || 0;
   const email = Cookies.get("email") || "";
   const { getAccessTokenSilently } = useAuth0();
+
+  const calculateStripeFee = (price: number): number => {
+    const feePercentage = 0.029;
+    const fixedFee = 0.3;
+    const fee = price * feePercentage + fixedFee;
+    const finalFee = Math.ceil(fee * 100) / 100;
+    return finalFee;
+  };
 
   const results = useQueries({
     queries: [
@@ -220,13 +255,73 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
           }),
         enabled: groupId !== 0,
       },
+      {
+        queryKey: ["divisions", groupId],
+        queryFn: async () =>
+          await getDivisionByGroupId({
+            queryKey: ["divisions", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["teams", groupId],
+        queryFn: async () =>
+          await getTeamsByGroupId({
+            queryKey: ["teams", groupId],
+            meta: undefined,
+            signal: new AbortController().signal,
+          }),
+        enabled: groupId !== 0,
+      },
+      {
+        queryKey: ["stripeAccounts", groupId],
+        queryFn: async () => await getStripeAccounts(groupId),
+        enabled: groupId !== 0,
+      },
     ],
   });
 
-  const [seasonsQuery, leaguesQuery] = results;
-  //   const data = seasonsQuery.data;
-  //   const isLoading = seasonsQuery.isLoading;
-  //   const isError = seasonsQuery.isError;
+  const [
+    seasonsQuery,
+    leaguesQuery,
+    divisionsQuery,
+    teamsQuery,
+    stripeAccountsQuery,
+  ] = results;
+
+  useEffect(() => {
+    if (seasonId !== 0 && leagueId !== 0) {
+      const matchingDivisions: DivisionType[] =
+        divisionsQuery.data?.filter(
+          (division: DivisionType) =>
+            division.season_id === seasonId && division.league_id === leagueId
+        ) || [];
+
+      const matchingTeams: TeamType[][] = matchingDivisions.map(
+        (division: DivisionType) =>
+          teamsQuery.data?.filter(
+            (team: TeamType) => team.division_id === division.id
+          ) || []
+      );
+
+      setDivisions(matchingDivisions);
+      setTeams(matchingTeams);
+    }
+  }, [seasonId, leagueId]);
+
+  useEffect(() => {
+    if (stripeAccountsQuery.data) {
+      const stripeAccount = stripeAccountsQuery.data.find(
+        (account: StripeAccount) => account.user_email === email
+      );
+      if (stripeAccount) {
+        setStripeAccountId(stripeAccount.stripe_account_id);
+        setStripeUser(stripeAccount.id.toString());
+      }
+    }
+  }, [stripeAccountsQuery.data]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -238,7 +333,13 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
         leagueId,
         leagueName,
         seasonId,
-        seasonName
+        seasonName,
+        divisions,
+        teams,
+        price,
+        feeValue,
+        stripeUser,
+        stripeAccountId
       );
       const token = await getAccessTokenSilently();
       let currentUser = await fetchUser(email, token);
@@ -248,7 +349,8 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
         title,
         description,
         currentUser?.group_id,
-        currentUser?.id
+        currentUser?.id,
+        template
       );
 
       navigate("/forms/check", {
@@ -341,6 +443,36 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
                 </option>
               ))}
             </select>
+          </div>
+          <div className={styles.inputContainer}>
+            <label className={styles.label} htmlFor="price">
+              Price
+            </label>
+            <input
+              className={styles.input}
+              type="text"
+              placeholder="Price"
+              value={price}
+              onChange={(e) => {
+                setPrice(Number(e.target.value));
+                const calcFee = calculateStripeFee(Number(e.target.value));
+                setFeeValue(calcFee);
+              }}
+              required
+            />
+          </div>
+
+          <div className={styles.inputContainer}>
+            <label className={styles.label} htmlFor="fee">
+              Fee
+            </label>
+            <input
+              className={styles.input}
+              type="text"
+              placeholder="Fee"
+              value={feeValue}
+              readOnly
+            />
           </div>
         </>
       )}
