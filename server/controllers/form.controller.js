@@ -107,6 +107,7 @@ const FormController = {
         data.sql_form_id = sqlFormData
           ? sqlFormData.id
           : `no sql form found for ${form_document_id}`;
+        data.form_type = sqlFormData ? sqlFormData.form_type : 0;
       }
 
       return res.status(200).json(data);

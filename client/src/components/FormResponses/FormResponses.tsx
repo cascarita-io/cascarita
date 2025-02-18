@@ -8,8 +8,10 @@ import {
 import { truncateText } from "../../utils/truncateText";
 import { useTranslation } from "react-i18next";
 import { Answer, Field } from "../../api/forms/types";
+import StatusLabel from "../StatusLabel/StatusLabel";
 
 const FormResponses = ({ formId }: FormResponsesProps) => {
+  const [formType, setFormType] = useState(0);
   const [formFields, setFormFields] = useState<Field[]>([]);
   const [formResponsesMap, setFormResponsesMap] = useState<AnswerRecordMap>(
     new Map()
@@ -19,7 +21,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   useEffect(() => {
     (async () => {
       const formData = await getMongoFormById(formId);
-
+      setFormType(formData.form_type);
       setFormFields(formData.form_data.fields);
       const responsesData = await getMongoFormResponses(formData._id);
       const responsesMap = responsesData.reduce(
@@ -66,6 +68,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       <table className={styles.table}>
         <thead>
           <tr>
+            {formType === 1 && <th>Status</th>}
             {formFields.map((field) => (
               <th key={field.id} title={field.title}>
                 <p>{truncateText(field.title, 35)}</p>
@@ -76,6 +79,11 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
         <tbody>
           {Array.from(formResponsesMap.keys()).map((responseId) => (
             <tr key={responseId}>
+              {formType === 1 && (
+                <td>
+                  <StatusLabel status="pending">pending</StatusLabel>
+                </td>
+              )}
               {formFields.map((field) => (
                 <td key={field.id}>
                   {formResponsesMap.get(responseId)?.get(field.id)?.type &&

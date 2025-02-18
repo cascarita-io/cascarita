@@ -6,6 +6,7 @@ import Modal from "../../../components/Modal/Modal";
 import PrimaryButton from "../../../components/PrimaryButton/PrimaryButton";
 import StripeAccountForm from "../StripeAccountForm/StripeAccountForm";
 import { useTranslation } from "react-i18next";
+import StatusLabel from "../../../components/StatusLabel/StatusLabel";
 
 const Payment = () => {
   const { t } = useTranslation("Settings");
@@ -18,8 +19,8 @@ const Payment = () => {
   ];
 
   const StatusLabels = {
-    Complete: t("payment.status.complete"),
-    Restricted: t("payment.status.restricted"),
+    Complete: t("payment.status.approved"),
+    Restricted: t("payment.status.rejected"),
     Pending: t("payment.status.pending"),
   };
 
@@ -59,23 +60,6 @@ const Payment = () => {
     return date.toLocaleDateString();
   };
 
-  const statusLabelStyling = (status: string) => {
-    return {
-      backgroundColor:
-        status === StatusLabels.Complete
-          ? "#e9ffe8"
-          : status === StatusLabels.Restricted
-            ? "#ffeeee"
-            : "#dbe7f98f",
-      color:
-        status === StatusLabels.Complete
-          ? "#045502"
-          : status === StatusLabels.Restricted
-            ? "#970303"
-            : "#084986",
-    };
-  };
-
   return (
     <section className={styles.wrapper}>
       <div className={styles.sectionHeader}>
@@ -85,7 +69,8 @@ const Payment = () => {
           <Modal.Button asChild>
             <PrimaryButton
               onClick={() => setIsStripeModalOpen(true)}
-              className={styles.btn}>
+              className={styles.btn}
+            >
               {t("payment.addStripe")}
             </PrimaryButton>
           </Modal.Button>
@@ -104,7 +89,8 @@ const Payment = () => {
       <DashboardTable
         headers={planHeaders}
         headerColor="light"
-        className={styles.table}>
+        className={styles.table}
+      >
         {mockPaymentData == null || mockPaymentData?.length === 0 ? (
           <p>{t("payment.empty")}</p>
         ) : (
@@ -114,11 +100,8 @@ const Payment = () => {
               <td>{user.email}</td>
               <td>{formatDate(user.date_submitted)}</td>
               <td>
-                <p
-                  style={statusLabelStyling(user.status)}
-                  className={`${styles.statusLabel}`}>
-                  {user.status}
-                </p>
+                {/* @ts-ignore */}
+                <StatusLabel status={user.status}>{user.status}</StatusLabel>
               </td>
             </tr>
           ))

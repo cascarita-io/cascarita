@@ -64,7 +64,7 @@ export const useRouter = () =>
             handle={{ crumb: <UserCrumb /> }}
           />
           <Route path="forms" element={<Forms />} />
-          <Route path="forms/check" element={<NewForm />} />
+          <Route path="forms/edit" element={<NewForm />} />
           <Route path="settings" element={<Settings />}>
             <Route index element={<Plan />} />
             <Route path="payment" element={<Payment />} />

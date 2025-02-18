@@ -1,6 +1,7 @@
 interface DropdownMenuButtonProps {
   onEdit?: () => void;
   onDelete?: () => void;
+  onView?: () => void;
   children?: React.ReactNode;
 }
 
