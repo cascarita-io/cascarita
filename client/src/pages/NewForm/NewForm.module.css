@@ -5,37 +5,29 @@ h4 {
   font-family: "Poppins" !important;
 }
 
-.formElementsContainer {
-  font-family: "DM Sans";
-  width: 210px;
-  height: 100%;
-  display: block;
-  padding-left: 12px;
-  padding-right: 10px;
-  padding-top: 12px;
-  justify-content: left;
-  background-color: #f4f7fb;
-  border-radius: 10px;
+.newFormPage {
+  display: grid;
+  grid-template-rows: 45px auto auto 1fr;
+  gap: 8px;
 }
 
 .newFormContainer {
-  display: flex;
-  height: 100vh;
-  padding-bottom: 25%;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 4fr;
+  min-height: 0;
 }
 
-.title {
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 46px;
-  color: #1e1e1e;
-  padding-bottom: 10px;
+.formElementsContainer {
+  padding-top: 12px;
+  background-color: #f4f7fb;
+  border-radius: 10px;
+  overflow-y: auto;
 }
 
 .subtitle {
   font-size: 16px;
   font-weight: 700;
-  padding-bottom: 10px;
   line-height: 25px;
 }
 
@@ -45,27 +37,32 @@ h4 {
   line-height: 25px;
 }
 
+.draggableButtonContainer {
+  overflow-y: auto;
+  max-height: 90%;
+  scrollbar-width: thin;
+  position: relative;
+  z-index: 10;
+}
+
 .formTitleContainer {
-  border-radius: 10px;
-  border: 1px solid #aaaaaa;
-  padding-top: 13px;
-  padding-left: 25px;
-  padding-right: 25px;
-  padding-bottom: 23px;
   display: grid;
-  margin-bottom: 8px;
-  margin-right: 15px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 50px;
+  gap: 8px;
+  border-radius: 10px;
 }
 
 .formCanvasContainer {
-  overflow-y: scroll;
-  overflow-x: "hidden";
-  margin-left: 15px;
-  width: 100%;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .formTitle {
-  font-size: 36px;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 46px;
 }
@@ -77,29 +74,27 @@ h4 {
 
 .formTitle,
 .formDescription {
-  z-index: 2;
-  margin-left: -5px;
-  margin-right: -5px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding: 8px 13px;
+  border-radius: 8px;
   width: 100%;
+  background-color: transparent;
+  border: lightgray 1px solid;
 }
 
 .canvasStyles {
-  margin-right: 15px;
-  border: 10px solid transparent;
-  border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" rx="9.5" fill="white" stroke="%23B01254" stroke-dasharray="20 20"/></svg>')
-    10 round;
+  border: 2px dashed lightgray;
+  max-height: 100%;
+  border-radius: 12px;
 }
 
 .canvasInnerContainer {
-  padding-right: 50px;
+  max-width: 100%;
 }
 
 .newFormHeader {
   display: flex;
-  justify-content: space-between;
-  padding-bottom: 10px;
+  justify-content: end;
+  align-items: center;
 }
 
 .buttonGroup {
@@ -155,13 +150,10 @@ h4 {
 }
 
 .formNav {
-  font-size: 18px;
+  font-size: 1rem;
   line-height: 25px;
   display: flex;
-  flex-direction: row;
   padding-bottom: 10px;
-  margin-bottom: 15px;
-  margin-right: 33px;
   width: 100%;
   border-bottom: 1px solid #dfe5ee;
 }

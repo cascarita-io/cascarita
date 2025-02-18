@@ -342,7 +342,7 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
         stripeAccountId
       );
       const token = await getAccessTokenSilently();
-      let currentUser = await fetchUser(email, token);
+      const currentUser = await fetchUser(email, token);
 
       const form = await createMongoForm(
         data,
