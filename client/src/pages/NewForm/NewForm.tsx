@@ -23,7 +23,7 @@ const NewForm = () => {
   const location = useLocation();
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
   const [formId, setFormId] = useState<string | null>(
-    (location.state?.id as string) ?? null
+    (location.state?.id as string) ?? null,
   );
   const defaultItems = fields
     ? fields.map((field) => ({
@@ -33,10 +33,10 @@ const NewForm = () => {
     : [];
   const [droppedItems, setDroppedItems] = useState<DroppedItem[]>(defaultItems);
   const [description, setDescription] = useState(
-    location.state?.description ?? ""
+    location.state?.description ?? "",
   );
   const [title, setTitle] = useState(
-    location.state?.title ?? t("formTitlePlaceHolder")
+    location.state?.title ?? t("formTitlePlaceHolder"),
   );
   const [formLink, setFormLink] = useState(location.state?.link ?? null);
   const canvasRef = useRef<DNDCanvasRef>(null);
@@ -103,7 +103,7 @@ const NewForm = () => {
       title,
       description,
       currentUser?.group_id,
-      currentUser?.id
+      currentUser?.id,
     );
     setFormLink(`${window.location.origin}/forms/${response._id}`);
     setFormId(response._id);
@@ -120,74 +120,75 @@ const NewForm = () => {
       formId,
       title,
       description,
-      currentUser
+      currentUser,
     );
     setFields(response.fields);
   };
 
   return (
-    <Page>
-      <div>
-        <div className={styles.newFormHeader}>
-          <h1 className={styles.title}>
-            {formId == null ? t("pageTitleNew") : t("pageTitleEdit")}
-          </h1>
-          <div className={styles.buttonGroup}>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className={styles.cancelButton}
-            >
-              {t("cancelButton")}
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className={styles.submitButton}
-            >
-              {formId == null ? t("createButton") : t("saveButton")}
-            </button>
-            {formLink && (
-              <a href={formLink} target="_blank" rel="noopener noreferrer">
-                <button className={styles.previewButton}>
-                  {t("previewButton")}
-                </button>
-              </a>
-            )}
-          </div>
+    <Page
+      title={formId == null ? t("pageTitleNew") : t("pageTitleEdit")}
+      className={styles.newFormPage}
+    >
+      <div className={styles.newFormHeader}>
+        <div className={styles.buttonGroup}>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={styles.cancelButton}
+          >
+            {t("cancelButton")}
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className={styles.submitButton}
+          >
+            {formId == null ? t("createButton") : t("saveButton")}
+          </button>
+          {formLink && (
+            <a href={formLink} target="_blank" rel="noopener noreferrer">
+              <button className={styles.previewButton}>
+                {t("previewButton")}
+              </button>
+            </a>
+          )}
         </div>
-        <ul className={styles.formNav}>
+      </div>
+      <ul className={styles.formNav}>
+        <li
+          className={
+            activeSection === "questions"
+              ? styles.activeSection
+              : styles.questionsNav
+          }
+          onClick={() => setActiveSection("questions")}
+        >
+          {t("formNavOptions.questions")}
+        </li>
+        {formId != null && (
           <li
             className={
-              activeSection === "questions"
+              activeSection === "responses"
                 ? styles.activeSection
-                : styles.questionsNav
+                : styles.responsesNav
             }
-            onClick={() => setActiveSection("questions")}
+            onClick={() => setActiveSection("responses")}
           >
-            {t("formNavOptions.questions")}
+            {t("formNavOptions.responses")}
           </li>
-          {formId != null && (
-            <li
-              className={
-                activeSection === "responses"
-                  ? styles.activeSection
-                  : styles.responsesNav
-              }
-              onClick={() => setActiveSection("responses")}
-            >
-              {t("formNavOptions.responses")}
-            </li>
-          )}
-        </ul>
-        {activeSection === "questions" && (
-          <div className={styles.newFormContainer}>
-            <div className={styles.formElementsContainer}>
-              <h2 className={styles.subtitle}>{t("formElements")}</h2>
-              <hr />
-              <p className={`${styles.smallText} ${styles.textElementsText}`}>
-                {t("textElements")}
-              </p>
+        )}
+      </ul>
+      {activeSection === "questions" && (
+        <div className={styles.newFormContainer}>
+          <div className={styles.formElementsContainer}>
+            <h2 className={styles.subtitle}>{t("formElements")}</h2>
+            <hr />
+            <p className={`${styles.smallText} ${styles.textElementsText}`}>
+              {t("textElements")}
+            </p>
+
+            <div className={styles.draggableButtonContainer}>
               {draggableButtons.map((label, index) => (
                 <DraggableButton
                   key={index}
@@ -196,48 +197,43 @@ const NewForm = () => {
                 />
               ))}
             </div>
-            <div className={styles.formCanvasContainer}>
-              <div className={styles.formTitleContainer}>
-                <div style={{ paddingBottom: 8 }}>
-                  <input
-                    className={styles.formTitle}
-                    placeholder="Form Title"
-                    onChange={(e) => setTitle(e.target.value)}
-                    value={title}
-                  />
-                  <hr />
-                </div>
-                <input
-                  className={styles.formDescription}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder={t("descriptionPlaceholder")}
-                  value={description}
-                />
-                <hr />
-              </div>
-              <p className={styles.smallText} style={{ color: "#b01254" }}>
-                {t("sectionText")}
-              </p>
+          </div>
 
-              <div className={styles.canvasStyles}>
-                <div className={styles.canvasInnerContainer}>
-                  <DNDCanvas
-                    ref={canvasRef}
-                    importedFields={fields}
-                    items={droppedItems}
-                    handleDelete={handleDelete}
-                    handleCopy={handleCopy}
-                    saveForm={formId == null ? onCreate : onSave}
-                  />
-                </div>
-              </div>
+          <div className={styles.formCanvasContainer}>
+            <div className={styles.formTitleContainer}>
+              <input
+                className={styles.formTitle}
+                placeholder="Form Title"
+                onChange={(e) => setTitle(e.target.value)}
+                value={title}
+              />
+              <input
+                className={styles.formDescription}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t("descriptionPlaceholder")}
+                value={description}
+              />
+            </div>
+            <p className={styles.smallText} style={{ color: "#b01254" }}>
+              {t("sectionText")}
+            </p>
+
+            <div className={styles.canvasStyles}>
+              <DNDCanvas
+                ref={canvasRef}
+                importedFields={fields}
+                items={droppedItems}
+                handleDelete={handleDelete}
+                handleCopy={handleCopy}
+                saveForm={formId == null ? onCreate : onSave}
+              />
             </div>
           </div>
-        )}
-        {formId != null && activeSection === "responses" && (
-          <FormResponses formId={formId} />
-        )}
-      </div>
+        </div>
+      )}
+      {formId != null && activeSection === "responses" && (
+        <FormResponses formId={formId} />
+      )}
     </Page>
   );
 };

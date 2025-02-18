@@ -32,7 +32,7 @@ const DNDCanvas = forwardRef(
       saveForm,
       importedFields,
     }: DNDCanvasProps,
-    ref
+    ref,
   ) => {
     const methods = useForm<{ fields: Field[] }>({
       defaultValues: { fields: importedFields ?? [] },
@@ -202,17 +202,17 @@ const DNDCanvas = forwardRef(
       // Ensure the copied fields has the same fields as the original
       methods.setValue(
         `fields.${index + 1}.title`,
-        methods.getValues(`fields.${index}.title`)
+        methods.getValues(`fields.${index}.title`),
       );
 
       methods.setValue(
         `fields.${index + 1}.validations`,
-        methods.getValues(`fields.${index}.validations`)
+        methods.getValues(`fields.${index}.validations`),
       );
 
       methods.setValue(
         `fields.${index + 1}.properties`,
-        methods.getValues(`fields.${index}.properties`)
+        methods.getValues(`fields.${index}.properties`),
       );
     };
 
@@ -230,9 +230,12 @@ const DNDCanvas = forwardRef(
               // onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               style={{
-                padding: "16px",
-                background: "white",
-                minHeight: "400px",
+                padding: "16px 55px 0 12px",
+                background: "transparent",
+                borderRadius: "12px",
+                maxHeight: "100%",
+                overflowY: "auto",
+                scrollbarWidth: "thin",
               }}
             >
               {items.length === 0 ? (
@@ -263,7 +266,7 @@ const DNDCanvas = forwardRef(
         </StrictModeDroppable>
       </DragDropContext>
     );
-  }
+  },
 );
 
 DNDCanvas.displayName = "DNDCanvas";

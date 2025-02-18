@@ -25,7 +25,7 @@ const createRegistrationFormData = (
   leagueId: number,
   leagueName: string,
   seasonId: number,
-  seasonName: string
+  seasonName: string,
 ): Form => {
   const first_name_id = uuidv4();
   const last_name_id = uuidv4();
@@ -190,9 +190,6 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
   const [leagueId, setLeagueId] = useState(0);
   const [seasonName, setSeasonName] = useState("");
   const [seasonId, setSeasonId] = useState(0);
-  const [description, setDescription] = useState(
-    "Please fill out all details for the registration form!"
-  );
   const navigate = useNavigate();
   const groupId = Number(Cookies.get("group_id")) || 0;
   const email = Cookies.get("email") || "";
@@ -238,17 +235,17 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
         leagueId,
         leagueName,
         seasonId,
-        seasonName
+        seasonName,
       );
       const token = await getAccessTokenSilently();
-      let currentUser = await fetchUser(email, token);
+      const currentUser = await fetchUser(email, token);
 
       const form = await createMongoForm(
         data,
         title,
         description,
         currentUser?.group_id,
-        currentUser?.id
+        currentUser?.id,
       );
 
       navigate("/forms/check", {
