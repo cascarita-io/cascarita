@@ -7,8 +7,9 @@
 }
 
 .inlineFields {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 5fr 4fr;
+  gap: 30px;
 }
 
 .formContainer {
@@ -59,14 +60,18 @@
   border-radius: 26px;
 }
 
+.registerBtn:disabled {
+  opacity: 0.5;
+}
+
 .backBtn {
   outline: 1px solid #000;
   background-color: transparent;
   color: #000;
 }
 
-.registerBtn:hover,
-.registerBtn:focus {
+.registerBtn:not(:disabled):hover,
+.registerBtn:not(:disabled):focus {
   transition: ease-in 200ms;
   background-color: transparent;
   outline: 1px solid black;
@@ -158,13 +163,14 @@
   align-items: center;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 769px) {
   .selectMenu {
     margin-bottom: 8px;
   }
 
   .inlineFields {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 

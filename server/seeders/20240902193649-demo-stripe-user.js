@@ -11,24 +11,12 @@ module.exports = {
         "Groups",
         [
           {
-            name: "Soccer Central",
+            name: "Soccer Central V2",
             street_address: "34 Harkins Slough Rd",
             city: "Watsonville",
             state: "CA",
             zip_code: "95076",
             logo_url: "https://example.com/logo",
-            created_at: new Date(),
-            updated_at: new Date(),
-          },
-        ],
-        { transaction },
-      );
-
-      const role = await queryInterface.bulkInsert(
-        "Roles",
-        [
-          {
-            role_type: "League Owner",
             created_at: new Date(),
             updated_at: new Date(),
           },
@@ -47,9 +35,8 @@ module.exports = {
           first_name: "Raul",
           last_name: "Tester",
           email: "info.cascarita@gmail.com",
-          password: "test",
           group_id: group,
-          role_id: role,
+          role_id: 1, // admin
           language_id: language.id,
           created_at: new Date(),
           updated_at: new Date(),
@@ -65,6 +52,7 @@ module.exports = {
           requires_verification: true,
           charges_enabled: false,
           payouts_enabled: false,
+          stripe_status_id: 4, // 'Enabled'
         },
         { transaction },
       );
