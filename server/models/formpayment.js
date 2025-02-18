@@ -32,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "internal_status_id",
         targetKey: "id",
       });
+
+      FormPayment.belongsTo(models.UserStripeAccounts, {
+        foreignKey: "user_stripe_account_id",
+        targetKey: "id",
+      });
     }
   }
   FormPayment.init(
@@ -83,12 +88,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      user_stripe_account_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
     },
 
     {
       sequelize,
       modelName: "FormPayment",
       tableName: "FormPayments",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     },
   );
   return FormPayment;
