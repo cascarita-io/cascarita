@@ -23,7 +23,6 @@ import { fetchUser } from "../../api/users/service";
 import { FaPlus } from "react-icons/fa";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
-import StatusButton from "../../components/StatusLabel/StatusLabel";
 
 interface ShareModalProps {
   formLink: string;
@@ -86,7 +85,7 @@ const Forms = () => {
   }, []);
 
   const handleNewFormClick = () => {
-    navigate("/forms/view");
+    navigate("/forms/edit");
   };
 
   const handleShareClick = (formLink: string) => {

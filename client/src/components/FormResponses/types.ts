@@ -28,6 +28,7 @@ export interface TypeformResponse {
 
 export interface FormResponse {
   _id: string;
+  createdAt: string;
   form_id: string;
   response: TypeformResponse;
 }

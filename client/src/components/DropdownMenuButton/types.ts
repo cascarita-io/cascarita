@@ -3,6 +3,7 @@ interface DropdownMenuButtonProps {
   onDelete?: () => void;
   onView?: () => void;
   children?: React.ReactNode;
+  trigger?: React.ReactNode;
 }
 
 interface DropdownMenuItemProps {

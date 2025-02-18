@@ -18,10 +18,10 @@ const Payment = () => {
     t("payment.headers.status"),
   ];
 
-  const StatusLabels = {
-    Complete: t("payment.status.approved"),
-    Restricted: t("payment.status.rejected"),
-    Pending: t("payment.status.pending"),
+  const StatusLabels: { [key: string]: "approved" | "rejected" | "pending" } = {
+    Complete: "approved",
+    Restricted: "rejected",
+    Pending: "pending",
   };
 
   const mockPaymentData = [
@@ -100,7 +100,6 @@ const Payment = () => {
               <td>{user.email}</td>
               <td>{formatDate(user.date_submitted)}</td>
               <td>
-                {/* @ts-ignore */}
                 <StatusLabel status={user.status}>{user.status}</StatusLabel>
               </td>
             </tr>
