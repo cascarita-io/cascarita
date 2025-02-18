@@ -9,6 +9,7 @@ const {
   User,
   StripeStatus,
   Group,
+  FormPayment,
 } = require("../models");
 const modelByPk = require("./utility");
 
@@ -72,30 +73,29 @@ const AccountController = function () {
 
   var createPaymentIntent = async function (req, res, next) {
     try {
-      const productObj = req.body;
+      let productObj = req.body;
 
       const paymentIntent = await Stripe.paymentIntents.create(
         {
-          amount: productObj.price,
+          amount: productObj.transactionAmount,
           currency: "usd",
           automatic_payment_methods: {
             enabled: true,
           },
-          application_fee_amount: productObj.fee,
+          application_fee_amount: productObj.transactionFee,
         },
         {
           stripeAccount: req.params["account_id"],
         },
       );
 
-      await FormPaymentIntents.create({
-        payment_intent_id: paymentIntent.id,
-        form_id: productObj.form_id,
-        user_stripe_account_id: productObj.userId,
-      });
+      productObj.paymentIntentId = paymentIntent.id;
+      productObj.paymentIntentStatus = paymentIntent.status;
+      await createStripePayemnt(productObj);
 
-      res.status(201).json(paymentIntent);
+      return res.status(201).json(paymentIntent);
     } catch (error) {
+      console.error(error);
       next(error);
     }
   };
@@ -223,6 +223,18 @@ const AccountController = function () {
 
   const getPublishableKey = function (req, res, next) {
     res.status(200).json({ key: process.env.STRIPE_PUBLISHABLE_KEY });
+  };
+
+  var createStripePayemnt = async function (formData) {
+    await FormPayment.create({
+      form_id: formData.form_id,
+      payment_method_id: 1, //since this go triggred, it is stripe payment
+      internal_status_id: 1, // set it to default 'Pending'
+      amount: formData.transactionAmount,
+      payment_intent_id: formData.paymentIntentId,
+      payment_intent_status: formData.paymentIntentStatus,
+      user_stripe_account_id: formData.userStripeAccountSqlId,
+    });
   };
 
   return {
