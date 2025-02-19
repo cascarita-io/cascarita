@@ -23,7 +23,7 @@ import { fetchUser } from "../../api/users/service";
 import { FaPlus } from "react-icons/fa";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
-import FormTemplateForm from "../../components/Forms/FormTemplateForm/FormTemplateForm";
+import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
 
 interface ShareModalProps {
   formLink: string;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import { FormTemplateFormProps } from "./types";
+import { RegistrationTemplateFormProps } from "./types";
 
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -205,7 +205,41 @@ const createRegistrationFormData = (
   return { fields: data };
 };
 
-const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
+const RedirectToLeagues = () => {
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    navigate("/");
+  };
+
+  return (
+    <div>
+      <div className={styles.inputContainer}>
+        <label className={styles.label} style={{ paddingBottom: "10px" }}>
+          You have no leagues and seasons. Please create a league and season.
+        </label>
+      </div>
+      <div className={styles.formBtnContainer}>
+        <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
+          Cancel
+        </Modal.Close>
+
+        <div>
+          <button
+            onClick={handleRedirect}
+            className={`${styles.btn} ${styles.submitBtn}`}
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
+  afterSave,
+}) => {
   const [template, setTemplate] = useState("");
   const [title, setTitle] = useState("Registration Form");
   const [leagueName, setLeagueName] = useState("");
@@ -218,6 +252,7 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
   const [feeValue, setFeeValue] = useState(0);
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [stripeUser, setStripeUser] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const description = "Please fill out all details for the registration form!";
 
   const navigate = useNavigate();
@@ -326,6 +361,20 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (seasonId === 0 || leagueId === 0) {
+      setErrorMsg("Form needs both a league and a season.");
+      setTimeout(() => {
+        setErrorMsg("");
+      }, 5000);
+      return;
+    } else if (price === 0 || feeValue === 0) {
+      setErrorMsg("Price cannot be 0.");
+      setTimeout(() => {
+        setErrorMsg("");
+      }, 5000);
+      return;
+    }
+
     if (template !== "registration") {
       navigate("/forms/check");
     } else {
@@ -368,6 +417,14 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
     afterSave();
   };
 
+  if (Array.isArray(seasonsQuery.data) && Array.isArray(leaguesQuery.data)) {
+    if (template === "registration") {
+      if (seasonsQuery.data.length === 0 && leaguesQuery.data.length === 0) {
+        return <RedirectToLeagues />;
+      }
+    }
+  }
+
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.inputContainer}>
@@ -387,6 +444,11 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
       {template === "registration" && (
         <>
           <div className={styles.inputContainer}>
+            {errorMsg && (
+              <label className={styles.label} style={{ color: "red" }}>
+                {errorMsg}
+              </label>
+            )}
             <label className={styles.label} htmlFor="leagueName">
               Form Title
             </label>
@@ -405,7 +467,7 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
             <select
               className={styles.input}
               name="leagueName"
-              id="leagueName"
+              id="leagueId"
               required
               onChange={(e) => {
                 const [name, id] = e.target.value.split(".");
@@ -421,58 +483,72 @@ const FormTemplateForm: React.FC<FormTemplateFormProps> = ({ afterSave }) => {
               ))}
             </select>
           </div>
-          <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="seasonName">
-              Season Name
-            </label>
-            <select
-              className={styles.input}
-              name="leagueName"
-              id="leagueName"
-              required
-              onChange={(e) => {
-                const [name, id] = e.target.value.split(".");
-                setSeasonName(name);
-                setSeasonId(Number(id));
-              }}
-            >
-              <option value="">Select a season</option>
-              {seasonsQuery.data?.map((season: SeasonType) => (
-                <option key={season.id} value={`${season.name}.${season.id}`}>
-                  {season.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="price">
-              Price
-            </label>
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Price"
-              value={price}
-              onChange={(e) => {
-                setPrice(Number(e.target.value));
-                const calcFee = calculateStripeFee(Number(e.target.value));
-                setFeeValue(calcFee);
-              }}
-              required
-            />
-          </div>
+          {leagueId !== 0 &&
+            seasonsQuery.data?.filter(
+              (season: SeasonType) => season.league_id === leagueId
+            ).length > 0 && (
+              <div className={styles.inputContainer}>
+                <label className={styles.label} htmlFor="seasonName">
+                  Season Name
+                </label>
+                <select
+                  className={styles.input}
+                  name="seasonName"
+                  id="seasonId"
+                  required
+                  onChange={(e) => {
+                    const [name, id] = e.target.value.split(".");
+                    setSeasonName(name);
+                    setSeasonId(Number(id));
+                  }}
+                >
+                  <option value="">Select a season</option>
+                  {seasonsQuery.data
+                    ?.filter(
+                      (season: SeasonType) => season.league_id === leagueId
+                    )
+                    .map((season: SeasonType) => (
+                      <option
+                        key={season.id}
+                        value={`${season.name}.${season.id}`}
+                      >
+                        {season.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
 
           <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="fee">
-              Fee
-            </label>
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Fee"
-              value={feeValue}
-              readOnly
-            />
+            <div style={{ display: "flex", gap: "10px" }}>
+              <label className={styles.label} htmlFor="price">
+                Price
+              </label>
+              <span style={{ alignContent: "center" }}>$</span>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Price"
+                value={price}
+                onChange={(e) => {
+                  setPrice(Number(e.target.value));
+                  const calcFee = calculateStripeFee(Number(e.target.value));
+                  setFeeValue(calcFee);
+                }}
+                required
+              />
+              <label className={styles.label} htmlFor="fee">
+                Fee
+              </label>
+              <span style={{ alignContent: "center" }}>$</span>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Fee"
+                value={feeValue}
+                readOnly
+              />
+            </div>
           </div>
         </>
       )}
