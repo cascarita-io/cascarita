@@ -439,7 +439,6 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         >
           <option value="">Select a template</option>
           <option value="registration">Registration</option>
-          <option value="blank">Blank</option>
         </select>
       </div>
       {template === "registration" && (

@@ -23,7 +23,7 @@ const NewForm = () => {
   const location = useLocation();
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
   const [formId, setFormId] = useState<string | null>(
-    (location.state?.id as string) ?? null,
+    (location.state?.id as string) ?? null
   );
   const defaultItems = fields
     ? fields.map((field) => ({
@@ -33,10 +33,10 @@ const NewForm = () => {
     : [];
   const [droppedItems, setDroppedItems] = useState<DroppedItem[]>(defaultItems);
   const [description, setDescription] = useState(
-    location.state?.description ?? "",
+    location.state?.description ?? ""
   );
   const [title, setTitle] = useState(
-    location.state?.title ?? t("formTitlePlaceHolder"),
+    location.state?.title ?? t("formTitlePlaceHolder")
   );
   const [formLink, setFormLink] = useState(location.state?.link ?? null);
   const canvasRef = useRef<DNDCanvasRef>(null);
@@ -104,6 +104,7 @@ const NewForm = () => {
       description,
       currentUser?.group_id,
       currentUser?.id,
+      "blank"
     );
     setFormLink(`${window.location.origin}/forms/${response._id}`);
     setFormId(response._id);
@@ -120,7 +121,7 @@ const NewForm = () => {
       formId,
       title,
       description,
-      currentUser,
+      currentUser
     );
     setFields(response.fields);
   };

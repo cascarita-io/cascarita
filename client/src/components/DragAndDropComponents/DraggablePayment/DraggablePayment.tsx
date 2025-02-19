@@ -9,13 +9,9 @@ import { useTranslation } from "react-i18next";
 import { SMALL_DRAGGABLE_CONTAINER_WIDTH } from "../constants";
 import { formatPayment } from "../../../utils/formatPayment";
 import { getStripeAccounts } from "../../../api/stripe/service";
-import nullthrows from "nullthrows";
-import { useAuth0 } from "@auth0/auth0-react";
 import { DraggableProps } from "../types";
 import { useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { fetchUser } from "../../../api/users/service";
-import { User } from "../../../api/users/types";
 
 const DraggablePayment: React.FC<DraggableProps> = ({
   index,

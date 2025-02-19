@@ -27,10 +27,10 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   const [seasons, setSeasons] = useState<SeasonType[]>([]);
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
   const [selectedSeason, setSelectedSeason] = useState<string>(
-    `${formField.season_name}.${formField.season_id}` || ""
+    `${formField.season_name}.${formField.season_id}`
   );
   const [selectedLeague, setSelectedLeague] = useState<string>(
-    `${formField.league_name}.${formField.league_id}` || ""
+    `${formField.league_name}.${formField.league_id}`
   );
   const groupId = Number(Cookies.get("group_id")) || 0;
 

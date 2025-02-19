@@ -107,8 +107,11 @@ const Forms = () => {
   }, []);
 
   const handleNewFormClick = () => {
+    navigate("/forms/check");
+  };
+
+  const handleTemplateClick = () => {
     setIsCreateOpen(true);
-    // navigate("/forms/check");
   };
 
   const handleShareClick = (formLink: string) => {
@@ -176,13 +179,23 @@ const Forms = () => {
           </div>
         </div>
 
-        <PrimaryButton
-          className={`${styles.primaryBtn} ${styles.showInDesktop}`}
-          onClick={handleNewFormClick}
-        >
-          <p className={styles.btnTextDesktop}>{t("button")}</p>
-          <FaPlus className={styles.btnTextMobile} />
-        </PrimaryButton>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <PrimaryButton
+            className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
+            onClick={handleTemplateClick}
+          >
+            <p className={styles.btnTextDesktop}>Template</p>
+            {/* <FaPlus className={styles.btnTextMobile} /> */}
+          </PrimaryButton>
+
+          <PrimaryButton
+            className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
+            onClick={handleNewFormClick}
+          >
+            <p className={styles.btnTextDesktop}>New Form</p>
+            <FaPlus className={styles.btnTextMobile} />
+          </PrimaryButton>
+        </div>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
         <p className={styles.noItemsMessage}>No forms to display...</p>

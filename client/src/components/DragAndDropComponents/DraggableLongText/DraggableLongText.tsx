@@ -5,7 +5,6 @@ import styles from "./DraggableLongText.module.css";
 import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
 import Switch from "react-switch";
 import { useTranslation } from "react-i18next";
-import { SMALL_DRAGGABLE_CONTAINER_WIDTH } from "../constants";
 import { DraggableProps } from "../types";
 
 const DraggableLongText: React.FC<DraggableProps> = ({
@@ -17,20 +16,13 @@ const DraggableLongText: React.FC<DraggableProps> = ({
   const { t } = useTranslation("DraggableFields");
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isContainerWidthMaxed, setIsContainerWidthMaxed] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { control } = useFormContext();
 
   useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        setIsContainerWidthMaxed(
-          containerRef.current.offsetWidth < SMALL_DRAGGABLE_CONTAINER_WIDTH
-        );
-      }
-    };
+    const handleResize = () => {};
 
     handleResize();
     window.addEventListener("resize", handleResize);
