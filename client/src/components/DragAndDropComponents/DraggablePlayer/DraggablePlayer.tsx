@@ -9,9 +9,6 @@ import Switch from "react-switch";
 import { DraggableProps } from "../types";
 import { getLeagueByGroupId } from "../../../api/leagues/service";
 import { getSeasonsByLeagueId } from "../../../api/seasons/services";
-import { useAuth0 } from "@auth0/auth0-react";
-import { fetchUser } from "../../../api/users/service";
-import { User } from "../../../api/users/types";
 import Cookies from "js-cookie";
 import { LeagueType } from "../../../pages/Leagues/types";
 import { SeasonType } from "../../../pages/Seasons/types";
@@ -26,68 +23,63 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   onDelete,
   onCopy,
 }) => {
-  //   const { t } = useTranslation("DraggableFields");
-  const { getAccessTokenSilently } = useAuth0();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [leagues, setLeagues] = useState<LeagueType[]>([]);
   const [seasons, setSeasons] = useState<SeasonType[]>([]);
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
-  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
-  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
+  const [selectedSeason, setSelectedSeason] = useState<string>(
+    `${formField.season_name}.${formField.season_id}` || ""
+  );
+  const [selectedLeague, setSelectedLeague] = useState<string>(
+    `${formField.league_name}.${formField.league_id}` || ""
+  );
+  const groupId = Number(Cookies.get("group_id")) || 0;
 
   useEffect(() => {
-    if (currentUser !== null) {
-      const fetchLeagues = async () => {
-        const leaguesData = await getLeagueByGroupId({
-          queryKey: ["league", currentUser.group_id],
-          signal: new AbortController().signal,
-          meta: undefined,
-        });
-        setLeagues([...leagues, ...leaguesData]);
-      };
-      fetchLeagues();
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (selectedLeague !== null) {
-      const fetchSeasons = async () => {
-        const seasonsData = await Promise.all(
-          leagues.map(async (league) => {
-            const leagueId = league.id as number;
-            const seasons = await getSeasonsByLeagueId({
-              queryKey: ["season", leagueId],
-              signal: new AbortController().signal,
-              meta: undefined,
-            });
-            return seasons;
-          })
-        );
-        const allSeasons = seasonsData.flat();
-        setSeasons(allSeasons);
-      };
-      fetchSeasons();
-      setSelectedSeason(null);
-    }
+    const fetchLeagues = async () => {
+      const leaguesData = await getLeagueByGroupId({
+        queryKey: ["league", groupId],
+        signal: new AbortController().signal,
+        meta: undefined,
+      });
+      setLeagues([...leagues, ...leaguesData]);
+    };
+    fetchLeagues();
   }, [selectedLeague]);
 
   useEffect(() => {
-    if (selectedSeason !== null) {
-      const seasonId = Number(selectedSeason.split(".")[1]);
-      const fetchDivisions = async () => {
-        const divisionData = await getDivisionsBySeasonId({
-          queryKey: ["division", seasonId],
-          signal: new AbortController().signal,
-          meta: undefined,
-        });
-        setDivisions([...divisions, ...divisionData]);
-      };
-      fetchDivisions();
-    }
-  }, [selectedSeason]);
+    const fetchSeasons = async () => {
+      const seasonsData = await Promise.all(
+        leagues.map(async (league) => {
+          const leagueId = league.id as number;
+          const seasons = await getSeasonsByLeagueId({
+            queryKey: ["season", leagueId],
+            signal: new AbortController().signal,
+            meta: undefined,
+          });
+          return seasons;
+        })
+      );
+      const allSeasons = seasonsData.flat();
+      setSeasons(allSeasons);
+    };
+    fetchSeasons();
+  }, [leagues]);
 
   useEffect(() => {
-    if (divisions.length > 0 && selectedSeason !== null) {
+    const seasonId = Number(selectedSeason.split(".")[1]);
+    const fetchDivisions = async () => {
+      const divisionData = await getDivisionsBySeasonId({
+        queryKey: ["division", seasonId],
+        signal: new AbortController().signal,
+        meta: undefined,
+      });
+      setDivisions([...divisions, ...divisionData]);
+    };
+    fetchDivisions();
+  }, [seasons]);
+
+  useEffect(() => {
+    if (divisions.length > 0) {
       const seasonId = Number(selectedSeason.split(".")[1]);
       const fetchTeams = async () => {
         await Promise.all(
@@ -105,16 +97,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
       };
       fetchTeams();
     }
-  }, [divisions, selectedSeason]);
-
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setCurrentUser(currentUser);
-    })();
-  }, []);
+  }, [divisions, seasons]);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -175,20 +158,21 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                   <Controller
                     name={`fields.${index}.league`}
                     control={control}
+                    defaultValue={selectedLeague}
                     render={({ field }) => (
                       <select
                         {...field}
                         onChange={(e) => {
-                          console.log(e);
                           field.onChange(e);
                           setSelectedLeague(e.target.value);
                         }}
                       >
-                        {selectedLeague === null && (
-                          <option value="">Select a league</option>
-                        )}
+                        <option value="">Select a league</option>
                         {leagues.map((league) => (
-                          <option key={league.id} value={league.name}>
+                          <option
+                            key={league.id}
+                            value={`${league.name}.${league.id}`}
+                          >
                             {league.name}
                           </option>
                         ))}
@@ -196,24 +180,28 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                     )}
                   />
                 </div>
-                {selectedLeague !== null && (
-                  <div className={styles.playerContainerItem}>
-                    <p className={styles.subtitle}>Season: </p>
-                    <Controller
-                      name={`fields.${index}.season`}
-                      control={control}
-                      render={({ field }) => (
-                        <select
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setSelectedSeason(e.target.value);
-                          }}
-                        >
-                          {selectedSeason === null && (
-                            <option value="">Select a season</option>
-                          )}
-                          {seasons.map((season) => (
+                <div className={styles.playerContainerItem}>
+                  <p className={styles.subtitle}>Season: </p>
+                  <Controller
+                    name={`fields.${index}.season`}
+                    control={control}
+                    defaultValue={selectedSeason}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setSelectedSeason(e.target.value);
+                        }}
+                      >
+                        <option value="">Select a season</option>
+                        {seasons
+                          .filter(
+                            (season) =>
+                              season.league_id ===
+                              Number(selectedLeague.split(".")[1])
+                          )
+                          .map((season) => (
                             <option
                               key={season.id}
                               value={`${season.name}.${season.id}`}
@@ -221,11 +209,10 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                               {season.name}
                             </option>
                           ))}
-                        </select>
-                      )}
-                    />
-                  </div>
-                )}
+                      </select>
+                    )}
+                  />
+                </div>
               </div>
               {isMenuOpen && (
                 <DraggableSubMenu

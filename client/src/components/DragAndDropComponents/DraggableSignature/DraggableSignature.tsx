@@ -61,7 +61,7 @@ const DraggableSignature: React.FC<DraggableProps> = ({
                   />
                 </div>
               )}
-              <p>{formField.title}</p>
+              <p className={styles.question}>{formField.title}</p>
               <Controller
                 key={index}
                 name={`fields.${index}.properties.description`}
@@ -73,8 +73,8 @@ const DraggableSignature: React.FC<DraggableProps> = ({
                     <textarea
                       {...field}
                       placeholder={t("questionPlaceholder")}
-                      //   className={styles.question}
-                      rows={4}
+                      className={styles.textArea}
+                      rows={2}
                     />
                     <hr />
                   </>

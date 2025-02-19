@@ -73,7 +73,6 @@ const DraggableDate: React.FC<DraggableProps> = ({
                       placeholder={t("questionPlaceholder")}
                       className={styles.question}
                     />
-                    <hr />
                   </>
                 )}
               />

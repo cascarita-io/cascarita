@@ -100,7 +100,8 @@ export type AnswerType =
   | "phone_number"
   | "boolean"
   | "file_url"
-  | "payment";
+  | "payment"
+  | "player";
 
 export interface Answer {
   field: {

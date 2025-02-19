@@ -44,3 +44,7 @@
   border: 1px solid #dfe5ee;
   border-radius: 10px;
 }
+
+.textArea {
+  width: 100%;
+}

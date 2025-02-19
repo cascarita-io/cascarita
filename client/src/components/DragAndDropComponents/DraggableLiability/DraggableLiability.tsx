@@ -61,7 +61,7 @@ const DraggableLiability: React.FC<DraggableProps> = ({
                   />
                 </div>
               )}
-              <p>{formField.title}</p>
+              <p className={styles.question}>{formField.title}</p>
               <Controller
                 key={index}
                 name={`fields.${index}.properties.description`}
@@ -73,7 +73,7 @@ const DraggableLiability: React.FC<DraggableProps> = ({
                     <textarea
                       {...field}
                       placeholder={t("questionPlaceholder")}
-                      //   className={styles.question}
+                      className={styles.textArea}
                       rows={4}
                     />
                     <hr />

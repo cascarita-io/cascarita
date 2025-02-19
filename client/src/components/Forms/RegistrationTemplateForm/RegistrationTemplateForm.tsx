@@ -170,6 +170,7 @@ const createRegistrationFormData = (
       season_id: seasonId,
       league_name: leagueName,
       league_id: leagueId,
+      validations: { required: true },
       properties: {
         player_block_choices: [
           ...divisions.map((division, index) => ({
@@ -197,7 +198,7 @@ const createRegistrationFormData = (
           isCustomerPayingFee: false,
         },
         stripe_account: { id: stripeUser, stripe_account_id: stripeAccountId },
-        description: "payment block",
+        description: "",
       },
       validations: { required: false },
     },
