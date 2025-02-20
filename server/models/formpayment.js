@@ -92,6 +92,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      response_document_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
     },
 
     {
