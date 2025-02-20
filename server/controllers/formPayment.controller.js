@@ -6,15 +6,15 @@ const { FormPayment } = require("../models");
 
 const FormPaymentController = {
   async connectResponseToFormPayment(responseData, responseId) {
-    const paymentFieldIndex = responseData.findIndex(
-      (item) => item?.field?.type === "payment",
+    const paymentEntry = responseData.find(
+      (item) => item.field?.type === "payment" && item.paymentIntentId,
     );
 
-    if (!paymentFieldIndex) {
+    if (!paymentEntry) {
       return;
     }
     try {
-      const paymentIntentId = responseData[paymentFieldIndex + 1];
+      const paymentIntentId = paymentEntry.paymentIntentId;
 
       let existingFormPayment = await this.findFormPaymentByPaymentIntentId(
         paymentIntentId,
