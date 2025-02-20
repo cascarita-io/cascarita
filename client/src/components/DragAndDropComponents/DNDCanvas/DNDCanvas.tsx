@@ -19,6 +19,9 @@ import DraggableEmail from "../DraggableEmail/DraggableEmail";
 import { StrictModeDroppable } from "../../StrictModeDroppable/StrictModeDroppable";
 import DraggablePayment from "../DraggablePayment/DraggablePayment";
 import { Currency, Field, Form } from "../../../api/forms/types";
+import DraggableLiability from "../DraggableLiability/DraggableLiability";
+import DraggableSignature from "../DraggableSignature/DraggableSignature";
+import DraggableDate from "../DraggableDate/DraggableDate";
 
 const DNDCanvas = forwardRef(
   (
@@ -29,7 +32,7 @@ const DNDCanvas = forwardRef(
       saveForm,
       importedFields,
     }: DNDCanvasProps,
-    ref
+    ref,
   ) => {
     const methods = useForm<{ fields: Field[] }>({
       defaultValues: { fields: importedFields ?? [] },
@@ -49,6 +52,9 @@ const DNDCanvas = forwardRef(
       email: DraggableEmail,
       phone_number: DraggablePhoneNumber,
       player: DraggablePlayer,
+      liability: DraggableLiability,
+      signature: DraggableSignature,
+      date: DraggableDate,
       payment: DraggablePayment,
     };
 
@@ -104,6 +110,35 @@ const DNDCanvas = forwardRef(
           id: item.id,
           ref: item.id,
           properties: { default_country_code: "US" },
+          validations: { required: false },
+          type: item.type,
+        },
+        liability: {
+          title: "Liability Waiver, Release, And Indemnification Agreement",
+          id: item.id,
+          ref: item.id,
+          properties: {
+            description:
+              "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.",
+          },
+          validations: { required: false },
+          type: item.type,
+        },
+        signature: {
+          title: "Signature",
+          id: item.id,
+          ref: item.id,
+          properties: {
+            description:
+              "By providing my e-signature below, I consent that I have read, reviewed and accept the terms contained within this registration form",
+          },
+          validations: { required: false },
+          type: item.type,
+        },
+        date: {
+          title: "Date",
+          id: item.id,
+          ref: item.id,
           validations: { required: false },
           type: item.type,
         },
@@ -167,17 +202,17 @@ const DNDCanvas = forwardRef(
       // Ensure the copied fields has the same fields as the original
       methods.setValue(
         `fields.${index + 1}.title`,
-        methods.getValues(`fields.${index}.title`)
+        methods.getValues(`fields.${index}.title`),
       );
 
       methods.setValue(
         `fields.${index + 1}.validations`,
-        methods.getValues(`fields.${index}.validations`)
+        methods.getValues(`fields.${index}.validations`),
       );
 
       methods.setValue(
         `fields.${index + 1}.properties`,
-        methods.getValues(`fields.${index}.properties`)
+        methods.getValues(`fields.${index}.properties`),
       );
     };
 
@@ -195,9 +230,12 @@ const DNDCanvas = forwardRef(
               // onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               style={{
-                padding: "16px",
-                background: "white",
-                minHeight: "400px",
+                padding: "16px 55px 0 12px",
+                background: "transparent",
+                borderRadius: "12px",
+                maxHeight: "100%",
+                overflowY: "auto",
+                scrollbarWidth: "thin",
               }}
             >
               {items.length === 0 ? (
@@ -228,7 +266,7 @@ const DNDCanvas = forwardRef(
         </StrictModeDroppable>
       </DragDropContext>
     );
-  }
+  },
 );
 
 DNDCanvas.displayName = "DNDCanvas";

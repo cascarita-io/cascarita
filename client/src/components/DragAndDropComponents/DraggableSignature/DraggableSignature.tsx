@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd";
-import styles from "./DraggablePhoneNumber.module.css";
+import styles from "./DraggableSignature.module.css";
 import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
 import Switch from "react-switch";
 import { useTranslation } from "react-i18next";
 import { DraggableProps } from "../types";
 
-const DraggablePhoneNumber: React.FC<DraggableProps> = ({
+const DraggableSignature: React.FC<DraggableProps> = ({
   index,
   formField,
   onDelete,
@@ -34,7 +34,7 @@ const DraggablePhoneNumber: React.FC<DraggableProps> = ({
           onClick={handleClick}
         >
           <div style={{ position: "relative" }}>
-            <p className={styles.textElementTypeText}>{t("phoneNumber")}</p>
+            <p className={styles.textElementTypeText}>{t("signature")}</p>
             <div className={styles.draggableContainer}>
               {formField.validations?.required != null && (
                 <div className={styles.requiredSwitch}>
@@ -61,18 +61,22 @@ const DraggablePhoneNumber: React.FC<DraggableProps> = ({
                   />
                 </div>
               )}
+              <p className={styles.question}>{formField.title}</p>
               <Controller
                 key={index}
-                name={`fields.${index}.title`}
+                name={`fields.${index}.properties.description`}
                 control={control}
-                defaultValue={formField.title} // Ensure the default value is set
+                defaultValue={formField.properties?.description}
+                // Ensure the default value is set
                 render={({ field }) => (
                   <>
-                    <input
+                    <textarea
                       {...field}
                       placeholder={t("questionPlaceholder")}
-                      className={styles.question}
+                      className={styles.textArea}
+                      rows={2}
                     />
+                    <hr />
                   </>
                 )}
               />
@@ -91,4 +95,4 @@ const DraggablePhoneNumber: React.FC<DraggableProps> = ({
   );
 };
 
-export default DraggablePhoneNumber;
+export default DraggableSignature;

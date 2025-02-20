@@ -49,6 +49,11 @@ const FormController = {
     try {
       const form_data = { title: req.body.title, fields: req.body.fields };
 
+      let form_type = 1;
+      if (req.body.template !== "registration") {
+        form_type = 2;
+      }
+
       const user = await User.findByPk(req.params.user_id);
       if (!user) {
         res.status(404);
@@ -77,7 +82,7 @@ const FormController = {
         created_by: req.params.user_id,
         updated_by: null,
         document_id: result.id,
-        form_type: 1, // temp, only type on DB table and allowNull is False
+        form_type: form_type,
       };
 
       await Form.build(newForm).validate();
