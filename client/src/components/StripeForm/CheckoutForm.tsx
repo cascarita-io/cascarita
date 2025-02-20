@@ -3,17 +3,24 @@ import { useState, forwardRef, useImperativeHandle } from "react";
 import { useStripe, useElements } from "@stripe/react-stripe-js";
 import styles from "./CheckoutForm.module.css";
 
+interface PaymentResult {
+  success: boolean;
+  paymentIntentId?: string;
+  amount?: number;
+  error?: string;
+}
+
 const CheckoutForm = forwardRef((_props, ref) => {
   const stripe = useStripe();
   const elements = useElements();
 
   const [message, setMessage] = useState<string | null>(null);
 
-  const handlePayment = async () => {
+  const handlePayment = async (): Promise<PaymentResult> => {
     if (!stripe || !elements) {
       // Stripe.js has not yet loaded.
       // Make sure to disable form submission until Stripe.js has loaded.
-      return false;
+      return { success: false, error: "Stripe component not loading" };
     }
 
     const stripeConfirmedPayment = await stripe.confirmPayment({
@@ -30,10 +37,14 @@ const CheckoutForm = forwardRef((_props, ref) => {
       } else {
         setMessage("An unexpected error occurred.");
       }
-      return false;
+      return { success: false, error: "Stripe error" };
     }
 
-    return true;
+    return {
+      success: true,
+      paymentIntentId: stripeConfirmedPayment.paymentIntent?.id,
+      amount: stripeConfirmedPayment.paymentIntent?.amount,
+    };
   };
 
   useImperativeHandle(ref, () => ({

@@ -106,4 +106,6 @@ export interface Answer {
   choices?: { labels: string[] };
   file_url?: string;
   payment?: string;
+  paymentIntentId?: string;
+  amount?: number;
 }

@@ -41,7 +41,7 @@ export const updateForm = async (
   formId: string,
   title: string,
   description: string,
-  user: User | null,
+  user: User | null
 ) => {
   const formData = {
     form_data: {
@@ -108,7 +108,7 @@ export const createMongoForm = async (
   title: string,
   description: string,
   groupId: number | undefined,
-  userId: number | undefined,
+  userId: number | undefined
 ) => {
   const formData = {
     title,
@@ -186,7 +186,10 @@ export const getMongoFormResponses = async (formId: string) => {
   }
 };
 
-export const createMongoResponse = async (formId: string, answer: Answer[]) => {
+export const createMongoResponse = async (
+  formId: string,
+  answer: (string | number | Answer)[]
+) => {
   const data = {
     form_id: formId,
     data: answer,
