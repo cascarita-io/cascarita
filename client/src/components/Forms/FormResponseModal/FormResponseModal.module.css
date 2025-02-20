@@ -1,0 +1,37 @@
+.table {
+  width: 100%;
+  border-collapse: separate; /* Don't collapse */
+  border-spacing: 0;
+}
+
+.table th {
+  /* Apply both top and bottom borders to the <th> */
+  padding: 8px;
+  text-align: center;
+}
+
+.table td {
+  padding: 8px;
+  text-align: left;
+  min-width: 20px; /* Set minimum width for cells */
+  /* Apply both top and bottom borders to the <th> */
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  text-align: center;
+}
+
+.table td:first-child {
+  /* Apply a left border on the first <td> or <th> in a row */
+  border-left: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  position: sticky;
+  top: 0; /* Stick the header to the top */
+  z-index: 1; /* Ensure the header stays above table rows */
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}

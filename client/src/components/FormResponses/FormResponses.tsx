@@ -7,13 +7,14 @@ import {
 } from "../../api/forms/service";
 // import { truncateText } from "../../utils/truncateText";
 import { useTranslation } from "react-i18next";
-import { Answer, Field } from "../../api/forms/types";
+import { Answer } from "../../api/forms/types";
 import StatusLabel from "../StatusLabel/StatusLabel";
 import DashboardTable from "../DashboardTable/DashboardTable";
 // import { set } from "react-hook-form";
 import DropdownMenuButton from "../DropdownMenuButton/DropdownMenuButton";
 import PrimaryButton from "../PrimaryButton/PrimaryButton";
 import Modal from "../Modal/Modal";
+import FormResponseForm from "../Forms/FormResponseModal/FormResponseModal";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return <StatusLabel status={status}>{status}</StatusLabel>;
@@ -21,11 +22,11 @@ const StatusButton = (status: "approved" | "rejected" | "pending") => {
 
 const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formType, setFormType] = useState(0);
-  const [formFields, setFormFields] = useState<Field[]>([]);
-  const [createdAt, setCreatedAt] = useState<string[]>([]);
-  const [createdBy, setCreatedBy] = useState<string[]>([]);
+  const [user, setUser] = useState<string[]>([]);
+  const [submittedAt, setSubmittedAt] = useState<string[]>([]);
+  // const [createdBy, setCreatedBy] = useState<string[]>([]);
   const [email, setEmail] = useState<string[]>([]);
-  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState<{ [key: number]: boolean }>({});
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
     []
   );
@@ -46,22 +47,20 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   useEffect(() => {
     (async () => {
       const formData = await getMongoFormById(formId);
-      console.log("formData: ", formData);
-      // setEmail(formData.created_by.email);
-      // setCreatedAt(formatDate(formData.createdAt));
-      // setCreatedBy(
-      //   `${formData.created_by.first_name} ${formData.created_by.last_name}`
-      // );
       setFormType(formData.form_type);
-      setFormFields(formData.form_data.fields);
-      console.log(formFields);
       const responsesData = await getMongoFormResponses(formData._id);
-      console.log("responsesData", responsesData);
+      responsesData.map((response: FormResponse) => {
+        setSubmittedAt((prev) => [...prev, response.createdAt]);
+      });
       const responsesMap = responsesData.reduce(
         (result: AnswerRecordMap, res: FormResponse) => {
           const answersMap: Map<string, Answer> = new Map();
           res.response.answers?.forEach((answer: Answer) => {
-            answersMap.set(answer.field.id, answer);
+            if (answer.secondary_type) {
+              answersMap.set(answer.secondary_type, answer);
+            } else {
+              answersMap.set(answer.type, answer);
+            }
           });
 
           const responseId = res._id;
@@ -72,37 +71,37 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       );
 
       setFormResponsesMap(responsesMap);
-      // TODO: add logic to get current status
+
+      const emailData: string[] = [];
+      const userData: string[] = [];
+
+      responsesMap.forEach((answersMap: Map<string, Answer>) => {
+        let email = "N/A";
+        let firstName = "";
+        let lastName = "";
+
+        answersMap.forEach((answer, key) => {
+          if (key === "email") {
+            email = answer.email ?? "N/A";
+          }
+          if (key === "first_name") {
+            firstName = answer.short_text ?? "";
+          }
+          if (key === "last_name") {
+            lastName = answer.short_text ?? "";
+          }
+        });
+
+        emailData.push(email);
+        userData.push(`${firstName} ${lastName}`);
+      });
+
+      setEmail(emailData);
+      setUser(userData);
+      // TODO: determine status setup
       setStatus(responsesData.map(() => "pending"));
-      setCreatedAt(
-        responsesData.map((res: FormResponse) => formatDate(res.createdAt))
-      );
-      // TODO: MAKE SURE TO GET THE STATUS
-      setCreatedBy(responsesData.map(() => "test"));
-      setEmail(responsesData.map(() => "test@test.com"));
     })();
   }, [formId]);
-
-  // const formatAnswer = (answer: Answer) => {
-  //   const typeFormatters: Record<string, () => string | JSX.Element> = {
-  //     short_text: () => answer.short_text ?? "",
-  //     long_text: () => answer.long_text ?? "",
-  //     number: () => String(answer.number ?? ""),
-  //     email: () => answer.email ?? "",
-  //     phone_number: () => answer.phone_number ?? "",
-  //     choice: () => answer.choice?.label ?? "",
-  //     choices: () => answer.choices?.labels.join(", ") ?? "",
-  //     date: () =>
-  //       answer.date ? new Date(answer.date).toLocaleDateString() : "",
-  //     file_url: () =>
-  //       answer.file_url ? <a href={answer.file_url}>{t("fileText")}</a> : "",
-  //     boolean: () =>
-  //       answer.boolean ? t("booleanOption.true") : t("booleanOption.false"),
-  //     default: () => "",
-  //   };
-
-  //   return (typeFormatters[answer.type] ?? typeFormatters.default)();
-  // };
 
   const handleStatusChange =
     (index: number, statusUpdate: "approved" | "rejected" | "pending") =>
@@ -131,12 +130,9 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
         {Array.from(formResponsesMap.keys()).map((responseId, index) => (
           <tr key={responseId}>
             <td>{index + 1}</td>
-            <td>{createdBy[index]}</td>
+            <td>{user[index]}</td>
             {formType === 1 && (
               <td>
-                {/* <button onClick={handleStatusChange(index)}>
-                  <StatusLabel status="pending">pending</StatusLabel>
-                </button> */}
                 <DropdownMenuButton trigger={StatusButton(status[index])}>
                   <DropdownMenuButton.Item
                     onClick={handleStatusChange(index, "approved")}
@@ -163,30 +159,31 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               </td>
             )}
             <td>
-              <Modal open={isViewOpen} onOpenChange={setIsViewOpen}>
+              <Modal
+                open={isViewOpen[index] || false}
+                onOpenChange={(open) =>
+                  setIsViewOpen((prev) => ({ ...prev, [index]: open }))
+                }
+              >
                 <Modal.Button asChild className={styles.modalTrigger}>
                   <PrimaryButton
                     className={styles.primaryBtn}
-                    onClick={() => setIsViewOpen(true)}
+                    onClick={() =>
+                      setIsViewOpen((prev) => ({ ...prev, [index]: true }))
+                    }
                   >
                     <p className={styles.btnTextDesktop}>View</p>
                   </PrimaryButton>
                 </Modal.Button>
-                <Modal.Content title="test">
-                  <></>
+                <Modal.Content maximize={true} title={user[index]}>
+                  <FormResponseForm
+                    answers={formResponsesMap.get(responseId)}
+                  />
                 </Modal.Content>
               </Modal>
             </td>
-            <td>{createdAt[index]}</td>
+            <td>{formatDate(submittedAt[index])}</td>
             <td>{email[index]}</td>
-            {/* {formFields.map((field) => (
-              <td key={field.id}>
-                {formResponsesMap.get(responseId)?.get(field.id)?.type &&
-                  formatAnswer(
-                    formResponsesMap.get(responseId)?.get(field.id) as Answer
-                  )}
-              </td>
-            ))} */}
           </tr>
         ))}
       </DashboardTable>

@@ -85,7 +85,6 @@ export interface GetFormsParams {
   order_by?: OrderBy | null;
 }
 
-// TODO: ADD MORE EXPLICIT TYPING AS NEEDED
 export type AnswerType =
   | "short_text"
   | "long_text"
@@ -103,6 +102,13 @@ export type AnswerType =
   | "payment"
   | "player";
 
+export type SecondaryType =
+  | "first_name"
+  | "last_name"
+  | "age"
+  | "address"
+  | "team_name";
+
 export interface Answer {
   field: {
     id: string;
@@ -110,6 +116,7 @@ export interface Answer {
     ref: string;
   };
   type: AnswerType;
+  secondary_type?: SecondaryType;
   number?: number;
   short_text?: string;
   long_text?: string;
@@ -117,12 +124,18 @@ export interface Answer {
   liability?: boolean;
   signature?: string;
   email?: string;
-  date?: Date;
+  date?: string;
   boolean?: boolean;
   choice?: { label: string };
   choices?: { labels: string[] };
   file_url?: string;
   player?: {
+    season_name: string;
+    league_name: string;
+    season_id: number | null;
+    league_id: number | null;
+    division_name: string;
+    team_name: string;
     division_id: number | null;
     team_id: number | null;
   };
