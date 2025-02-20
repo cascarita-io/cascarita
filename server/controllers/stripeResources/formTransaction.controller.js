@@ -1,6 +1,6 @@
 "use strict";
 const ConnectedAccountController = require("./connectedAccount.controller");
-const FormController = require("../form.controller");
+const FormPaymentController = require("../formPayment.controller");
 
 const FormTransactionController = function () {
   const endpointSecret = process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET;
@@ -16,7 +16,7 @@ const FormTransactionController = function () {
       switch (event.type) {
         case "payment_intent.succeeded":
           const paymentIntent = event.data.object;
-          const success = await FormController.updateStripePayment(
+          const success = await FormPaymentController.updateStripePayment(
             paymentIntent,
           );
 

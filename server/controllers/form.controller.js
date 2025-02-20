@@ -214,38 +214,6 @@ const FormController = {
       next(error);
     }
   },
-
-  async updateStripePayment(paymentIntent) {
-    try {
-      const existingPaymentIntent = await FormPayment.findOne({
-        where: {
-          payment_intent_id: paymentIntent.id,
-        },
-      });
-
-      if (!existingPaymentIntent) {
-        res.status(404);
-        throw new Error(
-          `no form payment record found with payment intent id: ${paymentIntent.id}`,
-        );
-      }
-
-      const updates = {
-        internal_status_id: 2, // set it to 'Awaiting Approval'
-        amount: paymentIntent.amount,
-        payment_intent_status: paymentIntent.status,
-      };
-
-      await existingPaymentIntent.update(updates, { validate: true });
-
-      //TODO: Need to update existing response in the mongo collection
-
-      return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  },
 };
 
 module.exports = FormController;
