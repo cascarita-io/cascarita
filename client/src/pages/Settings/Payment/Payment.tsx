@@ -85,7 +85,8 @@ const Payment = () => {
           <Modal.Button asChild>
             <PrimaryButton
               onClick={() => setIsStripeModalOpen(true)}
-              className={styles.btn}>
+              className={styles.btn}
+            >
               {t("payment.addStripe")}
             </PrimaryButton>
           </Modal.Button>
@@ -104,7 +105,8 @@ const Payment = () => {
       <DashboardTable
         headers={planHeaders}
         headerColor="light"
-        className={styles.table}>
+        className={styles.table}
+      >
         {mockPaymentData == null || mockPaymentData?.length === 0 ? (
           <p>{t("payment.empty")}</p>
         ) : (
@@ -116,7 +118,8 @@ const Payment = () => {
               <td>
                 <p
                   style={statusLabelStyling(user.status)}
-                  className={`${styles.statusLabel}`}>
+                  className={`${styles.statusLabel}`}
+                >
                   {user.status}
                 </p>
               </td>

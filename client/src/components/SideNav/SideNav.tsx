@@ -1,11 +1,12 @@
 import styles from "./SideNav.module.css";
 import { SideNavProps } from "./types";
 import { RiHomeLine } from "react-icons/ri";
-import { FiUser } from "react-icons/fi";
+import { FiUsers } from "react-icons/fi";
 // import { MdOutlineCalendarToday } from "react-icons/md";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbLogout } from "react-icons/tb";
+import { FaUser } from "react-icons/fa";
 import LogoutButton from "../LogoutButton/LogoutButton";
 import NavItem from "../NavItem/NavItem";
 import { useEffect } from "react";
@@ -60,7 +61,7 @@ const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
             className={styles.navbarListItem}
           />
           <NavItem
-            icon={<FiUser />}
+            icon={<FiUsers />}
             label={t("item2")}
             labelType="item2"
             selected={selectedItem === "users"}
@@ -94,7 +95,7 @@ const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
         </ul>
       </div>
 
-      <div className={styles.navbarBotton}>
+      <div className={styles.navbarBottom}>
         <LogoutButton
           className={`${styles.logoutButton} ${styles.navbarListItem} `}
           icon={<TbLogout />}

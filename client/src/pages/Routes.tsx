@@ -21,6 +21,7 @@ import Plan from "./Settings/Plan/Plan";
 import Payment from "./Settings/Payment/Payment";
 import { UserCrumb } from "../components/BreadCrumb/BreadCrumbComponents";
 import NotFound from "./NotFound/NotFound";
+import AccountInfo from "./Settings/AccountInfo/AccountInfo";
 
 export const useRouter = () =>
   createBrowserRouter(
@@ -66,13 +67,13 @@ export const useRouter = () =>
           <Route path="forms" element={<Forms />} />
           <Route path="forms/check" element={<NewForm />} />
           <Route path="settings" element={<Settings />}>
-            <Route index element={<Plan />} />
+            <Route index element={<AccountInfo />} />
             <Route path="payment" element={<Payment />} />
           </Route>
         </Route>
         <Route path="forms/:formId" element={<FormPage />} />
         <Route path="login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
-      </Route>
-    )
+      </Route>,
+    ),
   );

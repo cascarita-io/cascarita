@@ -3,6 +3,9 @@
     "plan": "Plan",
     "payment": "Payment Methods"
   },
+  "account": {
+    "title": "Account Details"
+  },
   "plan": {
     "headers": {
       "membership": "Membership",

@@ -8,7 +8,7 @@
 /* Desktop styles */
 @media screen and (min-width: 769px) {
   .layout {
-    grid-template-columns: minmax(100px, 256px) 1fr;
+    grid-template-columns: minmax(auto, 230px) 1fr;
     grid-template-rows: none;
   }
 }

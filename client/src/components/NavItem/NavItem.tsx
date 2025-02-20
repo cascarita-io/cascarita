@@ -15,7 +15,7 @@ const NavItem: React.FC<NavButtonProps> = ({
   };
 
   return (
-    <li>
+    <li className={styles.navItem}>
       <Button
         onClick={handleClick}
         variant="soft"

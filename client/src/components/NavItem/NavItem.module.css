@@ -1,4 +1,8 @@
 /* Mobile Styles */
+.navItem {
+  list-style-type: none;
+}
+
 .icon-selected {
   color: #170cb4;
 }
