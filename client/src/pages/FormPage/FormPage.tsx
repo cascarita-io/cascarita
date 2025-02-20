@@ -10,12 +10,7 @@ import FormFooter from "../../components/FormFooter/FormFooter";
 import styles from "./FormPage.module.css";
 import { Answer, AnswerType, Field } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
-interface PaymentResult {
-  success: boolean;
-  paymentIntentId?: string;
-  amount?: number;
-  error?: string;
-}
+import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
 
 const FormPage = () => {
   const { formId } = useParams();
