@@ -77,7 +77,8 @@ const Payment = () => {
       setGroupId(currentUser.group_id);
     })();
   }, []);
-
+  //TODO: Pass in groupID into this hook
+  //It Makes a query to api
   const { data } = useGetAllStripeAccounts(groupId);
   console.log(data);
 
@@ -134,6 +135,7 @@ const Payment = () => {
         headerColor="light"
         className={styles.table}
       >
+        {/* TODO: Next, map over the data that gets returned from api hook */}
         {mockPaymentData == null || mockPaymentData?.length === 0 ? (
           <p>{t("payment.empty")}</p>
         ) : (
