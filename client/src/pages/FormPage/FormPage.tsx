@@ -85,13 +85,21 @@ const FormPage = () => {
         if (!success) {
           return;
         } else {
-          const newArr: (string | number | Answer)[] = [
-            ...normalizedAnswers,
-            paymentIntentId ?? "",
-            amount ?? 0,
-          ];
+          const updatedNormalizedAnswers = normalizedAnswers.map((answer) => {
+            if (answer.type === "payment") {
+              return {
+                ...answer,
+                paymentIntentId: paymentIntentId,
+                amount: amount,
+              };
+            }
+            return answer;
+          });
 
-          const responsesData = await createMongoResponse(formId ?? "", newArr);
+          const responsesData = await createMongoResponse(
+            formId ?? "",
+            updatedNormalizedAnswers
+          );
           // TODO: Redirect to a thank you page!
           navigate("/");
           return responsesData;
