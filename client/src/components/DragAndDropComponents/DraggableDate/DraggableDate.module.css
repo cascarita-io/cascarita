@@ -11,15 +11,6 @@
   color: #aaaaaa;
 }
 
-.requiredSwitch {
-  display: flex;
-  gap: 10px;
-  position: absolute;
-  top: 25px;
-  padding: 10px;
-  right: 0;
-}
-
 .question {
   margin-left: -5px;
   margin-right: -5px;
@@ -29,11 +20,11 @@
   font-weight: 700;
   font-size: 16px;
   line-height: 25px;
-  width: 65%;
+  width: 85%;
   margin-bottom: 8px;
 }
 
-.extraOptions {
+.requiredSwitch {
   display: flex;
   gap: 10px;
   position: absolute;
@@ -44,12 +35,6 @@
 
 .requiredText {
   line-height: 2;
-}
-
-.containerSmall.extraOptions {
-  flex-direction: column;
-  position: static;
-  padding: 0;
 }
 
 .draggableContainer {

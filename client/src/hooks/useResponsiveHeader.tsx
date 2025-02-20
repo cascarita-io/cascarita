@@ -14,7 +14,7 @@ function useResponsiveHeader(headerDesktop: string[], headerMobile: string[]) {
     window.addEventListener("resize", checkScreenSize);
 
     return () => window.removeEventListener("resize", checkScreenSize);
-  }, [headerDesktop, headerMobile]);
+  }, []);
 
   return headers;
 }

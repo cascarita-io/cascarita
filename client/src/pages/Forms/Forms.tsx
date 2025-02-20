@@ -23,6 +23,7 @@ import { fetchUser } from "../../api/users/service";
 import { FaPlus } from "react-icons/fa";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
+import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
 
 interface ShareModalProps {
   formLink: string;
@@ -47,11 +48,32 @@ const ShareModal: React.FC<ShareModalProps> = ({
   </Modal>
 );
 
+interface CreateTemplateModalProps {
+  isOpen: boolean;
+  onOpen: (isOpen: boolean) => void;
+}
+
+const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
+  isOpen,
+  onOpen,
+}) => (
+  <Modal open={isOpen} onOpenChange={onOpen}>
+    <Modal.Content title="Create Form">
+      <FormTemplateForm
+        afterSave={() => {
+          onOpen(false);
+        }}
+      />
+    </Modal.Content>
+  </Modal>
+);
+
 const Forms = () => {
   const { t } = useTranslation("Forms");
   const [sorts, setSorts] = useState("");
   const [forms, setForms] = useState<Form[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [currentFormLink, setCurrentFormLink] = useState("");
   const navigate = useNavigate();
   const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
@@ -86,6 +108,10 @@ const Forms = () => {
 
   const handleNewFormClick = () => {
     navigate("/forms/edit");
+  };
+
+  const handleTemplateClick = () => {
+    setIsCreateOpen(true);
   };
 
   const handleShareClick = (formLink: string) => {
@@ -157,13 +183,23 @@ const Forms = () => {
           </div>
         </div>
 
-        <PrimaryButton
-          className={`${styles.primaryBtn} ${styles.showInDesktop}`}
-          onClick={handleNewFormClick}
-        >
-          <p className={styles.btnTextDesktop}>{t("button")}</p>
-          <FaPlus className={styles.btnTextMobile} />
-        </PrimaryButton>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <PrimaryButton
+            className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
+            onClick={handleTemplateClick}
+          >
+            <p className={styles.btnTextDesktop}>Template</p>
+            {/* <FaPlus className={styles.btnTextMobile} /> */}
+          </PrimaryButton>
+
+          <PrimaryButton
+            className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
+            onClick={handleNewFormClick}
+          >
+            <p className={styles.btnTextDesktop}>New Form</p>
+            <FaPlus className={styles.btnTextMobile} />
+          </PrimaryButton>
+        </div>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
         <p className={styles.noItemsMessage}>No forms to display...</p>
@@ -218,6 +254,13 @@ const Forms = () => {
           formLink={currentFormLink}
           isOpen={isOpen}
           onOpen={(isOpen: boolean) => setIsOpen(isOpen)}
+        />
+      )}
+
+      {isCreateOpen && (
+        <CreateTemplateModal
+          isOpen={isCreateOpen}
+          onOpen={(isOpen: boolean) => setIsCreateOpen(isOpen)}
         />
       )}
     </Page>

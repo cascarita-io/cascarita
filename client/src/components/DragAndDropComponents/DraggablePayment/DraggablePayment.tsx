@@ -284,7 +284,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                 }`}
               >
                 {formField.validations?.required != null && (
-                  <>
+                  <div className={styles.requiredSwitch}>
                     <p className={styles.requiredText}>{t("requiredText")}</p>
                     <Controller
                       name={`fields.${index}.validations.required`}
@@ -306,7 +306,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                         />
                       )}
                     />
-                  </>
+                  </div>
                 )}
               </div>
             </div>
