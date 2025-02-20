@@ -52,6 +52,18 @@ const FormPaymentController = {
     }
   },
 
+  async createStripeFormPayment(formData) {
+    await FormPayment.create({
+      form_id: formData.form_id,
+      payment_method_id: 1, //since this go triggred, it is stripe payment
+      internal_status_id: 1, // set it to default 'Pending'
+      amount: formData.transactionAmount,
+      payment_intent_id: formData.paymentIntentId,
+      payment_intent_status: formData.paymentIntentStatus,
+      user_stripe_account_id: formData.userStripeAccountSqlId,
+    });
+  },
+
   async findFormPaymentByPaymentIntentId(paymentIntentId) {
     try {
       const formPayment = await FormPayment.findOne({

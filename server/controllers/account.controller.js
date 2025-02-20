@@ -5,12 +5,12 @@ require("dotenv").config();
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const {
   UserStripeAccounts,
-  FormPaymentIntents,
   User,
   StripeStatus,
   Group,
   FormPayment,
 } = require("../models");
+const FormPaymentController = require("./formPayment.controller");
 const modelByPk = require("./utility");
 
 const AccountController = function () {
@@ -91,9 +91,12 @@ const AccountController = function () {
 
       productObj.paymentIntentId = paymentIntent.id;
       productObj.paymentIntentStatus = paymentIntent.status;
-      await createStripePayemnt(productObj);
+      await FormPaymentController.createStripeFormPayment(productObj);
 
-      return res.status(201).json(paymentIntent);
+      return res.status(200).json({
+        client_secret: paymentIntent.client_secret,
+        //paymentIntentId: paymentIntent.id,
+      });
     } catch (error) {
       console.error(error);
       next(error);
@@ -223,18 +226,6 @@ const AccountController = function () {
 
   const getPublishableKey = function (req, res, next) {
     res.status(200).json({ key: process.env.STRIPE_PUBLISHABLE_KEY });
-  };
-
-  var createStripePayemnt = async function (formData) {
-    await FormPayment.create({
-      form_id: formData.form_id,
-      payment_method_id: 1, //since this go triggred, it is stripe payment
-      internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.transactionAmount,
-      payment_intent_id: formData.paymentIntentId,
-      payment_intent_status: formData.paymentIntentStatus,
-      user_stripe_account_id: formData.userStripeAccountSqlId,
-    });
   };
 
   return {

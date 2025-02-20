@@ -4,7 +4,8 @@ require("dotenv").config();
 
 const Response = require("./../mongoModels/response");
 const FormMongo = require("./../mongoModels/form");
-const { Form, User, FormPayment } = require("../models");
+const { Form, User } = require("../models");
+const FormPaymentController = require("./formPayment.controller");
 
 const FormController = {
   async getAllForms(req, res, next) {
@@ -20,14 +21,20 @@ const FormController = {
   },
   async createResponse(req, res, next) {
     try {
+      const responseData = req.body.data;
       const insertedResponse = new Response({
         form_id: req.body.form_id,
         response: {
-          answers: req.body.data,
+          answers: responseData,
         },
       });
 
       await insertedResponse.save();
+      const responseIdString = insertedResponse.id;
+      await FormPaymentController.connectResponseToFormPayment(
+        responseData,
+        responseIdString,
+      );
 
       return res.status(201).json(insertedResponse);
     } catch (error) {
