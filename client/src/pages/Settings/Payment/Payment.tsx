@@ -1,25 +1,41 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Payment.module.css";
+import tableStyles from "../../pages.module.css";
 
 import DashboardTable from "../../../components/DashboardTable/DashboardTable";
 import Modal from "../../../components/Modal/Modal";
 import PrimaryButton from "../../../components/PrimaryButton/PrimaryButton";
 import StripeAccountForm from "../StripeAccountForm/StripeAccountForm";
 import { useTranslation } from "react-i18next";
+import useResponsiveHeader from "../../../hooks/useResponsiveHeader";
+import { useGetAllStripeAccounts } from "../../../api/stripe/query";
+import { useAuth0 } from "@auth0/auth0-react";
+import { fetchUser } from "../../../api/users/service";
+import Cookies from "js-cookie";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 const Payment = () => {
   const { t } = useTranslation("Settings");
   const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
-  const planHeaders = [
-    t("payment.headers.name"),
-    t("payment.headers.email"),
-    t("payment.headers.date"),
-    t("payment.headers.status"),
-  ];
+  const { getAccessTokenSilently } = useAuth0();
+  const [groupId, setGroupId] = useState(0);
+  const planHeaders = useResponsiveHeader(
+    [
+      t("payment.headers.name"),
+      t("payment.headers.status"),
+      t("payment.headers.date"),
+      t("payment.headers.link"),
+    ],
+    [
+      t("payment.headers.name"),
+      t("payment.headers.status"),
+      t("payment.headers.link"),
+    ],
+  );
 
   const StatusLabels = {
-    Complete: t("payment.status.complete"),
-    Restricted: t("payment.status.restricted"),
+    Complete: t("payment.status.approved"),
+    Restricted: t("payment.status.rejected"),
     Pending: t("payment.status.pending"),
   };
 
@@ -53,6 +69,17 @@ const Payment = () => {
       status: StatusLabels.Complete,
     },
   ];
+  useEffect(() => {
+    (async () => {
+      const token = await getAccessTokenSilently();
+      const email = Cookies.get("email") || "";
+      const currentUser = await fetchUser(email, token);
+      setGroupId(currentUser.group_id);
+    })();
+  }, []);
+
+  const { data } = useGetAllStripeAccounts(groupId);
+  console.log(data);
 
   const formatDate = (dateNumber: number): string => {
     const date = new Date(dateNumber);
@@ -113,15 +140,19 @@ const Payment = () => {
           mockPaymentData?.map((user) => (
             <tr key={user.id}>
               <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{formatDate(user.date_submitted)}</td>
               <td>
                 <p
+                  className={styles.statusLabel}
                   style={statusLabelStyling(user.status)}
-                  className={`${styles.statusLabel}`}
                 >
                   {user.status}
                 </p>
+              </td>
+              <td className={tableStyles.showInDesktop}>{user.email}</td>
+              <td>
+                <a href="">
+                  <FaExternalLinkAlt />
+                </a>
               </td>
             </tr>
           ))

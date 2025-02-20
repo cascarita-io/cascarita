@@ -33,14 +33,15 @@
     "headers": {
       "name": "Nombre de la Cuenta",
       "email": "Correo Electrónico",
+      "link": "Enlace",
       "date": "Fecha de Envío",
       "status": "Estado"
     },
     "addStripe": "Agregar Cuenta de Stripe",
     "status": {
-      "complete": "completo",
+      "aprobado": "aprobado",
       "pending": "pendiente",
-      "restricted": "restringido"
+      "rechazado": "rechazado"
     },
     "empty": "No hay suscripciones para mostrar...",
     "formContent": {

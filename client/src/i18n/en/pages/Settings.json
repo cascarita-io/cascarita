@@ -36,14 +36,15 @@
     "headers": {
       "name": "Account Name",
       "email": "Email Address",
+      "link": "Link",
       "date": "Date Submitted",
       "status": "Status"
     },
     "addStripe": "Add Stripe Account",
     "status": {
-      "complete": "complete",
+      "approved": "approved",
       "pending": "pending",
-      "restricted": "restricted"
+      "rejected": "rejected"
     },
     "empty": "No subscriptions to display...",
     "formContent": {

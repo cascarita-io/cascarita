@@ -3,7 +3,7 @@ import {
   StripeAccount,
   StripeAccountSchema,
 } from "../../components/DragAndDropComponents/DraggablePayment/types";
-import { useQuery } from "@tanstack/react-query";
+import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 import nullthrows from "nullthrows";
 
 export const connectStripe = async (formData: object) => {
@@ -83,9 +83,10 @@ export const getPublishableKey = async (): Promise<string> => {
   }
 };
 
-export const getStripeAccounts = async (
-  groupId: number,
-): Promise<StripeAccount[]> => {
+export const getStripeAccounts = async ({
+  queryKey,
+}: QueryFunctionContext): Promise<StripeAccount[]> => {
+  const [, groupId] = queryKey;
   try {
     const response = await fetch(`/api/accounts/${groupId}`);
 
