@@ -14,7 +14,7 @@ const FormTransactionController = function () {
       );
 
       switch (event.type) {
-        case "payment_intent.succeeded":
+        case "payment_intent.amount_capturable_updated":
           const paymentIntent = event.data.object;
           const success = await FormPaymentController.updateStripePayment(
             paymentIntent,
@@ -25,6 +25,8 @@ const FormTransactionController = function () {
               ? "Payment updated successfully"
               : "Payment update failed but webhook received",
           });
+        // @Chuy TODO: When Admin approves a stripe payment then logic can start here !
+        //case "payment_intent.succeeded":
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);

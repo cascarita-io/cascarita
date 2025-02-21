@@ -3,6 +3,7 @@
 require("dotenv").config();
 
 const { FormPayment } = require("../models");
+const Response = require("./../mongoModels/response");
 
 const FormPaymentController = {
   async connectResponseToFormPayment(responseData, responseId) {
@@ -44,11 +45,50 @@ const FormPaymentController = {
       };
 
       await existingPaymentIntent.update(updates, { validate: true });
+      await this.updateMongoPaymentResponse(existingPaymentIntent);
 
       return true;
     } catch (error) {
       console.error(error);
       return false;
+    }
+  },
+
+  async updateMongoPaymentResponse(paymentData) {
+    try {
+      const documentId = paymentData.response_document_id;
+      let response = await Response.findById(documentId);
+
+      if (!response) {
+        return;
+      }
+
+      let responseData = response.toObject();
+      let paymentAnswer = responseData.response.answers.find(
+        (answer) => answer.type === "payment" && answer.paymentIntentId,
+      );
+
+      if (paymentAnswer) {
+        paymentAnswer.paymen_type = "stripe_payment";
+        paymentAnswer.payment_intent_status = paymentData.payment_intent_status;
+        paymentAnswer.amount = paymentData.amount;
+        paymentAnswer.payment_intent_auth_by_stripe_at = Date.now();
+        if (paymentData.payment_intent_status === "requires_capture") {
+          paymentAnswer.payment_intent_capture_by =
+            Date.now() + 4 * 24 * 60 * 60 * 1000; // 4 days in milliseconds
+        }
+
+        await Response.updateOne(
+          { _id: documentId },
+          {
+            $set: {
+              response: responseData.response,
+            },
+          },
+        );
+      }
+    } catch (error) {
+      throw error;
     }
   },
 
