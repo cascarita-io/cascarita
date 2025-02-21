@@ -16,6 +16,7 @@ import DeleteForm from "../i18n/en/components/DeleteForm.json";
 import Teams from "../i18n/en/pages/Teams.json";
 import Settings from "../i18n/en/pages/Settings.json";
 import FormComponents from "../i18n/en/components/FormComponents.json";
+import Players from "../i18n/en/pages/Players.json";
 
 const resources = {
   DropdownMenuButton,
@@ -36,6 +37,7 @@ const resources = {
   Teams,
   Settings,
   FormComponents,
+  Players,
 } as const;
 
 export default resources;

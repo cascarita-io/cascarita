@@ -108,10 +108,12 @@ export const createMongoForm = async (
   title: string,
   description: string,
   groupId: number | undefined,
-  userId: number | undefined
+  userId: number | undefined,
+  template: string
 ) => {
   const formData = {
     title,
+    template,
     welcome_screens: [
       {
         title,

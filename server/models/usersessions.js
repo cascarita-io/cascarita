@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "session_id",
         targetKey: "id",
       });
+      UserSessions.belongsTo(models.Team, {
+        foreignKey: "team_id",
+        targetKey: "id",
+      });
     }
   }
   UserSessions.init(
@@ -27,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
       session_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      team_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

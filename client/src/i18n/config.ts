@@ -36,6 +36,8 @@ import SettingsEn from "./en/pages/Settings.json";
 import SettingsEsp from "./esp/pages/Settings.json";
 import FormComponentsEn from "./en/components/FormComponents.json";
 import FormComponentsEsp from "./esp/components/FormComponents.json";
+import PlayersEn from "./en/pages/Players.json";
+import PlayersEsp from "./esp/pages/Players.json";
 import { updateUsersLanguages } from "../api/users/service";
 
 i18next.use(initReactI18next).init({
@@ -64,6 +66,7 @@ i18next.use(initReactI18next).init({
       Teams: TeamsEn,
       Settings: SettingsEn,
       FormComponents: FormComponentsEn,
+      Players: PlayersEn,
     },
     esp: {
       DropdownMenuButton: DropdownMenuButtonEsp,
@@ -84,6 +87,7 @@ i18next.use(initReactI18next).init({
       Teams: TeamsEsp,
       Settings: SettingsEsp,
       FormComponents: FormComponentsEsp,
+      Players: PlayersEsp,
     },
   },
   ns: [
@@ -105,6 +109,7 @@ i18next.use(initReactI18next).init({
     "Teams",
     "Settings",
     "FormComponents",
+    "Players",
   ],
 });
 

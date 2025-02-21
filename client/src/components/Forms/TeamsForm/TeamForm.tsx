@@ -17,6 +17,7 @@ import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
 import { DivisionType } from "../../../pages/Division/types";
+import { SeasonType } from "../../../pages/Seasons/types";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
@@ -126,7 +127,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
               required={linkToSeason}
             >
               <option value="">Select a season</option>
-              {seasonsData?.map((season: any) => (
+              {seasonsData?.map((season: SeasonType) => (
                 <option key={season.id} value={season.id}>
                   {season.name}
                 </option>
