@@ -188,7 +188,10 @@ export const getMongoFormResponses = async (formId: string) => {
   }
 };
 
-export const createMongoResponse = async (formId: string, answer: Answer[]) => {
+export const createMongoResponse = async (
+  formId: string,
+  answer: (string | number | Answer)[]
+) => {
   const data = {
     form_id: formId,
     data: answer,

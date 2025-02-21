@@ -10,12 +10,13 @@ import FormFooter from "../../components/FormFooter/FormFooter";
 import styles from "./FormPage.module.css";
 import { Answer, AnswerType, Field } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
+import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
 
 const FormPage = () => {
   const { formId } = useParams();
   const navigate = useNavigate();
   const stripeComponentRef = useRef<{
-    handlePayment: () => Promise<boolean>;
+    handlePayment: () => Promise<PaymentResult>;
   } | null>(null);
   const {
     data: form,
@@ -74,11 +75,33 @@ const FormPage = () => {
 
     try {
       if (stripeComponentRef.current) {
-        const success = await stripeComponentRef.current.handlePayment();
+        const { success, paymentIntentId, amount } =
+          await stripeComponentRef.current.handlePayment();
         if (!success) {
           return;
+        } else {
+          const updatedNormalizedAnswers = normalizedAnswers.map((answer) => {
+            if (answer.type === "payment") {
+              return {
+                ...answer,
+                paymentIntentId: paymentIntentId,
+                amount: amount,
+              };
+            }
+            return answer;
+          });
+
+          const responsesData = await createMongoResponse(
+            formId ?? "",
+            updatedNormalizedAnswers
+          );
+          // TODO: Redirect to a thank you page!
+          navigate("/");
+          return responsesData;
         }
       }
+
+      // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
         normalizedAnswers
