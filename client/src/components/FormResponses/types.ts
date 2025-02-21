@@ -50,4 +50,4 @@ export interface FormResponsesProps {
   formId: string;
 }
 
-export type AnswerRecordMap = Map<string, Map<string, Answer>>;
+export type AnswerRecordMap = Record<string, Answer>[];

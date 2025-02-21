@@ -124,6 +124,53 @@ const FormPaymentController = {
       throw error;
     }
   },
+
+  async getFormPaymentByPaymentIntentId(req, res, next) {
+    const { payment_intent_id } = req.body;
+    try {
+      const formPayment = await FormPayment.findOne({
+        where: {
+          payment_intent_id: payment_intent_id,
+        },
+      });
+
+      if (!formPayment) {
+        res.status(404);
+        throw new Error(
+          `no form payment record found with payment intent id: ${req.params.payment_intent_id}`,
+        );
+      }
+
+      return res.status(200).json(formPayment);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updatePaymentStatus(req, res, next) {
+    try {
+      const { payment_intent_id, status } = req.body;
+
+      const formPayment = await FormPayment.findOne({
+        where: {
+          payment_intent_id: payment_intent_id,
+        },
+      });
+
+      if (!formPayment) {
+        res.status(404);
+        throw new Error(
+          `no form payment record found with payment intent id: ${payment_intent_id}`,
+        );
+      }
+
+      await formPayment.update({ payment_intent_status: status });
+
+      return res.status(200).json(formPayment);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = FormPaymentController;

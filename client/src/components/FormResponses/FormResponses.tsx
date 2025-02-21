@@ -5,16 +5,18 @@ import {
   getMongoFormById,
   getMongoFormResponses,
 } from "../../api/forms/service";
-// import { truncateText } from "../../utils/truncateText";
 import { useTranslation } from "react-i18next";
 import { Answer } from "../../api/forms/types";
 import StatusLabel from "../StatusLabel/StatusLabel";
 import DashboardTable from "../DashboardTable/DashboardTable";
-// import { set } from "react-hook-form";
 import DropdownMenuButton from "../DropdownMenuButton/DropdownMenuButton";
 import PrimaryButton from "../PrimaryButton/PrimaryButton";
 import Modal from "../Modal/Modal";
 import FormResponseForm from "../Forms/FormResponseModal/FormResponseModal";
+import {
+  getFormPaymentsByPaymentIntentId,
+  updateFormPaymentStatus,
+} from "../../api/forms/service";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return <StatusLabel status={status}>{status}</StatusLabel>;
@@ -23,25 +25,31 @@ const StatusButton = (status: "approved" | "rejected" | "pending") => {
 const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formType, setFormType] = useState(0);
   const [user, setUser] = useState<string[]>([]);
+  const [amount, setAmount] = useState<number[]>([]);
   const [submittedAt, setSubmittedAt] = useState<string[]>([]);
-  // const [createdBy, setCreatedBy] = useState<string[]>([]);
+  const [paymentType, setPaymentType] = useState<string[]>([]);
+  const [paymentIntentIds, setPaymentIntentIds] = useState<string[]>([]);
   const [email, setEmail] = useState<string[]>([]);
   const [isViewOpen, setIsViewOpen] = useState<{ [key: number]: boolean }>({});
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
     []
   );
-  const [formResponsesMap, setFormResponsesMap] = useState<AnswerRecordMap>(
-    new Map()
+  const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
+    []
   );
   const { t } = useTranslation("FormResponses");
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string, daysAhead: number = 0): string => {
+    const date = new Date(dateString);
+    if (daysAhead > 0) {
+      date.setDate(date.getDate() + daysAhead);
+    }
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
       day: "numeric",
     };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return date.toLocaleDateString(undefined, options);
   };
 
   useEffect(() => {
@@ -49,75 +57,122 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       const formData = await getMongoFormById(formId);
       setFormType(formData.form_type);
       const responsesData = await getMongoFormResponses(formData._id);
+      let submittedAtData: string[] = [];
       responsesData.map((response: FormResponse) => {
-        setSubmittedAt((prev) => [...prev, response.createdAt]);
+        submittedAtData.push(response.createdAt);
       });
-      const responsesMap = responsesData.reduce(
-        (result: AnswerRecordMap, res: FormResponse) => {
-          const answersMap: Map<string, Answer> = new Map();
-          res.response.answers?.forEach((answer: Answer) => {
-            if (answer.secondary_type) {
-              answersMap.set(answer.secondary_type, answer);
-            } else {
-              answersMap.set(answer.type, answer);
-            }
-          });
+      setSubmittedAt(submittedAtData);
+      const responsesArray = responsesData.map((res: FormResponse) => {
+        const answersMap: { [key: string]: Answer } = {};
+        res.response.answers?.forEach((answer: Answer) => {
+          if (answer.secondary_type) {
+            answersMap[answer.secondary_type] = answer;
+          } else {
+            answersMap[answer.type] = answer;
+          }
+        });
 
-          const responseId = res._id;
-          result.set(responseId, answersMap);
-          return result;
-        },
-        new Map()
-      );
+        return answersMap;
+      });
 
-      setFormResponsesMap(responsesMap);
+      setFormResponsesData(responsesArray);
 
       const emailData: string[] = [];
       const userData: string[] = [];
-
-      responsesMap.forEach((answersMap: Map<string, Answer>) => {
+      const amountData: number[] = [];
+      const paymentIntentIdsData: string[] = [];
+      responsesArray.forEach((answersMap: Map<string, Answer>) => {
         let email = "N/A";
         let firstName = "";
         let lastName = "";
-
-        answersMap.forEach((answer, key) => {
+        let amount = 0;
+        let paymentIntentId = "";
+        Object.entries(answersMap).forEach(([key, answer]) => {
           if (key === "email") {
-            email = answer.email ?? "N/A";
+            email = (answer as Answer).email ?? "N/A";
           }
           if (key === "first_name") {
-            firstName = answer.short_text ?? "";
+            firstName = (answer as Answer).short_text ?? "";
           }
           if (key === "last_name") {
-            lastName = answer.short_text ?? "";
+            lastName = (answer as Answer).short_text ?? "";
+          }
+          if (key === "payment") {
+            amount = (answer as Answer).amount ?? 0;
+            paymentIntentId = (answer as Answer).paymentIntentId ?? "";
           }
         });
 
         emailData.push(email);
         userData.push(`${firstName} ${lastName}`);
+        amountData.push(amount);
+        paymentIntentIdsData.push(paymentIntentId);
       });
 
       setEmail(emailData);
       setUser(userData);
-      // TODO: determine status setup
-      setStatus(responsesData.map(() => "pending"));
+      setAmount(amountData);
+      setPaymentIntentIds(paymentIntentIdsData);
+      const statusData: ("approved" | "rejected" | "pending")[] = [];
+      const paymentTypeData: string[] = [];
+
+      await Promise.all(
+        paymentIntentIdsData.map(async (paymentIntentId, index) => {
+          let paymentData;
+          try {
+            paymentData =
+              await getFormPaymentsByPaymentIntentId(paymentIntentId);
+          } catch (error) {
+            paymentData = {};
+          }
+
+          if (paymentData.payment_intent_status === "approved") {
+            statusData[index] = "approved";
+          } else if (paymentData.payment_intent_status === "rejected") {
+            statusData[index] = "rejected";
+          } else {
+            statusData[index] = "pending";
+          }
+          if (paymentData.payment_method_id === 1) {
+            paymentTypeData[index] = "Credit Card / Stripe";
+          } else {
+            paymentTypeData[index] = "Cash / Check";
+          }
+        })
+      );
+
+      setStatus(statusData);
+      setPaymentType(paymentTypeData);
     })();
   }, [formId]);
 
-  const handleStatusChange =
-    (index: number, statusUpdate: "approved" | "rejected" | "pending") =>
-    () => {
+  const handleStatusChange = (
+    index: number,
+    statusUpdate: "approved" | "rejected" | "pending"
+  ) => {
+    return async () => {
       const newStatus = [...status];
       newStatus[index] = statusUpdate;
       setStatus(newStatus);
+
+      let updatedStatus = statusUpdate as string;
+      if (statusUpdate == "pending") {
+        updatedStatus = "requires_payment_method";
+      }
+      await updateFormPaymentStatus(paymentIntentIds[index], updatedStatus);
     };
+  };
 
   const headers = [
     "#",
     "Name",
-    "Status",
+    "Payment Type",
+    "Payment Status",
     "View Response",
     "Date Submitted",
     "Email",
+    "Amount",
+    "Transaction Expiry",
   ];
 
   return (
@@ -127,10 +182,11 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
         headerColor="light"
         className={styles.table}
       >
-        {Array.from(formResponsesMap.keys()).map((responseId, index) => (
-          <tr key={responseId}>
+        {formResponsesData.map((response: Record<string, Answer>, index) => (
+          <tr key={index}>
             <td>{index + 1}</td>
             <td>{user[index]}</td>
+            <td>{paymentType[index]}</td>
             {formType === 1 && (
               <td>
                 <DropdownMenuButton trigger={StatusButton(status[index])}>
@@ -176,18 +232,22 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                   </PrimaryButton>
                 </Modal.Button>
                 <Modal.Content maximize={true} title={user[index]}>
-                  <FormResponseForm
-                    answers={formResponsesMap.get(responseId)}
-                  />
+                  <FormResponseForm answers={response} />
                 </Modal.Content>
               </Modal>
             </td>
             <td>{formatDate(submittedAt[index])}</td>
             <td>{email[index]}</td>
+            <td>{amount[index]}</td>
+            <td>
+              {paymentType[index] === "Credit Card / Stripe"
+                ? formatDate(submittedAt[index], 3)
+                : ""}
+            </td>
           </tr>
         ))}
       </DashboardTable>
-      {formResponsesMap.size === 0 && (
+      {formResponsesData.length === 0 && (
         <div className={styles.emptyFormResponses}>
           <h2>{t("noResponsesText")}</h2>
         </div>

@@ -142,4 +142,5 @@ export interface Answer {
   payment?: string;
   paymentIntentId?: string;
   amount?: number;
+  payment_intent_capture_by?: string;
 }
