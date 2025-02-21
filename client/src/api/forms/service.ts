@@ -213,13 +213,13 @@ export const createMongoResponse = async (formId: string, answer: Answer[]) => {
   }
 };
 
-export const sendEmail = async (formLink: string, email: string) => {
+export const sendEmail = async (emails: string[], formLink: string) => {
   try {
     const data = {
-      formLink: formLink,
-      email: email,
+      emails: emails,
+      link: formLink,
     };
-    const response = await fetch(`/api/forms/email`, {
+    const response = await fetch(`/api/email/send`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
