@@ -82,6 +82,7 @@ const AccountController = function () {
           automatic_payment_methods: {
             enabled: true,
           },
+          capture_method: "manual",
           application_fee_amount: productObj.transactionFee,
         },
         {
