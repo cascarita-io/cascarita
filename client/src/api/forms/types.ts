@@ -140,4 +140,6 @@ export interface Answer {
     team_id: number | null;
   };
   payment?: string;
+  paymentIntentId?: string;
+  amount?: number;
 }

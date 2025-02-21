@@ -69,14 +69,13 @@ const Home = () => {
               <></>
             </RegisterModal>
           )}
-          {/*TODO: Find out why the League Component gets rendered twice  */}
-          {/* <Leagues /> */}
           <Page title="Welcome!">
             <Navbar>
               <Navbar.Item href="">Leagues</Navbar.Item>
               <Navbar.Item href="seasons">Seasons</Navbar.Item>
               <Navbar.Item href="divisions">Divisions</Navbar.Item>
               <Navbar.Item href="teams">Teams</Navbar.Item>
+              <Navbar.Item href="players">Players</Navbar.Item>
             </Navbar>
 
             <Outlet />
