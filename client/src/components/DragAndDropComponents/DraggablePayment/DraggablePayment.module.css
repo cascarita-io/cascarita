@@ -160,6 +160,15 @@
   gap: 10px;
 }
 
+.requiredSwitch {
+  display: flex;
+  gap: 10px;
+  position: absolute;
+  top: 25px;
+  padding: 10px;
+  right: 0;
+}
+
 .addStripeAccountButton {
   font-family: "DM Sans";
   width: 200px;

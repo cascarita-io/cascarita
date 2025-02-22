@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "stripe_status_id",
         targetKey: "id",
       });
+      UserStripeAccounts.belongsTo(models.FormPayment, {
+        foreignKey: "user_stripe_account_id",
+        targetKey: "id",
+      });
     }
   }
   UserStripeAccounts.init(

@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       FormType.hasMany(models.Form, {
-        foreignKey: "form_type_id",
+        foreignKey: "form_type",
         sourceKey: "id",
       });
     }
