@@ -16,7 +16,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const FileUpload: React.FC<FileUploadProps> = ({ className }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
   const [filePreview, setFilePreview] = React.useState<string>("");
   const [errorMessage, setErrorMessage] = React.useState("");
 
@@ -25,6 +25,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ className }) => {
 
     file.onload = () => {
       setFilePreview(file.result as string);
+      if (setFileValue) {
+        setFileValue(file.result as string);
+      }
     };
 
     file.readAsDataURL(acceptedFiles[0]);
@@ -68,12 +71,15 @@ const FileUpload: React.FC<FileUploadProps> = ({ className }) => {
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
     }),
-    [isFocused, isDragAccept, isDragReject],
+    [isFocused, isDragAccept, isDragReject]
   );
 
   const removeFile = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setFilePreview("");
+    if (setFileValue) {
+      setFileValue(null);
+    }
   };
 
   return (
@@ -81,7 +87,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ className }) => {
       {...getRootProps({
         className: className,
         style: style,
-      })}>
+      })}
+    >
       {filePreview && (
         <div className={styles.imgContainer}>
           <img
