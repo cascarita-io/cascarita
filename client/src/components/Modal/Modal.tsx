@@ -14,7 +14,8 @@ const Modal: React.FC<ModalProps> & {
     <Dialog.Root
       open={open}
       onOpenChange={onOpenChange}
-      defaultOpen={defaultOpen}>
+      defaultOpen={defaultOpen}
+    >
       {children}
     </Dialog.Root>
   );
@@ -24,11 +25,14 @@ const ModalContent: React.FC<ModalContentProps> = ({
   title,
   subtitle,
   children,
+  maximize = false,
 }) => {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className={styles.overlay} />
-      <Dialog.Content className={styles.content}>
+      <Dialog.Content
+        className={`${maximize ? styles.maximizeContent : styles.content}`}
+      >
         <Dialog.Title className={styles.title}>{title}</Dialog.Title>
         <Dialog.Description className={styles.subtitle}>
           {subtitle}

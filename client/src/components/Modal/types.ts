@@ -8,6 +8,7 @@ interface ModalProps {
 interface ModalContentProps {
   title?: string;
   subtitle?: string;
+  maximize?: boolean;
   children: React.ReactNode;
 }
 

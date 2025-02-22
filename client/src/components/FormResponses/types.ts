@@ -28,6 +28,7 @@ export interface TypeformResponse {
 
 export interface FormResponse {
   _id: string;
+  createdAt: string;
   form_id: string;
   response: TypeformResponse;
 }
@@ -49,4 +50,4 @@ export interface FormResponsesProps {
   formId: string;
 }
 
-export type AnswerRecordMap = Map<string, Map<string, Answer>>;
+export type AnswerRecordMap = Record<string, Answer>[];

@@ -11,9 +11,7 @@ type AppState = {
 
 const onRedirectCallback = (appState: AppState | undefined) => {
   createBrowserHistory().push(
-    appState && appState.returnTo
-      ? appState.returnTo
-      : window.location.pathname,
+    appState && appState.returnTo ? appState.returnTo : window.location.pathname
   );
 };
 
@@ -42,5 +40,5 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />
     </StrictMode>
-  </Auth0Provider>,
+  </Auth0Provider>
 );

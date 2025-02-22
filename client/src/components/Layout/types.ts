@@ -1,4 +1,4 @@
-export const blackListExceptions: string[] = ["/forms/check"];
+export const blackListExceptions: string[] = ["/forms/edit"];
 
 export interface LayoutProps {
   children?: React.ReactNode;

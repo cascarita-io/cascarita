@@ -25,15 +25,33 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
         <div>
           <h4 className={styles.question}>League</h4>
           <p>{field.league_name}</p>
-          <p hidden {...register(`answers.${index}.player.league_id`)}>
-            {field.league_id}
-          </p>
+          <input
+            type="hidden"
+            {...register(`answers.${index}.player.league_name`, {
+              value: field.league_name,
+            })}
+          />
+          <input
+            type="hidden"
+            {...register(`answers.${index}.player.league_id`, {
+              value: field.league_id,
+            })}
+          />
 
           <h4 className={styles.question}>Season</h4>
           <p>{field.season_name}</p>
-          <p hidden {...register(`answers.${index}.player.season_id`)}>
-            {field.season_id}
-          </p>
+          <input
+            type="hidden"
+            {...register(`answers.${index}.player.season_name`, {
+              value: field.season_name,
+            })}
+          />
+          <input
+            type="hidden"
+            {...register(`answers.${index}.player.season_id`, {
+              value: field.season_id,
+            })}
+          />
         </div>
         <div style={{ display: "flex" }}>
           <h4 className={styles.question}>Division</h4>
@@ -47,6 +65,17 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
           className={styles.input}
           {...register(`answers.${index}.player.division_id`, {
             required: required && t("required"),
+            onChange: (e) => {
+              const selectedDivision =
+                field.properties?.player_block_choices?.find(
+                  (choice) => choice.division_id === e.target.value
+                );
+              if (selectedDivision) {
+                register(`answers.${index}.player.division_name`).onChange({
+                  target: { value: selectedDivision.division_name },
+                });
+              }
+            },
           })}
         >
           <option value="">{t("dropdown.placeholder")}</option>
@@ -68,6 +97,16 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
           className={styles.input}
           {...register(`answers.${index}.player.team_id`, {
             required: required && t("required"),
+            onChange: (e) => {
+              const selectedTeam = field.properties?.player_block_choices
+                ?.flatMap((choice) => choice.teams)
+                .find((team: ShortTeam) => team.team_id === e.target.value);
+              if (selectedTeam) {
+                register(`answers.${index}.player.team_name`).onChange({
+                  target: { value: selectedTeam.team_name },
+                });
+              }
+            },
           })}
         >
           <option value="">{t("dropdown.placeholder")}</option>

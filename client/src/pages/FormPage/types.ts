@@ -47,6 +47,7 @@ export interface FetchedForm {
   };
   welcome_screen: WelcomeScreen;
   sql_form_id: string;
+  form_type: number;
 }
 
 export const FieldComponents = {
