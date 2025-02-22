@@ -13,10 +13,11 @@ const Photo = ({ field, index }: FieldProps) => {
     setValue,
   } = useFormContext();
 
-  const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [fileUrl, setFileUrl] = useState<File | null>(null);
   register(`answers.${index}.photo`);
 
   useEffect(() => {
+    //TODO call image upload to get the S3 url to store in response
     if (fileUrl) {
       setValue(`answers.${index}.photo`, fileUrl);
     } else {
@@ -46,7 +47,7 @@ const Photo = ({ field, index }: FieldProps) => {
       )}
 
       <FileUpload
-        setFileValue={(url: string | null) => {
+        setFileValue={(url: File | null) => {
           setFileUrl(url);
         }}
         className={styles.logoInputContainer}

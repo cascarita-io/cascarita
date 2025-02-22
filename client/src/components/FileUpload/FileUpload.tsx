@@ -26,7 +26,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
     file.onload = () => {
       setFilePreview(file.result as string);
       if (setFileValue) {
-        setFileValue(file.result as string);
+        setFileValue(acceptedFiles[0]);
       }
     };
 
