@@ -52,6 +52,11 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     return date.toLocaleDateString(undefined, options);
   };
 
+  const formatMoney = (amount: number): string => {
+    //formats cents to dollars
+    return `$${(amount / 100).toFixed(2)}`;
+  };
+
   useEffect(() => {
     (async () => {
       const formData = await getMongoFormById(formId);
@@ -238,7 +243,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
             </td>
             <td>{formatDate(submittedAt[index])}</td>
             <td>{email[index]}</td>
-            <td>{amount[index]}</td>
+            <td>{formatMoney(amount[index])}</td>
             <td>
               {paymentType[index] === "Credit Card / Stripe"
                 ? formatDate(submittedAt[index], 3)
