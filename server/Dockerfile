@@ -7,6 +7,7 @@ COPY ./server/package.json ./server/package-lock.json ./
 
 # Install dependencies
 RUN npm install
+RUN npm install --os=linux --libc=musl --cpu=arm64 sharp
 
 # Copy the rest of the application files
 COPY ./server .
