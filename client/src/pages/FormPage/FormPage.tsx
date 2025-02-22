@@ -8,7 +8,12 @@ import { createMongoResponse } from "../../api/forms/service";
 import FormHeader from "../../components/FormHeader/FormHeader";
 import FormFooter from "../../components/FormFooter/FormFooter";
 import styles from "./FormPage.module.css";
-import { Answer, AnswerType, Field } from "../../api/forms/types";
+import {
+  Answer,
+  AnswerType,
+  Field,
+  SecondaryType,
+} from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
 
@@ -66,11 +71,20 @@ const FormPage = () => {
             ? "choices"
             : (AnswerMap[field.type] as AnswerType);
 
-        return {
-          ...data.answers[index],
-          field: { id: field.id, type: field.type, ref: field.ref },
-          type: answerType,
-        };
+        if (field.secondary_type) {
+          return {
+            ...data.answers[index],
+            field: { id: field.id, type: field.type, ref: field.ref },
+            type: answerType,
+            secondary_type: field.secondary_type as SecondaryType,
+          };
+        } else {
+          return {
+            ...data.answers[index],
+            field: { id: field.id, type: field.type, ref: field.ref },
+            type: answerType,
+          };
+        }
       }) ?? [];
 
     try {

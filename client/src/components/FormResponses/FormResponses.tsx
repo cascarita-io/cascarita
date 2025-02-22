@@ -5,90 +5,254 @@ import {
   getMongoFormById,
   getMongoFormResponses,
 } from "../../api/forms/service";
-import { truncateText } from "../../utils/truncateText";
 import { useTranslation } from "react-i18next";
-import { Answer, Field } from "../../api/forms/types";
+import { Answer } from "../../api/forms/types";
+import StatusLabel from "../StatusLabel/StatusLabel";
+import DashboardTable from "../DashboardTable/DashboardTable";
+import DropdownMenuButton from "../DropdownMenuButton/DropdownMenuButton";
+import PrimaryButton from "../PrimaryButton/PrimaryButton";
+import Modal from "../Modal/Modal";
+import FormResponseForm from "../Forms/FormResponseModal/FormResponseModal";
+import {
+  getFormPaymentsByPaymentIntentId,
+  updateFormPaymentStatus,
+} from "../../api/forms/service";
+
+const StatusButton = (status: "approved" | "rejected" | "pending") => {
+  return <StatusLabel status={status}>{status}</StatusLabel>;
+};
 
 const FormResponses = ({ formId }: FormResponsesProps) => {
-  const [formFields, setFormFields] = useState<Field[]>([]);
-  const [formResponsesMap, setFormResponsesMap] = useState<AnswerRecordMap>(
-    new Map()
+  const [formType, setFormType] = useState(0);
+  const [user, setUser] = useState<string[]>([]);
+  const [amount, setAmount] = useState<number[]>([]);
+  const [submittedAt, setSubmittedAt] = useState<string[]>([]);
+  const [paymentType, setPaymentType] = useState<string[]>([]);
+  const [paymentIntentIds, setPaymentIntentIds] = useState<string[]>([]);
+  const [email, setEmail] = useState<string[]>([]);
+  const [isViewOpen, setIsViewOpen] = useState<{ [key: number]: boolean }>({});
+  const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
+    []
+  );
+  const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
+    []
   );
   const { t } = useTranslation("FormResponses");
+
+  const formatDate = (dateString: string, daysAhead: number = 0): string => {
+    const date = new Date(dateString);
+    if (daysAhead > 0) {
+      date.setDate(date.getDate() + daysAhead);
+    }
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return date.toLocaleDateString(undefined, options);
+  };
+
+  const formatMoney = (amount: number): string => {
+    //formats cents to dollars
+    return `$${(amount / 100).toFixed(2)}`;
+  };
 
   useEffect(() => {
     (async () => {
       const formData = await getMongoFormById(formId);
-
-      setFormFields(formData.form_data.fields);
+      setFormType(formData.form_type);
       const responsesData = await getMongoFormResponses(formData._id);
-      const responsesMap = responsesData.reduce(
-        (result: AnswerRecordMap, res: FormResponse) => {
-          const answersMap: Map<string, Answer> = new Map();
-          res.response.answers?.forEach((answer: Answer) => {
-            answersMap.set(answer.field.id, answer);
-          });
+      let submittedAtData: string[] = [];
+      responsesData.map((response: FormResponse) => {
+        submittedAtData.push(response.createdAt);
+      });
+      setSubmittedAt(submittedAtData);
+      const responsesArray = responsesData.map((res: FormResponse) => {
+        const answersMap: { [key: string]: Answer } = {};
+        res.response.answers?.forEach((answer: Answer) => {
+          if (answer.secondary_type) {
+            answersMap[answer.secondary_type] = answer;
+          } else {
+            answersMap[answer.type] = answer;
+          }
+        });
 
-          const responseId = res._id;
-          result.set(responseId, answersMap);
-          return result;
-        },
-        new Map()
+        return answersMap;
+      });
+
+      setFormResponsesData(responsesArray);
+
+      const emailData: string[] = [];
+      const userData: string[] = [];
+      const amountData: number[] = [];
+      const paymentIntentIdsData: string[] = [];
+      responsesArray.forEach((answersMap: Map<string, Answer>) => {
+        let email = "N/A";
+        let firstName = "";
+        let lastName = "";
+        let amount = 0;
+        let paymentIntentId = "";
+        Object.entries(answersMap).forEach(([key, answer]) => {
+          if (key === "email") {
+            email = (answer as Answer).email ?? "N/A";
+          }
+          if (key === "first_name") {
+            firstName = (answer as Answer).short_text ?? "";
+          }
+          if (key === "last_name") {
+            lastName = (answer as Answer).short_text ?? "";
+          }
+          if (key === "payment") {
+            amount = (answer as Answer).amount ?? 0;
+            paymentIntentId = (answer as Answer).paymentIntentId ?? "";
+          }
+        });
+
+        emailData.push(email);
+        userData.push(`${firstName} ${lastName}`);
+        amountData.push(amount);
+        paymentIntentIdsData.push(paymentIntentId);
+      });
+
+      setEmail(emailData);
+      setUser(userData);
+      setAmount(amountData);
+      setPaymentIntentIds(paymentIntentIdsData);
+      const statusData: ("approved" | "rejected" | "pending")[] = [];
+      const paymentTypeData: string[] = [];
+
+      await Promise.all(
+        paymentIntentIdsData.map(async (paymentIntentId, index) => {
+          let paymentData;
+          try {
+            paymentData =
+              await getFormPaymentsByPaymentIntentId(paymentIntentId);
+          } catch (error) {
+            paymentData = {};
+          }
+
+          if (paymentData.payment_intent_status === "approved") {
+            statusData[index] = "approved";
+          } else if (paymentData.payment_intent_status === "rejected") {
+            statusData[index] = "rejected";
+          } else {
+            statusData[index] = "pending";
+          }
+          if (paymentData.payment_method_id === 1) {
+            paymentTypeData[index] = "Credit Card / Stripe";
+          } else {
+            paymentTypeData[index] = "Cash / Check";
+          }
+        })
       );
 
-      setFormResponsesMap(responsesMap);
+      setStatus(statusData);
+      setPaymentType(paymentTypeData);
     })();
   }, [formId]);
 
-  const formatAnswer = (answer: Answer) => {
-    const typeFormatters: Record<string, () => string | JSX.Element> = {
-      short_text: () => answer.short_text ?? "",
-      long_text: () => answer.long_text ?? "",
-      number: () => String(answer.number ?? ""),
-      email: () => answer.email ?? "",
-      phone_number: () => answer.phone_number ?? "",
-      choice: () => answer.choice?.label ?? "",
-      choices: () => answer.choices?.labels.join(", ") ?? "",
-      date: () =>
-        answer.date ? new Date(answer.date).toLocaleDateString() : "",
-      file_url: () =>
-        answer.file_url ? <a href={answer.file_url}>{t("fileText")}</a> : "",
-      boolean: () =>
-        answer.boolean ? t("booleanOption.true") : t("booleanOption.false"),
-      default: () => "",
-    };
+  const handleStatusChange = (
+    index: number,
+    statusUpdate: "approved" | "rejected" | "pending"
+  ) => {
+    return async () => {
+      const newStatus = [...status];
+      newStatus[index] = statusUpdate;
+      setStatus(newStatus);
 
-    return (typeFormatters[answer.type] ?? typeFormatters.default)();
+      let updatedStatus = statusUpdate as string;
+      if (statusUpdate == "pending") {
+        updatedStatus = "requires_payment_method";
+      }
+      await updateFormPaymentStatus(paymentIntentIds[index], updatedStatus);
+    };
   };
+
+  const headers = [
+    "#",
+    "Name",
+    "Payment Type",
+    "Payment Status",
+    "View Response",
+    "Date Submitted",
+    "Email",
+    "Amount",
+    "Transaction Expiry",
+  ];
 
   return (
     <div className={styles.container}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            {formFields.map((field) => (
-              <th key={field.id} title={field.title}>
-                <p>{truncateText(field.title, 35)}</p>
-              </th>
-            ))}
+      <DashboardTable
+        headers={headers}
+        headerColor="light"
+        className={styles.table}
+      >
+        {formResponsesData.map((response: Record<string, Answer>, index) => (
+          <tr key={index}>
+            <td>{index + 1}</td>
+            <td>{user[index]}</td>
+            <td>{paymentType[index]}</td>
+            {formType === 1 && (
+              <td>
+                <DropdownMenuButton trigger={StatusButton(status[index])}>
+                  <DropdownMenuButton.Item
+                    onClick={handleStatusChange(index, "approved")}
+                  >
+                    <StatusLabel status="approved">approved</StatusLabel>
+                  </DropdownMenuButton.Item>
+
+                  <DropdownMenuButton.Separator className={styles.separator} />
+
+                  <DropdownMenuButton.Item
+                    onClick={handleStatusChange(index, "rejected")}
+                  >
+                    <StatusLabel status="rejected">rejected</StatusLabel>
+                  </DropdownMenuButton.Item>
+
+                  <DropdownMenuButton.Separator className={styles.separator} />
+
+                  <DropdownMenuButton.Item
+                    onClick={handleStatusChange(index, "pending")}
+                  >
+                    <StatusLabel status="pending">pending</StatusLabel>
+                  </DropdownMenuButton.Item>
+                </DropdownMenuButton>
+              </td>
+            )}
+            <td>
+              <Modal
+                open={isViewOpen[index] || false}
+                onOpenChange={(open) =>
+                  setIsViewOpen((prev) => ({ ...prev, [index]: open }))
+                }
+              >
+                <Modal.Button asChild className={styles.modalTrigger}>
+                  <PrimaryButton
+                    className={styles.primaryBtn}
+                    onClick={() =>
+                      setIsViewOpen((prev) => ({ ...prev, [index]: true }))
+                    }
+                  >
+                    <p className={styles.btnTextDesktop}>View</p>
+                  </PrimaryButton>
+                </Modal.Button>
+                <Modal.Content maximize={true} title={user[index]}>
+                  <FormResponseForm answers={response} />
+                </Modal.Content>
+              </Modal>
+            </td>
+            <td>{formatDate(submittedAt[index])}</td>
+            <td>{email[index]}</td>
+            <td>{formatMoney(amount[index])}</td>
+            <td>
+              {paymentType[index] === "Credit Card / Stripe"
+                ? formatDate(submittedAt[index], 3)
+                : ""}
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {Array.from(formResponsesMap.keys()).map((responseId) => (
-            <tr key={responseId}>
-              {formFields.map((field) => (
-                <td key={field.id}>
-                  {formResponsesMap.get(responseId)?.get(field.id)?.type &&
-                    formatAnswer(
-                      formResponsesMap.get(responseId)?.get(field.id) as Answer
-                    )}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {formResponsesMap.size === 0 && (
+        ))}
+      </DashboardTable>
+      {formResponsesData.length === 0 && (
         <div className={styles.emptyFormResponses}>
           <h2>{t("noResponsesText")}</h2>
         </div>

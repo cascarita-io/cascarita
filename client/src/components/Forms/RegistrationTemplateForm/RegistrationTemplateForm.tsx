@@ -170,7 +170,7 @@ const createRegistrationFormData = (
       season_id: seasonId,
       league_name: leagueName,
       league_id: leagueId,
-      validations: { required: true },
+      validations: { required: false },
       properties: {
         player_block_choices: [
           ...divisions.map((division, index) => ({
@@ -377,7 +377,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
     }
 
     if (template !== "registration") {
-      navigate("/forms/check");
+      navigate("/forms/edit");
     } else {
       const data = createRegistrationFormData(
         leagueId,
@@ -403,7 +403,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         template
       );
 
-      navigate("/forms/check", {
+      navigate("/forms/edit", {
         state: {
           id: form._id,
           title: form.form_data.title,
