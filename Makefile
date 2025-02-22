@@ -9,6 +9,12 @@ restart:
 	docker compose down
 	docker compose up -d
 
+# Quickly rebuild all containers
+rebuild:
+	docker compose down
+	docker compose build
+	docker compose up -d
+
 build:
 	docker compose build --no-cache
 
