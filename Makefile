@@ -1,8 +1,12 @@
 setup:
 	./setup.sh
 
-restart:
+reset:
 	docker compose down --volumes --remove-orphans
+	docker compose up -d
+
+restart:
+	docker compose down
 	docker compose up -d
 
 build:

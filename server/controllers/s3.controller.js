@@ -75,7 +75,7 @@ const uploadImage = async (req, res) => {
     await s3.send(new PutObjectCommand(uploadParams));
 
     const imageUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
-    res.json({ imageUrl });
+    res.json({ image_url: imageUrl });
   } catch (error) {
     console.error("Error uploading to S3:", error);
     res.status(500).json({ error: "Failed to upload image", details: error.message });
