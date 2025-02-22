@@ -15,6 +15,10 @@ module.exports = (checkJwt) => {
     "/:account_id/paymentIntent/:paymentIntentId",
     AccountController.getClientSecret,
   );
+  router.post(
+    "paymentIntent/:paymentIntentId",
+    AccountController.capturePaymentIntent,
+  );
 
   router.get("/:group_id", AccountController.getAllAccountsByGroupId);
   router.get("/key/publishable", AccountController.getPublishableKey);

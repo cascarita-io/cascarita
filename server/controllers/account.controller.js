@@ -229,6 +229,50 @@ const AccountController = function () {
     res.status(200).json({ key: process.env.STRIPE_PUBLISHABLE_KEY });
   };
 
+  var capturePaymentIntent = async function (req, res, next) {
+    try {
+      const paymentIntentId = req.params["paymentIntentId"];
+      const email = req.body.email;
+
+      const stripe_account_id = await FormPayment.findOne({
+        where: { payment_intent_id: paymentIntentId },
+        include: [
+          {
+            model: UserStripeAccounts,
+            required: true,
+            attributes: ["stripe_account_id"],
+          },
+        ],
+      });
+
+      const userId = await User.findOne({
+        where: { email: email },
+        attributes: ["id"],
+      });
+
+      const paymentIntent = await Stripe.paymentIntents.capture(
+        paymentIntentId,
+        {
+          stripeAccount: stripe_account_id,
+        },
+      );
+
+      const formPaymentResult = await FormPayment.findOne({
+        where: { payment_intent_id: paymentIntentId },
+      });
+
+      if (formPaymentResult) {
+        formPaymentResult.internal_status_updated_by = userId;
+        formPaymentResult.internal_status_updated_at = new Date();
+        await formPaymentResult.save();
+      }
+
+      res.status(200).json(paymentIntent);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   return {
     createAccountConnection,
     createPaymentIntent,
@@ -237,6 +281,7 @@ const AccountController = function () {
     getAllAccountsByGroupId,
     calculateStripeStatus,
     getPublishableKey,
+    capturePaymentIntent,
   };
 };
 
