@@ -26,7 +26,7 @@ const FormTransactionController = function () {
               : "Payment update failed but webhook received",
           });
         // @Chuy TODO: When Admin approves a stripe payment then logic can start here !
-        //case "payment_intent.succeeded":
+        case "payment_intent.succeeded":
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);
