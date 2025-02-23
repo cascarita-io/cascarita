@@ -11,18 +11,24 @@ const ThankYou = () => {
 
   // TODO: Fix navigation on handleViewForm
   const handleViewForm = () => {
-    navigate("/");
+    navigate('/');
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.iconContainer}>
-        <svg width="40" height="40" viewBox="0 0 24 24">
+        {/* Awesome checkmark logo time */}
+        <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          {/* Purple Circle */}
+          <circle cx="50" cy="50" r="50" fill="#3B49DF" />
+          {/* White Check */}
           <path
-            d="M20.285 6.708a1 1 0 0 0-1.414 0L9 16.58l-3.871-3.87a1 1 0 0 0-1.414 1.414l4.578 4.578a1 1 0 0 0 1.414 0l10.578-10.58a1 1 0 0 0 0-1.414z"
+            d="M30 55 L45 70 L70 40"
             stroke="#fff"
-            strokeWidth="2"
+            stroke-width="8"
             fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
           />
         </svg>
       </div>
