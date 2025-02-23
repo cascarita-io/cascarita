@@ -28,6 +28,7 @@ const initialState = {
   city: "",
   state: "",
   zipCode: "",
+  group_code: "",
 };
 
 function reducer(state: State, action: Action) {
@@ -103,7 +104,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
           state.address.trim() !== "" &&
           state.city.trim() !== "" &&
           state.state !== "" &&
-          state.zipCode.trim() !== ""
+          state.zipCode.trim() !== "" &&
+          state.group_code.trim() !== ""
         );
       default:
         return false;
@@ -127,6 +129,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
       state: state.state,
       zipCode: state.zipCode,
       logoUrl: null,
+      group_code: state.group_code,
       token: token,
     };
     registerUserMutation.mutate(payload as RegisterUser);
@@ -241,21 +244,36 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               </RadioSelect>
 
               {state.isExistingOrg && (
-                <SelectMenu
-                  placeholder="Select an Organization"
-                  value={state.org}
-                  onValueChange={(value) =>
-                    dispatch({ type: "SET_FIELD", field: "org", value })
-                  }
-                  name="groupId"
-                  className={styles.selectMenu1}
-                >
-                  {data?.map((group: GroupType) => (
-                    <SelectMenu.Item key={group.id} value={group.id.toString()}>
-                      {group.name}
-                    </SelectMenu.Item>
-                  ))}
-                </SelectMenu>
+                <>
+                  <SelectMenu
+                    placeholder="Select an Organization"
+                    value={state.org}
+                    onValueChange={(value) =>
+                      dispatch({ type: "SET_FIELD", field: "org", value })
+                    }
+                    name="groupId"
+                    className={styles.selectMenu1}
+                  >
+                    {data?.map((group: GroupType) => (
+                      <SelectMenu.Item key={group.id} value={group.id.toString()}>
+                        {group.name}
+                      </SelectMenu.Item>
+                    ))}
+                  </SelectMenu>
+                  <div className={formStyles.inputContainer}>
+                    <label htmlFor="group_code">Enter Group Code </label>
+                    <input
+                      type="text"
+                      id="group_code"
+                      value={state.group_code}
+                      onChange={handleFieldChange("group_code")}
+                      required
+                      name="group_code"
+                      placeholder="00000000"
+                      className={formStyles.input}
+                    />
+                  </div>
+                </>
               )}
 
               {state.isExistingOrg ? (
