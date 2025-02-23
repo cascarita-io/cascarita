@@ -32,6 +32,11 @@ const FormResponseModal: React.FC<FormResponseModalProps> = ({ answers }) => {
                 {key === "date" && <td>{response.date}</td>}
                 {key === "age" && <td>{response.short_text}</td>}
                 {key === "address" && <td>{response.long_text}</td>}
+                {key === "photo" && (
+                  <td>
+                    <img src={response.photo} />
+                  </td>
+                )}
                 {key === "team_name" && <td>{response.short_text}</td>}
                 {key === "liability" && (
                   <td>{response.liability ? "Yes" : "No"}</td>

@@ -17,8 +17,6 @@ const Layout: React.FC<LayoutProps> = () => {
     matchPath(window.location.pathname, pattern, blackListExceptions)
   );
 
-  console.log("isBlacklisted", isBlacklisted);
-
   return (
     <>
       {!isBlacklisted && currentUser ? (
