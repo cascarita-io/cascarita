@@ -12,8 +12,6 @@ import { useQueries } from "@tanstack/react-query";
 import { fetchUser } from "../../../api/users/service";
 import { getSeasonsByGroupId } from "../../../api/seasons/services";
 import { getLeagueByGroupId } from "../../../api/leagues/service";
-import { getDivisionByGroupId } from "../../../api/divisions/service";
-import { getTeamsByGroupId } from "../../../api/teams/service";
 
 import { useAuth0 } from "@auth0/auth0-react";
 import { LeagueType } from "../../../pages/Leagues/types";
@@ -22,6 +20,8 @@ import { DivisionType } from "../../../pages/Division/types";
 import { TeamType } from "../../../pages/Teams/types";
 import { getStripeAccounts } from "../../../api/stripe/service";
 import { StripeAccount } from "../../DragAndDropComponents/DraggablePayment/types";
+import { getDivisionsBySeasonId } from "../../../api/divisions/service";
+import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
@@ -33,8 +33,9 @@ const createRegistrationFormData = (
   leagueName: string,
   seasonId: number,
   seasonName: string,
-  divisions: DivisionType[],
-  teams: TeamType[][],
+  divisionName: string,
+  divisionId: number,
+  teams: TeamType[],
   price: number,
   feeValue: number,
   stripeUser: string,
@@ -45,13 +46,12 @@ const createRegistrationFormData = (
   const email_id = uuidv4();
   const phone_number_id = uuidv4();
   const date_id = uuidv4();
-  const age_id = uuidv4();
   const address_id = uuidv4();
-  const team_name_id = uuidv4();
   const liability_id = uuidv4();
   const signature_id = uuidv4();
   const player_block_id = uuidv4();
   const payment_block_id = uuidv4();
+  const photo_block_id = uuidv4();
 
   const data: Field[] = [
     {
@@ -105,17 +105,6 @@ const createRegistrationFormData = (
       },
     },
     {
-      id: age_id,
-      ref: age_id,
-      type: "short_text",
-      secondary_type: "age",
-      title: "Age",
-      validations: {
-        required: true,
-        max_length: 20,
-      },
-    },
-    {
       id: address_id,
       ref: address_id,
       type: "long_text",
@@ -127,14 +116,15 @@ const createRegistrationFormData = (
       },
     },
     {
-      id: team_name_id,
-      ref: team_name_id,
-      type: "short_text",
-      secondary_type: "team_name",
-      title: "Team Name",
+      id: photo_block_id,
+      ref: photo_block_id,
+      type: "photo",
+      title: "Upload picture for your ID",
+      properties: {
+        description: "Make sure its your full face",
+      },
       validations: {
-        required: true,
-        max_length: 20,
+        required: false,
       },
     },
     {
@@ -170,18 +160,16 @@ const createRegistrationFormData = (
       season_id: seasonId,
       league_name: leagueName,
       league_id: leagueId,
+      division_name: divisionName,
+      division_id: divisionId,
       validations: { required: false },
       properties: {
-        player_block_choices: [
-          ...divisions.map((division, index) => ({
-            division_name: division.name,
-            division_id: division.id,
-            teams: teams[index].map((team) => ({
-              team_name: team.name,
-              team_id: team.id,
-            })),
+        player_block_choices: {
+          teams: teams.map((team: TeamType) => ({
+            team_id: team.id,
+            team_name: team.name,
           })),
-        ],
+        },
       },
     },
     {
@@ -247,8 +235,10 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   const [leagueId, setLeagueId] = useState(0);
   const [seasonName, setSeasonName] = useState("");
   const [seasonId, setSeasonId] = useState(0);
+  const [divisionId, setDivisionId] = useState(0);
+  const [divisionName, setDivisionName] = useState("");
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
-  const [teams, setTeams] = useState<TeamType[][]>([]);
+  const [teams, setTeams] = useState<TeamType[]>([]);
   const [price, setPrice] = useState(0);
   const [feeValue, setFeeValue] = useState(0);
   const [stripeAccountId, setStripeAccountId] = useState("");
@@ -292,26 +282,6 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         enabled: groupId !== 0,
       },
       {
-        queryKey: ["divisions", groupId],
-        queryFn: async () =>
-          await getDivisionByGroupId({
-            queryKey: ["divisions", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-      {
-        queryKey: ["teams", groupId],
-        queryFn: async () =>
-          await getTeamsByGroupId({
-            queryKey: ["teams", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-      {
         queryKey: ["stripeAccounts", groupId],
         queryFn: async () => await getStripeAccounts(groupId),
         enabled: groupId !== 0,
@@ -319,33 +289,35 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
     ],
   });
 
-  const [
-    seasonsQuery,
-    leaguesQuery,
-    divisionsQuery,
-    teamsQuery,
-    stripeAccountsQuery,
-  ] = results;
+  const [seasonsQuery, leaguesQuery, stripeAccountsQuery] = results;
 
   useEffect(() => {
-    if (seasonId !== 0 && leagueId !== 0) {
-      const matchingDivisions: DivisionType[] =
-        divisionsQuery.data?.filter(
-          (division: DivisionType) =>
-            division.season_id === seasonId && division.league_id === leagueId
-        ) || [];
-
-      const matchingTeams: TeamType[][] = matchingDivisions.map(
-        (division: DivisionType) =>
-          teamsQuery.data?.filter(
-            (team: TeamType) => team.division_id === division.id
-          ) || []
-      );
-
-      setDivisions(matchingDivisions);
-      setTeams(matchingTeams);
+    const fetchTeams = async () => {
+      const teamsData = await getTeamsBySeasonDivisionId({
+        queryKey: ["team", seasonId, divisionId],
+        signal: new AbortController().signal,
+        meta: undefined,
+      });
+      setTeams(teamsData);
+    };
+    if (seasonId !== 0 && leagueId !== 0 && divisionId !== 0) {
+      fetchTeams();
     }
-  }, [seasonId, leagueId]);
+  }, [seasonId, leagueId, divisionId]);
+
+  useEffect(() => {
+    const fetchDivisions = async () => {
+      const divisionData = await getDivisionsBySeasonId({
+        queryKey: ["division", seasonId],
+        signal: new AbortController().signal,
+        meta: undefined,
+      });
+      setDivisions(divisionData);
+    };
+    if (seasonId !== 0) {
+      fetchDivisions();
+    }
+  }, [seasonId]);
 
   useEffect(() => {
     if (stripeAccountsQuery.data) {
@@ -362,8 +334,8 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (seasonId === 0 || leagueId === 0) {
-      setErrorMsg("Form needs both a league and a season.");
+    if (seasonId === 0 || leagueId === 0 || divisionId === 0) {
+      setErrorMsg("Form needs both a league, a season, and a division.");
       setTimeout(() => {
         setErrorMsg("");
       }, 5000);
@@ -384,7 +356,8 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         leagueName,
         seasonId,
         seasonName,
-        divisions,
+        divisionName,
+        divisionId,
         teams,
         price,
         feeValue,
@@ -518,7 +491,34 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                 </select>
               </div>
             )}
-
+          {seasonId !== 0 && (
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="divisionName">
+                Division Name
+              </label>
+              <select
+                className={styles.input}
+                name="divisionName"
+                id="divisionId"
+                required
+                onChange={(e) => {
+                  const [name, id] = e.target.value.split(".");
+                  setDivisionName(name);
+                  setDivisionId(Number(id));
+                }}
+              >
+                <option value="">Select a division</option>
+                {divisions.map((division: DivisionType) => (
+                  <option
+                    key={division.id}
+                    value={`${division.name}.${division.id}`}
+                  >
+                    {division.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className={styles.inputContainer}>
             <div style={{ display: "flex", gap: "10px" }}>
               <label className={styles.label} htmlFor="price">
