@@ -75,14 +75,15 @@ const DraggablePhoto: React.FC<DraggableProps> = ({
                 </div>
               )}
               <Controller
+                key={index}
                 name={`fields.${index}.title`}
                 control={control}
-                defaultValue={formField.title} // Ensure the default value is set
+                defaultValue={"Question"} // Ensure the default value is set
                 render={({ field }) => (
                   <>
                     <input
                       {...field}
-                      placeholder={formField.title}
+                      placeholder={"Please upload a photo"}
                       className={styles.question}
                     />
                     {formField.validations?.max_length != null && (
