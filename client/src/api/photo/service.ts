@@ -1,11 +1,15 @@
 import { UploadPhotoResponse } from "../../components/FormInputComponents/Photo/Photo";
 
-const uploadPhotoToS3 = async (file: File): Promise<UploadPhotoResponse> => {
+const uploadPhotoToS3 = async (
+  file: File,
+  folder_name: string,
+  image_type: string
+): Promise<UploadPhotoResponse> => {
   try {
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("folder_name", "registration_images");
-    formData.append("image_type", "player_photo");
+    formData.append("folder_name", folder_name);
+    formData.append("image_type", image_type);
     const response = await fetch("/api/images/upload", {
       method: "POST",
       body: formData,

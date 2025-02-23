@@ -24,7 +24,11 @@ const Photo = ({ field, index }: FieldProps) => {
   useEffect(() => {
     const uploadPhoto = async () => {
       if (fileUrl) {
-        const uploadUrl = await uploadPhotoToS3(fileUrl);
+        const uploadUrl = await uploadPhotoToS3(
+          fileUrl,
+          "registration_images",
+          "player_photo"
+        );
         setValue(`answers.${index}.photo`, uploadUrl.image_url);
       } else {
         setValue(`answers.${index}.photo`, "");
