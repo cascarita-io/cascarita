@@ -131,13 +131,7 @@ const DraggablePhoto: React.FC<DraggableProps> = ({
                   </>
                 )}
               />
-              {/* <div
-                className={`${styles.extraOptions} ${
-                  isContainerWidthMaxed ? styles.containerSmall : ""
-                }`}
-              > */}
             </div>
-            {/* </div> */}
             {isMenuOpen && (
               <DraggableSubMenu
                 onDelete={onDelete}
