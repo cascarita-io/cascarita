@@ -64,7 +64,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       const formData = await getMongoFormById(formId);
       setFormType(formData.form_type);
       const responsesData = await getMongoFormResponses(formData._id);
-      let submittedAtData: string[] = [];
+      const submittedAtData: string[] = [];
       responsesData.map((response: FormResponse) => {
         submittedAtData.push(response.createdAt);
       });
@@ -130,7 +130,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
             paymentData =
               await getFormPaymentsByPaymentIntentId(paymentIntentId);
           } catch (error) {
-            paymentData = {};
+            console.log(error);
+            paymentData = undefined;
           }
 
           if (paymentData.payment_intent_status === "approved") {
@@ -156,7 +157,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const handleStatusChange = (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Map<string, Answer>
+    response: Record<string, Answer>
   ) => {
     return async () => {
       const newStatus = [...status];

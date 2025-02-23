@@ -59,6 +59,26 @@ const FormPage = () => {
     }
   }, [form, used]);
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (used === total) {
+          // Trigger submit button click
+          document.getElementById("submitButton")?.click();
+        } else {
+          // Trigger next button click
+          document.getElementById("nextButton")?.click();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [used, total]);
+
   if (isLoading) return <div>Loading...</div>; // Show loading state
   if (error) return <div>An error occurred: {error.message}</div>; // Show error state
 
@@ -198,6 +218,7 @@ const FormPage = () => {
                 {used === total ? (
                   <button
                     type="submit"
+                    id="submitButton"
                     className={styles.submitButton}
                     disabled={hasErrors() || isNotEmpty()}
                   >
@@ -206,6 +227,7 @@ const FormPage = () => {
                 ) : (
                   <button
                     type="button"
+                    id="nextButton"
                     className={styles.nextButton}
                     onClick={(e) => {
                       e.preventDefault();
