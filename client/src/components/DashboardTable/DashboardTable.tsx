@@ -25,19 +25,20 @@ const DashboardTable: React.FC<TableProps> = ({
   return (
     <div className={styles.tableContainer}>
       <table className={tableStyles}>
-        <thead>
+        <thead
+          style={{
+            position: "sticky",
+            top: 0,
+            background: headColor,
+            zIndex: 1,
+          }}
+        >
           <tr>
-            {headers.map((header, idx) => {
-              return (
-                <th
-                  key={idx}
-                  className={styles.header}
-                  style={{ backgroundColor: headColor }}
-                >
-                  {header}
-                </th>
-              );
-            })}
+            {headers.map((header, idx) => (
+              <th key={idx} className={styles.header}>
+                {header}
+              </th>
+            ))}
           </tr>
         </thead>
 

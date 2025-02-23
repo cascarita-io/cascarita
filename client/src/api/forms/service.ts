@@ -239,3 +239,57 @@ export const sendEmail = async (formLink: string, email: string) => {
     throw err;
   }
 };
+
+export const getFormPaymentsByPaymentIntentId = async (
+  paymentIntentId: string
+) => {
+  try {
+    const data = {
+      payment_intent_id: paymentIntentId,
+    };
+    const response = await fetch(`/api/forms/payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching payment intents: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (err) {
+    console.error("Error fetching payment intents:", err);
+    throw err;
+  }
+};
+
+export const updateFormPaymentStatus = async (
+  paymentIntentId: string,
+  status: string
+) => {
+  try {
+    const data = {
+      payment_intent_id: paymentIntentId,
+      status: status,
+    };
+    const response = await fetch(`/api/forms/status`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching payment intents: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (err) {
+    console.error("Error fetching payment intents:", err);
+    throw err;
+  }
+};
