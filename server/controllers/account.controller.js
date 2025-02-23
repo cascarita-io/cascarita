@@ -234,7 +234,7 @@ const AccountController = function () {
       const paymentIntentId = req.params["paymentIntentId"];
       const email = req.body.email;
 
-      const stripe_account_id = await FormPayment.findOne({
+      const stripeAcctResult = await FormPayment.findOne({
         where: { payment_intent_id: paymentIntentId },
         include: [
           {
@@ -243,17 +243,20 @@ const AccountController = function () {
             attributes: ["stripe_account_id"],
           },
         ],
+        raw: true,
       });
 
-      const userId = await User.findOne({
+      const stripeAccountId =
+        stripeAcctResult?.["UserStripeAccount.stripe_account_id"];
+
+      const { id } = await User.findOne({
         where: { email: email },
-        attributes: ["id"],
       });
 
       const paymentIntent = await Stripe.paymentIntents.capture(
         paymentIntentId,
         {
-          stripeAccount: stripe_account_id,
+          stripeAccount: stripeAccountId,
         },
       );
 
@@ -262,9 +265,12 @@ const AccountController = function () {
       });
 
       if (formPaymentResult) {
-        formPaymentResult.internal_status_updated_by = userId;
-        formPaymentResult.internal_status_updated_at = new Date();
-        await formPaymentResult.save();
+        const updates = {
+          internal_status_updated_by: id,
+          internal_status_updated_at: new Date(),
+        };
+
+        await formPaymentResult.update(updates, { validate: true });
       }
 
       res.status(200).json(paymentIntent);
