@@ -26,7 +26,6 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   const [leagues, setLeagues] = useState<LeagueType[]>([]);
   const [seasons, setSeasons] = useState<SeasonType[]>([]);
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
-  console.log("formField", formField);
   const [selectedDivision, setSelectedDivision] = useState<string>(
     `${formField.division_name}.${formField.division_id}`
   );
@@ -37,10 +36,6 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
     `${formField.league_name}.${formField.league_id}`
   );
   const groupId = Number(Cookies.get("group_id")) || 0;
-
-  // console.log("selectedSeason", selectedSeason);
-  // console.log("seasons: ", seasons);
-  console.log("selectedLeague", selectedLeague);
 
   useEffect(() => {
     const fetchLeagues = async () => {

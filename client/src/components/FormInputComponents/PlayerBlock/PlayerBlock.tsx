@@ -22,7 +22,6 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
       | undefined
   )?.[index]?.player_block;
 
-  console.log("field", field);
   return (
     <section className={styles.container}>
       <div>
@@ -87,7 +86,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
             onChange: (e) => {
               const selectedTeam =
                 field.properties?.player_block_choices?.teams.find(
-                  (team: ShortTeam) => team.team_id === e.target.value
+                  (team: ShortTeam) => team.team_id === Number(e.target.value)
                 );
 
               if (e.target.value === "other") {
@@ -99,9 +98,10 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
                 setValue(`answers.${index}.player.team_id`, "free-agent");
               } else if (selectedTeam) {
                 setIsOther(false);
-                register(`answers.${index}.player.team_name`).onChange({
-                  target: { value: selectedTeam.team_name },
-                });
+                setValue(
+                  `answers.${index}.player.team_name`,
+                  selectedTeam.team_name
+                );
               }
             },
           })}
