@@ -15,6 +15,9 @@ module.exports = (checkJwt) => {
     "/paymentIntent/:paymentIntentId",
     AccountController.capturePaymentIntent,
   );
+
+  router.post("/captureTest", AccountController.handleApproveTest);
+
   router.get(
     "/:account_id/paymentIntent/:paymentIntentId",
     AccountController.getClientSecret,

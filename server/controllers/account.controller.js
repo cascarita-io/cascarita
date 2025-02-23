@@ -2,6 +2,8 @@
 
 require("dotenv").config();
 
+const Response = require("../mongoModels/response");
+
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const {
   UserStripeAccounts,
@@ -279,6 +281,32 @@ const AccountController = function () {
     }
   };
 
+  var updateUserInfo = async function (userInfo) {
+    const userId = userInfo.id;
+
+    const formPaymentResult =
+      await FormPaymentController.findFormPaymentByPaymentIntentId(userId);
+
+    const response = await Response.findById(
+      formPaymentResult.response_document_id,
+    );
+
+    return response;
+  };
+
+  var handleApproveTest = async function (req, res, next) {
+    const paymentIntent = await Stripe.paymentIntents.retrieve(
+      req.body.paymentIntentId,
+      {
+        stripeAccount: req.body.stripeAcctId,
+      },
+    );
+
+    const data = await updateUserInfo(paymentIntent);
+
+    res.status(200).json(data);
+  };
+
   return {
     createAccountConnection,
     createPaymentIntent,
@@ -288,6 +316,7 @@ const AccountController = function () {
     calculateStripeStatus,
     getPublishableKey,
     capturePaymentIntent,
+    handleApproveTest,
   };
 };
 
