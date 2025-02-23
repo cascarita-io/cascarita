@@ -10,6 +10,7 @@ export type FieldType =
   | "phone_number"
   | "payment"
   | "player"
+  | "photo"
   | "liability"
   | "date"
   | "signature";
@@ -66,6 +67,7 @@ export interface Field {
   season_id?: number;
   league_name?: string;
   league_id?: number;
+  file_url?: string;
 }
 
 export interface Form {
@@ -98,9 +100,9 @@ export type AnswerType =
   | "date"
   | "phone_number"
   | "boolean"
-  | "file_url"
   | "payment"
-  | "player";
+  | "player"
+  | "photo";
 
 export type SecondaryType =
   | "first_name"
@@ -128,7 +130,7 @@ export interface Answer {
   boolean?: boolean;
   choice?: { label: string };
   choices?: { labels: string[] };
-  file_url?: string;
+  photo?: string;
   player?: {
     season_name: string;
     league_name: string;

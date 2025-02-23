@@ -11,6 +11,7 @@ import { TiPhoneOutline } from "react-icons/ti";
 import { useTranslation } from "react-i18next";
 import { FaDollarSign, FaUser, FaRegNewspaper } from "react-icons/fa6";
 import { FaListUl, FaRegCalendarTimes, FaPenNib } from "react-icons/fa";
+import { MdAddPhotoAlternate } from "react-icons/md";
 
 const iconMapping: { [key: string]: IconType } = {
   shorttext: MdOutlineShortText,
@@ -24,6 +25,7 @@ const iconMapping: { [key: string]: IconType } = {
   liability: FaRegNewspaper,
   signature: FaPenNib,
   player: FaUser,
+  photo: MdAddPhotoAlternate,
 };
 
 const DraggableButton: React.FC<DraggableButtonProps> = ({ label, onDrop }) => {
