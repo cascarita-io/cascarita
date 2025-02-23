@@ -4,6 +4,11 @@ import { FieldError, useFormContext } from "react-hook-form";
 import styles from "./Photo.module.css";
 import { useTranslation } from "react-i18next";
 import FileUpload from "../../FileUpload/FileUpload";
+import { uploadPhotoToS3 } from "../../../api/photo/service";
+
+export interface UploadPhotoResponse {
+  image_url: string;
+}
 
 const Photo = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
@@ -17,12 +22,15 @@ const Photo = ({ field, index }: FieldProps) => {
   register(`answers.${index}.photo`);
 
   useEffect(() => {
-    //TODO call image upload to get the S3 url to store in response
-    if (fileUrl) {
-      setValue(`answers.${index}.photo`, fileUrl);
-    } else {
-      setValue(`answers.${index}.photo`, "");
-    }
+    const uploadPhoto = async () => {
+      if (fileUrl) {
+        const uploadUrl = await uploadPhotoToS3(fileUrl);
+        setValue(`answers.${index}.photo`, uploadUrl.image_url);
+      } else {
+        setValue(`answers.${index}.photo`, "");
+      }
+    };
+    uploadPhoto();
   }, [fileUrl]);
 
   const fieldError = (
