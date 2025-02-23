@@ -31,6 +31,7 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
   const [paymentIntentCreated, setPaymentIntentCreated] = useState(false);
   const [stripePromise, setStripePromise] = useState<Stripe | null>(null);
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentType, setPaymentType] = useState("stripe");
 
   const checkoutFormRef = useRef<CheckoutFormRef>(null);
 
@@ -85,6 +86,10 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
 
   useImperativeHandle(ref, () => ({
     handlePayment: checkoutFormRef.current?.handlePayment,
+    handleCashPayment: () => ({
+      amount: field.properties?.price?.value,
+      payment_type: "cash",
+    }),
   }));
 
   return (
@@ -95,21 +100,56 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
           <span className={styles.required}>*</span>
         )}
       </div>
-      <p>{field.properties?.description}</p>
-      <p>
-        <b>{t("stripe.price")}:</b> ${field.properties?.price?.value}{" "}
-        {field.properties?.price?.currency}
-      </p>
-      {field.properties?.price?.isCustomerPayingFee && (
-        <p>
-          <b>{t("stripe.fee")}:</b> ${field.properties?.price?.feeValue}{" "}
-          {field.properties?.price?.currency}
-        </p>
-      )}
-      {stripePromise && clientSecret && (
-        <Elements stripe={stripePromise} options={options}>
-          <CheckoutForm ref={checkoutFormRef} />
-        </Elements>
+      <div>
+        <p>{"Payment Method"}</p>
+        <div className={styles.questionContainer}>
+          <label>
+            <input
+              type="radio"
+              name="paymentType"
+              value="stripe"
+              checked={paymentType === "stripe"}
+              className={styles.radio}
+              onChange={() => setPaymentType("stripe")}
+            />
+            {"Stripe"}
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="paymentType"
+              value="cash"
+              className={styles.radio}
+              checked={paymentType === "cash"}
+              onChange={() => setPaymentType("cash")}
+            />
+            {"Cash"}
+          </label>
+        </div>
+      </div>
+      {paymentType === "stripe" ? (
+        <div>
+          <p>{field.properties?.description}</p>
+          <p>
+            <b>{t("stripe.price")}:</b> ${field.properties?.price?.value}{" "}
+            {field.properties?.price?.currency}
+          </p>
+          {field.properties?.price?.isCustomerPayingFee && (
+            <p>
+              <b>{t("stripe.fee")}:</b> ${field.properties?.price?.feeValue}{" "}
+              {field.properties?.price?.currency}
+            </p>
+          )}
+          {stripePromise && clientSecret && (
+            <Elements stripe={stripePromise} options={options}>
+              <CheckoutForm ref={checkoutFormRef} />
+            </Elements>
+          )}
+        </div>
+      ) : (
+        <div>
+          <p>{`Please pay registration fee of $${field.properties?.price?.value} to your league manager`}</p>
+        </div>
       )}
     </section>
   );

@@ -142,6 +142,7 @@ export interface Answer {
     team_id: number | null;
   };
   payment?: string;
+  payment_type?: string;
   paymentIntentId?: string;
   amount?: number;
   payment_intent_capture_by?: string;
