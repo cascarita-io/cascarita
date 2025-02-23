@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "./FormResponses.module.css";
+import Cookies from "js-cookie";
 import { AnswerRecordMap, FormResponse, FormResponsesProps } from "./types";
 import {
   getMongoFormById,
@@ -37,6 +38,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
     []
   );
+  const adminEmail = Cookies.get("email") || "";
   const { t } = useTranslation("FormResponses");
 
   const formatDate = (dateString: string, daysAhead: number = 0): string => {
@@ -153,7 +155,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
 
   const handleStatusChange = (
     index: number,
-    statusUpdate: "approved" | "rejected" | "pending"
+    statusUpdate: "approved" | "rejected" | "pending",
+    response: Map<string, Answer>
   ) => {
     return async () => {
       const newStatus = [...status];
@@ -164,7 +167,13 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       if (statusUpdate == "pending") {
         updatedStatus = "requires_payment_method";
       }
-      await updateFormPaymentStatus(paymentIntentIds[index], updatedStatus);
+
+      await updateFormPaymentStatus(
+        paymentIntentIds[index],
+        updatedStatus,
+        adminEmail,
+        response
+      );
     };
   };
 
@@ -196,7 +205,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>
                 <DropdownMenuButton trigger={StatusButton(status[index])}>
                   <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "approved")}
+                    onClick={handleStatusChange(index, "approved", response)}
                   >
                     <StatusLabel status="approved">approved</StatusLabel>
                   </DropdownMenuButton.Item>
@@ -204,7 +213,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                   <DropdownMenuButton.Separator className={styles.separator} />
 
                   <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "rejected")}
+                    onClick={handleStatusChange(index, "rejected", response)}
                   >
                     <StatusLabel status="rejected">rejected</StatusLabel>
                   </DropdownMenuButton.Item>
@@ -212,7 +221,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                   <DropdownMenuButton.Separator className={styles.separator} />
 
                   <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "pending")}
+                    onClick={handleStatusChange(index, "pending", response)}
                   >
                     <StatusLabel status="pending">pending</StatusLabel>
                   </DropdownMenuButton.Item>
