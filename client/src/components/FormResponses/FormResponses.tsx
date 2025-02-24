@@ -156,7 +156,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const handleStatusChange = (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Map<string, Answer>
+    response: Record<string, Answer>
   ) => {
     return async () => {
       const newStatus = [...status];
