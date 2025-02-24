@@ -168,8 +168,7 @@ const FormPage = () => {
         formId ?? "",
         normalizedAnswers
       );
-      // TODO: Redirect to a thank you page!
-      navigate("/");
+      navigate("/thanks");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);

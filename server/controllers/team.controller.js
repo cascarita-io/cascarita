@@ -1,6 +1,5 @@
 "use strict";
-const { link } = require("../app");
-const { Team, Group, Division, TeamsSession, Session } = require("./../models");
+const { Team, Group, Division, TeamsSession, Session, Season } = require("./../models");
 const { getSessionByDivisionAndSeasonId } = require("./session.controller");
 
 const TeamController = function () {
@@ -78,8 +77,15 @@ const TeamController = function () {
               id: session.division_id,
             },
           });
+          const season = await Season.findOne({
+            where: {
+              id: session.season_id,
+            }
+          })
           finalTeams[index].dataValues.division_name = division.name;
           finalTeams[index].dataValues.division_id = division.id;
+          finalTeams[index].dataValues.season_name = season.name;
+          finalTeams[index].dataValues.season_id = season.id;
         }),
       );
 

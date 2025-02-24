@@ -123,8 +123,8 @@
 
 .stripeContainer {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
 
 .link {
