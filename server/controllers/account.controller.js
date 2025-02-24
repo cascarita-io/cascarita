@@ -12,7 +12,7 @@ const {
   Group,
   FormPayment,
 } = require("../models");
-const FormPaymentController = require("./formPayment.controller");
+//const FormPaymentController = require("./formPayment.controller");
 const modelByPk = require("./utility");
 
 const AccountController = function () {
@@ -94,7 +94,7 @@ const AccountController = function () {
 
       productObj.paymentIntentId = paymentIntent.id;
       productObj.paymentIntentStatus = paymentIntent.status;
-      await FormPaymentController.createStripeFormPayment(productObj);
+      await createStripeFormPayment(productObj);
 
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
@@ -231,34 +231,27 @@ const AccountController = function () {
     res.status(200).json({ key: process.env.STRIPE_PUBLISHABLE_KEY });
   };
 
-  var capturePaymentIntent = async function (req, res, next) {
+  var capturePaymentIntent = async function (
+    paymentIntentId,
+    email,
+    formattedAnswers,
+    userSelectedStatus,
+  ) {
     try {
-      const paymentIntentId = req.params["paymentIntentId"];
-      const email = req.body.email;
-
-      const stripeAcctResult = await FormPayment.findOne({
-        where: { payment_intent_id: paymentIntentId },
-        include: [
-          {
-            model: UserStripeAccounts,
-            required: true,
-            attributes: ["stripe_account_id"],
-          },
-        ],
-        raw: true,
-      });
-
-      const stripeAccountId =
-        stripeAcctResult?.["UserStripeAccount.stripe_account_id"];
-
       const { id } = await User.findOne({
         where: { email: email },
+      });
+
+      const { stripe_account_id } = await UserStripeAccounts.findOne({
+        where: {
+          user_id: id,
+        },
       });
 
       const paymentIntent = await Stripe.paymentIntents.capture(
         paymentIntentId,
         {
-          stripeAccount: stripeAccountId,
+          stripeAccount: stripe_account_id,
         },
       );
 
@@ -275,36 +268,36 @@ const AccountController = function () {
         await formPaymentResult.update(updates, { validate: true });
       }
 
-      res.status(200).json(paymentIntent);
+      if (formattedAnswers) {
+        const responseId = formPaymentResult.response_document_id;
+
+        await Response.updateOne(
+          { _id: responseId },
+          {
+            $set: {
+              formatted_answers: formattedAnswers,
+              user_selected_status: userSelectedStatus,
+            },
+          },
+        );
+      }
+
+      return paymentIntent;
     } catch (error) {
-      next(error);
+      console.error(error);
     }
   };
 
-  var updateUserInfo = async function (userInfo) {
-    const userId = userInfo.id;
-
-    const formPaymentResult =
-      await FormPaymentController.findFormPaymentByPaymentIntentId(userId);
-
-    const response = await Response.findById(
-      formPaymentResult.response_document_id,
-    );
-
-    return response;
-  };
-
-  var handleApproveTest = async function (req, res, next) {
-    const paymentIntent = await Stripe.paymentIntents.retrieve(
-      req.body.paymentIntentId,
-      {
-        stripeAccount: req.body.stripeAcctId,
-      },
-    );
-
-    const data = await updateUserInfo(paymentIntent);
-
-    res.status(200).json(data);
+  var createStripeFormPayment = async function (formData) {
+    await FormPayment.create({
+      form_id: formData.form_id,
+      payment_method_id: 1, //since this go triggred, it is stripe payment
+      internal_status_id: 1, // set it to default 'Pending'
+      amount: formData.transactionAmount,
+      payment_intent_id: formData.paymentIntentId,
+      payment_intent_status: formData.paymentIntentStatus,
+      user_stripe_account_id: formData.userStripeAccountSqlId,
+    });
   };
 
   return {
@@ -316,7 +309,6 @@ const AccountController = function () {
     calculateStripeStatus,
     getPublishableKey,
     capturePaymentIntent,
-    handleApproveTest,
   };
 };
 
