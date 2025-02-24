@@ -21,6 +21,7 @@
   "tableHeaders": {
     "name": "Team Name",
     "division": "Division",
-    "options": "Options"
+    "options": "Options",
+    "season": "Season"
   }
 }

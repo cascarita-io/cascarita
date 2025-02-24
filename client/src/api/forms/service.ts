@@ -270,7 +270,7 @@ export const updateFormPaymentStatus = async (
   paymentIntentId: string,
   status: string,
   email: string,
-  answers: Map<string, Answer>
+  answers: Record<string, Answer>
 ) => {
   try {
     const data = {
