@@ -134,6 +134,7 @@ const Teams = () => {
           <DashboardTable
             headers={[
               t("tableHeaders.name"),
+              t("tableHeaders.season"),
               t("tableHeaders.division"),
               t("tableHeaders.options"),
             ]}
@@ -161,6 +162,9 @@ const Teams = () => {
                       <img src={team.team_logo} />
                       {team.name}
                     </div>
+                  </td>
+                  <td>
+                    {team.season_name || <span>Not linked to season</span>}
                   </td>
                   <td>
                     {team.division_name || <span>Not linked to season</span>}
