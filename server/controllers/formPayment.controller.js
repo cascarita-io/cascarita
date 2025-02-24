@@ -3,6 +3,8 @@
 require("dotenv").config();
 
 const { FormPayment } = require("../models");
+const { Form: SQLForm } = require("../models");
+const MongoForm = require("../mongoModels/form");
 const Response = require("./../mongoModels/response");
 
 const FormPaymentController = {
@@ -125,23 +127,34 @@ const FormPaymentController = {
     }
   },
 
-  async getFormPaymentByPaymentIntentId(req, res, next) {
-    const { payment_intent_id } = req.body;
+  async getFormPayments(req, res, next) {
+    const { form_id } = req.body;
+
     try {
-      const formPayment = await FormPayment.findOne({
+      let formPayments = [];
+      let forms = await SQLForm.findAll({
         where: {
-          payment_intent_id: payment_intent_id,
+          document_id: form_id,
         },
       });
 
-      if (!formPayment) {
+      for (let form of forms) {
+        let payments = await FormPayment.findAll({
+          where: {
+            form_id: form.id,
+          },
+        });
+        formPayments = formPayments.concat(payments);
+      }
+
+      if (!formPayments) {
         res.status(404);
         throw new Error(
-          `no form payment record found with payment intent id: ${req.params.payment_intent_id}`,
+          `no form payment record found with form document id: ${req.params.form_id}`,
         );
       }
 
-      return res.status(200).json(formPayment);
+      return res.status(200).json(formPayments);
     } catch (error) {
       next(error);
     }
@@ -165,6 +178,31 @@ const FormPaymentController = {
       }
 
       await formPayment.update({ payment_intent_status: status });
+
+      return res.status(200).json(formPayment);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateFormPaymentType(req, res, next) {
+    try {
+      const { payment_intent_id, payment_method_id } = req.body;
+
+      const formPayment = await FormPayment.findOne({
+        where: {
+          payment_intent_id: payment_intent_id,
+        },
+      });
+
+      if (!formPayment) {
+        res.status(404);
+        throw new Error(
+          `no form payment record found with payment intent id: ${payment_intent_id}`,
+        );
+      }
+
+      await formPayment.update({ payment_method_id });
 
       return res.status(200).json(formPayment);
     } catch (error) {

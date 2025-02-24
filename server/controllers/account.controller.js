@@ -99,7 +99,7 @@ const AccountController = function () {
 
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
-        //paymentIntentId: paymentIntent.id,
+        id: paymentIntent.id,
       });
     } catch (error) {
       console.error(error);

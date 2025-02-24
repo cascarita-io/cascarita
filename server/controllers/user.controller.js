@@ -89,13 +89,17 @@ const UserController = function () {
       try {
         const existingGroup = await GroupController.findGroupById(groupId);
         if (!existingGroup) {
-          res.status(404).json({ error: `no group was found with id ${groupId}` });
-          return
+          res
+            .status(404)
+            .json({ error: `no group was found with id ${groupId}` });
+          return;
         }
 
         if (existingGroup.group_code !== group_code) {
-          res.status(401).json({ error: "you are not authorized to join this group" });
-          return
+          res
+            .status(401)
+            .json({ error: "you are not authorized to join this group" });
+          return;
         }
       } catch (error) {
         next(error);
@@ -240,13 +244,7 @@ const UserController = function () {
           group_id: group_id,
         },
         attributes: {
-          exclude: [
-            "password",
-            "created_at",
-            "updated_at",
-            "group_id",
-            "language_id",
-          ],
+          exclude: ["created_at", "updated_at", "group_id", "language_id"],
         },
       });
 
@@ -260,6 +258,10 @@ const UserController = function () {
           name: "player",
         },
       });
+      if (playerRole === null) {
+        res.status(404);
+        throw new Error(`no role found with name 'player'`);
+      }
       const userRoles = await UserRoles.findAll({
         where: {
           role_id: playerRole.id,
