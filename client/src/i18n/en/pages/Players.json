@@ -1,0 +1,26 @@
+{
+  "empty": "No players to display...",
+  "loading": "Loading...",
+  "error": "Error fetching data",
+  "edit": "Edit",
+  "delete": "Delete",
+  "addButton": "Add Team",
+  "formContent": {
+    "unlinkLinkToTeam": "Link / Unlink Team",
+    "delete": "Yes, I'm sure",
+    "deleteMessage": "Are you sure you want to delete this team?",
+    "name": "Team Name",
+    "linkToSeason": "Link to Season",
+    "season": "Season",
+    "division": "Division",
+    "namePlaceholder": "Team Name",
+    "logo": "Team Logo",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "tableHeaders": {
+    "name": "Player Name",
+    "team": "Team",
+    "options": "Options"
+  }
+}

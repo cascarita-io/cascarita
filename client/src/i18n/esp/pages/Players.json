@@ -1,0 +1,23 @@
+{
+  "empty": "No hay equipos para mostrar...",
+  "loading": "Cargando...",
+  "error": "Error al obtener datos",
+  "edit": "Editar",
+  "delete": "Borrar",
+  "addButton": "Agregar Equipo",
+  "formContent": {
+    "title": "Crear Equipo",
+    "name": "Nombre",
+    "namePlaceholder": "Nombre del equipo",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "logo": "Logo del equipo",
+    "delete": "Si, estoy seguro",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar este equipo?"
+  },
+  "tableHeaders": {
+    "name": "Nombre del Jugador",
+    "Team": "Equipo",
+    "options": "Opciones"
+  }
+}

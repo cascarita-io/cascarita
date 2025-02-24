@@ -13,6 +13,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { fetchUser } from "../../../api/users/service";
 import Cookies from "js-cookie";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import StatusLabel from "../../../components/StatusLabel/StatusLabel";
 
 const Payment = () => {
   const { t } = useTranslation("Settings");
@@ -33,10 +34,10 @@ const Payment = () => {
     ],
   );
 
-  const StatusLabels = {
-    Complete: t("payment.status.approved"),
-    Restricted: t("payment.status.rejected"),
-    Pending: t("payment.status.pending"),
+  const StatusLabels: { [key: string]: "approved" | "rejected" | "pending" } = {
+    Complete: "approved",
+    Restricted: "rejected",
+    Pending: "pending",
   };
 
   const mockPaymentData = [
@@ -87,23 +88,6 @@ const Payment = () => {
     return date.toLocaleDateString();
   };
 
-  const statusLabelStyling = (status: string) => {
-    return {
-      backgroundColor:
-        status === StatusLabels.Complete
-          ? "#e9ffe8"
-          : status === StatusLabels.Restricted
-            ? "#ffeeee"
-            : "#dbe7f98f",
-      color:
-        status === StatusLabels.Complete
-          ? "#045502"
-          : status === StatusLabels.Restricted
-            ? "#970303"
-            : "#084986",
-    };
-  };
-
   return (
     <section className={styles.settingsWrapper}>
       <div className={styles.sectionHeader}>
@@ -149,6 +133,7 @@ const Payment = () => {
                 >
                   {user.stripe_status}
                 </p>
+                <StatusLabel status={user.status}>{user.status}</StatusLabel>
               </td>
               <td className={tableStyles.showInDesktop}>
                 {user.account_email}

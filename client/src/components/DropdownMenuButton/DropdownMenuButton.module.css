@@ -7,7 +7,8 @@
   padding-right: 8px;
   padding-top: 6px;
   padding-bottom: 6px;
-  width: 100px;
+  min-width: 100px;
+  max-width: 150px;
   text-align: center;
 }
 

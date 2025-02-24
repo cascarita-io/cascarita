@@ -5,6 +5,7 @@ require("dotenv").config();
 const Response = require("./../mongoModels/response");
 const FormMongo = require("./../mongoModels/form");
 const { Form, User } = require("../models");
+const FormPaymentController = require("./formPayment.controller");
 
 const FormController = {
   async getAllForms(req, res, next) {
@@ -20,14 +21,20 @@ const FormController = {
   },
   async createResponse(req, res, next) {
     try {
+      const responseData = req.body.data;
       const insertedResponse = new Response({
         form_id: req.body.form_id,
         response: {
-          answers: req.body.data,
+          answers: responseData,
         },
       });
 
       await insertedResponse.save();
+      const responseIdString = insertedResponse.id;
+      await FormPaymentController.connectResponseToFormPayment(
+        responseData,
+        responseIdString,
+      );
 
       return res.status(201).json(insertedResponse);
     } catch (error) {
@@ -112,6 +119,7 @@ const FormController = {
         data.sql_form_id = sqlFormData
           ? sqlFormData.id
           : `no sql form found for ${form_document_id}`;
+        data.form_type = sqlFormData ? sqlFormData.form_type : 0;
       }
 
       return res.status(200).json(data);

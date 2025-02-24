@@ -7,14 +7,14 @@ import { DropdownMenuButtonProps } from "./types";
 const DropdownMenuButton: React.FC<DropdownMenuButtonProps> & {
   Separator: typeof DropdownMenu.DropdownMenuSeparator;
   Item: typeof DropdownMenu.DropdownMenuItem;
-} = ({ onEdit, onDelete, children }) => {
+} = ({ onEdit, onDelete, onView, children, trigger }) => {
   const { t } = useTranslation("DropdownMenuButton");
 
   return (
     <div>
       <DropdownMenu.DropdownMenu>
         <DropdownMenu.DropdownMenuTrigger>
-          <SlOptions />
+          {trigger ? trigger : <SlOptions />}
         </DropdownMenu.DropdownMenuTrigger>
 
         <DropdownMenu.DropdownMenuContent className={styles.options}>
@@ -38,7 +38,7 @@ const DropdownMenuButton: React.FC<DropdownMenuButtonProps> & {
                 className={styles.seperator}
               />
 
-              <DropdownMenu.DropdownMenuItem>
+              <DropdownMenu.DropdownMenuItem onSelect={onView}>
                 {t("option3")}
               </DropdownMenu.DropdownMenuItem>
             </>

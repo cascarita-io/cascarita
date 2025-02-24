@@ -99,29 +99,73 @@ variable "purpose_tg" {
   default     = "LoadBalancing"
 }
 
-variable "port" {
-  description = "The port exposed load balancer, target group, and container."
+variable "proxy_port" {
+  description = "The port exposed by the proxy container."
   default     = 80
 }
-
-variable "container_name" {
-  description = "The name of the container in the task definition."
-  default     = "cascarita-server"
+variable "client_port" {
+  description = "The port exposed load balancer, target group, and client container."
+  default     = 8080
 }
 
-variable "container_image" {
+variable "server_port" {
+  description = "The port exposed server container."
+  default     = 3000
+}
+
+variable "client_container" {
+  description = "The name of the container in the task definition for client."
+  default     = "client"
+}
+
+variable "server_container" {
+  description = "The name of the container in the task definition for server."
+  default     = "server"
+}
+
+variable "proxy_container" {
+  description = "The name of the container in the task definition for server."
+  default     = "nginx"
+}
+
+variable "client_container_image" {
+  description = "The container image to be used in the task definition."
+  default     = "658488939163.dkr.ecr.us-west-1.amazonaws.com/cascarita-client"
+}
+
+variable "server_container_image" {
   description = "The container image to be used in the task definition."
   default     = "658488939163.dkr.ecr.us-west-1.amazonaws.com/cascarita-server"
 }
 
-variable "cpu_allocation" {
+variable "proxy_container_image" {
+  description = "The container image to be used in the task definition."
+  default     = "658488939163.dkr.ecr.us-west-1.amazonaws.com/cascarita-nginx"
+}
+
+variable "low_cpu_allocation" {
   description = "The amount of CPU units to allocate for the task and container."
   default     = 256
 }
 
-variable "memory_allocation" {
+variable "medium_cpu_allocation" {
+  description = "The amount of CPU units to allocate for the task and container."
+  default     = 512
+}
+
+variable low_memory_allocation {
+  description = "The amount of memory in MB to allocate for the container."
+  default     = 256
+}
+
+variable "medium_memory_allocation" {
   description = "The amount of memory in MB to allocate for the container."
   default     = 512
+}
+
+variable "high_memory_allocation" {
+  description = "The amount of memory in MB to allocate for the container."
+  default     = 1024
 }
 
 variable "desired_count" {
@@ -200,7 +244,7 @@ locals {
 variable "acm_certificate_arn" {
   description = "ARN of the ACM certificate for HTTPS"
   type        = string
-  default     = "arn:aws:acm:us-west-1:658488939163:certificate/1a163a09-441d-4700-8127-4c166f8bf87a"
+  default     = "arn:aws:acm:us-west-1:658488939163:certificate/595b2806-8769-495b-9c53-f1d1f683ebf2"
 }
 
 variable "subdomain" {
