@@ -30,7 +30,7 @@ const Players = () => {
   const result = useQueries({
     queries: [
       {
-        queryKey: ["users", groupId],
+        queryKey: ["players", groupId],
         queryFn: async () =>
           await getPlayersByGroupId({
             queryKey: ["teams", groupId],

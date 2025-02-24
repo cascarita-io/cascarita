@@ -89,7 +89,6 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
 
         return answersMap;
       });
-
       setFormResponsesData(responsesArray);
 
       const emailData: string[] = [];
@@ -179,7 +178,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     };
   };
 
-  const headers = [
+  const registrationTypeHeaders = [
     "#",
     "Name",
     "Payment Type",
@@ -191,78 +190,121 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     "Transaction Expiry",
   ];
 
+  const blankTypeHeaders = ["#", "View Response", "Date Submitted"];
+
   return (
     <div className={styles.container}>
-      <DashboardTable
-        headers={headers}
-        headerColor="light"
-        className={styles.table}
-      >
-        {formResponsesData.map((response: Record<string, Answer>, index) => (
-          <tr key={index}>
-            <td>{index + 1}</td>
-            <td>{user[index]}</td>
-            <td>{paymentType[index]}</td>
-            {formType === 1 && (
+      {formType === 1 ? (
+        <DashboardTable
+          headers={registrationTypeHeaders}
+          headerColor="light"
+          className={styles.table}
+        >
+          {formResponsesData.map((response: Record<string, Answer>, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{user[index]}</td>
+              <td>{paymentType[index]}</td>
+              {formType === 1 && (
+                <td>
+                  <DropdownMenuButton trigger={StatusButton(status[index])}>
+                    <DropdownMenuButton.Item
+                      onClick={handleStatusChange(index, "approved", response)}
+                    >
+                      <StatusLabel status="approved">approved</StatusLabel>
+                    </DropdownMenuButton.Item>
+
+                    <DropdownMenuButton.Separator
+                      className={styles.separator}
+                    />
+
+                    <DropdownMenuButton.Item
+                      onClick={handleStatusChange(index, "rejected", response)}
+                    >
+                      <StatusLabel status="rejected">rejected</StatusLabel>
+                    </DropdownMenuButton.Item>
+
+                    <DropdownMenuButton.Separator
+                      className={styles.separator}
+                    />
+
+                    <DropdownMenuButton.Item
+                      onClick={handleStatusChange(index, "pending", response)}
+                    >
+                      <StatusLabel status="pending">pending</StatusLabel>
+                    </DropdownMenuButton.Item>
+                  </DropdownMenuButton>
+                </td>
+              )}
               <td>
-                <DropdownMenuButton trigger={StatusButton(status[index])}>
-                  <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "approved", response)}
-                  >
-                    <StatusLabel status="approved">approved</StatusLabel>
-                  </DropdownMenuButton.Item>
-
-                  <DropdownMenuButton.Separator className={styles.separator} />
-
-                  <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "rejected", response)}
-                  >
-                    <StatusLabel status="rejected">rejected</StatusLabel>
-                  </DropdownMenuButton.Item>
-
-                  <DropdownMenuButton.Separator className={styles.separator} />
-
-                  <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "pending", response)}
-                  >
-                    <StatusLabel status="pending">pending</StatusLabel>
-                  </DropdownMenuButton.Item>
-                </DropdownMenuButton>
+                <Modal
+                  open={isViewOpen[index] || false}
+                  onOpenChange={(open) =>
+                    setIsViewOpen((prev) => ({ ...prev, [index]: open }))
+                  }
+                >
+                  <Modal.Button asChild className={styles.modalTrigger}>
+                    <PrimaryButton
+                      className={styles.primaryBtn}
+                      onClick={() =>
+                        setIsViewOpen((prev) => ({ ...prev, [index]: true }))
+                      }
+                    >
+                      <p className={styles.btnTextDesktop}>View</p>
+                    </PrimaryButton>
+                  </Modal.Button>
+                  <Modal.Content maximize={true} title={user[index]}>
+                    <FormResponseForm answers={response} />
+                  </Modal.Content>
+                </Modal>
               </td>
-            )}
-            <td>
-              <Modal
-                open={isViewOpen[index] || false}
-                onOpenChange={(open) =>
-                  setIsViewOpen((prev) => ({ ...prev, [index]: open }))
-                }
-              >
-                <Modal.Button asChild className={styles.modalTrigger}>
-                  <PrimaryButton
-                    className={styles.primaryBtn}
-                    onClick={() =>
-                      setIsViewOpen((prev) => ({ ...prev, [index]: true }))
-                    }
-                  >
-                    <p className={styles.btnTextDesktop}>View</p>
-                  </PrimaryButton>
-                </Modal.Button>
-                <Modal.Content maximize={true} title={user[index]}>
-                  <FormResponseForm answers={response} />
-                </Modal.Content>
-              </Modal>
-            </td>
-            <td>{formatDate(submittedAt[index])}</td>
-            <td>{email[index]}</td>
-            <td>{formatMoney(amount[index])}</td>
-            <td>
-              {paymentType[index] === "Credit Card / Stripe"
-                ? formatDate(submittedAt[index], 3)
-                : ""}
-            </td>
-          </tr>
-        ))}
-      </DashboardTable>
+              <td>{formatDate(submittedAt[index])}</td>
+              <td>{email[index]}</td>
+              <td>{formatMoney(amount[index])}</td>
+              <td>
+                {paymentType[index] === "Credit Card / Stripe"
+                  ? formatDate(submittedAt[index], 3)
+                  : ""}
+              </td>
+            </tr>
+          ))}
+        </DashboardTable>
+      ) : (
+        <DashboardTable
+          headers={blankTypeHeaders}
+          headerColor="light"
+          className={styles.table}
+        >
+          {formResponsesData.map((response: Record<string, Answer>, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>
+                <Modal
+                  open={isViewOpen[index] || false}
+                  onOpenChange={(open) =>
+                    setIsViewOpen((prev) => ({ ...prev, [index]: open }))
+                  }
+                >
+                  <Modal.Button asChild className={styles.modalTrigger}>
+                    <PrimaryButton
+                      className={styles.primaryBtn}
+                      onClick={() =>
+                        setIsViewOpen((prev) => ({ ...prev, [index]: true }))
+                      }
+                    >
+                      <p className={styles.btnTextDesktop}>View</p>
+                    </PrimaryButton>
+                  </Modal.Button>
+                  <Modal.Content maximize={true} title={user[index]}>
+                    <FormResponseForm answers={response} />
+                  </Modal.Content>
+                </Modal>
+              </td>
+              <td>{formatDate(submittedAt[index])}</td>
+            </tr>
+          ))}
+        </DashboardTable>
+      )}
       {formResponsesData.length === 0 && (
         <div className={styles.emptyFormResponses}>
           <h2>{t("noResponsesText")}</h2>
