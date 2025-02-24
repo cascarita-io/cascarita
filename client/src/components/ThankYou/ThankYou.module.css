@@ -1,0 +1,55 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #3B49DF;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 24px;
+  margin: 8px 0;
+}
+
+.message {
+  font-size: 16px;
+  color: #555;
+  margin: 0 0 24px 0;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 12px;
+}
+
+.button {
+  padding: 10px 20px;
+  border: 1px solid #3B49DF;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primaryButton {
+  background-color: #3B49DF;
+  color: #fff;
+}
+
+.secondaryButton {
+  background-color: #fff;
+  color: #3B49DF;
+}
