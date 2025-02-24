@@ -33,8 +33,10 @@ const {
   Season,
   Team,
 } = require("../models");
+const Db = require("../models");
 const GroupController = require("./group.controller");
 const getUserInfoFromAuth0 = require("../utilityFunctions/auth0");
+const SessionController = require("./session.controller");
 
 const UserController = function () {
   var isEmailUniqueWithinGroup = async function (groupId, email) {
@@ -488,6 +490,109 @@ const UserController = function () {
     }
   };
 
+  var createUserViaFromResponse = async function (user) {
+    const transaction = await Db.sequelize.transaction();
+    try {
+      const existingUser = await isEmailUniqueWithinGroup(
+        user.group_id,
+        user.email,
+      );
+
+      let currentUser;
+
+      if (existingUser) {
+        // Update existing user with new data, excluding group_id
+        const updateData = {
+          first_name: user.first_name,
+          last_name: user.last_name,
+          language_id: 1,
+          picture: user.photo,
+          date_of_birth: user.date,
+          phone_number: user.phone_number,
+          address: user.address,
+          internally_created: true,
+        };
+
+        await existingUser.update(updateData, { transaction });
+        currentUser = existingUser;
+      } else {
+        // Create new user
+        const userData = {
+          group_id: user.group_id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          email: user.email,
+          language_id: 1,
+          picture: user.photo,
+          date_of_birth: user.date,
+          phone_number: user.phone_number,
+          address: user.address,
+          internally_created: true,
+        };
+
+        await User.build(userData).validate();
+        currentUser = await User.create(userData, { transaction });
+      }
+
+      const session = await SessionController.getOrCreateSession(
+        user,
+        transaction,
+      );
+      await assignUserToSession(
+        currentUser.id,
+        session.id,
+        user.team_id,
+        transaction,
+      );
+      await assignRole(currentUser.id, "Player", transaction);
+
+      return res.status(201).json(currentUser);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  var assignUserToSession = async function (
+    userId,
+    sessionId,
+    teamId,
+    transaction,
+  ) {
+    const foundTeam = teamId
+      ? await Team.findByPk(teamId, { transaction })
+      : null;
+
+    const [userSession] = await UserSessions.findOrCreate({
+      where: { user_id: userId, session_id: sessionId },
+      defaults: {
+        user_id: userId,
+        session_id: sessionId,
+        team_id: foundTeam ? teamId : null,
+      },
+      transaction,
+    });
+
+    if (foundTeam && !userSession.team_id) {
+      await userSession.update({ team_id: teamId }, { transaction });
+    }
+  };
+
+  var assignRole = async function (userId, roleName, transaction) {
+    const playerRole = await Role.findOne({
+      where: {
+        name: roleName,
+      },
+    });
+
+    await UserRoles.findOrCreate({
+      wehre: {
+        user_id: userId,
+        role_id: playerRole.id,
+      },
+      transaction,
+    });
+  };
+
   return {
     registerUser,
     logInUser,
@@ -501,6 +606,7 @@ const UserController = function () {
     getPlayersByGroupId,
     updatePlayerTeams,
     getSession,
+    createUserViaFromResponse,
   };
 };
 

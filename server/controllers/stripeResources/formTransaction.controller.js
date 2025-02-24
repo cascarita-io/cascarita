@@ -12,11 +12,11 @@ const FormTransactionController = function () {
         req.headers["stripe-signature"],
         endpointSecret,
       );
-
+      const paymentIntent = event.data.object;
+      let success = false;
       switch (event.type) {
         case "payment_intent.amount_capturable_updated":
-          const paymentIntent = event.data.object;
-          const success = await FormPaymentController.updateStripePayment(
+          success = await FormPaymentController.updateStripePayment(
             paymentIntent,
           );
 
@@ -27,6 +27,16 @@ const FormTransactionController = function () {
           });
         // @Chuy TODO: When Admin approves a stripe payment then logic can start here !
         case "payment_intent.succeeded":
+          success = await FormPaymentController.updateStripePayment(
+            paymentIntent,
+          );
+          const completeUser =
+            await FormPaymentController.handleUserUpdateStripe(paymentIntent);
+          return res.status(200).json({
+            message: success
+              ? "user payment updated successfully"
+              : "user payment update failed but webhook received",
+          });
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);
