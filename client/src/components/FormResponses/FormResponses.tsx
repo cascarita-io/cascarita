@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import styles from "./FormResponses.module.css";
 import Cookies from "js-cookie";
-import { AnswerRecordMap, FormResponse, FormResponsesProps } from "./types";
+import {
+  AnswerRecordMap,
+  FormPaymentType,
+  FormResponse,
+  FormResponsesProps,
+} from "./types";
 import {
   getMongoFormById,
   getMongoFormResponses,
@@ -15,7 +20,7 @@ import PrimaryButton from "../PrimaryButton/PrimaryButton";
 import Modal from "../Modal/Modal";
 import FormResponseForm from "../Forms/FormResponseModal/FormResponseModal";
 import {
-  getFormPaymentsByPaymentIntentId,
+  getFormPayments,
   updateFormPaymentStatus,
 } from "../../api/forms/service";
 
@@ -39,6 +44,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     []
   );
   const adminEmail = Cookies.get("email") || "";
+  const [formDocumentId, setFormDocumentId] = useState("");
+  console.log(formDocumentId);
   const { t } = useTranslation("FormResponses");
 
   const formatDate = (dateString: string, daysAhead: number = 0): string => {
@@ -62,6 +69,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   useEffect(() => {
     (async () => {
       const formData = await getMongoFormById(formId);
+      setFormDocumentId(formData._id);
       setFormType(formData.form_type);
       const responsesData = await getMongoFormResponses(formData._id);
       const submittedAtData: string[] = [];
@@ -122,31 +130,24 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       setPaymentIntentIds(paymentIntentIdsData);
       const statusData: ("approved" | "rejected" | "pending")[] = [];
       const paymentTypeData: string[] = [];
-
+      const formPayments = await getFormPayments(formId);
       await Promise.all(
-        paymentIntentIdsData.map(async (paymentIntentId, index) => {
-          let paymentData;
-          try {
-            paymentData =
-              await getFormPaymentsByPaymentIntentId(paymentIntentId);
-          } catch (error) {
-            console.log(error);
-            paymentData = undefined;
+        formPayments.map(
+          async (paymentData: FormPaymentType, index: number) => {
+            if (paymentData.payment_intent_status === "approved") {
+              statusData[index] = "approved";
+            } else if (paymentData.payment_intent_status === "rejected") {
+              statusData[index] = "rejected";
+            } else {
+              statusData[index] = "pending";
+            }
+            if (paymentData.payment_method_id === 1) {
+              paymentTypeData[index] = "Credit Card / Stripe";
+            } else {
+              paymentTypeData[index] = "Cash / Check";
+            }
           }
-
-          if (paymentData.payment_intent_status === "approved") {
-            statusData[index] = "approved";
-          } else if (paymentData.payment_intent_status === "rejected") {
-            statusData[index] = "rejected";
-          } else {
-            statusData[index] = "pending";
-          }
-          if (paymentData.payment_method_id === 1) {
-            paymentTypeData[index] = "Credit Card / Stripe";
-          } else {
-            paymentTypeData[index] = "Cash / Check";
-          }
-        })
+        )
       );
 
       setStatus(statusData);

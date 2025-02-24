@@ -18,6 +18,7 @@ import CheckoutForm from "../../StripeForm/CheckoutForm";
 import nullthrows from "nullthrows";
 import { useCreatePaymentIntent } from "../../../api/stripe/mutations";
 import { useTranslation } from "react-i18next";
+import { updateFormPaymentType } from "../../../api/forms/service";
 
 interface CheckoutFormRef {
   handlePayment: () => void;
@@ -32,6 +33,8 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
   const [stripePromise, setStripePromise] = useState<Stripe | null>(null);
   const [clientSecret, setClientSecret] = useState("");
   const [paymentType, setPaymentType] = useState("stripe");
+  const [currentPaymentIntent, setCurrentPaymentIntent] =
+    useState<PaymentIntent | null>(null);
 
   const checkoutFormRef = useRef<CheckoutFormRef>(null);
 
@@ -51,6 +54,7 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
     const handleCreatePaymentIntent = async () => {
       try {
         const paymentIntent: PaymentIntent = await createPaymentIntent();
+        setCurrentPaymentIntent(paymentIntent);
         const fetchedClientSecret = paymentIntent.client_secret;
         if (fetchedClientSecret) {
           setClientSecret(fetchedClientSecret);
@@ -74,6 +78,18 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
       }
     };
 
+    const handleUpdateFormPaymentStatus = async () => {
+      if (paymentType === "cash") {
+        if (currentPaymentIntent) {
+          await updateFormPaymentType(currentPaymentIntent.id, 2);
+        }
+      } else {
+        if (currentPaymentIntent) {
+          await updateFormPaymentType(currentPaymentIntent.id, 1);
+        }
+      }
+    };
+
     if (stripePromiseData) {
       setStripePromise(stripePromiseData);
     }
@@ -82,7 +98,10 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
       handleCreatePaymentIntent();
       setPaymentIntentCreated(true);
     }
-  }, [stripePromiseData, stripePromise, createPaymentIntent]);
+    if (paymentIntentCreated && currentPaymentIntent !== null) {
+      handleUpdateFormPaymentStatus();
+    }
+  }, [stripePromiseData, stripePromise, createPaymentIntent, paymentType]);
 
   useImperativeHandle(ref, () => ({
     handlePayment: checkoutFormRef.current?.handlePayment,
