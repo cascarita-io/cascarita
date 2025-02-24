@@ -14,3 +14,5 @@ COPY ./server .
 RUN npm install --os=linux --libc=musl --cpu=arm64 sharp
 
 EXPOSE 3000
+
+CMD ["npm", "run", "server"]
