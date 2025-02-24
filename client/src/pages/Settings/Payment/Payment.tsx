@@ -14,7 +14,6 @@ import { fetchUser } from "../../../api/users/service";
 import Cookies from "js-cookie";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import StatusLabel from "../../../components/StatusLabel/StatusLabel";
-import { StatusLabelProps } from "./types";
 
 const Payment = () => {
   const { t } = useTranslation("Settings");
@@ -34,15 +33,6 @@ const Payment = () => {
       t("payment.headers.link"),
     ],
   );
-
-  const stripeStatusLabels: StatusLabelProps = {
-    Complete: "approved",
-    Enabled: "approved",
-    Pending: "pending",
-    Restricted_Soon: "pending",
-    Restricted: "rejected",
-    Rejected: "rejected",
-  };
 
   useEffect(() => {
     (async () => {
@@ -93,7 +83,7 @@ const Payment = () => {
             <tr key={user.id}>
               <td>{user.stripe_account_name}</td>
               <td>
-                <StatusLabel status={stripeStatusLabels[user.stripe_status]}>
+                <StatusLabel status={user.stripe_status}>
                   {user.stripe_status}
                 </StatusLabel>
               </td>
@@ -112,78 +102,5 @@ const Payment = () => {
     </section>
   );
 };
-
-// const mockPaymentData = [
-//   {
-//     id: 123,
-//     name: "Juan Ramos",
-//     email: "juanramos@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Complete,
-//   },
-//   {
-//     id: 124,
-//     name: "Jose Patino",
-//     email: "josepatino@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Restricted,
-//   },
-//   {
-//     id: 125,
-//     name: "Saul Reyes",
-//     email: "saulreyes@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Pending,
-//   },
-//   {
-//     id: 126,
-//     name: "Chuy Gomez",
-//     email: "chuy@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Complete,
-//   },
-//   {
-//     id: 127,
-//     name: "Jose Patino",
-//     email: "josepatino@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Restricted,
-//   },
-//   {
-//     id: 128,
-//     name: "Saul Reyes",
-//     email: "saulreyes@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Pending,
-//   },
-//   {
-//     id: 129,
-//     name: "Chuy Gomez",
-//     email: "chuy@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Complete,
-//   },
-//   {
-//     id: 130,
-//     name: "Saul Reyes",
-//     email: "saulreyes@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Pending,
-//   },
-//   {
-//     id: 131,
-//     name: "Chuy Gomez",
-//     email: "chuy@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Complete,
-//   },
-//   {
-//     id: 132,
-//     name: "Chuy Gomez",
-//     email: "chuy@gmail.com",
-//     date_submitted: Date.now(),
-//     status: stripeStatusLabels.Complete,
-//   },
-// ];
 
 export default Payment;
