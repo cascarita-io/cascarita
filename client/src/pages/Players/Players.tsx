@@ -84,7 +84,7 @@ const Players = () => {
 
   const [playersQuery, seasonsQuery, divisionsQuery, leaguesQuery, teamsQuery] =
     result;
-  const { data, isLoading, isError } = playersQuery;
+  const { data, isLoading } = playersQuery;
 
   const handleEdit = (player: PlayerType) => {
     setCurrentPlayer(player);
@@ -134,10 +134,6 @@ const Players = () => {
             {isLoading ? (
               <tr>
                 <td>{t("loading")}</td>
-              </tr>
-            ) : isError || !data ? (
-              <tr>
-                <td>{t("error")}</td>
               </tr>
             ) : (
               data?.map((player: PlayerType, idx: number) => (
