@@ -83,7 +83,7 @@ const FormPage = () => {
         formId ?? "",
         normalizedAnswers
       );
-      navigate('ThankYou');
+      navigate("/thanks");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);

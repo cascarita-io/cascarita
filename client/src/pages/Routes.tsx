@@ -73,8 +73,8 @@ export const useRouter = () =>
         </Route>
         <Route path="forms/:formId" element={<FormPage />} />
         <Route path="login" element={<Login />} />
+        <Route path="thanks" element={<ThankYou />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="ThankYou" element={<ThankYou />} />
       </Route>
     )
   );
