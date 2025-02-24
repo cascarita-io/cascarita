@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styles from "../Settings.module.css";
+import styles from "../Payment/Payment.module.css";
 import tableStyles from "../../pages.module.css";
 
 import DashboardTable from "../../../components/DashboardTable/DashboardTable";
@@ -14,6 +14,7 @@ import { fetchUser } from "../../../api/users/service";
 import Cookies from "js-cookie";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import StatusLabel from "../../../components/StatusLabel/StatusLabel";
+import { StatusLabelProps } from "./types";
 
 const Payment = () => {
   const { t } = useTranslation("Settings");
@@ -24,7 +25,7 @@ const Payment = () => {
     [
       t("payment.headers.name"),
       t("payment.headers.status"),
-      t("payment.headers.date"),
+      t("payment.headers.email"),
       t("payment.headers.link"),
     ],
     [
@@ -34,42 +35,15 @@ const Payment = () => {
     ],
   );
 
-  const StatusLabels: { [key: string]: "approved" | "rejected" | "pending" } = {
+  const stripeStatusLabels: StatusLabelProps = {
     Complete: "approved",
-    Restricted: "rejected",
+    Enabled: "approved",
     Pending: "pending",
+    Restricted_Soon: "pending",
+    Restricted: "rejected",
+    Rejected: "rejected",
   };
 
-  const mockPaymentData = [
-    {
-      id: 123,
-      name: "Juan Ramos",
-      email: "juanramos@gmail.com",
-      date_submitted: Date.now(),
-      status: StatusLabels.Complete,
-    },
-    {
-      id: 124,
-      name: "Jose Patino",
-      email: "josepatino@gmail.com",
-      date_submitted: Date.now(),
-      status: StatusLabels.Restricted,
-    },
-    {
-      id: 125,
-      name: "Saul Reyes",
-      email: "saulreyes@gmail.com",
-      date_submitted: Date.now(),
-      status: StatusLabels.Pending,
-    },
-    {
-      id: 126,
-      name: "Chuy Gomez",
-      email: "chuy@gmail.com",
-      date_submitted: Date.now(),
-      status: StatusLabels.Complete,
-    },
-  ];
   useEffect(() => {
     (async () => {
       const token = await getAccessTokenSilently();
@@ -78,23 +52,13 @@ const Payment = () => {
       setGroupId(currentUser.group_id);
     })();
   }, []);
-  //TODO: Pass in groupID into this hook
-  //It Makes a query to api
-  const { data } = useGetAllStripeAccounts(groupId);
-  console.log(data);
 
-  const formatDate = (dateNumber: number): string => {
-    const date = new Date(dateNumber);
-    return date.toLocaleDateString();
-  };
+  const { data } = useGetAllStripeAccounts(groupId);
 
   return (
-    <section className={styles.settingsWrapper}>
+    <section className={styles.wrapper}>
       <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitleWrapper}>
-          <h2>{t("payment.title")}</h2>
-          <p style={{ marginBottom: "16px" }}>{t("payment.subtitle")}</p>
-        </div>
+        <h2>{t("payment.title")}</h2>
 
         <Modal open={isStripeModalOpen} onOpenChange={setIsStripeModalOpen}>
           <Modal.Button asChild>
@@ -115,25 +79,23 @@ const Payment = () => {
         </Modal>
       </div>
 
-      <DashboardTable
-        headers={planHeaders}
-        headerColor="light"
-        className={styles.table}
-      >
-        {data == null || data?.length === 0 ? (
-          <p className={tableStyles.noItemsMessage}>{t("payment.empty")}</p>
-        ) : (
-          data?.map((user) => (
+      <p>{t("payment.subtitle")}</p>
+
+      {data == null || data?.length === 0 ? (
+        <p className={tableStyles.noItemsMessage}>{t("payment.empty")}</p>
+      ) : (
+        <DashboardTable
+          headers={planHeaders}
+          headerColor="light"
+          className={styles.table}
+        >
+          {data?.map((user) => (
             <tr key={user.id}>
               <td>{user.stripe_account_name}</td>
               <td>
-                <p
-                  className={styles.statusLabel}
-                  style={statusLabelStyling(user.stripe_status)}
-                >
+                <StatusLabel status={stripeStatusLabels[user.stripe_status]}>
                   {user.stripe_status}
-                </p>
-                <StatusLabel status={user.status}>{user.status}</StatusLabel>
+                </StatusLabel>
               </td>
               <td className={tableStyles.showInDesktop}>
                 {user.account_email}
@@ -144,11 +106,84 @@ const Payment = () => {
                 </a>
               </td>
             </tr>
-          ))
-        )}
-      </DashboardTable>
+          ))}
+        </DashboardTable>
+      )}
     </section>
   );
 };
+
+// const mockPaymentData = [
+//   {
+//     id: 123,
+//     name: "Juan Ramos",
+//     email: "juanramos@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Complete,
+//   },
+//   {
+//     id: 124,
+//     name: "Jose Patino",
+//     email: "josepatino@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Restricted,
+//   },
+//   {
+//     id: 125,
+//     name: "Saul Reyes",
+//     email: "saulreyes@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Pending,
+//   },
+//   {
+//     id: 126,
+//     name: "Chuy Gomez",
+//     email: "chuy@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Complete,
+//   },
+//   {
+//     id: 127,
+//     name: "Jose Patino",
+//     email: "josepatino@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Restricted,
+//   },
+//   {
+//     id: 128,
+//     name: "Saul Reyes",
+//     email: "saulreyes@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Pending,
+//   },
+//   {
+//     id: 129,
+//     name: "Chuy Gomez",
+//     email: "chuy@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Complete,
+//   },
+//   {
+//     id: 130,
+//     name: "Saul Reyes",
+//     email: "saulreyes@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Pending,
+//   },
+//   {
+//     id: 131,
+//     name: "Chuy Gomez",
+//     email: "chuy@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Complete,
+//   },
+//   {
+//     id: 132,
+//     name: "Chuy Gomez",
+//     email: "chuy@gmail.com",
+//     date_submitted: Date.now(),
+//     status: stripeStatusLabels.Complete,
+//   },
+// ];
 
 export default Payment;

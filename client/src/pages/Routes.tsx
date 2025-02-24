@@ -18,7 +18,6 @@ import NewForm from "./NewForm/NewForm";
 import Settings from "./Settings/Settings";
 import FormPage from "./FormPage/FormPage";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
-import Plan from "./Settings/Plan/Plan";
 import Payment from "./Settings/Payment/Payment";
 import { UserCrumb } from "../components/BreadCrumb/BreadCrumbComponents";
 import NotFound from "./NotFound/NotFound";

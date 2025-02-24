@@ -15,10 +15,10 @@ export default function BlueCheckMarkIcon(props: SVGProps<SVGSVGElement>) {
       <path
         d="M30 55 L45 70 L70 40"
         stroke="#fff"
-        stroke-width="8"
+        strokeWidth="8"
         fill="none"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

@@ -18,10 +18,10 @@ import { LeagueType } from "../../../pages/Leagues/types";
 import { SeasonType } from "../../../pages/Seasons/types";
 import { DivisionType } from "../../../pages/Division/types";
 import { TeamType } from "../../../pages/Teams/types";
-import { getStripeAccounts } from "../../../api/stripe/service";
 import { StripeAccount } from "../../DragAndDropComponents/DraggablePayment/types";
 import { getDivisionsBySeasonId } from "../../../api/divisions/service";
 import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
+import { useGetAllStripeAccounts } from "../../../api/stripe/query";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
@@ -39,7 +39,7 @@ const createRegistrationFormData = (
   price: number,
   feeValue: number,
   stripeUser: string,
-  stripeAccountId: string
+  stripeAccountId: string,
 ): Form => {
   const first_name_id = uuidv4();
   const last_name_id = uuidv4();
@@ -281,15 +281,12 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
           }),
         enabled: groupId !== 0,
       },
-      {
-        queryKey: ["stripeAccounts", groupId],
-        queryFn: async () => await getStripeAccounts(groupId),
-        enabled: groupId !== 0,
-      },
     ],
   });
 
-  const [seasonsQuery, leaguesQuery, stripeAccountsQuery] = results;
+  const [seasonsQuery, leaguesQuery] = results;
+
+  const { data: stripeAccountsQuery } = useGetAllStripeAccounts(groupId);
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -320,16 +317,16 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   }, [seasonId]);
 
   useEffect(() => {
-    if (stripeAccountsQuery.data) {
-      const stripeAccount = stripeAccountsQuery.data.find(
-        (account: StripeAccount) => account.user_email === email
+    if (stripeAccountsQuery) {
+      const stripeAccount = stripeAccountsQuery.find(
+        (account: StripeAccount) => account.user_email === email,
       );
       if (stripeAccount) {
         setStripeAccountId(stripeAccount.stripe_account_id);
         setStripeUser(stripeAccount.id.toString());
       }
     }
-  }, [stripeAccountsQuery.data]);
+  }, [stripeAccountsQuery]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -362,7 +359,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         price,
         feeValue,
         stripeUser,
-        stripeAccountId
+        stripeAccountId,
       );
       const token = await getAccessTokenSilently();
       const currentUser = await fetchUser(email, token);
@@ -373,7 +370,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         description,
         currentUser?.group_id,
         currentUser?.id,
-        template
+        template,
       );
 
       navigate("/forms/edit", {
@@ -458,7 +455,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
           </div>
           {leagueId !== 0 &&
             seasonsQuery.data?.filter(
-              (season: SeasonType) => season.league_id === leagueId
+              (season: SeasonType) => season.league_id === leagueId,
             ).length > 0 && (
               <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="seasonName">
@@ -478,7 +475,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                   <option value="">Select a season</option>
                   {seasonsQuery.data
                     ?.filter(
-                      (season: SeasonType) => season.league_id === leagueId
+                      (season: SeasonType) => season.league_id === leagueId,
                     )
                     .map((season: SeasonType) => (
                       <option
