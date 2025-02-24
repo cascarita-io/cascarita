@@ -9,7 +9,11 @@ export type FieldType =
   | "email"
   | "phone_number"
   | "payment"
-  | "player";
+  | "player"
+  | "photo"
+  | "liability"
+  | "date"
+  | "signature";
 
 export interface Validation {
   max_length?: number;
@@ -22,9 +26,12 @@ export interface Label {
   label: string;
 }
 
+export interface ShortTeam {
+  team_id: number;
+  team_name: string;
+}
 export interface PlayerBlockChoices {
-  division: string;
-  teams: string[];
+  teams: ShortTeam[];
 }
 
 export interface Properties {
@@ -43,7 +50,7 @@ export interface Properties {
     id: string;
     stripe_account_id: string;
   };
-  player_block_choices?: PlayerBlockChoices[];
+  player_block_choices?: PlayerBlockChoices;
 }
 
 export interface Field {
@@ -53,8 +60,14 @@ export interface Field {
   validations?: Validation;
   properties?: Properties;
   type: FieldType;
-  season?: string;
-  league?: string;
+  secondary_type?: string;
+  season_name?: string;
+  season_id?: number;
+  league_name?: string;
+  league_id?: number;
+  division_name?: string;
+  division_id?: number;
+  file_url?: string;
 }
 
 export interface Form {
@@ -74,7 +87,6 @@ export interface GetFormsParams {
   order_by?: OrderBy | null;
 }
 
-// TODO: ADD MORE EXPLICIT TYPING AS NEEDED
 export type AnswerType =
   | "short_text"
   | "long_text"
@@ -83,10 +95,21 @@ export type AnswerType =
   | "choice"
   | "choices"
   | "email"
+  | "liability"
+  | "signature"
+  | "date"
   | "phone_number"
   | "boolean"
-  | "file_url"
-  | "payment";
+  | "payment"
+  | "player"
+  | "photo";
+
+export type SecondaryType =
+  | "first_name"
+  | "last_name"
+  | "age"
+  | "address"
+  | "team_name";
 
 export interface Answer {
   field: {
@@ -95,15 +118,31 @@ export interface Answer {
     ref: string;
   };
   type: AnswerType;
+  secondary_type?: SecondaryType;
   number?: number;
   short_text?: string;
   long_text?: string;
   phone_number?: string;
+  liability?: boolean;
+  signature?: string;
   email?: string;
-  date?: Date;
+  date?: string;
   boolean?: boolean;
   choice?: { label: string };
   choices?: { labels: string[] };
-  file_url?: string;
+  photo?: string;
+  player?: {
+    season_name: string;
+    league_name: string;
+    season_id: number | null;
+    league_id: number | null;
+    division_name: string;
+    team_name: string;
+    division_id: number | null;
+    team_id: number | null;
+  };
   payment?: string;
+  paymentIntentId?: string;
+  amount?: number;
+  payment_intent_capture_by?: string;
 }

@@ -31,7 +31,8 @@ const DraggablePhoneNumber: React.FC<DraggableProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          onClick={handleClick}>
+          onClick={handleClick}
+        >
           <div style={{ position: "relative" }}>
             <p className={styles.textElementTypeText}>{t("phoneNumber")}</p>
             <div className={styles.draggableContainer}>
@@ -72,7 +73,6 @@ const DraggablePhoneNumber: React.FC<DraggableProps> = ({
                       placeholder={t("questionPlaceholder")}
                       className={styles.question}
                     />
-                    <hr />
                   </>
                 )}
               />

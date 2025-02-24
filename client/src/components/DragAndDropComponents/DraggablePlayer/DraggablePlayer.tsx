@@ -1,5 +1,5 @@
 import React from "react";
-import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
 import styles from "./DraggablePlayer.module.css";
@@ -9,9 +9,6 @@ import Switch from "react-switch";
 import { DraggableProps } from "../types";
 import { getLeagueByGroupId } from "../../../api/leagues/service";
 import { getSeasonsByLeagueId } from "../../../api/seasons/services";
-import { useAuth0 } from "@auth0/auth0-react";
-import { fetchUser } from "../../../api/users/service";
-import { User } from "../../../api/users/types";
 import Cookies from "js-cookie";
 import { LeagueType } from "../../../pages/Leagues/types";
 import { SeasonType } from "../../../pages/Seasons/types";
@@ -26,68 +23,84 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   onDelete,
   onCopy,
 }) => {
-  //   const { t } = useTranslation("DraggableFields");
-  const { getAccessTokenSilently } = useAuth0();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [leagues, setLeagues] = useState<LeagueType[]>([]);
   const [seasons, setSeasons] = useState<SeasonType[]>([]);
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
-  const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
-  const [selectedLeague, setSelectedLeague] = useState<string | null>(null);
+  const [selectedDivision, setSelectedDivision] = useState<string>(
+    `${formField.division_name}.${formField.division_id}`
+  );
+  const [selectedSeason, setSelectedSeason] = useState<string>(
+    `${formField.season_name}.${formField.season_id}`
+  );
+  const [selectedLeague, setSelectedLeague] = useState<string>(
+    `${formField.league_name}.${formField.league_id}`
+  );
+  const groupId = Number(Cookies.get("group_id")) || 0;
 
   useEffect(() => {
-    if (currentUser !== null) {
-      const fetchLeagues = async () => {
-        const leaguesData = await getLeagueByGroupId({
-          queryKey: ["league", currentUser.group_id],
-          signal: new AbortController().signal,
-          meta: undefined,
-        });
-        setLeagues([...leagues, ...leaguesData]);
-      };
-      fetchLeagues();
-    }
-  }, [currentUser]);
+    const fetchLeagues = async () => {
+      const leaguesData: LeagueType[] = await getLeagueByGroupId({
+        queryKey: ["league", groupId],
+        signal: new AbortController().signal,
+        meta: undefined,
+      });
 
-  useEffect(() => {
-    if (selectedLeague !== null) {
-      const fetchSeasons = async () => {
-        const seasonsData = await Promise.all(
-          leagues.map(async (league) => {
-            const leagueId = league.id as number;
-            const seasons = await getSeasonsByLeagueId({
-              queryKey: ["season", leagueId],
-              signal: new AbortController().signal,
-              meta: undefined,
-            });
-            return seasons;
-          })
-        );
-        const allSeasons = seasonsData.flat();
-        setSeasons(allSeasons);
-      };
-      fetchSeasons();
-      setSelectedSeason(null);
-    }
+      const uniqueLeagues = leaguesData.filter(
+        (league: LeagueType, index: number, self: LeagueType[]) =>
+          index === self.findIndex((l: LeagueType) => l.id === league.id)
+      );
+      setLeagues(uniqueLeagues);
+    };
+    fetchLeagues();
   }, [selectedLeague]);
 
   useEffect(() => {
-    if (selectedSeason !== null) {
-      const seasonId = Number(selectedSeason.split(".")[1]);
-      const fetchDivisions = async () => {
-        const divisionData = await getDivisionsBySeasonId({
-          queryKey: ["division", seasonId],
-          signal: new AbortController().signal,
-          meta: undefined,
-        });
-        setDivisions([...divisions, ...divisionData]);
-      };
+    const fetchSeasons = async () => {
+      const seasonsData = await Promise.all(
+        leagues.map(async (league) => {
+          const leagueId = league.id as number;
+          const seasons = await getSeasonsByLeagueId({
+            queryKey: ["season", leagueId],
+            signal: new AbortController().signal,
+            meta: undefined,
+          });
+          return seasons;
+        })
+      );
+      const allSeasons = seasonsData.flat();
+      const uniqueSeasons = allSeasons.filter(
+        (season, index, self) =>
+          index === self.findIndex((s) => s.id === season.id)
+      );
+
+      setSeasons(uniqueSeasons);
+    };
+    if (selectedLeague !== "") {
+      fetchSeasons();
+    }
+  }, [selectedLeague, leagues]);
+
+  useEffect(() => {
+    const seasonId = Number(selectedSeason.split(".")[1]);
+    const fetchDivisions = async () => {
+      const divisionData: DivisionType[] = await getDivisionsBySeasonId({
+        queryKey: ["division", seasonId],
+        signal: new AbortController().signal,
+        meta: undefined,
+      });
+      const uniqueDivisions = divisionData.filter(
+        (division, index, self) =>
+          index === self.findIndex((d) => d.id === division.id)
+      );
+      setDivisions(uniqueDivisions);
+    };
+    if (selectedSeason !== "") {
       fetchDivisions();
     }
   }, [selectedSeason]);
 
   useEffect(() => {
-    if (divisions.length > 0 && selectedSeason !== null) {
+    if (divisions.length > 0) {
       const seasonId = Number(selectedSeason.split(".")[1]);
       const fetchTeams = async () => {
         await Promise.all(
@@ -98,36 +111,30 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
               signal: new AbortController().signal,
               meta: undefined,
             });
-            const teams = teamsData.map((team: TeamType) => team.name);
-            append({ division: division.name, teams: teams });
+            const teams = teamsData.map((team: TeamType) => ({
+              team_name: team.name,
+              team_id: team.id,
+            }));
+            setValue(
+              `fields.${index}.properties.player_block_choices.teams`,
+              teams
+            );
           })
         );
       };
-      fetchTeams();
+      if (selectedDivision !== "" && selectedSeason !== "") {
+        fetchTeams();
+      }
     }
-  }, [divisions, selectedSeason]);
-
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setCurrentUser(currentUser);
-    })();
-  }, []);
+  }, [selectedDivision, selectedSeason, seasons]);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
 
   const handleClick = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
-  const { append } = useFieldArray({
-    control,
-    name: `fields.${index}.properties.player_block_choices`,
-  });
 
   return (
     <Draggable draggableId={formField.id} index={index}>
@@ -175,20 +182,25 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                   <Controller
                     name={`fields.${index}.league`}
                     control={control}
+                    defaultValue={selectedLeague}
                     render={({ field }) => (
                       <select
                         {...field}
                         onChange={(e) => {
-                          console.log(e);
                           field.onChange(e);
                           setSelectedLeague(e.target.value);
+                          const leagueId = Number(e.target.value.split(".")[1]);
+                          const leagueName = e.target.value.split(".")[0];
+                          setValue(`fields.${index}.league_name`, leagueName);
+                          setValue(`fields.${index}.league_id`, leagueId);
                         }}
                       >
-                        {selectedLeague === null && (
-                          <option value="">Select a league</option>
-                        )}
+                        <option value="">Select a league</option>
                         {leagues.map((league) => (
-                          <option key={league.id} value={league.name}>
+                          <option
+                            key={league.id}
+                            value={`${league.name}.${league.id}`}
+                          >
                             {league.name}
                           </option>
                         ))}
@@ -196,24 +208,32 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                     )}
                   />
                 </div>
-                {selectedLeague !== null && (
-                  <div className={styles.playerContainerItem}>
-                    <p className={styles.subtitle}>Season: </p>
-                    <Controller
-                      name={`fields.${index}.season`}
-                      control={control}
-                      render={({ field }) => (
-                        <select
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setSelectedSeason(e.target.value);
-                          }}
-                        >
-                          {selectedSeason === null && (
-                            <option value="">Select a season</option>
-                          )}
-                          {seasons.map((season) => (
+                <div className={styles.playerContainerItem}>
+                  <p className={styles.subtitle}>Season: </p>
+                  <Controller
+                    name={`fields.${index}.season`}
+                    control={control}
+                    defaultValue={selectedSeason}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setSelectedSeason(e.target.value);
+                          const seasonId = Number(e.target.value.split(".")[1]);
+                          const seasonName = e.target.value.split(".")[0];
+                          setValue(`fields.${index}.season_id `, seasonId);
+                          setValue(`fields.${index}.season_name`, seasonName);
+                        }}
+                      >
+                        <option value="">Select a season</option>
+                        {seasons
+                          .filter(
+                            (season) =>
+                              season.league_id ===
+                              Number(selectedLeague.split(".")[1])
+                          )
+                          .map((season) => (
                             <option
                               key={season.id}
                               value={`${season.name}.${season.id}`}
@@ -221,11 +241,46 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                               {season.name}
                             </option>
                           ))}
-                        </select>
-                      )}
-                    />
-                  </div>
-                )}
+                      </select>
+                    )}
+                  />
+                </div>
+                <div className={styles.playerContainerItem}>
+                  <p className={styles.subtitle}>Division: </p>
+                  <Controller
+                    name={`fields.${index}.division`}
+                    control={control}
+                    defaultValue={selectedDivision}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setSelectedDivision(e.target.value);
+                          const divisionId = Number(
+                            e.target.value.split(".")[1]
+                          );
+                          const divisionName = e.target.value.split(".")[0];
+                          setValue(`fields.${index}.division_id `, divisionId);
+                          setValue(
+                            `fields.${index}.division_name`,
+                            divisionName
+                          );
+                        }}
+                      >
+                        <option value="">Select a division</option>
+                        {divisions.map((division) => (
+                          <option
+                            key={division.id}
+                            value={`${division.name}.${division.id}`}
+                          >
+                            {division.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  />
+                </div>
               </div>
               {isMenuOpen && (
                 <DraggableSubMenu

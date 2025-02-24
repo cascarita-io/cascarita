@@ -5,11 +5,12 @@ require("dotenv").config();
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const {
   UserStripeAccounts,
-  FormPaymentIntents,
   User,
   StripeStatus,
   Group,
+  FormPayment,
 } = require("../models");
+const FormPaymentController = require("./formPayment.controller");
 const modelByPk = require("./utility");
 
 const AccountController = function () {
@@ -36,11 +37,14 @@ const AccountController = function () {
 
         accountId = account.id;
       }
-
       const accountLink = await Stripe.accountLinks.create({
         account: accountId,
-        refresh_url: "http://localhost:3000/forms",
-        return_url: "http://localhost:3000/home",
+        refresh_url: process.env.DOMAIN
+          ? `${process.env.DOMAIN}/forms`
+          : "http://localhost/forms",
+        return_url: process.env.DOMAIN
+          ? `${process.env.DOMAIN}`
+          : "http://localhost",
         type: "account_onboarding",
       });
 
@@ -72,30 +76,33 @@ const AccountController = function () {
 
   var createPaymentIntent = async function (req, res, next) {
     try {
-      const productObj = req.body;
+      let productObj = req.body;
 
       const paymentIntent = await Stripe.paymentIntents.create(
         {
-          amount: productObj.price,
+          amount: productObj.transactionAmount,
           currency: "usd",
           automatic_payment_methods: {
             enabled: true,
           },
-          application_fee_amount: productObj.fee,
+          capture_method: "manual",
+          application_fee_amount: productObj.transactionFee,
         },
         {
           stripeAccount: req.params["account_id"],
         },
       );
 
-      await FormPaymentIntents.create({
-        payment_intent_id: paymentIntent.id,
-        form_id: productObj.form_id,
-        user_stripe_account_id: productObj.userId,
-      });
+      productObj.paymentIntentId = paymentIntent.id;
+      productObj.paymentIntentStatus = paymentIntent.status;
+      await FormPaymentController.createStripeFormPayment(productObj);
 
-      res.status(201).json(paymentIntent);
+      return res.status(200).json({
+        client_secret: paymentIntent.client_secret,
+        //paymentIntentId: paymentIntent.id,
+      });
     } catch (error) {
+      console.error(error);
       next(error);
     }
   };

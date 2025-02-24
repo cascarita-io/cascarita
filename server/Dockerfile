@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:23-alpine
 
 WORKDIR /app
 
@@ -10,6 +10,8 @@ RUN npm install
 
 # Copy the rest of the application files
 COPY ./server .
+
+RUN npm install --os=linux --libc=musl --cpu=arm64 sharp
 
 EXPOSE 3000
 

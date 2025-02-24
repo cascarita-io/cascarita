@@ -2,6 +2,7 @@ import React, { useReducer } from "react";
 import Modal from "../Modal/Modal";
 import { ModalProps } from "../Modal/types";
 import styles from "./RegistrationModal.module.css";
+import formStyles from "../Forms/Form.module.css";
 import SelectMenu from "../SelectMenu/SelectMenu";
 import states from "./states.json";
 import RadioSelect from "../RadioSelect/RadioSelect";
@@ -17,6 +18,9 @@ interface RegisterModalProps extends ModalProps {
 
 const initialState = {
   page: 1,
+  firstName: "",
+  lastName: "",
+  language_id: "english",
   isExistingOrg: false,
   org: "",
   selectedOrg: "",
@@ -24,6 +28,7 @@ const initialState = {
   city: "",
   state: "",
   zipCode: "",
+  group_code: "",
 };
 
 function reducer(state: State, action: Action) {
@@ -50,12 +55,24 @@ function reducer(state: State, action: Action) {
   }
 }
 
+const VALID_LANGUAGES = [
+  {
+    label: "English",
+    value: "english",
+  },
+  {
+    label: "Spanish",
+    value: "spanish",
+  },
+];
+
 const RegisterModal: React.FC<RegisterModalProps> = ({
   open,
   onOpenChange,
   onRegistrationComplete,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [error, setError] = React.useState<string | null>(null);
   const { getAccessTokenSilently } = useAuth0();
   const registerUserMutation = useRegisterUser();
   const { data } = useGetAllGroups();
@@ -74,23 +91,61 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     dispatch({ type: "PREVIOUS_PAGE" });
   };
 
+  const getIsPageComplete = (pageNumber: number) => {
+    switch (pageNumber) {
+      case 1:
+        return state.firstName.trim() !== "" && state.lastName.trim() !== "";
+
+      case 2:
+        return state.org.trim() !== "" && state.group_code.trim() !== "";
+
+      case 3:
+        return (
+          state.selectedOrg.trim() !== "" &&
+          state.address.trim() !== "" &&
+          state.city.trim() !== "" &&
+          state.state !== "" &&
+          state.zipCode.trim() !== ""
+        );
+      default:
+        return false;
+    }
+  };
+
   const handleRegistrationComplete = async (
-    event: React.FormEvent<HTMLFormElement>,
+    event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
     const token = await getAccessTokenSilently();
 
     const payload = {
-      group_id: state.org,
+      group_id: state.page === 3 ? null : state.org,
+      first_name: state.firstName,
+      last_name: state.lastName,
+      language_id: state.language_id,
       name: state.selectedOrg,
       streetAddress: state.address,
       city: state.city,
       state: state.state,
       zipCode: state.zipCode,
       logoUrl: null,
+      group_code: state.group_code,
       token: token,
     };
-    registerUserMutation.mutate(payload as RegisterUser);
+    try {
+      const data = await registerUserMutation.mutateAsync(
+        payload as RegisterUser
+      );
+      // Handle successful registration here
+      if (data.error) {
+        setError(data.error);
+        setTimeout(() => setError(null), 5000);
+        return;
+      }
+    } catch (error) {
+      // Handle registration error here
+      console.error("Registration failed:", error);
+    }
 
     onRegistrationComplete();
     dispatch({ type: "RESET_FORM" }); // Reset form after completion
@@ -101,20 +156,78 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
       <Modal.Content
         title={
           state.page === 1
-            ? "Connect Existing Organization"
-            : "Register Your Organization"
+            ? "Account Information"
+            : state.page === 2
+              ? "Connect Existing Organization"
+              : "Register Your Organization"
         }
         subtitle={
           state.page === 1
-            ? "If you would like to connect to existing organization, please select 'Yes' and select from list"
-            : "We just need a few details before we begin"
+            ? "We just need a few details before we begin!"
+            : state.page === 2
+              ? "If you would like to connect to existing organization, please select 'Yes' and select from list"
+              : "We just need a few details before we begin"
         }
       >
-        {state.page === 1 && (
-          <form
-            onSubmit={handleRegistrationComplete}
-            className={styles.formContainer}
-          >
+        <form className={formStyles.form} onSubmit={handleRegistrationComplete}>
+          {state.page === 1 && (
+            <>
+              <div className={formStyles.inputContainer}>
+                <label htmlFor="first_name">First Name </label>
+                <input
+                  type="text"
+                  id="first_name"
+                  value={state.firstName}
+                  onChange={handleFieldChange("firstName")}
+                  required
+                  name="first_name"
+                  placeholder="First Name"
+                  className={formStyles.input}
+                />
+              </div>
+              <div className={formStyles.inputContainer}>
+                <label htmlFor="last_name">Last Name </label>
+                <input
+                  type="text"
+                  id="last_name"
+                  value={state.lastName}
+                  onChange={handleFieldChange("lastName")}
+                  required
+                  name="last_name"
+                  placeholder="Last Name"
+                  className={formStyles.input}
+                />
+              </div>
+
+              <fieldset className={formStyles.inputContainer}>
+                <legend>Select Preferred Language:</legend>
+
+                {VALID_LANGUAGES.map(({ label, value }) => (
+                  <div key={label} className={formStyles.radioInputContainer}>
+                    <input
+                      type="radio"
+                      name="language"
+                      id={label}
+                      value={value}
+                      checked={value === state.language_id}
+                      onChange={handleFieldChange("language_id")}
+                    />
+                    <label htmlFor={label}>{label}</label>
+                  </div>
+                ))}
+              </fieldset>
+
+              <button
+                className={styles.registerBtn}
+                onClick={incrementPageNumber}
+                disabled={!getIsPageComplete(1)}
+              >
+                Next
+              </button>
+            </>
+          )}
+
+          {state.page === 2 && (
             <div className={styles.inputContainer}>
               <p>Are you connecting to an existing organization?</p>
 
@@ -144,124 +257,171 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               </RadioSelect>
 
               {state.isExistingOrg && (
-                <SelectMenu
-                  placeholder="Select an Organization"
-                  value={state.org}
-                  onValueChange={(value) =>
-                    dispatch({ type: "SET_FIELD", field: "org", value })
-                  }
-                  name="groupId"
-                  className={styles.selectMenu1}
-                >
-                  {data?.map((group: GroupType) => (
-                    <SelectMenu.Item key={group.id} value={group.id.toString()}>
-                      {group.name}
-                    </SelectMenu.Item>
-                  ))}
-                </SelectMenu>
+                <>
+                  <SelectMenu
+                    placeholder="Select an Organization"
+                    value={state.org}
+                    onValueChange={(value) =>
+                      dispatch({ type: "SET_FIELD", field: "org", value })
+                    }
+                    name="groupId"
+                    className={styles.selectMenu1}
+                  >
+                    {data?.map((group: GroupType) => (
+                      <SelectMenu.Item
+                        key={group.id}
+                        value={group.id.toString()}
+                      >
+                        {group.name}
+                      </SelectMenu.Item>
+                    ))}
+                  </SelectMenu>
+                  <div className={formStyles.inputContainer}>
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    <label htmlFor="group_code">Enter Group Code </label>
+                    <input
+                      type="text"
+                      id="group_code"
+                      value={state.group_code}
+                      onChange={handleFieldChange("group_code")}
+                      required
+                      name="group_code"
+                      placeholder="00000000"
+                      className={formStyles.input}
+                    />
+                  </div>
+                </>
+              )}
+
+              {state.isExistingOrg ? (
+                <div className={styles.btnContainer}>
+                  <button
+                    className={styles.backBtn}
+                    onClick={decrementPageNumber}
+                  >
+                    Go Back
+                  </button>
+                  <button type="submit" className={styles.registerBtn}>
+                    Finish
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.btnContainer}>
+                  <button
+                    className={styles.backBtn}
+                    onClick={decrementPageNumber}
+                  >
+                    Go Back
+                  </button>
+                  <button
+                    className={styles.registerBtn}
+                    onClick={incrementPageNumber}
+                  >
+                    Next
+                  </button>
+                </div>
               )}
             </div>
+          )}
 
-            {state.isExistingOrg ? (
-              <button className={styles.finishRegisterBtn}>Finish</button>
-            ) : (
-              <button
-                onClick={incrementPageNumber}
-                className={styles.finishRegisterBtn}
-              >
-                Next
-              </button>
-            )}
-          </form>
-        )}
-
-        {state.page === 2 && (
-          <form
-            onSubmit={handleRegistrationComplete}
-            className={styles.formContainer}
-          >
-            <div className={styles.inputContainer}>
-              <label htmlFor="orgName">Organization Name</label>
-              <input
-                id="orgName"
-                required
-                name="orgName"
-                placeholder="Organization Name"
-                type="text"
-                value={state.selectedOrg}
-                onChange={handleFieldChange("selectedOrg")}
-              />
-            </div>
-
-            <div className={styles.inputContainer}>
-              <label htmlFor="address">Address</label>
-              <input
-                id="address"
-                required
-                name="address"
-                placeholder="Address"
-                type="text"
-                value={state.address}
-                onChange={handleFieldChange("address")}
-              />
-            </div>
-
-            <div className={styles.inputContainer}>
-              <label htmlFor="city">City</label>
-              <input
-                id="city"
-                required
-                name="city"
-                placeholder="City"
-                type="text"
-                value={state.city}
-                onChange={handleFieldChange("city")}
-              />
-            </div>
-
-            <div className={styles.inlineFields}>
-              <div className={styles.inputContainer}>
-                <label htmlFor="state">State</label>
-                <SelectMenu
-                  placeholder="State"
-                  required
-                  value={state.state}
-                  onValueChange={(value) =>
-                    dispatch({ type: "SET_FIELD", field: "state", value })
-                  }
-                  name="state"
-                  className={styles.selectMenu2}
-                >
-                  {states.map((state, idx) => (
-                    <SelectMenu.Item key={idx} value={state.abbreviation}>
-                      {state.abbreviation}
-                    </SelectMenu.Item>
-                  ))}
-                </SelectMenu>
-              </div>
-
-              <div className={styles.inputContainer}>
-                <label htmlFor="zip-code">Zip Code</label>
+          {state.page === 3 && (
+            <>
+              <div className={formStyles.inputContainer}>
+                <label htmlFor="orgName">Organization Name</label>
                 <input
-                  id="zip-code"
+                  className={formStyles.input}
+                  id="orgName"
                   required
-                  name="zipCode"
-                  placeholder="Zip-code"
+                  name="orgName"
+                  placeholder="Organization Name"
                   type="text"
-                  value={state.zipCode}
-                  onChange={handleFieldChange("zipCode")}
+                  value={state.selectedOrg}
+                  onChange={handleFieldChange("selectedOrg")}
                 />
               </div>
-            </div>
 
-            <div className={styles.btnContainer}>
-              <button className={styles.backBtn} onClick={decrementPageNumber}>
-                Go Back
-              </button>
-              <button className={styles.registerBtn}>Register</button>
-            </div>
-          </form>
-        )}
+              <div className={formStyles.inputContainer}>
+                <label htmlFor="address">Address</label>
+                <input
+                  id="address"
+                  className={formStyles.input}
+                  required
+                  name="address"
+                  placeholder="Address"
+                  type="text"
+                  value={state.address}
+                  onChange={handleFieldChange("address")}
+                />
+              </div>
+
+              <div className={formStyles.inputContainer}>
+                <label htmlFor="city">City</label>
+                <input
+                  id="city"
+                  className={formStyles.input}
+                  required
+                  name="city"
+                  placeholder="City"
+                  type="text"
+                  value={state.city}
+                  onChange={handleFieldChange("city")}
+                />
+              </div>
+
+              <div className={styles.inlineFields}>
+                <div className={formStyles.inputContainer}>
+                  <label htmlFor="state">State</label>
+                  <SelectMenu
+                    placeholder="State"
+                    required
+                    value={state.state}
+                    onValueChange={(value) =>
+                      dispatch({ type: "SET_FIELD", field: "state", value })
+                    }
+                    name="state"
+                    className={formStyles.selectMenu2}
+                  >
+                    {states.map((state, idx) => (
+                      <SelectMenu.Item key={idx} value={state.abbreviation}>
+                        {state.abbreviation}
+                      </SelectMenu.Item>
+                    ))}
+                  </SelectMenu>
+                </div>
+
+                <div className={formStyles.inputContainer}>
+                  <label htmlFor="zip-code">Zip Code</label>
+                  <input
+                    className={formStyles.input}
+                    id="zip-code"
+                    required
+                    name="zipCode"
+                    placeholder="Zip-code"
+                    type="text"
+                    value={state.zipCode}
+                    onChange={handleFieldChange("zipCode")}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.btnContainer}>
+                <button
+                  className={styles.backBtn}
+                  onClick={decrementPageNumber}
+                >
+                  Go Back
+                </button>
+                <button
+                  type="submit"
+                  className={styles.registerBtn}
+                  disabled={!getIsPageComplete(3)}
+                >
+                  Register
+                </button>
+              </div>
+            </>
+          )}
+        </form>
       </Modal.Content>
     </Modal>
   );

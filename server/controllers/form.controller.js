@@ -5,6 +5,7 @@ require("dotenv").config();
 const Response = require("./../mongoModels/response");
 const FormMongo = require("./../mongoModels/form");
 const { Form, User } = require("../models");
+const FormPaymentController = require("./formPayment.controller");
 
 const FormController = {
   async getAllForms(req, res, next) {
@@ -20,14 +21,20 @@ const FormController = {
   },
   async createResponse(req, res, next) {
     try {
+      const responseData = req.body.data;
       const insertedResponse = new Response({
         form_id: req.body.form_id,
         response: {
-          answers: req.body.data,
+          answers: responseData,
         },
       });
 
       await insertedResponse.save();
+      const responseIdString = insertedResponse.id;
+      await FormPaymentController.connectResponseToFormPayment(
+        responseData,
+        responseIdString,
+      );
 
       return res.status(201).json(insertedResponse);
     } catch (error) {
@@ -48,6 +55,11 @@ const FormController = {
   async createForm(req, res, next) {
     try {
       const form_data = { title: req.body.title, fields: req.body.fields };
+
+      let form_type = 1;
+      if (req.body.template !== "registration") {
+        form_type = 2;
+      }
 
       const user = await User.findByPk(req.params.user_id);
       if (!user) {
@@ -77,6 +89,7 @@ const FormController = {
         created_by: req.params.user_id,
         updated_by: null,
         document_id: result.id,
+        form_type: form_type,
       };
 
       await Form.build(newForm).validate();
@@ -106,6 +119,7 @@ const FormController = {
         data.sql_form_id = sqlFormData
           ? sqlFormData.id
           : `no sql form found for ${form_document_id}`;
+        data.form_type = sqlFormData ? sqlFormData.form_type : 0;
       }
 
       return res.status(200).json(data);

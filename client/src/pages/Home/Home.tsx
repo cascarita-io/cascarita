@@ -1,14 +1,15 @@
-import Leagues from "../Leagues/Leagues";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import RegisterModal from "../../components/RegistrationModal/RegistrationModal";
 import { fetchUser } from "../../api/users/service";
 import Cookies from "js-cookie";
+import Navbar from "../../components/NavBar/NavBar";
+import Page from "../../components/Page/Page";
 
 const Home = () => {
   const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
-  const [registered, setRegistered] = useState(false);
+  const [registered, setRegistered] = useState<boolean | null>(null);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   useEffect(() => {
@@ -19,9 +20,13 @@ const Home = () => {
           const token = await getAccessTokenSilently();
           const response = await fetchUser(user.email || "", token);
           setRegistered(response?.isSigningUp ? false : true);
+          Cookies.set("group_id", response?.group_id || 0);
         } catch (error) {
           console.error("Error checking registration status:", error);
+          setRegistered(false);
         }
+      } else {
+        setRegistered(false);
       }
     };
 
@@ -30,10 +35,16 @@ const Home = () => {
 
   // Move the modal opening logic to a useEffect hook to avoid triggering re-renders
   useEffect(() => {
-    if (!registered && isAuthenticated) {
+    if (registered === false && isAuthenticated) {
       setIsRegisterModalOpen(true);
     }
   }, [registered, isAuthenticated, isRegisterModalOpen]);
+
+  useEffect(() => {
+    if (!isRegisterModalOpen && (registered === null || registered === false)) {
+      setIsRegisterModalOpen(true);
+    }
+  }, [isRegisterModalOpen, registered]);
 
   // Function to handle registration completion
   const handleRegistrationComplete = () => {
@@ -41,11 +52,8 @@ const Home = () => {
     setIsRegisterModalOpen(false);
   };
 
-  const location = useLocation();
-  const isSeasonRoute = location.pathname.includes("season");
-
-  if (isSeasonRoute) {
-    return <Outlet />;
+  if (registered === null) {
+    return <></>;
   }
 
   return (
@@ -61,8 +69,17 @@ const Home = () => {
               <></>
             </RegisterModal>
           )}
-          {/*TODO: Find out why the League Component gets rendered twice  */}
-          <Leagues />
+          <Page title="Welcome!">
+            <Navbar>
+              <Navbar.Item href="">Leagues</Navbar.Item>
+              <Navbar.Item href="seasons">Seasons</Navbar.Item>
+              <Navbar.Item href="divisions">Divisions</Navbar.Item>
+              <Navbar.Item href="teams">Teams</Navbar.Item>
+              <Navbar.Item href="players">Players</Navbar.Item>
+            </Navbar>
+
+            <Outlet />
+          </Page>
         </>
       ) : (
         <p>Not authenticated...</p>

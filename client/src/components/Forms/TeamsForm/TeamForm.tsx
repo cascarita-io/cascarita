@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./TeamForm.module.css";
 import {
   CreateNewTeamData,
@@ -8,7 +8,6 @@ import {
 } from "./types";
 import FileUpload from "../../FileUpload/FileUpload";
 import Modal from "../../Modal/Modal";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   useCreateTeam,
   useDeleteTeam,
@@ -16,18 +15,31 @@ import {
 } from "../../../api/teams/mutations";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
+import Cookies from "js-cookie";
+import { DivisionType } from "../../../pages/Division/types";
+import { SeasonType } from "../../../pages/Seasons/types";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
   teamId,
-  seasonId,
-  divisionId,
+  divisionsData,
+  seasonsData,
 }) => {
   const { t } = useTranslation("Teams");
-  const [teamName, setTeamName] = React.useState("");
-  const { user } = useAuth0();
-  const currentUser = user;
+  const [teamName, setTeamName] = useState("");
+  const [divisionId, setDivisionId] = useState(0);
+  const [seasonId, setSeasonId] = useState(0);
+  const [linkToSeason, setLinkToSeason] = useState(true);
+  const groupId = Number(Cookies.get("group_id")) || 0;
+
+  console.log("seasonsData", seasonsData);
+
+  useEffect(() => {
+    if (seasonId !== 0) {
+      setLinkToSeason(true);
+    }
+  }, [seasonId]);
 
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
@@ -44,12 +56,14 @@ const TeamForm: React.FC<TeamFormProps> = ({
       formData: {
         name: teamName,
         team_logo: teamLogo,
-        group_id: currentUser?.currentUser?.group_id,
+        group_id: groupId,
         division_id: divisionId,
         season_id: seasonId,
+        link_to_season: linkToSeason,
       },
     };
 
+    // TODO: Refactor mutations to not rely on season but rather division
     switch (requestType) {
       case "POST":
         createTeamMutation.mutate(data as CreateNewTeamData);
@@ -78,7 +92,8 @@ const TeamForm: React.FC<TeamFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={handleSubmit}
-          className={styles.form}>
+          className={styles.form}
+        >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -102,6 +117,61 @@ const TeamForm: React.FC<TeamFormProps> = ({
           </div>
 
           <div className={styles.inputContainer}>
+            <label className={styles.label}>{t("formContent.season")}</label>
+            <select
+              id="seasonId"
+              name="seasonId"
+              value={seasonId}
+              className={styles.input}
+              onChange={(e) => setSeasonId(Number(e.target.value))}
+              required={linkToSeason}
+            >
+              <option value="">Select a season</option>
+              {seasonsData?.map((season: SeasonType) => (
+                <option key={season.id} value={season.id}>
+                  {season.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {seasonId !== 0 && (
+            <div className={styles.inputContainer}>
+              <label className={styles.label}>
+                {t("formContent.division")}
+              </label>
+              <select
+                id="divisionId"
+                name="divisionId"
+                value={divisionId}
+                className={styles.input}
+                onChange={(e) => setDivisionId(Number(e.target.value))}
+                required={linkToSeason}
+              >
+                <option value="">Select a division</option>
+                {divisionsData?.map((division: DivisionType) => (
+                  <option key={division.id} value={division.id}>
+                    {division.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className={styles.inputContainer}>
+            <label className={styles.label}>
+              {t("formContent.linkToSeason")}
+            </label>
+            <input
+              type="checkbox"
+              id="linkToSeason"
+              name="linkToSeason"
+              checked={linkToSeason}
+              onChange={(e) => setLinkToSeason(e.target.checked)}
+            />
+          </div>
+
+          <div className={styles.inputContainer}>
             <label className={styles.label}>{t("formContent.logo")}</label>
 
             <FileUpload className={styles.logoInputContainer} />
@@ -115,7 +185,8 @@ const TeamForm: React.FC<TeamFormProps> = ({
             <div>
               <button
                 type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}>
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
                 {t("formContent.submit")}
               </button>
             </div>

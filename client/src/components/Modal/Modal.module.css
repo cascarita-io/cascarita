@@ -80,6 +80,31 @@
   outline: none;
 }
 
+.maximizeContent {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 1px 1px 1px grey;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  padding: 25px;
+}
+
+.maximizeContent[data-state="open"] {
+  animation: dialog-content-show 200ms;
+  z-index: 2;
+}
+
+.maximizeContent[data-state="closed"] {
+  animation: dialog-content-hide 200ms;
+}
+
+.maximizeContent:focus {
+  outline: none;
+}
+
 .title {
   margin-bottom: 2px;
   font-weight: 700;
@@ -90,6 +115,7 @@
 .subtitle {
   font-size: 0.9rem;
   color: #4b4a4a;
+  margin-bottom: 8px;
 }
 
 .closeIcon {

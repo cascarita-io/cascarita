@@ -7,6 +7,10 @@ import PhoneNumber from "../../components/FormInputComponents/PhoneNumber/PhoneN
 import ShortText from "../../components/FormInputComponents/ShortText/ShortText";
 import PlayerBlock from "../../components/FormInputComponents/PlayerBlock/PlayerBlock";
 import StripeComponent from "../../components/FormInputComponents/Stripe/StripeComponent";
+import Liability from "../../components/FormInputComponents/Liability/Liability";
+import Signature from "../../components/FormInputComponents/Signature/Signature";
+import Date from "../../components/FormInputComponents/Date/Date";
+import Photo from "../../components/FormInputComponents/Photo/Photo";
 
 export interface WelcomeScreen {
   id: string;
@@ -44,6 +48,7 @@ export interface FetchedForm {
   };
   welcome_screen: WelcomeScreen;
   sql_form_id: string;
+  form_type: number;
 }
 
 export const FieldComponents = {
@@ -54,7 +59,11 @@ export const FieldComponents = {
   email: Email,
   phone_number: PhoneNumber,
   payment: StripeComponent,
+  liability: Liability,
+  signature: Signature,
+  date: Date,
   player: PlayerBlock,
+  photo: Photo,
 };
 
 // TODO: more appropriate mapping for data normalization
@@ -63,8 +72,12 @@ export const AnswerMap = {
   short_text: "short_text",
   dropdown: "dropdown",
   long_text: "long_text",
+  liability: "liability",
+  signature: "signature",
+  date: "date",
   email: "email",
   phone_number: "phone_number",
   payment: "payment",
   player: "player",
+  photo: "photo",
 };

@@ -7,6 +7,10 @@
     "Email": "Email",
     "Phone Number": "Phone Number",
     "Payment": "Payment",
-    "Player": "Player"
+    "Player": "Player",
+    "Photo": "Photo",
+    "Liability": "Liability",
+    "Signature": "Signature",
+    "Date": "Date"
   }
 }

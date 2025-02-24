@@ -171,6 +171,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      group_code: {
+        type: DataTypes.STRING(10),
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "group code is required",
+          },
+          notEmpty: {
+            msg: "group code cannot be empty",
+          },
+        },
+      }
     },
     {
       sequelize,

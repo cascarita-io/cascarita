@@ -6,7 +6,19 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import nullthrows from "nullthrows";
 
-export const connectStripe = async (formData: object) => {
+export const connectStripe = async (
+  id: number,
+  email: string,
+  name: string,
+  description: string
+) => {
+  const formData = {
+    id: id,
+    email: email,
+    platform_account_name: name,
+    platform_account_description: description,
+    account_email: email,
+  };
   try {
     const response = await fetch("/api/accounts/connect", {
       method: "POST",
@@ -32,9 +44,9 @@ export const connectStripe = async (formData: object) => {
 export const createPaymentIntent = async (
   stripeAccountId: string,
   form_id: string,
-  userId: string,
-  price: number,
-  fee: number,
+  userStripeAccountSqlId: string,
+  transactionAmount: number,
+  transactionFee: number
 ): Promise<PaymentIntent | null> => {
   try {
     const response = await fetch(
@@ -45,12 +57,12 @@ export const createPaymentIntent = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          price,
-          fee,
+          transactionAmount,
+          transactionFee,
           form_id,
-          userId,
+          userStripeAccountSqlId,
         }),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -71,7 +83,7 @@ export const getPublishableKey = async (): Promise<string> => {
 
     if (!response.ok) {
       throw new Error(
-        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`,
+        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`
       );
     }
 
@@ -84,7 +96,7 @@ export const getPublishableKey = async (): Promise<string> => {
 };
 
 export const getStripeAccounts = async (
-  groupId: number,
+  groupId: number
 ): Promise<StripeAccount[]> => {
   try {
     const response = await fetch(`/api/accounts/${groupId}`);
@@ -110,7 +122,7 @@ export const useStripePromise = (stripeAccount: string) => {
         nullthrows(publishableKey, "Publishable key is missing"),
         {
           stripeAccount,
-        },
+        }
       );
     },
   });

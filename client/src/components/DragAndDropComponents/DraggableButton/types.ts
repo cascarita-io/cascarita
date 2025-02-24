@@ -6,7 +6,10 @@ export type DraggableButtonKeys =
   | "draggableButtons.Email"
   | "draggableButtons.Phone Number"
   | "draggableButtons.Payment"
-  | "draggableButtons.Player";
+  | "draggableButtons.Player"
+  | "draggableButtons.Liability"
+  | "draggableButtons.Date"
+  | "draggableButtons.Signature";
 
 export interface DraggableButtonProps {
   label: string;

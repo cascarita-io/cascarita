@@ -23,7 +23,16 @@ By using this Software, you agree to the terms and conditions stated herein. If 
 */
 "use strict";
 
-const { User } = require("../models");
+const {
+  User,
+  UserRoles,
+  Role,
+  Session,
+  UserSessions,
+  TeamsSession,
+  Season,
+  Team,
+} = require("../models");
 const GroupController = require("./group.controller");
 const getUserInfoFromAuth0 = require("../utilityFunctions/auth0");
 
@@ -40,8 +49,19 @@ const UserController = function () {
   };
 
   var registerUser = async function (req, res, next) {
-    const { group_id, name, streetAddress, city, state, zipCode, logoUrl } =
-      req.body;
+    const {
+      group_id,
+      first_name,
+      last_name,
+      language_id,
+      name,
+      streetAddress,
+      city,
+      state,
+      zipCode,
+      logoUrl,
+      group_code,
+    } = req.body;
 
     const userBasicInfo = await getUserInfoFromAuth0(req.headers.authorization);
 
@@ -64,23 +84,44 @@ const UserController = function () {
       } catch (error) {
         next(error);
       }
+    } else {
+      //check if group exists and if they have corresponding group code
+      try {
+        const existingGroup = await GroupController.findGroupById(groupId);
+        if (!existingGroup) {
+          res.status(404).json({ error: `no group was found with id ${groupId}` });
+          return
+        }
+
+        if (existingGroup.group_code !== group_code) {
+          res.status(401).json({ error: "you are not authorized to join this group" });
+          return
+        }
+      } catch (error) {
+        next(error);
+      }
     }
-    const first_name =
+    const auth0_first_name =
       userBasicInfo.given_name ||
       (userBasicInfo.name ? userBasicInfo.name.split(" ")[0] : "");
 
-    const last_name =
+    const auth0_last_name =
       userBasicInfo.family_name ||
       (userBasicInfo.name
         ? userBasicInfo.name.split(" ").slice(1).join(" ")
         : "");
 
+    let language = 1;
+    if (language_id === "spanish") {
+      language = 2;
+    }
+
     const newUser = {
-      first_name: first_name,
-      last_name: last_name,
+      first_name: first_name ? first_name : auth0_first_name,
+      last_name: last_name ? last_name : auth0_last_name,
       email: userBasicInfo.email,
       picture: userBasicInfo.picture,
-      language_id: 1,
+      language_id: language,
       group_id: groupId,
     };
 
@@ -190,6 +231,159 @@ const UserController = function () {
     }
   };
 
+  var getPlayersByGroupId = async function (req, res, next) {
+    try {
+      const { group_id } = req.params;
+
+      let users = await User.findAll({
+        where: {
+          group_id: group_id,
+        },
+        attributes: {
+          exclude: [
+            "password",
+            "created_at",
+            "updated_at",
+            "group_id",
+            "language_id",
+          ],
+        },
+      });
+
+      if (!users) {
+        res.status(404);
+        throw new Error(`no users were found with group id ${group_id}`);
+      }
+
+      const playerRole = await Role.findOne({
+        where: {
+          name: "player",
+        },
+      });
+      const userRoles = await UserRoles.findAll({
+        where: {
+          role_id: playerRole.id,
+        },
+      });
+
+      if (!userRoles) {
+        res.status(404);
+        throw new Error(`no users were found with role 'player'`);
+      }
+
+      const usersWithPlayerRole = users.filter((user) =>
+        userRoles.some((userRole) => userRole.user_id === user.id),
+      );
+
+      users = usersWithPlayerRole;
+
+      let playersWithTeams = users;
+      await Promise.all(
+        users.map(async (user, index) => {
+          const userSessions = await UserSessions.findAll({
+            where: {
+              user_id: user.id,
+            },
+          });
+          let season_id;
+          let division_id;
+          let league_id;
+          const teams = await Promise.all(
+            userSessions.map(async (userSession) => {
+              const team = await Team.findByPk(userSession.team_id);
+              if (team) {
+                const teamSession = await TeamsSession.findOne({
+                  where: {
+                    team_id: team.id,
+                  },
+                });
+                const session = await Session.findByPk(teamSession.session_id);
+                division_id = session.division_id;
+                season_id = session.season_id;
+                const season = await Season.findByPk(season_id);
+                league_id = season.league_id;
+                return {
+                  id: team.id,
+                  name: team.name,
+                  session_id: teamSession.session_id,
+                };
+              }
+            }),
+          );
+          const filteredTeams = teams.filter(
+            (team) => team !== null && team !== undefined,
+          );
+          playersWithTeams[index].dataValues.teams = filteredTeams;
+          playersWithTeams[index].dataValues.division_id = division_id;
+          playersWithTeams[index].dataValues.season_id = season_id;
+          playersWithTeams[index].dataValues.league_id = league_id;
+        }),
+      );
+
+      users = playersWithTeams;
+      return res.status(200).json(users);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  var updatePlayerTeams = async function (req, res, next) {
+    try {
+      const { user_id } = req.params;
+      const { session_id, team_id } = req.body;
+
+      let team_ref = team_id;
+      if (team_id === -1) {
+        team_ref = null;
+      }
+
+      const userSession = await UserSessions.findOne({
+        where: {
+          user_id: user_id,
+          session_id: session_id,
+        },
+      });
+
+      // making a new player team association
+      if (!userSession) {
+        await UserSessions.create({
+          user_id,
+          team_ref,
+          session_id,
+        });
+      } else {
+        // updating an existing player team association
+        userSession.team_id = team_ref;
+        await userSession.save();
+      }
+
+      return res.status(204).json();
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  var getSession = async function (req, res, next) {
+    try {
+      const { division_id, season_id } = req.body;
+      const session = await Session.findOne({
+        where: {
+          division_id,
+          season_id,
+        },
+      });
+      if (!session) {
+        res.status(404);
+        throw new Error(
+          `no session found with division id ${division_id} and season id ${season_id}`,
+        );
+      }
+      return res.status(200).json(session);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   var getUsersByGroupId = async function (req, res, next) {
     try {
       const { group_id } = req.params;
@@ -199,7 +393,7 @@ const UserController = function () {
         throw new Error("group id must be an integer");
       }
 
-      const users = await User.findAll({
+      let users = await User.findAll({
         where: {
           group_id: group_id,
         },
@@ -321,6 +515,9 @@ const UserController = function () {
     updateUserById,
     addUser,
     fetchUser,
+    getPlayersByGroupId,
+    updatePlayerTeams,
+    getSession,
   };
 };
 

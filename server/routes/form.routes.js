@@ -3,6 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const FormController = require("../controllers/form.controller");
+const FormPaymentController = require("../controllers/formPayment.controller");
 
 module.exports = (checkJwt) => {
   router.post("/:group_id/:user_id", FormController.createForm);
@@ -11,5 +12,10 @@ module.exports = (checkJwt) => {
   router.get("/:document_id", FormController.getFormByDocumentId);
   router.patch("/:form_id", FormController.updateForm);
   router.delete("/:form_id", FormController.deleteForm);
+  router.post(
+    "/payment",
+    FormPaymentController.getFormPaymentByPaymentIntentId,
+  );
+  router.post("/status", FormPaymentController.updatePaymentStatus);
   return router;
 };

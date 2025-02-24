@@ -38,9 +38,9 @@
     },
     "addStripe": "Add Stripe Account",
     "status": {
-      "complete": "complete",
+      "approved": "approved",
       "pending": "pending",
-      "restricted": "restricted"
+      "rejected": "rejected"
     },
     "empty": "No subscriptions to display...",
     "formContent": {

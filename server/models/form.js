@@ -12,13 +12,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "group_id",
         targetKey: "id",
       });
-
       Form.belongsTo(models.User, {
         foreignKey: "created_by",
         targetKey: "id",
       });
       Form.belongsTo(models.User, {
         foreignKey: "updated_by",
+        targetKey: "id",
+      });
+      Form.belongsTo(models.FormType, {
+        foreignKey: "form_type",
         targetKey: "id",
       });
       Form.hasMany(models.FormPaymentIntents, {
@@ -35,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       document_id: {
         type: DataTypes.STRING,
+        allowNull: false,
+      },
+      form_type: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       created_by: {

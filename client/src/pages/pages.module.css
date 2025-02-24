@@ -52,7 +52,7 @@
   font-size: small;
 }
 
-.noLeagueMessage {
+.noItemsMessage {
   text-align: center;
   margin-top: 200px;
   font-size: 2rem;
@@ -107,6 +107,11 @@
     border-radius: 28px;
   }
 
+  .primaryBtnForms {
+    padding: 8px 16px;
+    border-radius: 25px;
+  }
+
   .btnTextDesktop {
     display: block;
   }
@@ -121,5 +126,17 @@
 
   .showInMobile {
     display: none;
+  }
+
+  .wrapper {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    height: 70vh;
+    padding-top: 16px;
+  }
+
+  .sectionWrapper {
+    margin-bottom: 32px;
   }
 }

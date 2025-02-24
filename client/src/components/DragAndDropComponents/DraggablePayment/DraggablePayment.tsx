@@ -9,10 +9,9 @@ import { useTranslation } from "react-i18next";
 import { SMALL_DRAGGABLE_CONTAINER_WIDTH } from "../constants";
 import { formatPayment } from "../../../utils/formatPayment";
 import { getStripeAccounts } from "../../../api/stripe/service";
-import nullthrows from "nullthrows";
-import { useAuth0 } from "@auth0/auth0-react";
 import { DraggableProps } from "../types";
 import { useQuery } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 
 const DraggablePayment: React.FC<DraggableProps> = ({
   index,
@@ -20,7 +19,6 @@ const DraggablePayment: React.FC<DraggableProps> = ({
   onDelete,
   onCopy,
 }) => {
-  const { user } = useAuth0();
   const { t } = useTranslation("DraggableFields");
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,6 +26,8 @@ const DraggablePayment: React.FC<DraggableProps> = ({
   const [paymentFee, setPaymentFee] = useState(
     formField.properties?.price?.feeValue ?? ""
   );
+
+  const groupId = Number(Cookies.get("group_id")) || 0;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -39,9 +39,6 @@ const DraggablePayment: React.FC<DraggableProps> = ({
     const fee = price * feePercentage + fixedFee;
     return Math.ceil(fee * 100) / 100;
   };
-
-  // TODO: Make a DB call to get our user related with Auth0 user id
-  const groupId = nullthrows(user?.group_id, "User does not have a group ID");
 
   const { data: stripeAccounts = [], isLoading } = useQuery({
     queryKey: ["stripeAccounts", groupId],
@@ -287,7 +284,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                 }`}
               >
                 {formField.validations?.required != null && (
-                  <>
+                  <div className={styles.requiredSwitch}>
                     <p className={styles.requiredText}>{t("requiredText")}</p>
                     <Controller
                       name={`fields.${index}.validations.required`}
@@ -309,7 +306,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                         />
                       )}
                     />
-                  </>
+                  </div>
                 )}
               </div>
             </div>

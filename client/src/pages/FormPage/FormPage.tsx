@@ -8,14 +8,20 @@ import { createMongoResponse } from "../../api/forms/service";
 import FormHeader from "../../components/FormHeader/FormHeader";
 import FormFooter from "../../components/FormFooter/FormFooter";
 import styles from "./FormPage.module.css";
-import { Answer, AnswerType, Field } from "../../api/forms/types";
+import {
+  Answer,
+  AnswerType,
+  Field,
+  SecondaryType,
+} from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
+import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
 
 const FormPage = () => {
   const { formId } = useParams();
   const navigate = useNavigate();
   const stripeComponentRef = useRef<{
-    handlePayment: () => Promise<boolean>;
+    handlePayment: () => Promise<PaymentResult>;
   } | null>(null);
   const {
     data: form,
@@ -65,26 +71,56 @@ const FormPage = () => {
             ? "choices"
             : (AnswerMap[field.type] as AnswerType);
 
-        return {
-          ...data.answers[index],
-          field: { id: field.id, type: field.type, ref: field.ref },
-          type: answerType,
-        };
+        if (field.secondary_type) {
+          return {
+            ...data.answers[index],
+            field: { id: field.id, type: field.type, ref: field.ref },
+            type: answerType,
+            secondary_type: field.secondary_type as SecondaryType,
+          };
+        } else {
+          return {
+            ...data.answers[index],
+            field: { id: field.id, type: field.type, ref: field.ref },
+            type: answerType,
+          };
+        }
       }) ?? [];
 
     try {
       if (stripeComponentRef.current) {
-        const success = await stripeComponentRef.current.handlePayment();
+        const { success, paymentIntentId, amount } =
+          await stripeComponentRef.current.handlePayment();
         if (!success) {
           return;
+        } else {
+          const updatedNormalizedAnswers = normalizedAnswers.map((answer) => {
+            if (answer.type === "payment") {
+              return {
+                ...answer,
+                paymentIntentId: paymentIntentId,
+                amount: amount,
+              };
+            }
+            return answer;
+          });
+
+          const responsesData = await createMongoResponse(
+            formId ?? "",
+            updatedNormalizedAnswers
+          );
+          // TODO: Redirect to a thank you page!
+          navigate("/");
+          return responsesData;
         }
       }
+
+      // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
         normalizedAnswers
       );
-      // TODO: Redirect to a thank you page!
-      navigate("/");
+      navigate("/thanks");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);
