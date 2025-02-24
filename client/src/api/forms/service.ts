@@ -240,12 +240,10 @@ export const sendEmail = async (formLink: string, email: string) => {
   }
 };
 
-export const getFormPaymentsByPaymentIntentId = async (
-  paymentIntentId: string
-) => {
+export const getFormPayments = async (formId: string) => {
   try {
     const data = {
-      payment_intent_id: paymentIntentId,
+      form_id: formId,
     };
     const response = await fetch(`/api/forms/payment`, {
       method: "POST",
@@ -281,6 +279,34 @@ export const updateFormPaymentStatus = async (
     console.log("email: ", email);
     console.log("response: ", answers);
     const response = await fetch(`/api/forms/status`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching payment intents: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (err) {
+    console.error("Error fetching payment intents:", err);
+    throw err;
+  }
+};
+
+export const updateFormPaymentType = async (
+  paymentIntentId: string,
+  paymentType: number
+) => {
+  try {
+    const data = {
+      payment_intent_id: paymentIntentId,
+      payment_method_id: paymentType,
+    };
+    const response = await fetch(`/api/forms/paymenttype`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

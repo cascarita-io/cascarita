@@ -7,6 +7,7 @@ export interface PaymentResult {
   paymentIntentId?: string;
   amount?: number;
   error?: string;
+  payment_type?: string;
 }
 
 const CheckoutForm = forwardRef((_props, ref) => {
@@ -43,6 +44,7 @@ const CheckoutForm = forwardRef((_props, ref) => {
       success: true,
       paymentIntentId: stripeConfirmedPayment.paymentIntent?.id,
       amount: stripeConfirmedPayment.paymentIntent?.amount,
+      payment_type: "stripe",
     };
   };
 

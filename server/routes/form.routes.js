@@ -12,10 +12,8 @@ module.exports = (checkJwt) => {
   router.get("/:document_id", FormController.getFormByDocumentId);
   router.patch("/:form_id", FormController.updateForm);
   router.delete("/:form_id", FormController.deleteForm);
-  router.post(
-    "/payment",
-    FormPaymentController.getFormPaymentByPaymentIntentId,
-  );
+  router.post("/payment", FormPaymentController.getFormPayments);
+  router.post("/paymenttype", FormPaymentController.updateFormPaymentType);
   router.post("/status", FormPaymentController.updatePaymentStatus);
   return router;
 };
