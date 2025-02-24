@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styles from "./Payment.module.css";
+import styles from "../Settings.module.css";
 import tableStyles from "../../pages.module.css";
 
 import DashboardTable from "../../../components/DashboardTable/DashboardTable";
@@ -105,9 +105,12 @@ const Payment = () => {
   };
 
   return (
-    <section className={styles.wrapper}>
+    <section className={styles.settingsWrapper}>
       <div className={styles.sectionHeader}>
-        <h2>{t("payment.title")}</h2>
+        <div className={styles.sectionTitleWrapper}>
+          <h2>{t("payment.title")}</h2>
+          <p style={{ marginBottom: "16px" }}>{t("payment.subtitle")}</p>
+        </div>
 
         <Modal open={isStripeModalOpen} onOpenChange={setIsStripeModalOpen}>
           <Modal.Button asChild>
@@ -128,31 +131,30 @@ const Payment = () => {
         </Modal>
       </div>
 
-      <p style={{ marginBottom: "16px" }}>{t("payment.subtitle")}</p>
-
       <DashboardTable
         headers={planHeaders}
         headerColor="light"
         className={styles.table}
       >
-        {/* TODO: Next, map over the data that gets returned from api hook */}
-        {mockPaymentData == null || mockPaymentData?.length === 0 ? (
-          <p>{t("payment.empty")}</p>
+        {data == null || data?.length === 0 ? (
+          <p className={tableStyles.noItemsMessage}>{t("payment.empty")}</p>
         ) : (
-          mockPaymentData?.map((user) => (
+          data?.map((user) => (
             <tr key={user.id}>
-              <td>{user.name}</td>
+              <td>{user.stripe_account_name}</td>
               <td>
                 <p
                   className={styles.statusLabel}
-                  style={statusLabelStyling(user.status)}
+                  style={statusLabelStyling(user.stripe_status)}
                 >
-                  {user.status}
+                  {user.stripe_status}
                 </p>
               </td>
-              <td className={tableStyles.showInDesktop}>{user.email}</td>
+              <td className={tableStyles.showInDesktop}>
+                {user.account_email}
+              </td>
               <td>
-                <a href="">
+                <a href="#">
                   <FaExternalLinkAlt />
                 </a>
               </td>
