@@ -12,10 +12,8 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getLeagueByGroupId } from "../../api/leagues/service";
 import { Outlet, useLocation } from "react-router-dom";
-import Cookies from "js-cookie";
-import { useAuth0 } from "@auth0/auth0-react";
-import { fetchUser } from "../../api/users/service";
 import { FaPlus } from "react-icons/fa";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
 
 const Leagues = () => {
   const { t } = useTranslation("Leagues");
@@ -26,24 +24,15 @@ const Leagues = () => {
   const [currentLeagueId, setCurrentLeagueId] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const { groupId } = useGroup();
 
-  const { getAccessTokenSilently } = useAuth0();
-  const [groupId, setGroupId] = useState(0);
+  useEffect(() => {}, [groupId]);
 
   // const filterStatuses = [t("filterOptions.item1"), t("filterOptions.item2")];
   // const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setGroupId(currentUser.group_id);
-    })();
-  }, []);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["leagues", groupId ? groupId : 0],
@@ -73,7 +62,7 @@ const Leagues = () => {
   };
 
   const filteredData = data?.filter((league: LeagueType) =>
-    league.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+    league.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   const location = useLocation();
