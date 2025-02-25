@@ -53,8 +53,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
     uploadPhoto();
   }, [fileUrl]);
 
-  console.log("seasonsData", seasonsData);
-
   useEffect(() => {
     if (seasonId !== 0) {
       setLinkToSeason(true);
