@@ -539,7 +539,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                 required
               />
               <label className={styles.label} htmlFor="fee">
-                Stripe Fee
+                Processing Fee
                 <Tooltip title="This is the fee that Stripe charges for processing payments.">
                   <span style={{ color: "grey", paddingLeft: "4px" }}>?</span>
                 </Tooltip>
