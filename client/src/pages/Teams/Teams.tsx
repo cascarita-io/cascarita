@@ -167,7 +167,7 @@ const Teams = () => {
                     {team.season_name || <span>Not linked to season</span>}
                   </td>
                   <td>
-                    {team.division_name || <span>Not linked to season</span>}
+                    {team.division_name || <span>Not linked to division</span>}
                   </td>
                   <td>
                     <DropdownMenuButton>
