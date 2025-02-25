@@ -134,7 +134,7 @@ const FormPage = () => {
             updatedNormalizedAnswers
           );
           // TODO: Redirect to a thank you page!
-          navigate("/");
+          navigate("/thanks");
           return responsesData;
         }
       } else if (
@@ -159,7 +159,7 @@ const FormPage = () => {
           updatedNormalizedAnswers
         );
         // TODO: Redirect to a thank you page!
-        navigate("/");
+        navigate("/thanks");
         return responsesData;
       }
 
