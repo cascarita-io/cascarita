@@ -548,7 +548,7 @@ const UserController = function () {
 
       return res.status(201).json(currentUser);
     } catch (error) {
-      next(error);
+      console.error(error);
     }
   };
 
