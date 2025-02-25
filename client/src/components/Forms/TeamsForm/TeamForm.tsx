@@ -186,7 +186,13 @@ const TeamForm: React.FC<TeamFormProps> = ({
               id="linkToSeason"
               name="linkToSeason"
               checked={linkToSeason}
-              onChange={(e) => setLinkToSeason(e.target.checked)}
+              onChange={(e) => {
+                setLinkToSeason(e.target.checked);
+                if (!e.target.checked) {
+                  setDivisionId(0);
+                  setSeasonId(0);
+                }
+              }}
             />
           </div>
 
