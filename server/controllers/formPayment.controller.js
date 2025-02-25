@@ -173,32 +173,68 @@ const FormPaymentController = function () {
   };
 
   var handleUserUpdateStripe = async function (paymentIntent) {
-    const existingPaymentIntent = await findFormPaymentByPaymentIntentId(
-      paymentIntent.id,
-    );
+    try {
+      const paymentResult = await findFormPaymentByPaymentIntentId(
+        paymentIntent.id,
+      );
 
-    // fixe but stoped here
-    const form = await Form.findByPk(existingPaymentIntent.form_id);
-    const groupId = form?.group_id || null;
+      if (!paymentResult.success) {
+        return {
+          success: false,
+          error: paymentResult.message,
+          status: paymentResult.status,
+        };
+      }
 
-    const response = await Response.findById(
-      existingPaymentIntent.response_document_id,
-    );
+      const existingPaymentIntent = paymentResult.data;
 
-    if (!response && !groupId) {
-      return;
-    }
+      const form = await Form.findByPk(existingPaymentIntent.form_id);
+      if (!form) {
+        return {
+          success: false,
+          error: `associated form not found with id: ${existingPaymentIntent.form_id}`,
+          status: 404,
+        };
+      }
 
-    const formattedAnswers = response.formatted_answers?.toObject();
-    const userSelectedStatus = response.user_selected_status?.toObject();
-    if (userSelectedStatus === "approved") {
-      const user = getUserDataFromAnswers(formattedAnswers);
-      const updatedUser = UserController.createUserViaFromResponse(user);
-      return updatedUser;
+      const groupId = form.group_id;
+
+      const response = await Response.findById(
+        existingPaymentIntent.response_document_id,
+      );
+
+      if (!response) {
+        return {
+          success: false,
+          error: `associated response not found with id: ${existingPaymentIntent.response_document_id}`,
+          status: 404,
+        };
+      }
+
+      const formattedAnswers = response.formatted_answers;
+      const userSelectedStatus = response.user_selected_status;
+
+      if (userSelectedStatus === "approved" && formattedAnswers) {
+        const user = getUserDataFromAnswers(formattedAnswers, groupId);
+
+        const updatedUser = await UserController.createUserViaFromResponse(
+          user,
+        );
+
+        return { success: true, data: updatedUser, status: 200 };
+      } else {
+        return {
+          success: false,
+          error: "no user update made, missing formatted answers data",
+          status: 404,
+        };
+      }
+    } catch (error) {
+      return { success: false, error: error.message, status: 500 };
     }
   };
 
-  var getUserDataFromAnswers = function (formattedAnswers) {
+  var getUserDataFromAnswers = function (formattedAnswers, groupId) {
     const user = {
       first_name: formattedAnswers.first_name?.short_text,
       last_name: formattedAnswers.last_name?.short_text,
