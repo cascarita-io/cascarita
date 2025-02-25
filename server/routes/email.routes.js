@@ -11,7 +11,7 @@ const sesClient = new SESClient({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
-  region: process.env.REGION,
+  region: process.env.AWS_REGION,
 });
 
 const VERIFIED_EMAIL = process.env.VERIFIED_EMAIL;
