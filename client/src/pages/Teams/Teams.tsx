@@ -159,7 +159,16 @@ const Teams = () => {
                         gap: "8px",
                       }}
                     >
-                      <img src={team.team_logo} />
+                      {team.team_logo && (
+                        <img
+                          style={{
+                            width: "75px",
+                            height: "75px",
+                          }}
+                          src={team.team_logo}
+                          alt={team.name}
+                        />
+                      )}
                       {team.name}
                     </div>
                   </td>
