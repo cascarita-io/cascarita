@@ -13,6 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/client-secrets-manager": "^3.675.0",
+    "@aws-sdk/client-ses": "^3.750.0",
     "@aws-sdk/credential-provider-ini": "^3.675.0",
     "@stripe/stripe-js": "^5.2.0",
     "babel-eslint": "^10.1.0",
