@@ -11,6 +11,8 @@ interface TeamType {
   group_id: number;
   division_name: string;
   division_id: number;
+  season_name: string;
+  season_id: number;
 }
 
 export type { TeamType, ShortDivisionType };

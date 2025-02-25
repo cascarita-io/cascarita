@@ -1,0 +1,6 @@
+.statusLabel {
+  width: fit-content;
+  font-size: 0.925rem;
+  padding: 1px 16px;
+  border-radius: 30px;
+}

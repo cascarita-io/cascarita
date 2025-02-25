@@ -28,6 +28,7 @@ const initialState = {
   city: "",
   state: "",
   zipCode: "",
+  group_code: "",
 };
 
 function reducer(state: State, action: Action) {
@@ -71,6 +72,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   onRegistrationComplete,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [error, setError] = React.useState<string | null>(null);
   const { getAccessTokenSilently } = useAuth0();
   const registerUserMutation = useRegisterUser();
   const { data } = useGetAllGroups();
@@ -95,7 +97,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         return state.firstName.trim() !== "" && state.lastName.trim() !== "";
 
       case 2:
-        return state.org.trim() !== "";
+        return state.org.trim() !== "" && state.group_code.trim() !== "";
 
       case 3:
         return (
@@ -111,13 +113,13 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   };
 
   const handleRegistrationComplete = async (
-    event: React.FormEvent<HTMLFormElement>,
+    event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
     const token = await getAccessTokenSilently();
 
     const payload = {
-      group_id: state.org,
+      group_id: state.page === 3 ? null : state.org,
       first_name: state.firstName,
       last_name: state.lastName,
       language_id: state.language_id,
@@ -127,9 +129,23 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
       state: state.state,
       zipCode: state.zipCode,
       logoUrl: null,
+      group_code: state.group_code,
       token: token,
     };
-    registerUserMutation.mutate(payload as RegisterUser);
+    try {
+      const data = await registerUserMutation.mutateAsync(
+        payload as RegisterUser
+      );
+      // Handle successful registration here
+      if (data.error) {
+        setError(data.error);
+        setTimeout(() => setError(null), 5000);
+        return;
+      }
+    } catch (error) {
+      // Handle registration error here
+      console.error("Registration failed:", error);
+    }
 
     onRegistrationComplete();
     dispatch({ type: "RESET_FORM" }); // Reset form after completion
@@ -241,21 +257,40 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               </RadioSelect>
 
               {state.isExistingOrg && (
-                <SelectMenu
-                  placeholder="Select an Organization"
-                  value={state.org}
-                  onValueChange={(value) =>
-                    dispatch({ type: "SET_FIELD", field: "org", value })
-                  }
-                  name="groupId"
-                  className={styles.selectMenu1}
-                >
-                  {data?.map((group: GroupType) => (
-                    <SelectMenu.Item key={group.id} value={group.id.toString()}>
-                      {group.name}
-                    </SelectMenu.Item>
-                  ))}
-                </SelectMenu>
+                <>
+                  <SelectMenu
+                    placeholder="Select an Organization"
+                    value={state.org}
+                    onValueChange={(value) =>
+                      dispatch({ type: "SET_FIELD", field: "org", value })
+                    }
+                    name="groupId"
+                    className={styles.selectMenu1}
+                  >
+                    {data?.map((group: GroupType) => (
+                      <SelectMenu.Item
+                        key={group.id}
+                        value={group.id.toString()}
+                      >
+                        {group.name}
+                      </SelectMenu.Item>
+                    ))}
+                  </SelectMenu>
+                  <div className={formStyles.inputContainer}>
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    <label htmlFor="group_code">Enter Group Code </label>
+                    <input
+                      type="text"
+                      id="group_code"
+                      value={state.group_code}
+                      onChange={handleFieldChange("group_code")}
+                      required
+                      name="group_code"
+                      placeholder="00000000"
+                      className={formStyles.input}
+                    />
+                  </div>
+                </>
               )}
 
               {state.isExistingOrg ? (

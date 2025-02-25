@@ -26,23 +26,21 @@ const ConnectAccountController = function () {
         endpointSecret,
       );
 
-      let statusCode = 200;
-      let responseBody = { message: "Event handled!" };
-
       switch (event.type) {
         case "account.updated":
           const accountInfo = event.data.object;
           const updated = await _updateAccount(accountInfo);
-          if (!updated) {
-            statusCode = 500;
-            responseBody = { message: "Error updating account" };
-          }
-          break;
+          return res.status(200).json({
+            message: updated
+              ? "account updated successfully"
+              : "account update failed but webhook received",
+          });
         default:
-          statusCode = 403;
-          responseBody = { message: "Unhandled event type" };
+          console.log(`Unhandled webhook event type: ${event.type}`);
+          return res.status(200).json({
+            message: "Unhandled event type, but webhook received",
+          });
       }
-      return res.status(statusCode).json(responseBody);
     } catch (error) {
       return res.status(400).send(`Webhook Error: ${error.message}`);
     }
@@ -86,6 +84,7 @@ const ConnectAccountController = function () {
 
   return {
     handleEvent,
+    verifyRequest,
   };
 };
 

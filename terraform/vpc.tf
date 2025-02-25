@@ -135,7 +135,7 @@ resource "aws_lb" "ecs_alb" {
 
 resource "aws_lb_target_group" "ecs_tg" {
   name        = local.alb_lb_target_group_name
-  port        = var.port
+  port        = var.proxy_port
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = aws_vpc.main.id
@@ -156,7 +156,7 @@ resource "aws_lb_target_group" "ecs_tg" {
 
 resource "aws_lb_listener" "ecs_alb_listener" {
   load_balancer_arn = aws_lb.ecs_alb.arn
-  port              = var.port
+  port              = var.proxy_port
   protocol          = "HTTP"
 
   default_action {
