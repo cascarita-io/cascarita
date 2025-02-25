@@ -163,7 +163,7 @@ const Players = () => {
                     {player.teams && player.teams.length > 0 ? (
                       player.teams.map((team) => team.name).join(", ")
                     ) : (
-                      <span>Not linked to team</span>
+                      <span>Not linked to a team</span>
                     )}
                   </td>
                   <td>

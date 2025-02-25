@@ -164,10 +164,10 @@ const Teams = () => {
                     </div>
                   </td>
                   <td>
-                    {team.season_name || <span>Not linked to season</span>}
+                    {team.season_name || <span>Not linked to a season</span>}
                   </td>
                   <td>
-                    {team.division_name || <span>Not linked to division</span>}
+                    {team.division_name || <span>Not linked to a division</span>}
                   </td>
                   <td>
                     <DropdownMenuButton>
