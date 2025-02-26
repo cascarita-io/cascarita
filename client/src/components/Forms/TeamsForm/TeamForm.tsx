@@ -23,15 +23,18 @@ import { uploadPhotoToS3 } from "../../../api/photo/service";
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
+  name,
+  season_id,
+  division_id,
   teamId,
   divisionsData,
   seasonsData,
 }) => {
   const { t } = useTranslation("Teams");
-  const [teamName, setTeamName] = useState("");
-  const [divisionId, setDivisionId] = useState(0);
-  const [seasonId, setSeasonId] = useState(0);
-  const [linkToSeason, setLinkToSeason] = useState(true);
+  const [teamName, setTeamName] = useState(name);
+  const [divisionId, setDivisionId] = useState(division_id);
+  const [seasonId, setSeasonId] = useState(season_id);
+  const [linkToSeason, setLinkToSeason] = useState(season_id !== undefined);
   const groupId = Number(Cookies.get("group_id")) || 0;
 
   const [fileUrl, setFileUrl] = useState<File | null>(null);
@@ -52,12 +55,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
     };
     uploadPhoto();
   }, [fileUrl]);
-
-  useEffect(() => {
-    if (seasonId !== 0) {
-      setLinkToSeason(true);
-    }
-  }, [seasonId]);
 
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();

@@ -22,6 +22,8 @@ const Teams = () => {
   // const [sorts, setSorts] = useState("");
   const [currentTeamName, setCurrentTeamName] = useState("");
   const [currentTeamId, setCurrentTeamId] = useState(0);
+  const [currentDivisionId, setCurrentDivisionId] = useState(0);
+  const [currentSeasonId, setCurrentSeasonId] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -81,9 +83,16 @@ const Teams = () => {
     };
   }, [searchQuery]);
 
-  const handleEdit = (teamName: string, teamId: number) => {
+  const handleEdit = (
+    teamName: string,
+    teamId: number,
+    divisionId: number,
+    seasonId: number
+  ) => {
     setCurrentTeamName(teamName);
     setCurrentTeamId(teamId);
+    setCurrentDivisionId(divisionId);
+    setCurrentSeasonId(seasonId);
     setIsEditOpen(true);
   };
 
@@ -176,15 +185,22 @@ const Teams = () => {
                     </div>
                   </td>
                   <td>
-                    {team.season_name || <span>Not linked to a season</span>}
+                    {team.season_name || <span>Not linked to season</span>}
                   </td>
                   <td>
-                    {team.division_name || <span>Not linked to a division</span>}
+                    {team.division_name || <span>Not linked to season</span>}
                   </td>
                   <td>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item
-                        onClick={() => handleEdit(team.name, team.id)}
+                        onClick={() =>
+                          handleEdit(
+                            team.name,
+                            team.id,
+                            team.division_id,
+                            team.season_id
+                          )
+                        }
                       >
                         {t("edit")}
                       </DropdownMenuButton.Item>
@@ -213,6 +229,9 @@ const Teams = () => {
               requestType="PATCH"
               divisionsData={divisionsQuery.data}
               seasonsData={seasonsQuery.data}
+              name={currentTeamName}
+              division_id={currentDivisionId}
+              season_id={currentSeasonId}
               teamId={currentTeamId}
             />
           </Modal.Content>
