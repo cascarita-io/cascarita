@@ -25,7 +25,6 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   end,
   leagueData,
 }) => {
-  console.log("start: ", start, "end: ", end);
   const { t } = useTranslation("Seasons");
   const [leagueId, setLeagueId] = React.useState(league_id);
   const [seasonName, setSeasonName] = React.useState(name);
@@ -157,7 +156,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                   endDate ? new Date(endDate).toISOString().split("T")[0] : ""
                 }
                 onChange={(event) =>
-                  setStartDate(new Date(event.target.value).toISOString())
+                  setEndDate(new Date(event.target.value).toISOString())
                 }
               />
             </div>
