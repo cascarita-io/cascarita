@@ -84,12 +84,6 @@ const DivisionController = {
 
     try {
       const division = await modelByPk(res, Division, id);
-      const isUnique = await isDivisionNameUnique(division.group_id, name);
-      if (!isUnique) {
-        res.status(400);
-        throw new Error("Division name already taken");
-      }
-
       division.name = name;
       await division.validate();
       await division.save();

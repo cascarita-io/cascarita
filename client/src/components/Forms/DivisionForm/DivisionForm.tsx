@@ -20,14 +20,15 @@ import { SeasonType } from "../../../pages/Seasons/types";
 const DivisionForm: React.FC<DivisionFormProps> = ({
   afterSave,
   divisionId,
+  division_name,
   requestType,
-  // seasonId,
+  season_id,
   seasonData,
 }) => {
   const { t } = useTranslation("Divisions");
-  const [divisionName, setDivisionName] = useState("");
+  const [divisionName, setDivisionName] = useState(division_name);
   const [isLoading, setIsLoading] = useState(false);
-  const [seasonId, setSeasonId] = useState(0);
+  const [seasonId, setSeasonId] = useState(season_id);
 
   const groupId = Cookies.get("group_id") || 0;
 

@@ -24,6 +24,7 @@ const Divisions = () => {
   // const [sorts, setSorts] = useState("");
   const [currentDivisionName, setCurrentDivisionName] = useState("");
   const [currentDivisionId, setCurrentDivisionId] = useState(0);
+  const [currentSeasonId, setCurrentSeasonId] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -75,9 +76,14 @@ const Divisions = () => {
   const isLoading = divisionsQuery.isLoading;
   const isError = divisionsQuery.isError;
 
-  const handleEdit = (divisionName: string, divisionId: number) => {
+  const handleEdit = (
+    divisionName: string,
+    divisionId: number,
+    seasonId: number
+  ) => {
     setCurrentDivisionName(divisionName);
     setCurrentDivisionId(divisionId);
+    setCurrentSeasonId(seasonId);
     setIsEditOpen(true);
   };
 
@@ -190,7 +196,13 @@ const Divisions = () => {
                   <td>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item
-                        onClick={() => handleEdit(division.name, division.id)}
+                        onClick={() =>
+                          handleEdit(
+                            division.name,
+                            division.id,
+                            division.season_id
+                          )
+                        }
                       >
                         {t("edit")}
                       </DropdownMenuButton.Item>
@@ -217,7 +229,9 @@ const Divisions = () => {
             <DivisionForm
               afterSave={() => setIsEditOpen(false)}
               requestType="PATCH"
+              division_name={currentDivisionName}
               divisionId={currentDivisionId}
+              season_id={currentSeasonId}
               seasonData={seasonsQuery.data}
             />
           </Modal.Content>

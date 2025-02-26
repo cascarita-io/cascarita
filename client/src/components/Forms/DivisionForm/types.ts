@@ -5,7 +5,8 @@ interface DivisionFormProps {
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
   divisionId?: number;
-  seasonId?: number;
+  division_name?: string;
+  season_id?: number;
   seasonData?: SeasonType[];
 }
 
