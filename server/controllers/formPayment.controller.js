@@ -59,9 +59,19 @@ const FormPaymentController = function () {
 
   var updateStripePayment = async function (paymentIntent) {
     try {
-      const existingPaymentIntent = await findFormPaymentByPaymentIntentId(
+      const paymentResult = await findFormPaymentByPaymentIntentId(
         paymentIntent.id,
       );
+
+      if (!paymentResult.success) {
+        return {
+          success: false,
+          error: paymentResult.message,
+          status: paymentResult.status,
+        };
+      }
+
+      const existingPaymentIntent = paymentResult.data;
 
       const internalStatusId = mapStripeStatusWithInternalStatus(
         paymentIntent.status,
@@ -76,10 +86,18 @@ const FormPaymentController = function () {
       await existingPaymentIntent.update(updates, { validate: true });
       await updateMongoPaymentResponse(existingPaymentIntent);
 
-      return true;
+      return {
+        success: true,
+        data: paymentResult.message,
+        status: 201,
+      };
     } catch (error) {
       console.error(error);
-      return false;
+      return {
+        success: false,
+        error: error.message,
+        status: 500,
+      };
     }
   };
 
