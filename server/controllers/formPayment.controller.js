@@ -237,6 +237,12 @@ const FormPaymentController = function () {
       );
 
       if (!paymentResult.success) {
+        console.warn(
+          `Payment lookup failed for payment intent ${paymentIntent.id.substring(
+            0,
+            8,
+          )}`,
+        );
         return {
           success: false,
           error: paymentResult.message,
@@ -248,6 +254,11 @@ const FormPaymentController = function () {
 
       const form = await Form.findByPk(existingPaymentIntent.form_id);
       if (!form) {
+        console.error(
+          `Form not found: ID ${
+            existingPaymentIntent.form_id
+          } for payment ${paymentIntent.id.substring(0, 8)}`,
+        );
         return {
           success: false,
           error: `associated form not found with id: ${existingPaymentIntent.form_id}`,
@@ -284,6 +295,9 @@ const FormPaymentController = function () {
           status: updatedUserResponse.status,
         };
       } else {
+        console.warn(
+          `No user update performed - Status: ${userSelectedStatus}, Formatted answers present: ${!!formattedAnswers}`,
+        );
         return {
           success: false,
           error: "no user update made, missing formatted answers data",
@@ -291,6 +305,7 @@ const FormPaymentController = function () {
         };
       }
     } catch (error) {
+      console.error(error.stack);
       return { success: false, error: error.message, status: 500 };
     }
   };

@@ -35,7 +35,7 @@ const FormTransactionController = function () {
 
           if (!paymentUpdateResult.success) {
             console.warn(
-              `Payment update failed: ${paymentUpdateResult.message}`,
+              `web-hook payment update failed: ${paymentUpdateResult.message}`,
             );
             return res.status(200).json({
               received: true,
@@ -48,7 +48,9 @@ const FormTransactionController = function () {
             await FormPaymentController.handleUserUpdateStripe(paymentIntent);
 
           if (!userUpdateResult.success) {
-            console.warn(`User update failed: ${userUpdateResult.error}`);
+            console.warn(
+              `web-hook user update failed: ${userUpdateResult.error}`,
+            );
             return res.status(200).json({
               received: true,
               success: false,
