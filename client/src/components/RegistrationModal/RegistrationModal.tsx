@@ -113,7 +113,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   };
 
   const handleRegistrationComplete = async (
-    event: React.FormEvent<HTMLFormElement>
+    event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
     const token = await getAccessTokenSilently();
@@ -134,7 +134,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     };
     try {
       const data = await registerUserMutation.mutateAsync(
-        payload as RegisterUser
+        payload as RegisterUser,
       );
       // Handle successful registration here
       if (data.error) {
@@ -172,50 +172,52 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         <form className={formStyles.form} onSubmit={handleRegistrationComplete}>
           {state.page === 1 && (
             <>
-              <div className={formStyles.inputContainer}>
-                <label htmlFor="first_name">First Name </label>
-                <input
-                  type="text"
-                  id="first_name"
-                  value={state.firstName}
-                  onChange={handleFieldChange("firstName")}
-                  required
-                  name="first_name"
-                  placeholder="First Name"
-                  className={formStyles.input}
-                />
-              </div>
-              <div className={formStyles.inputContainer}>
-                <label htmlFor="last_name">Last Name </label>
-                <input
-                  type="text"
-                  id="last_name"
-                  value={state.lastName}
-                  onChange={handleFieldChange("lastName")}
-                  required
-                  name="last_name"
-                  placeholder="Last Name"
-                  className={formStyles.input}
-                />
-              </div>
+              <div style={{ display: "grid", gap: "24px" }}>
+                <div className={formStyles.inputContainer}>
+                  <label htmlFor="first_name">First Name </label>
+                  <input
+                    type="text"
+                    id="first_name"
+                    value={state.firstName}
+                    onChange={handleFieldChange("firstName")}
+                    required
+                    name="first_name"
+                    placeholder="First Name"
+                    className={formStyles.input}
+                  />
+                </div>
+                <div className={formStyles.inputContainer}>
+                  <label htmlFor="last_name">Last Name </label>
+                  <input
+                    type="text"
+                    id="last_name"
+                    value={state.lastName}
+                    onChange={handleFieldChange("lastName")}
+                    required
+                    name="last_name"
+                    placeholder="Last Name"
+                    className={formStyles.input}
+                  />
+                </div>
 
-              <fieldset className={formStyles.inputContainer}>
-                <legend>Select Preferred Language:</legend>
+                <fieldset className={formStyles.inputContainer}>
+                  <legend>Select Preferred Language:</legend>
 
-                {VALID_LANGUAGES.map(({ label, value }) => (
-                  <div key={label} className={formStyles.radioInputContainer}>
-                    <input
-                      type="radio"
-                      name="language"
-                      id={label}
-                      value={value}
-                      checked={value === state.language_id}
-                      onChange={handleFieldChange("language_id")}
-                    />
-                    <label htmlFor={label}>{label}</label>
-                  </div>
-                ))}
-              </fieldset>
+                  {VALID_LANGUAGES.map(({ label, value }) => (
+                    <div key={label} className={formStyles.radioInputContainer}>
+                      <input
+                        type="radio"
+                        name="language"
+                        id={label}
+                        value={value}
+                        checked={value === state.language_id}
+                        onChange={handleFieldChange("language_id")}
+                      />
+                      <label htmlFor={label}>{label}</label>
+                    </div>
+                  ))}
+                </fieldset>
+              </div>
 
               <button
                 className={styles.registerBtn}
@@ -228,195 +230,194 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
           )}
 
           {state.page === 2 && (
-            <div className={styles.inputContainer}>
-              <p>Are you connecting to an existing organization?</p>
+            <>
+              <div style={{ display: "grid", gap: "24px" }}>
+                <div className={styles.inputContainer}>
+                  <p>Are you connecting to an existing organization?</p>
 
-              <RadioSelect
-                className={styles.radioContainer}
-                groupName="rd-existingOrg"
-                value={state.isExistingOrg ? "Yes" : "No"}
-                onValueChange={(value) => {
-                  const updatedValue = value === "Yes";
-                  dispatch({
-                    type: "SET_FIELD",
-                    field: "isExistingOrg",
-                    value: updatedValue,
-                  });
-                }}
-                required
-              >
-                <div>
-                  <label htmlFor="rd-Yes">Yes</label>
-                  <RadioSelect.Item value="Yes" id="rd-Yes" />
-                </div>
-
-                <div>
-                  <label htmlFor="rd-No">No</label>
-                  <RadioSelect.Item value="No" id="rd-No" />
-                </div>
-              </RadioSelect>
-
-              {state.isExistingOrg && (
-                <>
-                  <SelectMenu
-                    placeholder="Select an Organization"
-                    value={state.org}
-                    onValueChange={(value) =>
-                      dispatch({ type: "SET_FIELD", field: "org", value })
-                    }
-                    name="groupId"
-                    className={styles.selectMenu1}
+                  <RadioSelect
+                    className={styles.radioContainer}
+                    groupName="rd-existingOrg"
+                    value={state.isExistingOrg ? "Yes" : "No"}
+                    onValueChange={(value) => {
+                      const updatedValue = value === "Yes";
+                      dispatch({
+                        type: "SET_FIELD",
+                        field: "isExistingOrg",
+                        value: updatedValue,
+                      });
+                    }}
+                    required
                   >
-                    {data?.map((group: GroupType) => (
-                      <SelectMenu.Item
-                        key={group.id}
-                        value={group.id.toString()}
+                    <div>
+                      <label htmlFor="rd-Yes">Yes</label>
+                      <RadioSelect.Item value="Yes" id="rd-Yes" />
+                    </div>
+
+                    <div>
+                      <label htmlFor="rd-No">No</label>
+                      <RadioSelect.Item value="No" id="rd-No" />
+                    </div>
+                  </RadioSelect>
+
+                  {state.isExistingOrg && (
+                    <>
+                      <SelectMenu
+                        placeholder="Select an Organization"
+                        value={state.org}
+                        onValueChange={(value) =>
+                          dispatch({ type: "SET_FIELD", field: "org", value })
+                        }
+                        name="groupId"
+                        className={styles.selectMenu1}
                       >
-                        {group.name}
-                      </SelectMenu.Item>
-                    ))}
-                  </SelectMenu>
-                  <div className={formStyles.inputContainer}>
-                    {error && <p style={{ color: "red" }}>{error}</p>}
-                    <label htmlFor="group_code">Enter Group Code </label>
-                    <input
-                      type="text"
-                      id="group_code"
-                      value={state.group_code}
-                      onChange={handleFieldChange("group_code")}
-                      required
-                      name="group_code"
-                      placeholder="00000000"
-                      className={formStyles.input}
-                    />
-                  </div>
-                </>
-              )}
-
-              {state.isExistingOrg ? (
-                <div className={styles.btnContainer}>
-                  <button
-                    className={styles.backBtn}
-                    onClick={decrementPageNumber}
-                  >
-                    Go Back
-                  </button>
+                        {data?.map((group: GroupType) => (
+                          <SelectMenu.Item
+                            key={group.id}
+                            value={group.id.toString()}
+                          >
+                            {group.name}
+                          </SelectMenu.Item>
+                        ))}
+                      </SelectMenu>
+                      <div className={formStyles.inputContainer}>
+                        {error && <p style={{ color: "red" }}>{error}</p>}
+                        <label htmlFor="group_code">Enter Group Code </label>
+                        <input
+                          type="text"
+                          id="group_code"
+                          value={state.group_code}
+                          onChange={handleFieldChange("group_code")}
+                          required
+                          name="group_code"
+                          placeholder="00000000"
+                          className={formStyles.input}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className={formStyles.formBtnContainer}>
+                {state.isExistingOrg ? (
                   <button type="submit" className={styles.registerBtn}>
                     Finish
                   </button>
-                </div>
-              ) : (
-                <div className={styles.btnContainer}>
-                  <button
-                    className={styles.backBtn}
-                    onClick={decrementPageNumber}
-                  >
-                    Go Back
-                  </button>
+                ) : (
                   <button
                     className={styles.registerBtn}
                     onClick={incrementPageNumber}
                   >
                     Next
                   </button>
-                </div>
-              )}
-            </div>
-          )}
+                )}
 
-          {state.page === 3 && (
-            <>
-              <div className={formStyles.inputContainer}>
-                <label htmlFor="orgName">Organization Name</label>
-                <input
-                  className={formStyles.input}
-                  id="orgName"
-                  required
-                  name="orgName"
-                  placeholder="Organization Name"
-                  type="text"
-                  value={state.selectedOrg}
-                  onChange={handleFieldChange("selectedOrg")}
-                />
-              </div>
-
-              <div className={formStyles.inputContainer}>
-                <label htmlFor="address">Address</label>
-                <input
-                  id="address"
-                  className={formStyles.input}
-                  required
-                  name="address"
-                  placeholder="Address"
-                  type="text"
-                  value={state.address}
-                  onChange={handleFieldChange("address")}
-                />
-              </div>
-
-              <div className={formStyles.inputContainer}>
-                <label htmlFor="city">City</label>
-                <input
-                  id="city"
-                  className={formStyles.input}
-                  required
-                  name="city"
-                  placeholder="City"
-                  type="text"
-                  value={state.city}
-                  onChange={handleFieldChange("city")}
-                />
-              </div>
-
-              <div className={styles.inlineFields}>
-                <div className={formStyles.inputContainer}>
-                  <label htmlFor="state">State</label>
-                  <SelectMenu
-                    placeholder="State"
-                    required
-                    value={state.state}
-                    onValueChange={(value) =>
-                      dispatch({ type: "SET_FIELD", field: "state", value })
-                    }
-                    name="state"
-                    className={formStyles.selectMenu2}
-                  >
-                    {states.map((state, idx) => (
-                      <SelectMenu.Item key={idx} value={state.abbreviation}>
-                        {state.abbreviation}
-                      </SelectMenu.Item>
-                    ))}
-                  </SelectMenu>
-                </div>
-
-                <div className={formStyles.inputContainer}>
-                  <label htmlFor="zip-code">Zip Code</label>
-                  <input
-                    className={formStyles.input}
-                    id="zip-code"
-                    required
-                    name="zipCode"
-                    placeholder="Zip-code"
-                    type="text"
-                    value={state.zipCode}
-                    onChange={handleFieldChange("zipCode")}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.btnContainer}>
                 <button
                   className={styles.backBtn}
                   onClick={decrementPageNumber}
                 >
                   Go Back
                 </button>
+              </div>
+            </>
+          )}
+
+          {state.page === 3 && (
+            <>
+              <div style={{ display: "grid", gap: "24px" }}>
+                <div className={formStyles.inputContainer}>
+                  <label htmlFor="orgName">Organization Name</label>
+                  <input
+                    className={formStyles.input}
+                    id="orgName"
+                    required
+                    name="orgName"
+                    placeholder="Organization Name"
+                    type="text"
+                    value={state.selectedOrg}
+                    onChange={handleFieldChange("selectedOrg")}
+                  />
+                </div>
+
+                <div className={formStyles.inputContainer}>
+                  <label htmlFor="address">Address</label>
+                  <input
+                    id="address"
+                    className={formStyles.input}
+                    required
+                    name="address"
+                    placeholder="Address"
+                    type="text"
+                    value={state.address}
+                    onChange={handleFieldChange("address")}
+                  />
+                </div>
+
+                <div className={formStyles.inputContainer}>
+                  <label htmlFor="city">City</label>
+                  <input
+                    id="city"
+                    className={formStyles.input}
+                    required
+                    name="city"
+                    placeholder="City"
+                    type="text"
+                    value={state.city}
+                    onChange={handleFieldChange("city")}
+                  />
+                </div>
+
+                <div className={styles.inlineFields}>
+                  <div className={formStyles.inputContainer}>
+                    <label htmlFor="state">State</label>
+                    <SelectMenu
+                      placeholder="State"
+                      required
+                      value={state.state}
+                      onValueChange={(value) =>
+                        dispatch({ type: "SET_FIELD", field: "state", value })
+                      }
+                      name="state"
+                      className={formStyles.selectMenu2}
+                    >
+                      {states.map((state, idx) => (
+                        <SelectMenu.Item key={idx} value={state.abbreviation}>
+                          {state.abbreviation}
+                        </SelectMenu.Item>
+                      ))}
+                    </SelectMenu>
+                  </div>
+
+                  <div className={formStyles.inputContainer}>
+                    <label htmlFor="zip-code">Zip Code</label>
+                    <input
+                      className={formStyles.input}
+                      id="zip-code"
+                      required
+                      name="zipCode"
+                      placeholder="Zip-code"
+                      type="text"
+                      value={state.zipCode}
+                      onChange={handleFieldChange("zipCode")}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={formStyles.formBtnContainer}>
                 <button
                   type="submit"
                   className={styles.registerBtn}
                   disabled={!getIsPageComplete(3)}
                 >
                   Register
+                </button>
+
+                <button
+                  className={styles.backBtn}
+                  onClick={decrementPageNumber}
+                >
+                  Go Back
                 </button>
               </div>
             </>

@@ -1,6 +1,8 @@
 .form {
-  display: grid;
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .inputContainer {
@@ -50,13 +52,12 @@
 
 .input {
   width: 100%;
-  height: auto;
   flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  padding: 0 10px;
+  padding: 8px 13px;
   font-size: 15px;
   line-height: 1;
   background-color: #f4f7fb;
@@ -94,11 +95,9 @@
 }
 
 .formBtnContainer {
-  width: 100%;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  gap: 16px;
+  display: grid;
+  gap: 12px;
+  grid-template-rows: 1fr 1fr;
 }
 
 .btn {
@@ -168,3 +167,13 @@
   width: 20px;
 }
 
+@media (min-width: 769px) {
+  .form {
+    gap: 18px;
+  }
+  .formBtnContainer {
+    display: flex;
+    justify-content: end;
+    gap: 12px;
+  }
+}

@@ -86,56 +86,58 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={handleSubmit}
-          className={styles.form}>
+          className={styles.form}
+        >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="leagueName">
-              {t("formContent.name")}
-            </label>
-            <input
-              className={styles.input}
-              required
-              placeholder={t("formContent.namePlaceholder")}
-              id="leagueName"
-              name="leagueName"
-              value={leagueName}
-              onChange={(event) =>
-                setLeagueName(event.target.value.replaceAll("/", ""))
-              }
-            />
-          </div>
+          <div style={{ display: "grid", gap: "24px" }}>
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="leagueName">
+                {t("formContent.name")}
+              </label>
+              <input
+                className={styles.input}
+                required
+                placeholder={t("formContent.namePlaceholder")}
+                id="leagueName"
+                name="leagueName"
+                value={leagueName}
+                onChange={(event) =>
+                  setLeagueName(event.target.value.replaceAll("/", ""))
+                }
+              />
+            </div>
 
-          <div className={`${styles.inputContainer} ${styles.halfContainer}`}>
-            <label className={styles.label} htmlFor="leagueDesc">
-              {t("formContent.description")}
-            </label>
-            <input
-              className={styles.input}
-              placeholder={t("formContent.descriptionPlaceholder")}
-              id="leagueDesc"
-              name="leagueDescription"
-              value={leagueDesc}
-              onChange={(event) => setLeagueDesc(event.target.value)}
-            />
+            <div className={`${styles.inputContainer} ${styles.halfContainer}`}>
+              <label className={styles.label} htmlFor="leagueDesc">
+                {t("formContent.description")}
+              </label>
+              <input
+                className={styles.input}
+                placeholder={t("formContent.descriptionPlaceholder")}
+                id="leagueDesc"
+                name="leagueDescription"
+                value={leagueDesc}
+                onChange={(event) => setLeagueDesc(event.target.value)}
+              />
+            </div>
           </div>
 
           <div className={styles.formBtnContainer}>
+            <button
+              type="submit"
+              className={`${styles.btn} ${styles.submitBtn}`}
+            >
+              {requestType === "POST"
+                ? t("formContent.create")
+                : t("formContent.edit")}
+            </button>
+
             <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
               {t("formContent.cancel")}
             </Modal.Close>
-
-            <div>
-              <button
-                type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}>
-                {requestType === "POST"
-                  ? t("formContent.create")
-                  : t("formContent.edit")}
-              </button>
-            </div>
           </div>
         </form>
       )}
