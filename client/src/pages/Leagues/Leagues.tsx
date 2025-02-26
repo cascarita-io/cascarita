@@ -21,6 +21,7 @@ const Leagues = () => {
   // const [filter, setFilter] = useState("");
   // const [sorts, setSorts] = useState("");
   const [currentLeagueName, setCurrentLeagueName] = useState("");
+  const [currentLeagueDescription, setCurrentLeagueDescription] = useState("");
   const [currentLeagueId, setCurrentLeagueId] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -49,9 +50,14 @@ const Leagues = () => {
     };
   }, [searchQuery]);
 
-  const handleEdit = (leagueName: string, leagueId: number) => {
+  const handleEdit = (
+    leagueName: string,
+    leagueId: number,
+    leagueDescription: string
+  ) => {
     setCurrentLeagueName(leagueName);
     setCurrentLeagueId(leagueId);
+    setCurrentLeagueDescription(leagueDescription);
     setIsEditOpen(true);
   };
 
@@ -122,7 +128,9 @@ const Leagues = () => {
                   <td className={styles.tableData}>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item
-                        onClick={() => handleEdit(league.name, league.id)}
+                        onClick={() =>
+                          handleEdit(league.name, league.id, league.description)
+                        }
                       >
                         {t("edit")}
                       </DropdownMenuButton.Item>
@@ -149,6 +157,8 @@ const Leagues = () => {
             <LeagueForm
               afterSave={() => setIsEditOpen(false)}
               requestType="PATCH"
+              name={currentLeagueName}
+              description={currentLeagueDescription}
               leagueId={currentLeagueId}
             />
           </Modal.Content>

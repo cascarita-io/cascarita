@@ -31,7 +31,7 @@ const LeagueController = function () {
       },
     });
 
-    return leagueFound == null;
+    return leagueFound === null;
   };
 
   var createLeague = async function (req, res, next) {
@@ -78,15 +78,6 @@ const LeagueController = function () {
             : currentLeague[key];
         }
       });
-
-      const leagueFound = await isNameUniqueWithinGroup(
-        currentLeague.group_id,
-        currentLeague.name,
-      );
-
-      if (!leagueFound) {
-        throw new Error("name is not unique");
-      }
 
       await currentLeague.validate();
       await currentLeague.save();

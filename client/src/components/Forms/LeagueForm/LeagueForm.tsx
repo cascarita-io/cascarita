@@ -23,10 +23,12 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
   afterSave,
   requestType,
   leagueId,
+  name,
+  description,
 }) => {
   const { t } = useTranslation("Leagues");
-  const [leagueName, setLeagueName] = useState("");
-  const [leagueDesc, setLeagueDesc] = useState("");
+  const [leagueName, setLeagueName] = useState(name);
+  const [leagueDesc, setLeagueDesc] = useState(description);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const { getAccessTokenSilently } = useAuth0();
@@ -47,7 +49,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { leagueName, leagueDescription } = Object.fromEntries(
-      new FormData(event.currentTarget),
+      new FormData(event.currentTarget)
     );
 
     const data = {
@@ -86,7 +88,8 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={handleSubmit}
-          className={styles.form}>
+          className={styles.form}
+        >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -130,7 +133,8 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
             <div>
               <button
                 type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}>
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
                 {requestType === "POST"
                   ? t("formContent.create")
                   : t("formContent.edit")}
