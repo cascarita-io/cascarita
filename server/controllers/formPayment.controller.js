@@ -199,9 +199,19 @@ const FormPaymentController = function () {
         status,
       );
 
-      return res.status(200).json(formPayment);
+      if (!formPayment.success) {
+        return res.status(500).json({
+          success: false,
+          error: "No response received from payment capture",
+        });
+      }
+
+      return res.status(formPayment.status).json(formPayment.data);
     } catch (error) {
-      next(error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || "Internal server error",
+      });
     }
   };
 

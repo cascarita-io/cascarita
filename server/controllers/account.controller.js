@@ -248,6 +248,27 @@ const AccountController = function () {
         },
       });
 
+      const retrievePaymentIntent = await getPaymentIntentStatus(
+        paymentIntentId,
+        stripe_account_id,
+      );
+
+      if (!retrievePaymentIntent.success) {
+        return {
+          success: false,
+          error: retrievePaymentIntent.error,
+          status: retrievePaymentIntent.status,
+        };
+      }
+
+      if (retrievePaymentIntent.data.status === "succeeded") {
+        return {
+          success: true,
+          data: retrievePaymentIntent.data,
+          status: 200,
+        };
+      }
+
       const paymentIntent = await Stripe.paymentIntents.capture(
         paymentIntentId,
         {
@@ -282,9 +303,10 @@ const AccountController = function () {
         );
       }
 
-      return paymentIntent;
+      return { success: true, data: paymentIntent, status: 200 };
     } catch (error) {
       console.error(error);
+      return { success: false, error: error.message, status: 500 };
     }
   };
 
@@ -298,6 +320,43 @@ const AccountController = function () {
       payment_intent_status: formData.paymentIntentStatus,
       user_stripe_account_id: formData.userStripeAccountSqlId,
     });
+  };
+
+  var getPaymentIntentStatus = async function (
+    paymentIntentId,
+    stripeAccountId,
+  ) {
+    try {
+      const foundPaymentIntent = await Stripe.paymentIntents.retrieve(
+        paymentIntentId,
+        {
+          stripeAccount: stripeAccountId,
+        },
+      );
+
+      if (!foundPaymentIntent) {
+        return {
+          success: false,
+          error: "Payment intent not found",
+          status: 404,
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          status: foundPaymentIntent.status,
+          amount: foundPaymentIntent.amount,
+          capturable: foundPaymentIntent.amount_capturable > 0,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        status: 500,
+      };
+    }
   };
 
   return {
