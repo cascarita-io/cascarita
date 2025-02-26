@@ -14,23 +14,46 @@ const FormPaymentController = function () {
     );
 
     if (!paymentEntry) {
-      return;
+      return {
+        success: false,
+        error: "no payment entry forund in response data",
+        status: 404,
+      };
     }
     try {
       const paymentIntentId = paymentEntry.paymentIntentId;
 
-      let existingFormPayment = await findFormPaymentByPaymentIntentId(
+      let paymentResult = await findFormPaymentByPaymentIntentId(
         paymentIntentId,
       );
+
+      if (!paymentResult.success) {
+        return {
+          success: false,
+          error: paymentResult.message,
+          status: paymentResult.status,
+        };
+      }
+
+      const existingFormPayment = paymentResult.data;
 
       const updates = {
         response_document_id: responseId,
       };
 
       await existingFormPayment.update(updates, { validate: true });
+
+      return {
+        success: true,
+        data: "connected form payment with a document response",
+        status: 201,
+      };
     } catch (error) {
-      console.error(error);
-      throw error;
+      return {
+        success: false,
+        error: error.message,
+        status: 500,
+      };
     }
   };
 

@@ -31,12 +31,16 @@ const FormController = function () {
 
       await insertedResponse.save();
       const responseIdString = insertedResponse.id;
-      await FormPaymentController.connectResponseToFormPayment(
+      const response = await FormPaymentController.connectResponseToFormPayment(
         responseData,
         responseIdString,
       );
 
-      return res.status(201).json(insertedResponse);
+      if (!response.success) {
+        return res.status(response.status).json({ error: response.message });
+      } else {
+        return res.status(response.status).json(response.data);
+      }
     } catch (error) {
       next(error);
     }
