@@ -107,14 +107,21 @@ const FormPaymentController = function () {
       });
 
       if (!formPayment) {
-        console.error(
-          `no form payment record found with payment intent id: ${paymentIntentId}`,
-        );
+        return {
+          success: false,
+          message: `No form payment record found with payment intent id: ${paymentIntentId}`,
+          status: 404,
+        };
       }
 
-      return formPayment;
+      return {
+        success: true,
+        data: formPayment,
+        message: "Form payment found successfully",
+        status: 200,
+      };
     } catch (error) {
-      console.error(error);
+      return { success: false, message: error.message, status: 500 };
     }
   };
 
