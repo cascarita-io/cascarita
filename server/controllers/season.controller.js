@@ -200,13 +200,6 @@ const SeasonController = {
         }
       });
 
-      const { name, league_id } = season;
-      const isUnique = await isNameUniqueWithinLeague(name, league_id);
-      if (!isUnique) {
-        res.status(400);
-        throw new Error("name is not unique");
-      }
-
       await season.validate();
       await season.save();
       res.json(season);

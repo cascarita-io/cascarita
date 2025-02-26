@@ -22,6 +22,9 @@ const Seasons = () => {
   const [sorts, setSorts] = useState("");
   const [currentSeasonName, setCurrentSeasonName] = useState("");
   const [currentSeasonId, setCurrentSeasonId] = useState(0);
+  const [currentLeagueId, setCurrentLeagueId] = useState(0);
+  const [currentStartDate, setCurrentStartDate] = useState("");
+  const [currentEndDate, setCurrentEndDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -78,13 +81,23 @@ const Seasons = () => {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const handleEdit = (seasonName: string, seasonId: number) => {
+  const handleEdit = (
+    seasonName: string,
+    seasonId: number,
+    leagueId: number,
+    startDate: string,
+    endDate: string
+  ) => {
     setCurrentSeasonName(seasonName);
     setCurrentSeasonId(seasonId);
+    setCurrentLeagueId(leagueId);
+    setCurrentStartDate(startDate);
+    setCurrentEndDate(endDate);
     setIsEditOpen(true);
   };
 
@@ -188,7 +201,15 @@ const Seasons = () => {
                   <td>
                     <DropdownMenuButton>
                       <DropdownMenuButton.Item
-                        onClick={() => handleEdit(season.name, season.id)}
+                        onClick={() =>
+                          handleEdit(
+                            season.name,
+                            season.id,
+                            season.league_id,
+                            season.start_date,
+                            season.end_date
+                          )
+                        }
                       >
                         {t("edit")}
                       </DropdownMenuButton.Item>
@@ -217,6 +238,10 @@ const Seasons = () => {
               requestType="PATCH"
               seasonId={currentSeasonId}
               leagueData={leaguesQuery.data}
+              name={currentSeasonName}
+              league_id={currentLeagueId}
+              start={currentStartDate}
+              end={currentEndDate}
             />
           </Modal.Content>
         </Modal>

@@ -19,13 +19,18 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   afterSave,
   requestType,
   seasonId,
+  league_id,
+  name,
+  start,
+  end,
   leagueData,
 }) => {
+  console.log("start: ", start, "end: ", end);
   const { t } = useTranslation("Seasons");
-  const [leagueId, setLeagueId] = React.useState(0);
-  const [seasonName, setSeasonName] = React.useState("");
-  const [startDate, setStartDate] = React.useState("");
-  const [endDate, setEndDate] = React.useState("");
+  const [leagueId, setLeagueId] = React.useState(league_id);
+  const [seasonName, setSeasonName] = React.useState(name);
+  const [startDate, setStartDate] = React.useState(start);
+  const [endDate, setEndDate] = React.useState(end);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const createSeasonMutation = useCreateSeason();
@@ -128,8 +133,14 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                 type="date"
                 id="startDate"
                 name="startDate"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
+                value={
+                  startDate
+                    ? new Date(startDate).toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(event) =>
+                  setStartDate(new Date(event.target.value).toISOString())
+                }
               />
             </div>
             <div className={styles.inputContainer}>
@@ -142,8 +153,12 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                 type="date"
                 id="endDate"
                 name="endDate"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
+                value={
+                  endDate ? new Date(endDate).toISOString().split("T")[0] : ""
+                }
+                onChange={(event) =>
+                  setStartDate(new Date(event.target.value).toISOString())
+                }
               />
             </div>
           </div>
