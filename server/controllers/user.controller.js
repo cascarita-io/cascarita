@@ -493,15 +493,16 @@ const UserController = function () {
   var createUserViaFromResponse = async function (user) {
     const transaction = await Db.sequelize.transaction();
     try {
-      const existingUser = await isEmailUniqueWithinGroup(
-        user.group_id,
-        user.email,
-      );
+      const existingUser = await User.findOne({
+        where: {
+          group_id: user.group_id,
+          email: user.email,
+        },
+      });
 
       let currentUser;
 
       if (existingUser) {
-        // Update existing user with new data, excluding group_id
         const updateData = {
           first_name: user.first_name,
           last_name: user.last_name,
@@ -516,7 +517,6 @@ const UserController = function () {
         await existingUser.update(updateData, { transaction });
         currentUser = existingUser;
       } else {
-        // Create new user
         const userData = {
           group_id: user.group_id,
           first_name: user.first_name,
@@ -538,17 +538,30 @@ const UserController = function () {
         user,
         transaction,
       );
+
       await assignUserToSession(
         currentUser.id,
         session.id,
         user.team_id,
         transaction,
       );
+
       await assignRole(currentUser.id, "Player", transaction);
 
-      return res.status(201).json(currentUser);
+      await transaction.commit();
+
+      return {
+        success: true,
+        data: currentUser,
+        status: 201,
+      };
     } catch (error) {
-      console.error(error);
+      await transaction.rollback();
+      return {
+        success: false,
+        error: "Failed to create or update user",
+        status: 500,
+      };
     }
   };
 
@@ -558,7 +571,7 @@ const UserController = function () {
     teamId,
     transaction,
   ) {
-    const foundTeam = teamId
+    const foundTeam = !isNaN(Number(teamId))
       ? await Team.findByPk(teamId, { transaction })
       : null;
 
@@ -585,7 +598,11 @@ const UserController = function () {
     });
 
     await UserRoles.findOrCreate({
-      wehre: {
+      where: {
+        user_id: userId,
+        role_id: playerRole.id,
+      },
+      defaults: {
         user_id: userId,
         role_id: playerRole.id,
       },

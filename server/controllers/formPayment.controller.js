@@ -265,11 +265,14 @@ const FormPaymentController = function () {
       if (userSelectedStatus === "approved" && formattedAnswers) {
         const user = getUserDataFromAnswers(formattedAnswers, groupId);
 
-        const updatedUser = await UserController.createUserViaFromResponse(
-          user,
-        );
+        const updatedUserResponse =
+          await UserController.createUserViaFromResponse(user);
 
-        return { success: true, data: updatedUser, status: 200 };
+        return {
+          success: updatedUserResponse.success, // could be false or true
+          data: updatedUserResponse.data,
+          status: updatedUserResponse.status,
+        };
       } else {
         return {
           success: false,
