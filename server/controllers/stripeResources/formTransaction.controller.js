@@ -58,6 +58,8 @@ const FormTransactionController = function () {
             });
           }
 
+          // TODO: Connect new user to a FormPayment Record
+
           return res.status(200).json({
             received: true,
             success: true,
@@ -65,6 +67,9 @@ const FormTransactionController = function () {
             data: userUpdateResult.data,
           });
         }
+
+        // TODO: Hnadle a cancel
+        // TODO : Handle a a refund
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);
