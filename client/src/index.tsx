@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import App from "./App";
 import { createRoot } from "react-dom/client";
-import { Auth0Provider } from "@auth0/auth0-react";
+import { Auth0Provider, CacheLocation } from "@auth0/auth0-react";
 import { createBrowserHistory } from "history";
 import "./index.module.css";
 
@@ -28,6 +28,8 @@ const providerConfig = (() => {
     domain,
     clientId,
     onRedirectCallback,
+    useRefreshTokens: true,
+    cacheLocation: "localstorage" as CacheLocation,
     authorizationParams: {
       redirect_uri: window.location.origin,
       ...(audience ? { audience } : null),
