@@ -199,16 +199,29 @@ const FormPaymentController = function () {
     }
   };
 
-  var updatePaymentStatus = async function (req, res, next) {
+  var updatePaymentStatus = async function (req, res) {
     try {
-      const { payment_intent_id, status, email, answers } = req.body;
+      const { payment_intent_id, status, email, answers, payment_type } =
+        req.body;
 
-      const formPayment = await AccountController.capturePaymentIntent(
-        payment_intent_id,
-        email,
-        answers,
-        status,
-      );
+      // "Credit Card / Stripe";
+      // "Cash / Check";
+      let formPayment;
+      if (payment_type === "Credit Card / Stripe") {
+        formPayment = await AccountController.capturePaymentIntent(
+          payment_intent_id,
+          email,
+          answers,
+          status,
+        );
+      } else {
+        formPayment = await handleCashPayment(
+          payment_intent_id,
+          status,
+          email,
+          answers,
+        );
+      }
 
       if (!formPayment.success) {
         return res.status(500).json({
@@ -216,7 +229,6 @@ const FormPaymentController = function () {
           error: "No response received from payment capture",
         });
       }
-
       return res.status(formPayment.status).json(formPayment.data);
     } catch (error) {
       return res.status(500).json({
@@ -370,6 +382,17 @@ const FormPaymentController = function () {
     } catch (error) {
       next(error);
     }
+  };
+
+  var handleCashPayment = async function (
+    payment_intent_id,
+    status,
+    email,
+    answers,
+  ) {
+    // delete the payment intent, ensure that its not succeded status
+    // set up status and who switched the toggle to approve/decline
+    // store data and then call the user constoller
   };
 
   return {
