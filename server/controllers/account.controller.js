@@ -39,11 +39,14 @@ const AccountController = function () {
 
         accountId = account.id;
       }
-
       const accountLink = await Stripe.accountLinks.create({
         account: accountId,
-        refresh_url: "http://localhost:3000/forms",
-        return_url: "http://localhost:3000/home",
+        refresh_url: process.env.DOMAIN
+          ? `${process.env.DOMAIN}/forms`
+          : "http://localhost/forms",
+        return_url: process.env.DOMAIN
+          ? `${process.env.DOMAIN}`
+          : "http://localhost",
         type: "account_onboarding",
       });
 
@@ -98,7 +101,7 @@ const AccountController = function () {
 
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
-        //paymentIntentId: paymentIntent.id,
+        id: paymentIntent.id,
       });
     } catch (error) {
       console.error(error);

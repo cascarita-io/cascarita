@@ -50,7 +50,13 @@ const FormResponseModal: React.FC<FormResponseModalProps> = ({ answers }) => {
                     <td>{response.player?.team_name}</td>
                   </>
                 )}
-                {key === "payment" && <td>{"No payment data"}</td>}
+                {key === "payment" && (
+                  <td>
+                    {response.payment_type && response.amount
+                      ? `${response.payment_type} - $${(response.amount / 100).toFixed(2)}`
+                      : "no payment data"}
+                  </td>
+                )}
               </>
             );
           })}

@@ -6,10 +6,11 @@ import { sendEmail } from "../../../api/forms/service";
 const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
   const textBoxRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [emailed, setEmailed] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
 
-  const handleEmail = async (formLink: string, email: string) => {
-    await sendEmail(formLink, email);
+  const handleEmail = async (emails: string[], formLink: string) => {
+    await sendEmail(emails, formLink);
   };
 
   const handleCopy = () => {
@@ -35,29 +36,44 @@ const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
       <div>
         <label className={styles.boldLabel}>Form Link</label>
         {copied && <p className={styles.copiedMessage}>Copied to clipboard!</p>}
+        {emailed && <p className={styles.copiedMessage}>Emails sent!</p>}
         <div className={styles.shareContainer}>
           <p ref={textBoxRef}>{formLink}</p>
           <button
             className={`${styles.btn} ${styles.copyBtn}`}
-            onClick={handleCopy}>
+            onClick={handleCopy}
+          >
             copy
           </button>
         </div>
       </div>
       <hr />
       <div>
-        <label className={styles.boldLabel}>Share Link</label>
+        <label className={styles.boldLabel}>Share Form</label>
         <div className={styles.shareContainer}>
-          <input
-            type="text"
+          <textarea
             value={email}
-            placeholder="Enter email address"
+            placeholder="Enter email addresses, separated by commas or new lines"
             onChange={(e) => setEmail(e.target.value)}
             className={styles.inputShare}
+            rows={4}
           />
           <button
             className={`${styles.btn} ${styles.sendBtn}`}
-            onClick={() => handleEmail(formLink, email)}>
+            onClick={() => {
+              const emails = email
+                .split(/[\n,]+/)
+                .map((e) => e.trim())
+                .filter((e) => e);
+              const formLink = textBoxRef.current?.innerText || "";
+              setEmailed(true);
+              handleEmail(emails, formLink).finally(() => {
+                setTimeout(() => {
+                  setEmailed(false);
+                }, 2000);
+              });
+            }}
+          >
             send
           </button>
         </div>
@@ -66,7 +82,8 @@ const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
       <div className={styles.formBtnContainer}>
         <button
           className={`${styles.btn} ${styles.cancelBtn}`}
-          onClick={afterClose}>
+          onClick={afterClose}
+        >
           Close
         </button>
       </div>

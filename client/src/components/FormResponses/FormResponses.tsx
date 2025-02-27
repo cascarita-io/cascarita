@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import styles from "./FormResponses.module.css";
 import Cookies from "js-cookie";
-import { AnswerRecordMap, FormResponse, FormResponsesProps } from "./types";
+import {
+  AnswerRecordMap,
+  FormPaymentType,
+  FormResponse,
+  FormResponsesProps,
+} from "./types";
 import {
   getMongoFormById,
   getMongoFormResponses,
@@ -15,7 +20,7 @@ import PrimaryButton from "../PrimaryButton/PrimaryButton";
 import Modal from "../Modal/Modal";
 import FormResponseForm from "../Forms/FormResponseModal/FormResponseModal";
 import {
-  getFormPaymentsByPaymentIntentId,
+  getFormPayments,
   updateFormPaymentStatus,
 } from "../../api/forms/service";
 
@@ -39,6 +44,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     []
   );
   const adminEmail = Cookies.get("email") || "";
+  const [formDocumentId, setFormDocumentId] = useState("");
+  console.log(formDocumentId);
   const { t } = useTranslation("FormResponses");
 
   const formatDate = (dateString: string, daysAhead: number = 0): string => {
@@ -62,9 +69,10 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   useEffect(() => {
     (async () => {
       const formData = await getMongoFormById(formId);
+      setFormDocumentId(formData._id);
       setFormType(formData.form_type);
       const responsesData = await getMongoFormResponses(formData._id);
-      let submittedAtData: string[] = [];
+      const submittedAtData: string[] = [];
       responsesData.map((response: FormResponse) => {
         submittedAtData.push(response.createdAt);
       });
@@ -81,7 +89,6 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
 
         return answersMap;
       });
-
       setFormResponsesData(responsesArray);
 
       const emailData: string[] = [];
@@ -122,30 +129,24 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       setPaymentIntentIds(paymentIntentIdsData);
       const statusData: ("approved" | "rejected" | "pending")[] = [];
       const paymentTypeData: string[] = [];
-
+      const formPayments = await getFormPayments(formId);
       await Promise.all(
-        paymentIntentIdsData.map(async (paymentIntentId, index) => {
-          let paymentData;
-          try {
-            paymentData =
-              await getFormPaymentsByPaymentIntentId(paymentIntentId);
-          } catch (error) {
-            paymentData = {};
+        formPayments.map(
+          async (paymentData: FormPaymentType, index: number) => {
+            if (paymentData.payment_intent_status === "approved") {
+              statusData[index] = "approved";
+            } else if (paymentData.payment_intent_status === "rejected") {
+              statusData[index] = "rejected";
+            } else {
+              statusData[index] = "pending";
+            }
+            if (paymentData.payment_method_id === 1) {
+              paymentTypeData[index] = "Credit Card / Stripe";
+            } else {
+              paymentTypeData[index] = "Cash / Check";
+            }
           }
-
-          if (paymentData.payment_intent_status === "approved") {
-            statusData[index] = "approved";
-          } else if (paymentData.payment_intent_status === "rejected") {
-            statusData[index] = "rejected";
-          } else {
-            statusData[index] = "pending";
-          }
-          if (paymentData.payment_method_id === 1) {
-            paymentTypeData[index] = "Credit Card / Stripe";
-          } else {
-            paymentTypeData[index] = "Cash / Check";
-          }
-        })
+        )
       );
 
       setStatus(statusData);
@@ -156,7 +157,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const handleStatusChange = (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Map<string, Answer>
+    response: Record<string, Answer>
   ) => {
     return async () => {
       const newStatus = [...status];
@@ -177,7 +178,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     };
   };
 
-  const headers = [
+  const registrationTypeHeaders = [
     "#",
     "Name",
     "Payment Type",
@@ -189,78 +190,121 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     "Transaction Expiry",
   ];
 
+  const blankTypeHeaders = ["#", "View Response", "Date Submitted"];
+
   return (
     <div className={styles.container}>
-      <DashboardTable
-        headers={headers}
-        headerColor="light"
-        className={styles.table}
-      >
-        {formResponsesData.map((response: Record<string, Answer>, index) => (
-          <tr key={index}>
-            <td>{index + 1}</td>
-            <td>{user[index]}</td>
-            <td>{paymentType[index]}</td>
-            {formType === 1 && (
+      {formType === 1 ? (
+        <DashboardTable
+          headers={registrationTypeHeaders}
+          headerColor="light"
+          className={styles.table}
+        >
+          {formResponsesData.map((response: Record<string, Answer>, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{user[index]}</td>
+              <td>{paymentType[index]}</td>
+              {formType === 1 && (
+                <td>
+                  <DropdownMenuButton trigger={StatusButton(status[index])}>
+                    <DropdownMenuButton.Item
+                      onClick={handleStatusChange(index, "approved", response)}
+                    >
+                      <StatusLabel status="approved">approved</StatusLabel>
+                    </DropdownMenuButton.Item>
+
+                    <DropdownMenuButton.Separator
+                      className={styles.separator}
+                    />
+
+                    <DropdownMenuButton.Item
+                      onClick={handleStatusChange(index, "rejected", response)}
+                    >
+                      <StatusLabel status="rejected">rejected</StatusLabel>
+                    </DropdownMenuButton.Item>
+
+                    <DropdownMenuButton.Separator
+                      className={styles.separator}
+                    />
+
+                    <DropdownMenuButton.Item
+                      onClick={handleStatusChange(index, "pending", response)}
+                    >
+                      <StatusLabel status="pending">pending</StatusLabel>
+                    </DropdownMenuButton.Item>
+                  </DropdownMenuButton>
+                </td>
+              )}
               <td>
-                <DropdownMenuButton trigger={StatusButton(status[index])}>
-                  <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "approved", response)}
-                  >
-                    <StatusLabel status="approved">approved</StatusLabel>
-                  </DropdownMenuButton.Item>
-
-                  <DropdownMenuButton.Separator className={styles.separator} />
-
-                  <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "rejected", response)}
-                  >
-                    <StatusLabel status="rejected">rejected</StatusLabel>
-                  </DropdownMenuButton.Item>
-
-                  <DropdownMenuButton.Separator className={styles.separator} />
-
-                  <DropdownMenuButton.Item
-                    onClick={handleStatusChange(index, "pending", response)}
-                  >
-                    <StatusLabel status="pending">pending</StatusLabel>
-                  </DropdownMenuButton.Item>
-                </DropdownMenuButton>
+                <Modal
+                  open={isViewOpen[index] || false}
+                  onOpenChange={(open) =>
+                    setIsViewOpen((prev) => ({ ...prev, [index]: open }))
+                  }
+                >
+                  <Modal.Button asChild className={styles.modalTrigger}>
+                    <PrimaryButton
+                      className={styles.primaryBtn}
+                      onClick={() =>
+                        setIsViewOpen((prev) => ({ ...prev, [index]: true }))
+                      }
+                    >
+                      <p className={styles.btnTextDesktop}>View</p>
+                    </PrimaryButton>
+                  </Modal.Button>
+                  <Modal.Content maximize={true} title={user[index]}>
+                    <FormResponseForm answers={response} />
+                  </Modal.Content>
+                </Modal>
               </td>
-            )}
-            <td>
-              <Modal
-                open={isViewOpen[index] || false}
-                onOpenChange={(open) =>
-                  setIsViewOpen((prev) => ({ ...prev, [index]: open }))
-                }
-              >
-                <Modal.Button asChild className={styles.modalTrigger}>
-                  <PrimaryButton
-                    className={styles.primaryBtn}
-                    onClick={() =>
-                      setIsViewOpen((prev) => ({ ...prev, [index]: true }))
-                    }
-                  >
-                    <p className={styles.btnTextDesktop}>View</p>
-                  </PrimaryButton>
-                </Modal.Button>
-                <Modal.Content maximize={true} title={user[index]}>
-                  <FormResponseForm answers={response} />
-                </Modal.Content>
-              </Modal>
-            </td>
-            <td>{formatDate(submittedAt[index])}</td>
-            <td>{email[index]}</td>
-            <td>{formatMoney(amount[index])}</td>
-            <td>
-              {paymentType[index] === "Credit Card / Stripe"
-                ? formatDate(submittedAt[index], 3)
-                : ""}
-            </td>
-          </tr>
-        ))}
-      </DashboardTable>
+              <td>{formatDate(submittedAt[index])}</td>
+              <td>{email[index]}</td>
+              <td>{formatMoney(amount[index])}</td>
+              <td>
+                {paymentType[index] === "Credit Card / Stripe"
+                  ? formatDate(submittedAt[index], 3)
+                  : ""}
+              </td>
+            </tr>
+          ))}
+        </DashboardTable>
+      ) : (
+        <DashboardTable
+          headers={blankTypeHeaders}
+          headerColor="light"
+          className={styles.table}
+        >
+          {formResponsesData.map((response: Record<string, Answer>, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>
+                <Modal
+                  open={isViewOpen[index] || false}
+                  onOpenChange={(open) =>
+                    setIsViewOpen((prev) => ({ ...prev, [index]: open }))
+                  }
+                >
+                  <Modal.Button asChild className={styles.modalTrigger}>
+                    <PrimaryButton
+                      className={styles.primaryBtn}
+                      onClick={() =>
+                        setIsViewOpen((prev) => ({ ...prev, [index]: true }))
+                      }
+                    >
+                      <p className={styles.btnTextDesktop}>View</p>
+                    </PrimaryButton>
+                  </Modal.Button>
+                  <Modal.Content maximize={true} title={user[index]}>
+                    <FormResponseForm answers={response} />
+                  </Modal.Content>
+                </Modal>
+              </td>
+              <td>{formatDate(submittedAt[index])}</td>
+            </tr>
+          ))}
+        </DashboardTable>
+      )}
       {formResponsesData.length === 0 && (
         <div className={styles.emptyFormResponses}>
           <h2>{t("noResponsesText")}</h2>

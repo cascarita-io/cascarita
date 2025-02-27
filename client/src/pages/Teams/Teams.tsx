@@ -15,6 +15,7 @@ import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
 import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
 import Cookies from "js-cookie";
+import { DummyImage } from "react-simple-placeholder-image";
 
 const Teams = () => {
   const { t } = useTranslation("Teams");
@@ -134,6 +135,7 @@ const Teams = () => {
           <DashboardTable
             headers={[
               t("tableHeaders.name"),
+              t("tableHeaders.season"),
               t("tableHeaders.division"),
               t("tableHeaders.options"),
             ]}
@@ -158,12 +160,26 @@ const Teams = () => {
                         gap: "8px",
                       }}
                     >
-                      <img src={team.team_logo} />
+                      {team.team_logo ? (
+                        <img
+                          style={{
+                            width: "75px",
+                            height: "75px",
+                          }}
+                          src={team.team_logo}
+                          alt={team.name}
+                        />
+                      ) : (
+                        <DummyImage width={75} height={75} shape="image" />
+                      )}
                       {team.name}
                     </div>
                   </td>
                   <td>
-                    {team.division_name || <span>Not linked to season</span>}
+                    {team.season_name || <span>Not linked to a season</span>}
+                  </td>
+                  <td>
+                    {team.division_name || <span>Not linked to a division</span>}
                   </td>
                   <td>
                     <DropdownMenuButton>

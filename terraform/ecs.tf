@@ -43,29 +43,57 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 
 resource "aws_ecs_task_definition" "ecs_task_definition" {
   family       = local.task_family_name
-  network_mode = "host"
-  cpu          = var.cpu_allocation
+  network_mode = "bridge"
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
   }
   container_definitions = jsonencode([
     {
-      name      = var.container_name
-      image     = var.container_image
-      cpu       = var.cpu_allocation
-      memory    = var.memory_allocation
+      name = var.proxy_container
+      image = var.proxy_container_image
+      cpu = var.low_cpu_allocation
+      memory = var.low_memory_allocation
       essential = true
       portMappings = [
         {
-          containerPort = var.port
-          hostPort      = var.port
-          protocol      = "tcp"
+          containerPort = var.proxy_port
+          hostPort = var.proxy_port
+          protocol = "tcp"
         },
         {
-          containerPort = 443            # HTTPS port
-          hostPort      = 443            # HTTPS port
+          containerPort = 443
+          hostPort = 443
+          protocol = "tcp"
+        }
+      ],
+      links = [var.client_container, var.server_container]
+    },
+    {
+      name      = var.client_container
+      image     = var.client_container_image
+      cpu       = var.low_cpu_allocation
+      memory    = var.high_memory_allocation
+      essential = true
+      portMappings = [
+        {
+          containerPort = var.client_port
+          hostPort      = var.client_port
           protocol      = "tcp"
+        }
+      ]
+    },
+    {
+      name      = var.server_container
+      image     = var.server_container_image
+      cpu       = var.low_cpu_allocation
+      memory    = var.medium_memory_allocation
+      essential = true
+      portMappings = [
+        {
+          containerPort = var.server_port
+          hostPort      = var.server_port
         }
       ]
     }
@@ -86,13 +114,18 @@ resource "aws_ecs_service" "ecs_service" {
   task_definition = aws_ecs_task_definition.ecs_task_definition.arn
   desired_count   = var.desired_count
 
+  network_configuration {
+    subnets          = [aws_subnet.subnet.id, aws_subnet.subnet2.id]
+    security_groups  = [aws_security_group.security_group.id]
+  }
+
   force_new_deployment = true
   placement_constraints {
     type = "distinctInstance"
   }
 
   triggers = {
-    redeployment = timestamp()
+    redeployment = aws_ecs_task_definition.ecs_task_definition.revision
   }
 
   capacity_provider_strategy {
@@ -102,8 +135,8 @@ resource "aws_ecs_service" "ecs_service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_tg.arn
-    container_name   = var.container_name
-    container_port   = var.port
+    container_name   = var.proxy_container
+    container_port   = var.proxy_port
   }
 
   tags = {

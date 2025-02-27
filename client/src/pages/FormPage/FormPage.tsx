@@ -22,6 +22,7 @@ const FormPage = () => {
   const navigate = useNavigate();
   const stripeComponentRef = useRef<{
     handlePayment: () => Promise<PaymentResult>;
+    handleCashPayment: () => Promise<{ amount: number; payment_type: string }>;
   } | null>(null);
   const {
     data: form,
@@ -59,6 +60,26 @@ const FormPage = () => {
     }
   }, [form, used]);
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (used === total) {
+          // Trigger submit button click
+          document.getElementById("submitButton")?.click();
+        } else {
+          // Trigger next button click
+          document.getElementById("nextButton")?.click();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [used, total]);
+
   if (isLoading) return <div>Loading...</div>; // Show loading state
   if (error) return <div>An error occurred: {error.message}</div>; // Show error state
 
@@ -88,8 +109,11 @@ const FormPage = () => {
       }) ?? [];
 
     try {
-      if (stripeComponentRef.current) {
-        const { success, paymentIntentId, amount } =
+      if (
+        stripeComponentRef.current &&
+        stripeComponentRef.current.handlePayment
+      ) {
+        const { success, paymentIntentId, amount, payment_type } =
           await stripeComponentRef.current.handlePayment();
         if (!success) {
           return;
@@ -99,20 +123,44 @@ const FormPage = () => {
               return {
                 ...answer,
                 paymentIntentId: paymentIntentId,
+                payment_type: payment_type,
                 amount: amount,
               };
             }
             return answer;
           });
-
           const responsesData = await createMongoResponse(
             formId ?? "",
             updatedNormalizedAnswers
           );
           // TODO: Redirect to a thank you page!
-          navigate("/");
+          navigate("/thanks");
           return responsesData;
         }
+      } else if (
+        stripeComponentRef.current &&
+        stripeComponentRef.current.handleCashPayment
+      ) {
+        const { amount, payment_type } =
+          await stripeComponentRef.current.handleCashPayment();
+
+        const updatedNormalizedAnswers = normalizedAnswers.map((answer) => {
+          if (answer.type === "payment") {
+            return {
+              ...answer,
+              payment_type: payment_type,
+              amount: amount,
+            };
+          }
+          return answer;
+        });
+        const responsesData = await createMongoResponse(
+          formId ?? "",
+          updatedNormalizedAnswers
+        );
+        // TODO: Redirect to a thank you page!
+        navigate("/thanks");
+        return responsesData;
       }
 
       // TODO: need to get payment intent id sent into this
@@ -120,8 +168,7 @@ const FormPage = () => {
         formId ?? "",
         normalizedAnswers
       );
-      // TODO: Redirect to a thank you page!
-      navigate("/");
+      navigate("/thanks");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);
@@ -198,6 +245,7 @@ const FormPage = () => {
                 {used === total ? (
                   <button
                     type="submit"
+                    id="submitButton"
                     className={styles.submitButton}
                     disabled={hasErrors() || isNotEmpty()}
                   >
@@ -206,6 +254,7 @@ const FormPage = () => {
                 ) : (
                   <button
                     type="button"
+                    id="nextButton"
                     className={styles.nextButton}
                     onClick={(e) => {
                       e.preventDefault();

@@ -19,7 +19,7 @@ const normalizePriceToCents = (price: string | number | undefined): number => {
 
 export const useCreatePaymentIntent = (
   field: Field,
-  sqlFormId: string,
+  sqlFormId: string
 ): UseMutationResult<PaymentIntent, Error, void, unknown> => {
   return useMutation({
     mutationFn: async () => {
@@ -46,7 +46,7 @@ export const useCreatePaymentIntent = (
         sqlFormId,
         stripeAccountInternalId,
         priceValue,
-        feeValue,
+        feeValue
       );
 
       if (!paymentIntent) {

@@ -6,7 +6,19 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import nullthrows from "nullthrows";
 
-export const connectStripe = async (formData: object) => {
+export const connectStripe = async (
+  id: number,
+  email: string,
+  name: string,
+  description: string
+) => {
+  const formData = {
+    id: id,
+    email: email,
+    platform_account_name: name,
+    platform_account_description: description,
+    account_email: email,
+  };
   try {
     const response = await fetch("/api/accounts/connect", {
       method: "POST",

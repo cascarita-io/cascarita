@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
 import { DivisionType } from "../../../pages/Division/types";
 import { SeasonType } from "../../../pages/Seasons/types";
+import { uploadPhotoToS3 } from "../../../api/photo/service";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
@@ -33,7 +34,24 @@ const TeamForm: React.FC<TeamFormProps> = ({
   const [linkToSeason, setLinkToSeason] = useState(true);
   const groupId = Number(Cookies.get("group_id")) || 0;
 
-  console.log("seasonsData", seasonsData);
+  const [fileUrl, setFileUrl] = useState<File | null>(null);
+  const [teamLogo, setTeamLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const uploadPhoto = async () => {
+      if (fileUrl) {
+        const uploadUrl = await uploadPhotoToS3(
+          fileUrl,
+          "team_images",
+          "team_logo"
+        );
+        setTeamLogo(uploadUrl.image_url);
+      } else {
+        setTeamLogo(null);
+      }
+    };
+    uploadPhoto();
+  }, [fileUrl]);
 
   useEffect(() => {
     if (seasonId !== 0) {
@@ -50,7 +68,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
 
     const formData = new FormData(event.currentTarget);
     const teamName = formData.get("teamName") as string;
-    const teamLogo = formData.get("teamLogo") as File;
 
     const data = {
       formData: {
@@ -167,14 +184,25 @@ const TeamForm: React.FC<TeamFormProps> = ({
               id="linkToSeason"
               name="linkToSeason"
               checked={linkToSeason}
-              onChange={(e) => setLinkToSeason(e.target.checked)}
+              onChange={(e) => {
+                setLinkToSeason(e.target.checked);
+                if (!e.target.checked) {
+                  setDivisionId(0);
+                  setSeasonId(0);
+                }
+              }}
             />
           </div>
 
           <div className={styles.inputContainer}>
             <label className={styles.label}>{t("formContent.logo")}</label>
 
-            <FileUpload className={styles.logoInputContainer} />
+            <FileUpload
+              setFileValue={(url: File | null) => {
+                setFileUrl(url);
+              }}
+              className={styles.logoInputContainer}
+            />
           </div>
 
           <div className={styles.formBtnContainer}>
