@@ -1,3 +1,4 @@
+/* Mobile Styles */
 @keyframes dialog-content-show-mobile {
   from {
     opacity: 0;
@@ -61,7 +62,7 @@
   box-shadow: 1px 1px 1px grey;
   position: fixed;
   width: 100%;
-  max-height: 80vh;
+  max-height: 90vh;
   min-height: 70vh;
   padding: 25px;
 }
@@ -136,6 +137,7 @@
   background-color: lightgray;
 }
 
+/* Desktop Styles */
 @media (min-width: 769px) {
   @keyframes dialog-content-show {
     from {
