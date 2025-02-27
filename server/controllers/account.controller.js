@@ -12,7 +12,6 @@ const {
   Group,
   FormPayment,
 } = require("../models");
-//const FormPaymentController = require("./formPayment.controller");
 const modelByPk = require("./utility");
 
 const AccountController = function () {
@@ -278,6 +277,14 @@ const AccountController = function () {
           stripeAccount: stripe_account_id,
         },
       );
+
+      if (!paymentIntent) {
+        return {
+          success: false,
+          error: `no stripe payment intent found with id of: ${paymentIntentId}`,
+          status: 404,
+        };
+      }
 
       const formPaymentResult = await FormPayment.findOne({
         where: { payment_intent_id: paymentIntentId },
