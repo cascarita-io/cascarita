@@ -268,7 +268,8 @@ export const updateFormPaymentStatus = async (
   paymentIntentId: string,
   status: string,
   email: string,
-  answers: Record<string, Answer>
+  answers: Record<string, Answer>,
+  paymentType: string
 ) => {
   try {
     const data = {
@@ -276,6 +277,7 @@ export const updateFormPaymentStatus = async (
       status: status,
       email: email,
       answers: answers,
+      payment_type: paymentType,
     };
 
     const response = await fetch(`/api/forms/status`, {

@@ -157,7 +157,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const handleStatusChange = (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
+    paymentType: string
   ) => {
     return async () => {
       const newStatus = [...status];
@@ -173,7 +174,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
         paymentIntentIds[index],
         updatedStatus,
         adminEmail,
-        response
+        response,
+        paymentType
       );
     };
   };
@@ -209,7 +211,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                 <td>
                   <DropdownMenuButton trigger={StatusButton(status[index])}>
                     <DropdownMenuButton.Item
-                      onClick={handleStatusChange(index, "approved", response)}
+                      onClick={handleStatusChange(
+                        index,
+                        "approved",
+                        response,
+                        paymentType[index]
+                      )}
                     >
                       <StatusLabel status="approved">approved</StatusLabel>
                     </DropdownMenuButton.Item>
@@ -219,7 +226,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={handleStatusChange(index, "rejected", response)}
+                      onClick={handleStatusChange(
+                        index,
+                        "rejected",
+                        response,
+                        paymentType[index]
+                      )}
                     >
                       <StatusLabel status="rejected">rejected</StatusLabel>
                     </DropdownMenuButton.Item>
@@ -229,7 +241,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={handleStatusChange(index, "pending", response)}
+                      onClick={handleStatusChange(
+                        index,
+                        "pending",
+                        response,
+                        paymentType[index]
+                      )}
                     >
                       <StatusLabel status="pending">pending</StatusLabel>
                     </DropdownMenuButton.Item>
