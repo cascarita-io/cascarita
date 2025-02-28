@@ -169,6 +169,7 @@ const Teams = () => {
                         </div>
                       }
                       radius="full"
+                      size={"4"}
                     />
                     {team.name}
                   </div>
