@@ -13,28 +13,22 @@
 .table th {
   /* Apply both top and bottom borders to the <th> */
   padding: 8px;
-  border-top: 2px solid black;
-  border-bottom: 2px solid black;
-  border-right: 2px solid black;
+  text-align: center;
 }
 
 .table td {
   padding: 8px;
   text-align: left;
-  min-width: 150px; /* Set minimum width for cells */
+  min-width: 20px; /* Set minimum width for cells */
   /* Apply both top and bottom borders to the <th> */
   border-bottom: 1px solid #ddd;
   border-right: 1px solid #ddd;
+  text-align: center;
 }
 
 .table td:first-child {
   /* Apply a left border on the first <td> or <th> in a row */
   border-left: 1px solid #ddd;
-}
-
-.table th:first-child {
-  /* Apply a left border on the first <td> or <th> in a row */
-  border-left: 2px solid black;
 }
 
 .table th {
@@ -52,4 +46,10 @@
   display: flex;
   justify-content: center;
   padding: 10px;
+}
+
+.primaryBtn {
+  padding: 5px;
+  border-radius: 30px;
+  width: 70px;
 }

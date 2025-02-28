@@ -39,7 +39,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
     event.preventDefault();
     setIsLoading(true);
     const { divisionName } = Object.fromEntries(
-      new FormData(event.currentTarget)
+      new FormData(event.currentTarget),
     );
 
     const data = {
@@ -84,46 +84,44 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
         </DeleteForm>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="seasonName">
-              {t("formContent.name")}
-            </label>
-            <input
-              className={styles.input}
-              required
-              placeholder={t("formContent.namePlaceholder")}
-              id="divisionName"
-              name="divisionName"
-              value={divisionName}
-              onChange={(event) =>
-                setDivisionName(event.target.value.replaceAll("/", ""))
-              }
-            />
-          </div>
-          <div className={styles.inputContainer}>
-            <label className={styles.label}>{t("formContent.season")}</label>
-            <select
-              required
-              id="seasonId"
-              name="seasonId"
-              value={seasonId}
-              onChange={(e) => setSeasonId(Number(e.target.value))}
-              className={styles.input}
-            >
-              <option>Select a season</option>
-              {seasonData?.map((season: SeasonType) => (
-                <option key={season.id} value={season.id}>
-                  {season.name} - {season.league_name}
-                </option>
-              ))}
-            </select>
+          <div style={{ display: "grid", gap: "24px" }}>
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="seasonName">
+                {t("formContent.name")}
+              </label>
+              <input
+                className={styles.input}
+                required
+                placeholder={t("formContent.namePlaceholder")}
+                id="divisionName"
+                name="divisionName"
+                value={divisionName}
+                onChange={(event) =>
+                  setDivisionName(event.target.value.replaceAll("/", ""))
+                }
+              />
+            </div>
+            <div className={styles.inputContainer}>
+              <label className={styles.label}>{t("formContent.season")}</label>
+              <select
+                required
+                id="seasonId"
+                name="seasonId"
+                value={seasonId}
+                onChange={(e) => setSeasonId(Number(e.target.value))}
+                className={styles.input}
+              >
+                <option>Select a season</option>
+                {seasonData?.map((season: SeasonType) => (
+                  <option key={season.id} value={season.id}>
+                    {season.name} - {season.league_name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className={styles.formBtnContainer}>
-            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
-              {t("formContent.cancel")}
-            </Modal.Close>
-
             <button
               type="submit"
               className={`${styles.btn} ${styles.submitBtn}`}
@@ -132,6 +130,10 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
                 ? t("formContent.submitting")
                 : t("formContent.submit")}
             </button>
+
+            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
+              {t("formContent.cancel")}
+            </Modal.Close>
           </div>
         </form>
       )}

@@ -1,0 +1,88 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.inputContainer {
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 1.1rem;
+  color: black;
+  margin-right: 16px;
+  display: block;
+}
+
+.input {
+  width: 100%;
+  height: 35px;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 15px;
+  line-height: 1;
+  background-color: #f4f7fb;
+  color: var(--violet-11);
+  box-shadow: 0 0 0 1px var(--violet-7);
+}
+
+.logoInputContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 200px;
+  width: 75%;
+  padding: 20px;
+  background-color: #f4f7fb;
+  border-width: 2px;
+  border-radius: 2px;
+  border-color: #ddd;
+  border-style: dashed;
+}
+
+.formBtnContainer {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn {
+  border-radius: 21.5px;
+  padding: 13px 45px;
+  background-color: transparent;
+  outline: 1px solid #170cb4;
+  color: #170cb4;
+}
+
+.btn:hover,
+.btn:focus {
+  transition: ease-in 200ms;
+  background-color: #170cb4;
+  color: #ffffff;
+}
+
+.cancelBtn {
+  padding: 8px 32px;
+  outline: 1px solid black;
+  color: black;
+}
+
+.cancelBtn:hover,
+.cancelBtn:focus {
+  outline: 1px solid blue;
+  background-color: transparent;
+  color: black;
+}
+
+.submitBtn {
+  padding: 8px 32px;
+}

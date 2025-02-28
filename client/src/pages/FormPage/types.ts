@@ -10,6 +10,7 @@ import StripeComponent from "../../components/FormInputComponents/Stripe/StripeC
 import Liability from "../../components/FormInputComponents/Liability/Liability";
 import Signature from "../../components/FormInputComponents/Signature/Signature";
 import Date from "../../components/FormInputComponents/Date/Date";
+import Photo from "../../components/FormInputComponents/Photo/Photo";
 
 export interface WelcomeScreen {
   id: string;
@@ -47,6 +48,7 @@ export interface FetchedForm {
   };
   welcome_screen: WelcomeScreen;
   sql_form_id: string;
+  form_type: number;
 }
 
 export const FieldComponents = {
@@ -61,6 +63,7 @@ export const FieldComponents = {
   signature: Signature,
   date: Date,
   player: PlayerBlock,
+  photo: Photo,
 };
 
 // TODO: more appropriate mapping for data normalization
@@ -76,4 +79,5 @@ export const AnswerMap = {
   phone_number: "phone_number",
   payment: "payment",
   player: "player",
+  photo: "photo",
 };

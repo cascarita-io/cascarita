@@ -15,6 +15,38 @@ import { User } from "../../api/users/types";
 import { Field, FieldType, Form } from "../../api/forms/types";
 import Cookies from "js-cookie";
 import { fetchUser } from "../../api/users/service";
+import BlueCheckMarkIcon from "../../assets/Icons/BlueCheckMarkIcon";
+import { Text } from "@radix-ui/themes";
+import Modal from "../../components/Modal/Modal";
+
+interface CreateFormConfirmationModalProps {
+  openModal: boolean;
+  setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const CreateFormConfirmationModal: React.FC<
+  CreateFormConfirmationModalProps
+> = ({ openModal, setOpenModal }) => {
+  return (
+    <Modal open={openModal} onOpenChange={setOpenModal}>
+      <Modal.Content>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            gap: "10px",
+            height: "100%",
+          }}
+        >
+          <BlueCheckMarkIcon />
+          <Text style={{ fontWeight: "bold" }}>Completed </Text>
+          <Text>You have successfully created a new form.</Text>
+        </div>
+      </Modal.Content>
+    </Modal>
+  );
+};
 
 const NewForm = () => {
   const { t } = useTranslation("NewForms");
@@ -22,6 +54,7 @@ const NewForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
+  const [openModal, setOpenModal] = useState(false);
   const [formId, setFormId] = useState<string | null>(
     (location.state?.id as string) ?? null
   );
@@ -58,6 +91,7 @@ const NewForm = () => {
     "Email",
     "Phone Number",
     "Player",
+    "Photo",
     "Liability",
     "Signature",
     "Date",
@@ -109,6 +143,7 @@ const NewForm = () => {
     setFormLink(`${window.location.origin}/forms/${response._id}`);
     setFormId(response._id);
     setFields(response.form_data.fields);
+    setOpenModal(true);
   };
 
   // TODO: save by mongo form ID
@@ -226,10 +261,14 @@ const NewForm = () => {
                 items={droppedItems}
                 handleDelete={handleDelete}
                 handleCopy={handleCopy}
-                saveForm={formId == null ? onCreate : onSave}
+                saveForm={formId === null ? onCreate : onSave}
               />
             </div>
           </div>
+          <CreateFormConfirmationModal
+            openModal={openModal}
+            setOpenModal={setOpenModal}
+          />
         </div>
       )}
       {formId != null && activeSection === "responses" && (

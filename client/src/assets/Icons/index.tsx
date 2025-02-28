@@ -8,6 +8,8 @@ import PlusCircleIcon from "./PlusCircleIcon";
 import TrashBinIcon from "./TrashBinIcon";
 import StripeConnectionIcon from "./StripeConnectIcon";
 import StripeLogoIcon from "./StripeLogoIcon";
+import AcceptIcon from "./AcceptIcon";
+import RejectIcon from "./RejectIcon";
 
 export {
   HomePageLogoIcon,
@@ -20,4 +22,6 @@ export {
   TrashBinIcon,
   StripeConnectionIcon,
   StripeLogoIcon,
+  AcceptIcon,
+  RejectIcon,
 };

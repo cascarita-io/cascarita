@@ -10,6 +10,7 @@ export interface State {
   state: string;
   zipCode: string;
   selectedOrg: string;
+  group_code: string;
 }
 
 export type Action =

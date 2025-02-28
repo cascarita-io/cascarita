@@ -1,6 +1,8 @@
 .form {
-  display: grid;
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .inputContainer {
@@ -41,6 +43,16 @@
   color: black;
 }
 
+.subtitle {
+  padding-bottom: 25px;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .label {
   font-size: 1.1rem;
   color: black;
@@ -50,19 +62,18 @@
 
 .input {
   width: 100%;
-  height: auto;
   flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  padding: 0 10px;
+  padding: 8px 13px;
   font-size: 15px;
   line-height: 1;
   background-color: #f4f7fb;
   color: var(--violet-11);
   box-shadow: 0 0 0 1px var(--violet-7);
-  height: 35px;
+  height: 40fallbackpx;
 }
 
 .input:focus {
@@ -94,11 +105,9 @@
 }
 
 .formBtnContainer {
-  width: 100%;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  gap: 16px;
+  display: grid;
+  gap: 12px;
+  grid-template-rows: 1fr 1fr;
 }
 
 .btn {
@@ -168,3 +177,34 @@
   width: 20px;
 }
 
+@media (min-width: 769px) {
+  .form {
+    gap: 18px;
+  }
+  .formBtnContainer {
+    display: flex;
+    justify-content: end;
+    gap: 12px;
+  }
+}
+
+.acceptButton {
+  width: 100px;
+  height: 27px;
+  color: white;
+  background-color: #e9ffe8;
+  padding: 0%;
+  outline: 0px solid transparent;
+  border-radius: 21.5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+.rejectButton {
+  width: 100px;
+  height: 27px;
+  color: white;
+  background-color: #ffeeee;
+  padding: 0%;
+  outline: 0px solid transparent;
+  border-radius: 21.5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}

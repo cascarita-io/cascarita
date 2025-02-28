@@ -32,6 +32,7 @@ export interface RegisterUser {
   state: string | null;
   zipCode: string | null;
   logoUrl: string | null; // still need to set up s3 buckets for images so for now we wont collect this and just set it to null
+  group_code: string | null;
   token: string | null;
 }
 

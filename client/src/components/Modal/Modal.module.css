@@ -1,22 +1,23 @@
-@keyframes dialog-content-show {
+/* Mobile Styles */
+@keyframes dialog-content-show-mobile {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
+    transform: translateY(100%);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-100%);
   }
 }
 
-@keyframes dialog-content-hide {
+@keyframes dialog-content-hide-mobile {
   from {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(-100%);
   }
   to {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
+    transform: translateY(100%);
   }
 }
 
@@ -45,15 +46,41 @@
 }
 
 .overlay[data-state="open"] {
-  animation: dialog-overlay-show 200ms;
+  animation: dialog-overlay-show 350ms;
   z-index: 2;
 }
 
 .overlay[data-state="closed"] {
-  animation: dialog-overlay-hide 200ms;
+  animation: dialog-overlay-hide 350ms;
 }
 
 .content {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 1px 1px 1px grey;
+  position: fixed;
+  width: 100%;
+  max-height: 90vh;
+  min-height: 70vh;
+  padding: 25px;
+}
+
+.content[data-state="open"] {
+  animation: dialog-content-show-mobile 350ms ease-out forwards;
+  z-index: 2;
+}
+
+.content[data-state="closed"] {
+  animation: dialog-content-hide-mobile 200ms ease-in forwards;
+}
+
+.content:focus {
+  outline: none;
+}
+
+.maximizeContent {
   background-color: white;
   border-radius: 16px;
   box-shadow: 1px 1px 1px grey;
@@ -62,21 +89,19 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90vw;
-  max-width: 650px;
-  max-height: 85vh;
   padding: 25px;
 }
 
-.content[data-state="open"] {
+.maximizeContent[data-state="open"] {
   animation: dialog-content-show 200ms;
   z-index: 2;
 }
 
-.content[data-state="closed"] {
+.maximizeContent[data-state="closed"] {
   animation: dialog-content-hide 200ms;
 }
 
-.content:focus {
+.maximizeContent:focus {
   outline: none;
 }
 
@@ -110,4 +135,47 @@
 .closeIcon:hover,
 .closeIcon:focus {
   background-color: lightgray;
+}
+
+/* Desktop Styles */
+@media (min-width: 769px) {
+  @keyframes dialog-content-show {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  @keyframes dialog-content-hide {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+  }
+
+  .content {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 650px;
+    max-height: 85vh;
+    min-height: 0;
+  }
+  .content[data-state="open"] {
+    animation: dialog-content-show 200ms;
+    z-index: 2;
+  }
+
+  .content[data-state="closed"] {
+    animation: dialog-content-hide 200ms;
+  }
 }

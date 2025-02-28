@@ -107,7 +107,7 @@ const Forms = () => {
   }, []);
 
   const handleNewFormClick = () => {
-    navigate("/forms/check");
+    navigate("/forms/edit");
   };
 
   const handleTemplateClick = () => {
@@ -125,10 +125,10 @@ const Forms = () => {
     setForms((forms) => forms.filter((form) => form._id !== id));
   };
 
-  const onEdit = async (id: string) => {
+  const onOpen = async (id: string) => {
     const form = await getMongoFormById(id);
 
-    navigate("/forms/check", {
+    navigate("/forms/edit", {
       state: {
         id,
         title: form.form_data.title,
@@ -138,6 +138,10 @@ const Forms = () => {
         fields: form.form_data.fields,
       },
     });
+  };
+
+  const onView = async (id: string) => {
+    navigate(`/forms/${id}`);
   };
 
   const filteredData = forms
@@ -205,9 +209,15 @@ const Forms = () => {
             <tr key={index} className={styles.tableRow}>
               <td className={styles.tableData}>
                 <p>
-                  <a href={`/forms/${form._id}`} style={{ cursor: "pointer" }}>
+                  <button
+                    onClick={() => onOpen(form._id)}
+                    style={{ cursor: "pointer" }}
+                  >
                     {form.form_data.title}
-                  </a>
+                  </button>
+                  {/* <a href={`/forms/${form._id}`} style={{ cursor: "pointer" }}>
+                    {form.form_data.title}
+                  </a> */}
                 </p>
               </td>
 
@@ -218,7 +228,8 @@ const Forms = () => {
               <td className={`${styles.tableData} ${styles.showInDesktop}`}>
                 <DropdownMenuButton
                   onDelete={() => onDelete(form._id)}
-                  onEdit={() => onEdit(form._id)}
+                  onEdit={() => onOpen(form._id)}
+                  onView={() => onView(form._id)}
                 />
               </td>
 

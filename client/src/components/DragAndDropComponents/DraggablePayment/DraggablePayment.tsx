@@ -8,10 +8,9 @@ import Switch from "react-switch";
 import { useTranslation } from "react-i18next";
 import { SMALL_DRAGGABLE_CONTAINER_WIDTH } from "../constants";
 import { formatPayment } from "../../../utils/formatPayment";
-import { getStripeAccounts } from "../../../api/stripe/service";
 import { DraggableProps } from "../types";
-import { useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
+import { useGetAllStripeAccounts } from "../../../api/stripe/query";
 
 const DraggablePayment: React.FC<DraggableProps> = ({
   index,
@@ -24,7 +23,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContainerWidthMaxed, setIsContainerWidthMaxed] = useState(false);
   const [paymentFee, setPaymentFee] = useState(
-    formField.properties?.price?.feeValue ?? ""
+    formField.properties?.price?.feeValue ?? "",
   );
 
   const groupId = Number(Cookies.get("group_id")) || 0;
@@ -40,10 +39,8 @@ const DraggablePayment: React.FC<DraggableProps> = ({
     return Math.ceil(fee * 100) / 100;
   };
 
-  const { data: stripeAccounts = [], isLoading } = useQuery({
-    queryKey: ["stripeAccounts", groupId],
-    queryFn: () => getStripeAccounts(groupId),
-  });
+  const { data: stripeAccounts = [], isLoading } =
+    useGetAllStripeAccounts(groupId);
 
   useEffect(() => {
     if (
@@ -62,7 +59,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
     const handleResize = () => {
       if (containerRef.current) {
         setIsContainerWidthMaxed(
-          containerRef.current.offsetWidth < SMALL_DRAGGABLE_CONTAINER_WIDTH
+          containerRef.current.offsetWidth < SMALL_DRAGGABLE_CONTAINER_WIDTH,
         );
       }
     };
@@ -151,12 +148,12 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                             value={formatPayment(field.value)}
                             onChange={(e) => {
                               const newFee = formatPayment(
-                                calculateStripeFee(+e.target.value).toString()
+                                calculateStripeFee(+e.target.value).toString(),
                               );
                               setPaymentFee(newFee);
                               setValue(
                                 `fields.${index}.properties.price.feeValue`,
-                                newFee
+                                newFee,
                               );
                               field.onChange(e.target.value);
                             }}
@@ -261,11 +258,11 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                                 console.error(
                                   "Invalid JSON value:",
                                   e.target.value,
-                                  error
+                                  error,
                                 );
                                 // reset the value to the default account
                                 field.onChange(
-                                  formField?.properties?.stripe_account
+                                  formField?.properties?.stripe_account,
                                 );
                               }
                             }}

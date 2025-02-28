@@ -1,22 +1,26 @@
 "use strict";
+const crypto = require('crypto');
 const { Group } = require("../models");
 
 const GroupController = function () {
-  var _getGroup = async function (id) {
+  var findGroupById = async function (id) {
     let currentGroup = await Group.findOne({
       where: {
         id: id,
       },
     });
 
-    if (!currentGroup) {
-      throw new Error("group with given id was not found");
-    } else return currentGroup;
+    return currentGroup;
   };
 
   var getGroupById = async function (req, res, next) {
     try {
-      const group = await _getGroup(req.params["id"]);
+      const group = await findGroupById(req.params["id"]);
+      if (!group) {
+        res.status(404).json({ error: `no group was found with id ${req.params["id"]}` });
+        return;
+      }
+
       return res.status(200).json(group);
     } catch (error) {
       next(error);
@@ -33,6 +37,9 @@ const GroupController = function () {
   };
 
   var createGroup = async function (groupInfo) {
+
+    const uniqueCode = await generateUniqueGroupCode();
+
     const newGroup = {
       name: groupInfo.name,
       street_address: groupInfo.street_address,
@@ -40,6 +47,7 @@ const GroupController = function () {
       state: groupInfo.state,
       zip_code: groupInfo.zip_code,
       logo_url: groupInfo.logo_url,
+      group_code: uniqueCode
     };
 
     try {
@@ -54,7 +62,12 @@ const GroupController = function () {
 
   var updateGroup = async function (req, res, next) {
     try {
-      let currentGroup = await _getGroup(req.params["id"]);
+      let currentGroup = await findGroupById(req.params["id"]);
+
+      if (!currentGroup) {
+        res.status(404).json({ error: `no group was found with id ${req.params["id"]}` });
+        return;
+      }
 
       Object.keys(req.body).forEach((key) => {
         currentGroup[key] = req.body[key] ? req.body[key] : currentGroup[key];
@@ -69,7 +82,33 @@ const GroupController = function () {
     }
   };
 
+  function generateHexCode() {
+    return crypto.randomBytes(4).toString('hex');
+  }
+
+  var generateUniqueGroupCode = async function () {
+    const maxAttempts = 10;
+    let attempts = 0;
+    let uniqueCode;
+
+    while (attempts < maxAttempts) {
+      uniqueCode = generateHexCode();
+
+      // Check if the code already exists in the database
+      const existingGroup = await Group.findOne({ where: { group_code: uniqueCode } });
+
+      if (!existingGroup) {
+        return uniqueCode;
+      }
+
+      attempts++;
+    }
+
+  throw new Error('failed to generate a unique group code after 10 attempts');
+}
+
   return {
+    findGroupById,
     getGroupById,
     getAllGroups,
     createGroup,

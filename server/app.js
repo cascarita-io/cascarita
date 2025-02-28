@@ -58,6 +58,8 @@ const TeamRoutes = require("./routes/team.routes")(checkJwt);
 const UserRoutes = require("./routes/user.routes")(checkJwt);
 const FormRoutes = require("./routes/form.routes")(checkJwt);
 const AccountRoutes = require("./routes/account.routes")(checkJwt);
+const EmailRoutes = require("./routes/email.routes")(checkJwt);
+const S3Routes = require("./routes/s3.routes")(checkJwt);
 
 // Protected routes (requires JWT authentication)
 app.use("/api/divisions", DivisionController);
@@ -71,6 +73,8 @@ app.use("/api/teams", TeamRoutes);
 app.use("/api/users", UserRoutes);
 app.use("/api/forms", FormRoutes);
 app.use("/api/accounts", AccountRoutes);
+app.use("/api/email", EmailRoutes);
+app.use("/api/images", S3Routes);
 
 http.createServer(app).listen(app.get("port"), function () {
   console.log("Express server listening on port " + app.get("port"));

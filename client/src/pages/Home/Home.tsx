@@ -6,11 +6,19 @@ import { fetchUser } from "../../api/users/service";
 import Cookies from "js-cookie";
 import Navbar from "../../components/NavBar/NavBar";
 import Page from "../../components/Page/Page";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
 
 const Home = () => {
   const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
   const [registered, setRegistered] = useState<boolean | null>(null);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const { setGroupId } = useGroup();
+
+  // Function to handle registration completion
+  const handleRegistrationComplete = () => {
+    setRegistered(true);
+    setIsRegisterModalOpen(false);
+  };
 
   useEffect(() => {
     const checkRegistrationStatus = async () => {
@@ -21,6 +29,7 @@ const Home = () => {
           const response = await fetchUser(user.email || "", token);
           setRegistered(response?.isSigningUp ? false : true);
           Cookies.set("group_id", response?.group_id || 0);
+          setGroupId(response?.group_id);
         } catch (error) {
           console.error("Error checking registration status:", error);
           setRegistered(false);
@@ -31,7 +40,13 @@ const Home = () => {
     };
 
     checkRegistrationStatus();
-  }, [isAuthenticated, user, getAccessTokenSilently]);
+  }, [
+    isAuthenticated,
+    user,
+    getAccessTokenSilently,
+    registered,
+    handleRegistrationComplete,
+  ]);
 
   // Move the modal opening logic to a useEffect hook to avoid triggering re-renders
   useEffect(() => {
@@ -45,12 +60,6 @@ const Home = () => {
       setIsRegisterModalOpen(true);
     }
   }, [isRegisterModalOpen, registered]);
-
-  // Function to handle registration completion
-  const handleRegistrationComplete = () => {
-    setRegistered(true);
-    setIsRegisterModalOpen(false);
-  };
 
   if (registered === null) {
     return <></>;
@@ -69,14 +78,13 @@ const Home = () => {
               <></>
             </RegisterModal>
           )}
-          {/*TODO: Find out why the League Component gets rendered twice  */}
-          {/* <Leagues /> */}
           <Page title="Welcome!">
             <Navbar>
               <Navbar.Item href="">Leagues</Navbar.Item>
               <Navbar.Item href="seasons">Seasons</Navbar.Item>
               <Navbar.Item href="divisions">Divisions</Navbar.Item>
               <Navbar.Item href="teams">Teams</Navbar.Item>
+              <Navbar.Item href="players">Players</Navbar.Item>
             </Navbar>
 
             <Outlet />
