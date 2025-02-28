@@ -8,6 +8,8 @@ import {
 } from "../../components/Forms/UserForm/types";
 import { UserResponse, LanguageCodeToLanguageId, RegisterUser } from "./types";
 
+type UserSettingsQueryKey = [string, number];
+
 const updateUsersLanguages = async (
   user_id: number,
   language: string
@@ -219,6 +221,25 @@ const getSession = async (data: GetSessionData) => {
   }
 };
 
+const getCompleteUserSettings = async ({
+  queryKey,
+}: QueryFunctionContext<UserSettingsQueryKey>) => {
+  const [, user_id] = queryKey;
+  try {
+    const response = await fetch(`/api/users/settings/${user_id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+};
+
 export {
   updateUsersLanguages,
   registerUser,
@@ -230,4 +251,5 @@ export {
   updatePlayerTeams,
   getPlayersByGroupId,
   getSession,
+  getCompleteUserSettings,
 };
