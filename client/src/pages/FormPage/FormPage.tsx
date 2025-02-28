@@ -22,7 +22,11 @@ const FormPage = () => {
   const navigate = useNavigate();
   const stripeComponentRef = useRef<{
     handlePayment: () => Promise<PaymentResult>;
-    handleCashPayment: () => Promise<{ amount: number; payment_type: string }>;
+    handleCashPayment: () => Promise<{
+      amount: number;
+      payment_type: string;
+      paymentIntentId: string;
+    }>;
   } | null>(null);
   const {
     data: form,
@@ -141,13 +145,14 @@ const FormPage = () => {
         stripeComponentRef.current &&
         stripeComponentRef.current.handleCashPayment
       ) {
-        const { amount, payment_type } =
+        const { amount, payment_type, paymentIntentId } =
           await stripeComponentRef.current.handleCashPayment();
 
         const updatedNormalizedAnswers = normalizedAnswers.map((answer) => {
           if (answer.type === "payment") {
             return {
               ...answer,
+              paymentIntentId: paymentIntentId,
               payment_type: payment_type,
               amount: amount,
             };

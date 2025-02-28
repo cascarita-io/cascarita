@@ -108,6 +108,7 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
     handleCashPayment: () => ({
       amount: field.properties?.price?.value,
       payment_type: "cash",
+      paymentIntentId: currentPaymentIntent?.id,
     }),
   }));
 
