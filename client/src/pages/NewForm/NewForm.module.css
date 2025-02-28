@@ -42,7 +42,7 @@ h4 {
   max-height: 90%;
   scrollbar-width: thin;
   position: relative;
-  z-index: 10;
+  z-index: 1;
 }
 
 .formTitleContainer {
