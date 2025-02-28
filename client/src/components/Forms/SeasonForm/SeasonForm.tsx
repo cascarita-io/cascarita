@@ -36,7 +36,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
     event.preventDefault();
     setIsLoading(true);
     const { seasonName, startDate, endDate } = Object.fromEntries(
-      new FormData(event.currentTarget)
+      new FormData(event.currentTarget),
     );
 
     const data = {
@@ -83,82 +83,84 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
         </DeleteForm>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="seasonName">
-              {t("formContent.name")}
-            </label>
-            <input
-              className={styles.input}
-              required
-              placeholder={t("formContent.name")}
-              id="seasonName"
-              name="seasonName"
-              value={seasonName}
-              onChange={(event) =>
-                setSeasonName(event.target.value.replaceAll("/", ""))
-              }
-            />
-          </div>
-          <div className={styles.inputContainer}>
-            <label className={styles.label}>League</label>
-            <select
-              required
-              id="leagueId"
-              name="leagueId"
-              value={leagueId}
-              className={styles.input}
-              onChange={(e) => setLeagueId(Number(e.target.value))}
-            >
-              <option value="">Select a league</option>
-              {leagueData?.map((league) => (
-                <option key={league.id} value={league.id}>
-                  {league.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.inputContainer}>
+          <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
-              <label className={styles.label} htmlFor="startDate">
-                {t("formContent.start")}
+              <label className={styles.label} htmlFor="seasonName">
+                {t("formContent.name")}
               </label>
               <input
                 className={styles.input}
                 required
-                type="date"
-                id="startDate"
-                name="startDate"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
+                placeholder={t("formContent.name")}
+                id="seasonName"
+                name="seasonName"
+                value={seasonName}
+                onChange={(event) =>
+                  setSeasonName(event.target.value.replaceAll("/", ""))
+                }
               />
             </div>
             <div className={styles.inputContainer}>
-              <label className={styles.label} htmlFor="endDate">
-                {t("formContent.end")}
-              </label>
-              <input
-                className={styles.input}
+              <label className={styles.label}>League</label>
+              <select
                 required
-                type="date"
-                id="endDate"
-                name="endDate"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-              />
+                id="leagueId"
+                name="leagueId"
+                value={leagueId}
+                className={styles.input}
+                onChange={(e) => setLeagueId(Number(e.target.value))}
+              >
+                <option value="">Select a league</option>
+                {leagueData?.map((league) => (
+                  <option key={league.id} value={league.id}>
+                    {league.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={styles.inputContainer}>
+              <div className={styles.inputContainer}>
+                <label className={styles.label} htmlFor="startDate">
+                  {t("formContent.start")}
+                </label>
+                <input
+                  className={styles.input}
+                  required
+                  type="date"
+                  id="startDate"
+                  name="startDate"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                />
+              </div>
+              <div className={styles.inputContainer}>
+                <label className={styles.label} htmlFor="endDate">
+                  {t("formContent.end")}
+                </label>
+                <input
+                  className={styles.input}
+                  required
+                  type="date"
+                  id="endDate"
+                  name="endDate"
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                />
+              </div>
             </div>
           </div>
 
           <div className={styles.formBtnContainer}>
-            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
-              {t("formContent.cancel")}
-            </Modal.Close>
-
             <button
               type="submit"
               className={`${styles.btn} ${styles.submitBtn}`}
             >
               {isLoading === true ? "Saving..." : t("formContent.submit")}
             </button>
+
+            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
+              {t("formContent.cancel")}
+            </Modal.Close>
           </div>
         </form>
       )}

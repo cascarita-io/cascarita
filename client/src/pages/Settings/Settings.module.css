@@ -1,0 +1,146 @@
+/* Mobile Styles */
+.settingsPage {
+  grid-template-rows: 45px auto 1fr;
+  gap: 14px;
+  max-height: 100dvh;
+}
+
+.settingsWrapper {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 24px;
+  overflow-y: auto;
+  max-height: 100%;
+  scrollbar-width: thin;
+}
+
+.sectionHeader {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.sectionTitleWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  align-self: self-start;
+}
+
+.sectionTitleWrapper > h2 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sectionTitleWrapper > p {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #7b7b7b;
+}
+
+.accountTable {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(auto-fill, 80px);
+}
+
+.accountTableRow {
+  display: grid;
+  grid-template-columns: 2fr 5fr;
+  align-items: center;
+  border-top: 1px solid #dfe5ee;
+}
+
+.accountTableRow > h3 {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.avatar {
+  justify-self: center;
+  order: -1;
+}
+
+.avatar > img {
+  align-self: end;
+  border-radius: 50%;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  background-color:;
+}
+
+/* Tablet Styles */
+@media (min-width: 520px) {
+  .sectionTitleWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 4px;
+  }
+
+  .sectionHeader {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+  .avatar {
+    justify-self: end;
+    order: 1;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 769px) {
+  .sectionHeader {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sectionTitleWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 4px;
+  }
+
+  .sectionTitleWrapper > h2 {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .sectionTitleWrapper > p {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #7b7b7b;
+  }
+
+  .accountTable {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(auto-fill, 80px);
+  }
+
+  .accountTableRow {
+    display: grid;
+    grid-template-columns: 3fr 5fr;
+    align-items: center;
+    border-top: 1px solid #dfe5ee;
+  }
+
+  .accountTableRow > h3 {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .avatar {
+    justify-self: end;
+    order: 1;
+  }
+
+  .avatar > img {
+    align-self: end;
+    border-radius: 50%;
+  }
+}

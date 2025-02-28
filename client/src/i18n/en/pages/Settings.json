@@ -3,6 +3,9 @@
     "plan": "Plan",
     "payment": "Payment Methods"
   },
+  "account": {
+    "title": "Account Details"
+  },
   "plan": {
     "headers": {
       "membership": "Membership",
@@ -33,6 +36,7 @@
     "headers": {
       "name": "Account Name",
       "email": "Email Address",
+      "link": "Link",
       "date": "Date Submitted",
       "status": "Status"
     },

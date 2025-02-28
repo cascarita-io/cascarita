@@ -2,7 +2,7 @@ import styles from "./StatusLabel.module.css";
 import { IoMdArrowDropdown } from "react-icons/io";
 
 export interface StatusLabelProps {
-  status: "approved" | "rejected" | "pending";
+  status: "Completed" | "Rejected" | "Restricted" | "Enabled" | string;
   children: React.ReactNode;
   renderDropdown?: boolean;
 }

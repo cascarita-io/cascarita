@@ -1,5 +1,5 @@
 export interface LogoutButtonProps {
-  icon: React.ReactNode;
-  label: string;
+  icon?: React.ReactNode;
+  label?: string;
   className?: string;
 }
