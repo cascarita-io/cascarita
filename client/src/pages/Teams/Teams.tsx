@@ -15,7 +15,6 @@ import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
 import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
 import Cookies from "js-cookie";
-import { DummyImage } from "react-simple-placeholder-image";
 import { Avatar } from "@radix-ui/themes";
 import { FaUsers } from "react-icons/fa6";
 
@@ -96,7 +95,7 @@ const Teams = () => {
   };
 
   const filteredData = data?.filter((team: TeamType) =>
-    team.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+    team.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   return (
@@ -163,6 +162,7 @@ const Teams = () => {
                   >
                     <Avatar
                       src={team && team.team_logo}
+                      className={styles.avatar}
                       fallback={
                         <div className={styles.avatarFallback}>
                           <FaUsers />
