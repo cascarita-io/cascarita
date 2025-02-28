@@ -41,6 +41,16 @@
   color: black;
 }
 
+.subtitle {
+  padding-bottom: 25px;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .label {
   font-size: 1.1rem;
   color: black;
@@ -168,3 +178,23 @@
   width: 20px;
 }
 
+.acceptButton {
+  width: 100px;
+  height: 27px;
+  color: white;
+  background-color: #e9ffe8;
+  padding: 0%;
+  outline: 0px solid transparent;
+  border-radius: 21.5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+.rejectButton {
+  width: 100px;
+  height: 27px;
+  color: white;
+  background-color: #ffeeee;
+  padding: 0%;
+  outline: 0px solid transparent;
+  border-radius: 21.5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
