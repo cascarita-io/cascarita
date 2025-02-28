@@ -23,9 +23,54 @@ import {
   getFormPayments,
   updateFormPaymentStatus,
 } from "../../api/forms/service";
+import PaymentCapture from "../PaymentCapture/PaymentCapture";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
-  return <StatusLabel status={status}>{status}</StatusLabel>;
+  return (
+    <StatusLabel status={status} renderDropdown={true}>
+      {status}
+    </StatusLabel>
+  );
+};
+
+interface PaymentCaptureModalProps {
+  openModal: boolean;
+  setOpenModal: (open: boolean) => void;
+  amount: string;
+  user: string;
+  index: number;
+  response: Record<string, Answer>;
+  status: "approved" | "rejected" | "pending";
+  handleStatusChange: (
+    index: number,
+    statusUpdate: "approved" | "rejected" | "pending",
+    response: Record<string, Answer>
+  ) => void;
+}
+
+const PaymentCaptureModal: React.FC<PaymentCaptureModalProps> = ({
+  openModal,
+  setOpenModal,
+  amount,
+  status,
+  index,
+  response,
+  user,
+  handleStatusChange,
+}) => {
+  return (
+    <Modal open={openModal} onOpenChange={setOpenModal}>
+      <Modal.Content title={`Capture Payment for ${user}`}>
+        <PaymentCapture
+          amount={amount}
+          status={status}
+          index={index}
+          response={response}
+          handleStatusChange={handleStatusChange}
+        />
+      </Modal.Content>
+    </Modal>
+  );
 };
 
 const FormResponses = ({ formId }: FormResponsesProps) => {
@@ -43,6 +88,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
     []
   );
+  const [openModal, setOpenModal] = useState(false);
   const adminEmail = Cookies.get("email") || "";
   const [formDocumentId, setFormDocumentId] = useState("");
   console.log(formDocumentId);
@@ -154,28 +200,30 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     })();
   }, [formId]);
 
-  const handleStatusChange = (
+  const handleStatusChange = async (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
     response: Record<string, Answer>
   ) => {
-    return async () => {
-      const newStatus = [...status];
-      newStatus[index] = statusUpdate;
-      setStatus(newStatus);
+    const newStatus = [...status];
+    newStatus[index] = statusUpdate;
+    setStatus(newStatus);
 
-      let updatedStatus = statusUpdate as string;
-      if (statusUpdate == "pending") {
-        updatedStatus = "requires_payment_method";
-      }
+    let updatedStatus = statusUpdate as string;
+    if (statusUpdate === "pending") {
+      updatedStatus = "requires_payment_method";
+    } else if (statusUpdate === "approved") {
+      updatedStatus = "approved";
+    } else {
+      updatedStatus = "rejected";
+    }
 
-      await updateFormPaymentStatus(
-        paymentIntentIds[index],
-        updatedStatus,
-        adminEmail,
-        response
-      );
-    };
+    await updateFormPaymentStatus(
+      paymentIntentIds[index],
+      updatedStatus,
+      adminEmail,
+      response
+    );
   };
 
   const registrationTypeHeaders = [
@@ -207,10 +255,18 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{paymentType[index]}</td>
               {formType === 1 && (
                 <td>
+                  <PaymentCaptureModal
+                    openModal={openModal}
+                    setOpenModal={setOpenModal}
+                    status={status[index]}
+                    amount={formatMoney(amount[index])}
+                    user={user[index]}
+                    index={index}
+                    response={response}
+                    handleStatusChange={handleStatusChange}
+                  />
                   <DropdownMenuButton trigger={StatusButton(status[index])}>
-                    <DropdownMenuButton.Item
-                      onClick={handleStatusChange(index, "approved", response)}
-                    >
+                    <DropdownMenuButton.Item onClick={() => setOpenModal(true)}>
                       <StatusLabel status="approved">approved</StatusLabel>
                     </DropdownMenuButton.Item>
 
@@ -218,9 +274,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                       className={styles.separator}
                     />
 
-                    <DropdownMenuButton.Item
-                      onClick={handleStatusChange(index, "rejected", response)}
-                    >
+                    <DropdownMenuButton.Item onClick={() => setOpenModal(true)}>
                       <StatusLabel status="rejected">rejected</StatusLabel>
                     </DropdownMenuButton.Item>
 
@@ -228,9 +282,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                       className={styles.separator}
                     />
 
-                    <DropdownMenuButton.Item
-                      onClick={handleStatusChange(index, "pending", response)}
-                    >
+                    <DropdownMenuButton.Item onClick={() => setOpenModal(true)}>
                       <StatusLabel status="pending">pending</StatusLabel>
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>
