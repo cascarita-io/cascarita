@@ -29,21 +29,19 @@ const CreateFormConfirmationModal: React.FC<
   return (
     <Modal open={openModal} onOpenChange={setOpenModal}>
       <Modal.Content>
-        <div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "column",
-              gap: "10px",
-              height: "100%",
-            }}
-          >
-            <BlueCheckMarkIcon />
-            <Text style={{ fontWeight: "bold" }}>Completed </Text>
-            <Text>You have successfully created a new form.</Text>
-          </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            gap: "10px",
+            height: "100%",
+          }}
+        >
+          <BlueCheckMarkIcon />
+          <Text style={{ fontWeight: "bold" }}>Completed </Text>
+          <Text>You have successfully created a new form.</Text>
         </div>
       </Modal.Content>
     </Modal>
