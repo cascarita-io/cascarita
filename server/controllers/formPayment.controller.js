@@ -84,7 +84,13 @@ const FormPaymentController = function () {
       };
 
       await existingPaymentIntent.update(updates, { validate: true });
-      await updateMongoPaymentResponse(existingPaymentIntent);
+      const updatedMongoResponse = await updateMongoPaymentResponse(
+        existingPaymentIntent,
+      );
+
+      if (!updatedMongoResponse.success) {
+        return updatedMongoResponse;
+      }
 
       return {
         success: true,
@@ -107,7 +113,11 @@ const FormPaymentController = function () {
       let response = await Response.findById(documentId);
 
       if (!response) {
-        return;
+        return {
+          success: false,
+          error: `faiiled to find a response of ${documentId} for the given form payment id of ${paymentData.id}`,
+          status: 404,
+        };
       }
 
       let responseData = response.toObject();
@@ -115,7 +125,7 @@ const FormPaymentController = function () {
         (answer) => answer.type === "payment" && answer.paymentIntentId,
       );
 
-      paymentAnswer.paymen_type = "stripe_payment";
+      paymentAnswer.payment_type = "stripe_payment";
       paymentAnswer.payment_intent_status = paymentData.payment_intent_status;
       paymentAnswer.amount = paymentData.amount;
       paymentAnswer.payment_intent_auth_by_stripe_at = Date.now();
@@ -124,6 +134,8 @@ const FormPaymentController = function () {
           Date.now() + 4 * 24 * 60 * 60 * 1000; // 4 days in milliseconds
       } else if (paymentData.payment_intent_status === "succeeded") {
         paymentAnswer.payment_intent_captured_at = Date.now();
+      } else if (paymentData.payment_intent_status === "canceled") {
+        paymentAnswer.payment_intent_canceled_at = Date.now();
       }
 
       await Response.updateOne(
@@ -134,8 +146,19 @@ const FormPaymentController = function () {
           },
         },
       );
+
+      return {
+        success: true,
+        data: `corresponding response updated successfully`,
+        status: 201,
+      };
     } catch (error) {
-      throw error;
+      console.warn(`error stack ${error.stack}`);
+      return {
+        success: false,
+        error: `failed to update response document : ${error.message}`,
+        status: 500,
+      };
     }
   };
 
