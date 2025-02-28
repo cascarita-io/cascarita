@@ -54,6 +54,6 @@ export const useRouter = () =>
         <Route path="login" element={<Login />} />
         <Route path="thanks" element={<ThankYou />} />
         <Route path="*" element={<NotFound />} />
-      </Route>,
-    ),
+      </Route>
+    )
   );

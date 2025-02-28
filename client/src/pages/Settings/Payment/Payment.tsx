@@ -9,17 +9,14 @@ import StripeAccountForm from "../StripeAccountForm/StripeAccountForm";
 import { useTranslation } from "react-i18next";
 import useResponsiveHeader from "../../../hooks/useResponsiveHeader";
 import { useGetAllStripeAccounts } from "../../../api/stripe/query";
-import { useAuth0 } from "@auth0/auth0-react";
-import { fetchUser } from "../../../api/users/service";
 import Cookies from "js-cookie";
-import { FaExternalLinkAlt } from "react-icons/fa";
+import { FaExternalLinkAlt, FaPlus } from "react-icons/fa";
 import StatusLabel from "../../../components/StatusLabel/StatusLabel";
 
 const Payment = () => {
   const { t } = useTranslation("Settings");
   const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
-  const { getAccessTokenSilently } = useAuth0();
-  const [groupId, setGroupId] = useState(0);
+  // TODO: MOBILE NOT SHOWING SPECIFIED COLUMNS
   const planHeaders = useResponsiveHeader(
     [
       t("payment.headers.name"),
@@ -31,17 +28,9 @@ const Payment = () => {
       t("payment.headers.name"),
       t("payment.headers.status"),
       t("payment.headers.link"),
-    ],
+    ]
   );
-
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setGroupId(currentUser.group_id);
-    })();
-  }, []);
+  const groupId = Number(Cookies.get("group_id")) || 0;
 
   const { data } = useGetAllStripeAccounts(groupId);
 
@@ -51,12 +40,13 @@ const Payment = () => {
         <h2>{t("payment.title")}</h2>
 
         <Modal open={isStripeModalOpen} onOpenChange={setIsStripeModalOpen}>
-          <Modal.Button asChild>
+          <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               onClick={() => setIsStripeModalOpen(true)}
               className={styles.btn}
             >
-              {t("payment.addStripe")}
+              <p className={styles.showInDesktop}>{t("payment.addStripe")}</p>
+              <FaPlus className={styles.showInMobile} />
             </PrimaryButton>
           </Modal.Button>
 
@@ -69,7 +59,7 @@ const Payment = () => {
         </Modal>
       </div>
 
-      <p>{t("payment.subtitle")}</p>
+      <p className={styles.subtitle}>{t("payment.subtitle")}</p>
 
       {data == null || data?.length === 0 ? (
         <p className={tableStyles.noItemsMessage}>{t("payment.empty")}</p>
