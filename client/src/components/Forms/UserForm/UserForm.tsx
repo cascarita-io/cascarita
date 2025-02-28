@@ -2,169 +2,163 @@ import React from "react";
 import { useState } from "react";
 
 import {
-    UserFormProps,
-    DeleteUserData,
-    UpdateUserData,
-    AddUserData
+  UserFormProps,
+  DeleteUserData,
+  UpdateUserData,
+  AddUserData,
 } from "./types";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import styles from "../Form.module.css";
 import {
-    useDeleteUser,
-    useUpdateUser,
-    useAddUser
+  useDeleteUser,
+  useUpdateUser,
+  useAddUser,
 } from "../../../api/users/mutations";
 import Modal from "../../Modal/Modal";
 
 const UserForm: React.FC<UserFormProps> = ({
-    afterSave,
-    requestType,
-    selectedUserId,
-    parentUserGroupId
+  afterSave,
+  requestType,
+  selectedUserId,
+  parentUserGroupId,
 }) => {
-    const [userFirstName, setUserFirstName] = useState("");
-    const [userLastName, setUserLastName] = useState("");
-    const [userEmail, setUserEmail] = useState("");
-    const [userRole, setUserRole] = useState("");
+  const [userFirstName, setUserFirstName] = useState("");
+  const [userLastName, setUserLastName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
 
-    const deleteUserMutation = useDeleteUser();
-    const updateUserMutation = useUpdateUser();
-    const addUserMutation = useAddUser();
+  const deleteUserMutation = useDeleteUser();
+  const updateUserMutation = useUpdateUser();
+  const addUserMutation = useAddUser();
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-        const { userFirstName, userLastName, userEmail, userRole } = Object.fromEntries(
-            new FormData(event.currentTarget),
-        );
+    const { userFirstName, userLastName, userEmail, userRole } =
+      Object.fromEntries(new FormData(event.currentTarget));
 
-        const data = {
-            formData: {
-                user_id: selectedUserId,
-                first_name: userFirstName,
-                last_name: userLastName,
-                email: userEmail,
-                role_id: userRole,
-                group_id: parentUserGroupId ? parentUserGroupId : 0,
-            },
-        };
+    const data = {
+      formData: {
+        user_id: selectedUserId,
+        first_name: userFirstName,
+        last_name: userLastName,
+        email: userEmail,
+        role_id: userRole,
+        group_id: parentUserGroupId ? parentUserGroupId : 0,
+      },
+    };
 
-        switch (requestType) {
-            case "POST":
-                addUserMutation.mutate(data as AddUserData);
-                break;
-            case "PATCH":
-                updateUserMutation.mutate({
-                    id: selectedUserId,
-                    ...data,
-                } as UpdateUserData);
-                break;
-            case "DELETE":
-                deleteUserMutation.mutate({
-                    id: selectedUserId ? selectedUserId : 0,
-                } as DeleteUserData);
-                break;
-            default:
-                break;
-        }
-
-        afterSave();
+    switch (requestType) {
+      case "POST":
+        addUserMutation.mutate(data as AddUserData);
+        break;
+      case "PATCH":
+        updateUserMutation.mutate({
+          id: selectedUserId,
+          ...data,
+        } as UpdateUserData);
+        break;
+      case "DELETE":
+        deleteUserMutation.mutate({
+          id: selectedUserId ? selectedUserId : 0,
+        } as DeleteUserData);
+        break;
+      default:
+        break;
     }
 
-    return (
-        <>
-            {
-                requestType == "DELETE" ? (
-                    <DeleteForm
-                        destructBtnLabel="Yes, I'm sure"
-                        onSubmit={handleSubmit}
-                        className={styles.form}
-                    >
-                        <p>Are you sure you want to delete?</p>
-                    </DeleteForm>
-                ) : (
-                    <form className={styles.form} onSubmit={handleSubmit}>
-                        <div className={styles.inputContainer}>
-                            <label className={styles.label} htmlFor="userFirstName">
-                                First Name
-                            </label>
-                            <input
-                                className={styles.input}
-                                id="userFirstName"
-                                name="userFirstName"
-                                type="text"
-                                value={userFirstName}
-                                onChange={(e) => setUserFirstName(e.target.value)}
-                                required={requestType === 'POST'}
-                            />
-                            <span className={styles.spacer} />
-                            <label className={styles.label} htmlFor="userLastName">
-                                Last Name
-                            </label>
-                            <input
-                                className={styles.input}
-                                id="userLastName"
-                                name="userLastName"
-                                type="text"
-                                value={userLastName}
-                                onChange={(e) => setUserLastName(e.target.value)}
-                                required={requestType === 'POST'}
+    afterSave();
+  };
 
-                            />
-                        </div>
-                        <div className={styles.inputContainer}>
-                            <label className={styles.label} htmlFor="userEmail">
-                                Email
-                            </label>
-                            <input
-                                className={styles.input}
-                                id="userEmail"
-                                name="userEmail"
-                                type="email"
-                                value={userEmail}
-                                onChange={(e) => setUserEmail(e.target.value)}
-                                required={requestType === 'POST'}
+  return (
+    <>
+      {requestType == "DELETE" ? (
+        <DeleteForm
+          destructBtnLabel="Yes, I'm sure"
+          onSubmit={handleSubmit}
+          className={styles.form}
+        >
+          <p>Are you sure you want to delete?</p>
+        </DeleteForm>
+      ) : (
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div style={{ display: "grid", gap: "24px" }}>
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="userFirstName">
+                First Name
+              </label>
+              <input
+                className={styles.input}
+                id="userFirstName"
+                name="userFirstName"
+                type="text"
+                value={userFirstName}
+                onChange={(e) => setUserFirstName(e.target.value)}
+                required={requestType === "POST"}
+              />
+              <span className={styles.spacer} />
+              <label className={styles.label} htmlFor="userLastName">
+                Last Name
+              </label>
+              <input
+                className={styles.input}
+                id="userLastName"
+                name="userLastName"
+                type="text"
+                value={userLastName}
+                onChange={(e) => setUserLastName(e.target.value)}
+                required={requestType === "POST"}
+              />
+            </div>
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="userEmail">
+                Email
+              </label>
+              <input
+                className={styles.input}
+                id="userEmail"
+                name="userEmail"
+                type="email"
+                value={userEmail}
+                onChange={(e) => setUserEmail(e.target.value)}
+                required={requestType === "POST"}
+              />
+            </div>
 
-                            />
-                        </div>
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="userRole">
+                Role
+              </label>
+              <select
+                className={styles.input}
+                id="userRole"
+                name="userRole"
+                value={userRole}
+                onChange={(e) => setUserRole(e.target.value)}
+                required={requestType === "POST"}
+              >
+                <option value="1">Staff</option>
+              </select>
+            </div>
+          </div>
 
-                        <div className={styles.inputContainer}>
-                            <label className={styles.label} htmlFor="userRole">
-                                Role
-                            </label>
-                            <select
-                                className={styles.input}
-                                id="userRole"
-                                name="userRole"
-                                value={userRole}
-                                onChange={(e) => setUserRole(e.target.value)}
-                                required={requestType === 'POST'}
+          <div className={styles.formBtnContainer}>
+            <button
+              type="submit"
+              className={`${styles.btn} ${styles.submitBtn}`}
+            >
+              {requestType === "POST" ? "Add User" : "Update User"}
+            </button>
 
-                            >
-                                <option value="1">Staff</option>
-                            </select>
-                        </div>
-
-                        <div className={styles.formBtnContainer}>
-                            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
-                                Cancel
-                            </Modal.Close>
-
-                            <div>
-                                <button
-                                    type="submit"
-                                    className={`${styles.btn} ${styles.submitBtn}`}>
-                                    {requestType === "POST" ? "Add User" : "Update User"}
-                                </button>
-                            </div>
-
-                        </div>
-
-                    </form>
-                )
-            }
-        </>
-    );
-}
+            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
+              Cancel
+            </Modal.Close>
+          </div>
+        </form>
+      )}
+    </>
+  );
+};
 
 export default UserForm;
+

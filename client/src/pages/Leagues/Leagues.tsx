@@ -62,7 +62,7 @@ const Leagues = () => {
   };
 
   const filteredData = data?.filter((league: LeagueType) =>
-    league.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+    league.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
   );
 
   const location = useLocation();
@@ -73,98 +73,96 @@ const Leagues = () => {
   }
 
   return (
-    <section className={styles.wrapper}>
-      <div className={styles.sectionWrapper}>
-        <div className={styles.filterSearch}>
-          {/*TODO: Create a reusable component for Filter and Search  */}
-          <div className={styles.dropdown}>
-            <Search onSearchChange={setSearchQuery} />
-          </div>
-
-          <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <Modal.Button asChild className={styles.modalTrigger}>
-              <PrimaryButton
-                className={styles.primaryBtn}
-                onClick={() => setIsCreateOpen(true)}
-              >
-                <p className={styles.btnTextDesktop}>{t("button")}</p>
-                <FaPlus className={styles.btnTextMobile} />
-              </PrimaryButton>
-            </Modal.Button>
-            <Modal.Content title={t("formContent.title")}>
-              <LeagueForm
-                afterSave={() => setIsCreateOpen(false)}
-                requestType="POST"
-              />
-            </Modal.Content>
-          </Modal>
+    <>
+      <div className={styles.filterSearch}>
+        {/*TODO: Create a reusable component for Filter and Search  */}
+        <div className={styles.dropdown}>
+          <Search onSearchChange={setSearchQuery} />
         </div>
 
-        {filteredData == null || filteredData?.length === 0 ? (
-          <p className={styles.noItemsMessage}>{t("empty")}</p>
-        ) : (
-          <DashboardTable
-            headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
-            headerColor="light"
-          >
-            {isLoading ? (
-              <tr>
-                <td>{t("loading")}</td>
-              </tr>
-            ) : isError || !data ? (
-              <tr>
-                <td>{t("error")}</td>
-              </tr>
-            ) : (
-              filteredData?.map((league: LeagueType, idx: number) => (
-                <tr key={idx} className={styles.tableRow}>
-                  <td className={styles.tableData}>{league.name}</td>
-                  <td className={styles.tableData}>
-                    <DropdownMenuButton>
-                      <DropdownMenuButton.Item
-                        onClick={() => handleEdit(league.name, league.id)}
-                      >
-                        {t("edit")}
-                      </DropdownMenuButton.Item>
-
-                      <DropdownMenuButton.Separator
-                        className={styles.separator}
-                      />
-
-                      <DropdownMenuButton.Item
-                        onClick={() => handleDelete(league.name, league.id)}
-                      >
-                        {t("delete")}
-                      </DropdownMenuButton.Item>
-                    </DropdownMenuButton>
-                  </td>
-                </tr>
-              ))
-            )}
-          </DashboardTable>
-        )}
-
-        <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <Modal.Content title={`${t("edit")} ${currentLeagueName}`}>
+        <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <Modal.Button asChild className={styles.modalTrigger}>
+            <PrimaryButton
+              className={styles.primaryBtn}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <p className={styles.btnTextDesktop}>{t("button")}</p>
+              <FaPlus className={styles.btnTextMobile} />
+            </PrimaryButton>
+          </Modal.Button>
+          <Modal.Content title={t("formContent.title")}>
             <LeagueForm
-              afterSave={() => setIsEditOpen(false)}
-              requestType="PATCH"
-              leagueId={currentLeagueId}
-            />
-          </Modal.Content>
-        </Modal>
-
-        <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-          <Modal.Content title={`${t("delete")} ${currentLeagueName}`}>
-            <LeagueForm
-              afterSave={() => setIsDeleteOpen(false)}
-              requestType="DELETE"
-              leagueId={currentLeagueId}
+              afterSave={() => setIsCreateOpen(false)}
+              requestType="POST"
             />
           </Modal.Content>
         </Modal>
       </div>
-    </section>
+
+      {filteredData == null || filteredData?.length === 0 ? (
+        <p className={styles.noItemsMessage}>{t("empty")}</p>
+      ) : (
+        <DashboardTable
+          headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
+          headerColor="light"
+        >
+          {isLoading ? (
+            <tr>
+              <td>{t("loading")}</td>
+            </tr>
+          ) : isError || !data ? (
+            <tr>
+              <td>{t("error")}</td>
+            </tr>
+          ) : (
+            filteredData?.map((league: LeagueType, idx: number) => (
+              <tr key={idx} className={styles.tableRow}>
+                <td className={styles.tableData}>{league.name}</td>
+                <td className={styles.tableData}>
+                  <DropdownMenuButton>
+                    <DropdownMenuButton.Item
+                      onClick={() => handleEdit(league.name, league.id)}
+                    >
+                      {t("edit")}
+                    </DropdownMenuButton.Item>
+
+                    <DropdownMenuButton.Separator
+                      className={styles.separator}
+                    />
+
+                    <DropdownMenuButton.Item
+                      onClick={() => handleDelete(league.name, league.id)}
+                    >
+                      {t("delete")}
+                    </DropdownMenuButton.Item>
+                  </DropdownMenuButton>
+                </td>
+              </tr>
+            ))
+          )}
+        </DashboardTable>
+      )}
+
+      <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <Modal.Content title={`${t("edit")} ${currentLeagueName}`}>
+          <LeagueForm
+            afterSave={() => setIsEditOpen(false)}
+            requestType="PATCH"
+            leagueId={currentLeagueId}
+          />
+        </Modal.Content>
+      </Modal>
+
+      <Modal open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <Modal.Content title={`${t("delete")} ${currentLeagueName}`}>
+          <LeagueForm
+            afterSave={() => setIsDeleteOpen(false)}
+            requestType="DELETE"
+            leagueId={currentLeagueId}
+          />
+        </Modal.Content>
+      </Modal>
+    </>
   );
 };
 

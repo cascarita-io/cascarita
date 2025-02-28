@@ -10,6 +10,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { User } from "../../../api/users/types";
 import Cookies from "js-cookie";
 import { fetchUser } from "../../../api/users/service";
+import Modal from "../../../components/Modal/Modal";
 
 const StripeAccountForm: React.FC<StripeAccountFormProps> = ({
   afterSave,
@@ -46,7 +47,7 @@ const StripeAccountForm: React.FC<StripeAccountFormProps> = ({
         currentUser?.id,
         currentUser?.email,
         name,
-        description
+        description,
       );
       afterSave();
     } catch (error) {
@@ -66,36 +67,38 @@ const StripeAccountForm: React.FC<StripeAccountFormProps> = ({
         </DeleteForm>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="name">
-              {t("payment.formContent.name")}
-            </label>
-            <input
-              className={styles.input}
-              required
-              placeholder={t("payment.formContent.namePlaceholder")}
-              id="name"
-              name="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
+          <div style={{ display: "grid", gap: "8px" }}>
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="name">
+                {t("payment.formContent.name")}
+              </label>
+              <input
+                className={styles.input}
+                required
+                placeholder={t("payment.formContent.namePlaceholder")}
+                id="name"
+                name="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </div>
+
+            <div className={`${styles.inputContainer}`}>
+              <label className={styles.label} htmlFor="description">
+                {t("payment.formContent.description")}
+              </label>
+              <input
+                className={styles.input}
+                placeholder={t("payment.formContent.descriptionPlaceholder")}
+                id="description"
+                name="description"
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+              />
+            </div>
           </div>
 
-          <div className={`${styles.inputContainer}`}>
-            <label className={styles.label} htmlFor="description">
-              {t("payment.formContent.description")}
-            </label>
-            <input
-              className={styles.input}
-              placeholder={t("payment.formContent.descriptionPlaceholder")}
-              id="description"
-              name="description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-          </div>
-
-          <div className={styles.stripeContainer}>
+          <div className={styles.stripeBtnContainer}>
             <PrimaryButton
               className={styles.stripeBtn}
               onClick={handleStripeConnect}
@@ -109,6 +112,10 @@ const StripeAccountForm: React.FC<StripeAccountFormProps> = ({
                 }}
               />
             </PrimaryButton>
+
+            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
+              {t("payment.formContent.cancel")}
+            </Modal.Close>
           </div>
         </form>
       )}

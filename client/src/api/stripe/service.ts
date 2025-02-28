@@ -3,14 +3,14 @@ import {
   StripeAccount,
   StripeAccountSchema,
 } from "../../components/DragAndDropComponents/DraggablePayment/types";
-import { useQuery } from "@tanstack/react-query";
+import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 import nullthrows from "nullthrows";
 
 export const connectStripe = async (
   id: number,
   email: string,
   name: string,
-  description: string
+  description: string,
 ) => {
   const formData = {
     id: id,
@@ -46,7 +46,7 @@ export const createPaymentIntent = async (
   form_id: string,
   userStripeAccountSqlId: string,
   transactionAmount: number,
-  transactionFee: number
+  transactionFee: number,
 ): Promise<PaymentIntent | null> => {
   try {
     const response = await fetch(
@@ -62,7 +62,7 @@ export const createPaymentIntent = async (
           form_id,
           userStripeAccountSqlId,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -83,7 +83,7 @@ export const getPublishableKey = async (): Promise<string> => {
 
     if (!response.ok) {
       throw new Error(
-        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`
+        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`,
       );
     }
 
@@ -95,9 +95,10 @@ export const getPublishableKey = async (): Promise<string> => {
   }
 };
 
-export const getStripeAccounts = async (
-  groupId: number
-): Promise<StripeAccount[]> => {
+export const getStripeAccounts = async ({
+  queryKey,
+}: QueryFunctionContext): Promise<StripeAccount[]> => {
+  const [, groupId] = queryKey;
   try {
     const response = await fetch(`/api/accounts/${groupId}`);
 
@@ -122,7 +123,7 @@ export const useStripePromise = (stripeAccount: string) => {
         nullthrows(publishableKey, "Publishable key is missing"),
         {
           stripeAccount,
-        }
+        },
       );
     },
   });

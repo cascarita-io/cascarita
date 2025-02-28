@@ -18,10 +18,10 @@ import NewForm from "./NewForm/NewForm";
 import Settings from "./Settings/Settings";
 import FormPage from "./FormPage/FormPage";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
-import Plan from "./Settings/Plan/Plan";
 import Payment from "./Settings/Payment/Payment";
 import { UserCrumb } from "../components/BreadCrumb/BreadCrumbComponents";
 import NotFound from "./NotFound/NotFound";
+import AccountInfo from "./Settings/AccountInfo/AccountInfo";
 import ThankYou from "../components/ThankYou/ThankYou";
 
 export const useRouter = () =>
@@ -46,7 +46,7 @@ export const useRouter = () =>
           <Route path="forms" element={<Forms />} />
           <Route path="forms/edit" element={<NewForm />} />
           <Route path="settings" element={<Settings />}>
-            <Route index element={<Plan />} />
+            <Route index element={<AccountInfo />} />
             <Route path="payment" element={<Payment />} />
           </Route>
         </Route>
@@ -54,6 +54,6 @@ export const useRouter = () =>
         <Route path="login" element={<Login />} />
         <Route path="thanks" element={<ThankYou />} />
         <Route path="*" element={<NotFound />} />
-      </Route>
-    )
+      </Route>,
+    ),
   );
