@@ -40,7 +40,8 @@ const createRegistrationFormData = (
   price: number,
   feeValue: number,
   stripeUser: string,
-  stripeAccountId: string
+  stripeAccountId: string,
+  paymentFeeRecipient: string
 ): Form => {
   const first_name_id = uuidv4();
   const last_name_id = uuidv4();
@@ -184,7 +185,7 @@ const createRegistrationFormData = (
           value: price.toString(),
           feeValue: feeValue.toString(),
           currency: Currency.USD,
-          isCustomerPayingFee: false,
+          isCustomerPayingFee: paymentFeeRecipient === "customer",
         },
         stripe_account: { id: stripeUser, stripe_account_id: stripeAccountId },
         description: "",
@@ -245,6 +246,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [stripeUser, setStripeUser] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [paymentFeeRecipient, setPaymentFeeRecipient] = useState("org");
   const description = "Please fill out all details for the registration form!";
 
   const navigate = useNavigate();
@@ -363,7 +365,8 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         price,
         feeValue,
         stripeUser,
-        stripeAccountId
+        stripeAccountId,
+        paymentFeeRecipient
       );
       const token = await getAccessTokenSilently();
       const currentUser = await fetchUser(email, token);
@@ -553,6 +556,24 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                 readOnly
               />
             </div>
+          </div>
+          <div className={styles.inputContainer}>
+            <label className={styles.label} htmlFor="isCustomerPayingFee">
+              Who will pay the processing fee?
+            </label>
+            <select
+              className={styles.input}
+              name="isCustomerPayingFee"
+              id="isCustomerPayingFee"
+              onChange={(e) => {
+                setPaymentFeeRecipient(e.target.value);
+              }}
+              required
+            >
+              <option value="">Select Option</option>
+              <option value="org">Organization</option>
+              <option value="customer">Customer</option>
+            </select>
           </div>
         </>
       )}
