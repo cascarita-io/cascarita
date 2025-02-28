@@ -654,7 +654,6 @@ const UserController = function () {
         },
       });
 
-      console.log("UserRole", UserRole);
       if (!UserRole) {
         res.status(404).json({
           error: `no user role was found with user id ${user.id}`
