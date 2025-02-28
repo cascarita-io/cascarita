@@ -356,7 +356,82 @@ const AccountController = function () {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: `error at getPaymentIntentStatus() : ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
+  var getUserStripeAccountByEmail = async function (userEmail) {
+    try {
+      const user = await User.findOne({
+        where: { email: userEmail },
+      });
+
+      if (!user) {
+        return {
+          success: false,
+          error: `no user found with the email : ${userEmail}`,
+          status: 404,
+        };
+      }
+
+      let stripeAccount = await UserStripeAccounts.findOne({
+        where: {
+          user_id: user.id,
+        },
+      });
+
+      if (!stripeAccount) {
+        return {
+          success: false,
+          error: `no user stripe account found with id : ${user.id}`,
+          status: 404,
+        };
+      }
+
+      stripeAccount.userId = user.id;
+      stripeAccount.groupId = user.group_id;
+
+      return { success: true, data: stripeAccount, status: 200 };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to get stripe account by user email: ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
+  var cancelPaymentIntent = async function (
+    paymentIntentId,
+    stripeAccountString,
+    reason = false,
+  ) {
+    try {
+      const paymentIntent = await Stripe.paymentIntents.cancel(
+        {
+          paymentIntentId,
+          cancellation_reason: reason ? reason : "n/a",
+        },
+        {
+          stripeAccount: stripeAccountString,
+        },
+      );
+
+      if (!paymentIntent) {
+        return {
+          success: false,
+          error: `could not cancel payment intent : ${paymentIntentId}`,
+          status: 404,
+        };
+      }
+
+      return { success: true, data: paymentIntent, status: 200 };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to cancel stripe payment intent via api call: ${error.message}`,
         status: 500,
       };
     }
@@ -371,6 +446,8 @@ const AccountController = function () {
     calculateStripeStatus,
     getPublishableKey,
     capturePaymentIntent,
+    getUserStripeAccountByEmail,
+    cancelPaymentIntent,
   };
 };
 
