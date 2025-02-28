@@ -2,61 +2,106 @@
 
 require("dotenv").config();
 
-const { FormPayment } = require("../models");
-const { Form: SQLForm } = require("../models");
-const MongoForm = require("../mongoModels/form");
+const { FormPayment, Form } = require("../models");
 const Response = require("./../mongoModels/response");
+const AccountController = require("./account.controller");
+const UserController = require("./user.controller");
 
-const FormPaymentController = {
-  async connectResponseToFormPayment(responseData, responseId) {
+const FormPaymentController = function () {
+  var connectResponseToFormPayment = async function (responseData, responseId) {
     const paymentEntry = responseData.find(
       (item) => item.field?.type === "payment" && item.paymentIntentId,
     );
 
     if (!paymentEntry) {
-      return;
+      return {
+        success: false,
+        error: "no payment entry found in response data",
+        status: 404,
+      };
     }
     try {
       const paymentIntentId = paymentEntry.paymentIntentId;
 
-      let existingFormPayment = await this.findFormPaymentByPaymentIntentId(
+      let paymentResult = await findFormPaymentByPaymentIntentId(
         paymentIntentId,
       );
+
+      if (!paymentResult.success) {
+        return {
+          success: false,
+          error: paymentResult.message,
+          status: paymentResult.status,
+        };
+      }
+
+      const existingFormPayment = paymentResult.data;
 
       const updates = {
         response_document_id: responseId,
       };
 
       await existingFormPayment.update(updates, { validate: true });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  },
 
-  async updateStripePayment(paymentIntent) {
+      return {
+        success: true,
+        data: "connected form payment with a document response",
+        status: 201,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        status: 500,
+      };
+    }
+  };
+
+  var updateStripePayment = async function (paymentIntent) {
     try {
-      const existingPaymentIntent = await this.findFormPaymentByPaymentIntentId(
+      const paymentResult = await findFormPaymentByPaymentIntentId(
         paymentIntent.id,
       );
 
+      if (!paymentResult.success) {
+        return {
+          success: false,
+          error: paymentResult.message,
+          status: paymentResult.status,
+        };
+      }
+
+      const existingPaymentIntent = paymentResult.data;
+
+      const internalStatusId = mapStripeStatusWithInternalStatus(
+        paymentIntent.status,
+      );
+
       const updates = {
-        internal_status_id: 2, // set it to 'Awaiting Approval'
+        internal_status_id: internalStatusId,
         amount: paymentIntent.amount,
         payment_intent_status: paymentIntent.status,
       };
 
       await existingPaymentIntent.update(updates, { validate: true });
-      await this.updateMongoPaymentResponse(existingPaymentIntent);
+      await updateMongoPaymentResponse(existingPaymentIntent);
 
-      return true;
+      return {
+        success: true,
+        data: paymentResult.message,
+        status: 201,
+      };
     } catch (error) {
       console.error(error);
-      return false;
+      return {
+        success: false,
+        error: error.message,
+        status: 500,
+      };
     }
-  },
+  };
 
-  async updateMongoPaymentResponse(paymentData) {
+  var updateMongoPaymentResponse = async function (paymentData) {
     try {
       const documentId = paymentData.response_document_id;
       let response = await Response.findById(documentId);
@@ -70,43 +115,31 @@ const FormPaymentController = {
         (answer) => answer.type === "payment" && answer.paymentIntentId,
       );
 
-      if (paymentAnswer) {
-        paymentAnswer.paymen_type = "stripe_payment";
-        paymentAnswer.payment_intent_status = paymentData.payment_intent_status;
-        paymentAnswer.amount = paymentData.amount;
-        paymentAnswer.payment_intent_auth_by_stripe_at = Date.now();
-        if (paymentData.payment_intent_status === "requires_capture") {
-          paymentAnswer.payment_intent_capture_by =
-            Date.now() + 4 * 24 * 60 * 60 * 1000; // 4 days in milliseconds
-        }
-
-        await Response.updateOne(
-          { _id: documentId },
-          {
-            $set: {
-              response: responseData.response,
-            },
-          },
-        );
+      paymentAnswer.paymen_type = "stripe_payment";
+      paymentAnswer.payment_intent_status = paymentData.payment_intent_status;
+      paymentAnswer.amount = paymentData.amount;
+      paymentAnswer.payment_intent_auth_by_stripe_at = Date.now();
+      if (paymentData.payment_intent_status === "requires_capture") {
+        paymentAnswer.payment_intent_capture_by =
+          Date.now() + 4 * 24 * 60 * 60 * 1000; // 4 days in milliseconds
+      } else if (paymentData.payment_intent_status === "succeeded") {
+        paymentAnswer.payment_intent_captured_at = Date.now();
       }
+
+      await Response.updateOne(
+        { _id: documentId },
+        {
+          $set: {
+            response: responseData.response,
+          },
+        },
+      );
     } catch (error) {
       throw error;
     }
-  },
+  };
 
-  async createStripeFormPayment(formData) {
-    await FormPayment.create({
-      form_id: formData.form_id,
-      payment_method_id: 1, //since this go triggred, it is stripe payment
-      internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.transactionAmount,
-      payment_intent_id: formData.paymentIntentId,
-      payment_intent_status: formData.paymentIntentStatus,
-      user_stripe_account_id: formData.userStripeAccountSqlId,
-    });
-  },
-
-  async findFormPaymentByPaymentIntentId(paymentIntentId) {
+  var findFormPaymentByPaymentIntentId = async function (paymentIntentId) {
     try {
       const formPayment = await FormPayment.findOne({
         where: {
@@ -115,24 +148,30 @@ const FormPaymentController = {
       });
 
       if (!formPayment) {
-        res.status(404);
-        throw new Error(
-          `no form payment record found with payment intent id: ${paymentIntent.id}`,
-        );
+        return {
+          success: false,
+          message: `No form payment record found with payment intent id: ${paymentIntentId}`,
+          status: 404,
+        };
       }
 
-      return formPayment;
+      return {
+        success: true,
+        data: formPayment,
+        message: "Form payment found successfully",
+        status: 200,
+      };
     } catch (error) {
-      throw error;
+      return { success: false, message: error.message, status: 500 };
     }
-  },
+  };
 
-  async getFormPayments(req, res, next) {
+  var getFormPayments = async function (req, res, next) {
     const { form_id } = req.body;
 
     try {
       let formPayments = [];
-      let forms = await SQLForm.findAll({
+      let forms = await Form.findAll({
         where: {
           document_id: form_id,
         },
@@ -158,34 +197,157 @@ const FormPaymentController = {
     } catch (error) {
       next(error);
     }
-  },
+  };
 
-  async updatePaymentStatus(req, res, next) {
+  var updatePaymentStatus = async function (req, res, next) {
     try {
-      const { payment_intent_id, status } = req.body;
+      const { payment_intent_id, status, email, answers } = req.body;
 
-      const formPayment = await FormPayment.findOne({
-        where: {
-          payment_intent_id: payment_intent_id,
-        },
-      });
+      const formPayment = await AccountController.capturePaymentIntent(
+        payment_intent_id,
+        email,
+        answers,
+        status,
+      );
 
-      if (!formPayment) {
-        res.status(404);
-        throw new Error(
-          `no form payment record found with payment intent id: ${payment_intent_id}`,
-        );
+      if (!formPayment.success) {
+        return res.status(500).json({
+          success: false,
+          error: "No response received from payment capture",
+        });
       }
 
-      await formPayment.update({ payment_intent_status: status });
-
-      return res.status(200).json(formPayment);
+      return res.status(formPayment.status).json(formPayment.data);
     } catch (error) {
-      next(error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || "Internal server error",
+      });
     }
-  },
+  };
 
-  async updateFormPaymentType(req, res, next) {
+  var mapStripeStatusWithInternalStatus = function (paymentIntentStatus) {
+    switch (paymentIntentStatus) {
+      case "requires_capture":
+        return 2; // 'Awaiting Approval'
+      case "succeeded":
+        return 3; // 'Approved'
+      case "requires_payment_method":
+        return 5; // 'Processing'
+      case "canceled":
+        return 11; // 'Cancelled' , did not collect funds before 4-7 experation window
+      default:
+        return 7; // 'Failed'
+    }
+  };
+
+  var handleUserUpdateStripe = async function (paymentIntent) {
+    try {
+      const paymentResult = await findFormPaymentByPaymentIntentId(
+        paymentIntent.id,
+      );
+
+      if (!paymentResult.success) {
+        console.warn(
+          `Payment lookup failed for payment intent ${paymentIntent.id.substring(
+            0,
+            8,
+          )}`,
+        );
+        return {
+          success: false,
+          error: paymentResult.message,
+          status: paymentResult.status,
+        };
+      }
+
+      const existingPaymentIntent = paymentResult.data;
+
+      const form = await Form.findByPk(existingPaymentIntent.form_id);
+      if (!form) {
+        console.error(
+          `Form not found: ID ${
+            existingPaymentIntent.form_id
+          } for payment ${paymentIntent.id.substring(0, 8)}`,
+        );
+        return {
+          success: false,
+          error: `associated form not found with id: ${existingPaymentIntent.form_id}`,
+          status: 404,
+        };
+      }
+
+      const groupId = form.group_id;
+
+      const response = await Response.findById(
+        existingPaymentIntent.response_document_id,
+      );
+
+      if (!response) {
+        return {
+          success: false,
+          error: `associated response not found with id: ${existingPaymentIntent.response_document_id}`,
+          status: 404,
+        };
+      }
+
+      const formattedAnswers = response.formatted_answers;
+      const userSelectedStatus = response.user_selected_status;
+
+      if (userSelectedStatus === "approved" && formattedAnswers) {
+        const user = getUserDataFromAnswers(formattedAnswers, groupId);
+
+        const updatedUserResponse =
+          await UserController.createUserViaFromResponse(user);
+
+        return {
+          success: updatedUserResponse.success, // could be false or true
+          data: updatedUserResponse.data,
+          status: updatedUserResponse.status,
+        };
+      } else {
+        console.warn(
+          `No user update performed - Status: ${userSelectedStatus}, Formatted answers present: ${!!formattedAnswers}`,
+        );
+        return {
+          success: false,
+          error: "no user update made, missing formatted answers data",
+          status: 404,
+        };
+      }
+    } catch (error) {
+      console.error(error.stack);
+      return { success: false, error: error.message, status: 500 };
+    }
+  };
+
+  var getUserDataFromAnswers = function (formattedAnswers, groupId) {
+    const user = {
+      first_name: formattedAnswers.first_name?.short_text,
+      last_name: formattedAnswers.last_name?.short_text,
+      email: formattedAnswers.email?.email,
+      phone_number: formattedAnswers.phone_number?.phone_number,
+      address: formattedAnswers.address?.long_text,
+      date: formattedAnswers.date?.date,
+      photo: formattedAnswers.photo?.photo,
+      signature: formattedAnswers.signature?.short_text,
+      liability: formattedAnswers.liability?.liability,
+      team_id: formattedAnswers.player?.player?.team_id,
+      team_name: formattedAnswers.player?.player?.team_name,
+      league_name: formattedAnswers.player?.player?.league_name,
+      league_id: formattedAnswers.player?.player?.league_id,
+      season_name: formattedAnswers.player?.player?.season_name,
+      season_id: formattedAnswers.player?.player?.season_id,
+      division_name: formattedAnswers.player?.player?.division_name,
+      division_id: formattedAnswers.player?.player?.division_id,
+      payment_intent_id: formattedAnswers.payment?.paymentIntentId,
+      payment_amount: formattedAnswers.payment?.amount,
+      group_id: groupId,
+    };
+    return user;
+  };
+
+  var updateFormPaymentType = async function (req, res, next) {
     try {
       const { payment_intent_id, payment_method_id } = req.body;
 
@@ -208,7 +370,18 @@ const FormPaymentController = {
     } catch (error) {
       next(error);
     }
-  },
+  };
+
+  return {
+    connectResponseToFormPayment,
+    updateStripePayment,
+    updateMongoPaymentResponse,
+    findFormPaymentByPaymentIntentId,
+    getFormPayments,
+    updatePaymentStatus,
+    handleUserUpdateStripe,
+    updateFormPaymentType,
+  };
 };
 
-module.exports = FormPaymentController;
+module.exports = FormPaymentController();

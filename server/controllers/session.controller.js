@@ -1,6 +1,5 @@
 "use strict";
 
-const { constrainedMemory } = require("process");
 const { Session } = require("../models");
 
 const SessionController = function () {
@@ -125,6 +124,25 @@ const SessionController = function () {
     }
   };
 
+  var getOrCreateSession = async function (userData, transaction) {
+    let session = await Session.findOne({
+      where: {
+        season_id: userData.season_id,
+        division_id: userData.division_id,
+      },
+      transaction,
+    });
+
+    if (!session) {
+      session = await Session.create(
+        { season_id: userData.season_id, division_id: userData.division_id },
+        { transaction },
+      );
+    }
+
+    return session;
+  };
+
   return {
     getSessionBySessionId,
     getSessionByDivisionId,
@@ -132,6 +150,7 @@ const SessionController = function () {
     createSession,
     updateSession,
     deleteSession,
+    getOrCreateSession,
   };
 };
 

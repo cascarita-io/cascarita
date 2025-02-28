@@ -7,8 +7,8 @@ const FormMongo = require("./../mongoModels/form");
 const { Form, User } = require("../models");
 const FormPaymentController = require("./formPayment.controller");
 
-const FormController = {
-  async getAllForms(req, res, next) {
+const FormController = function () {
+  var getAllForms = async function (req, res, next) {
     try {
       const mongoForms = await FormMongo.find({
         group_id: { $in: req.params.id },
@@ -18,8 +18,8 @@ const FormController = {
     } catch (error) {
       next(error);
     }
-  },
-  async createResponse(req, res, next) {
+  };
+  var createResponse = async function (req, res, next) {
     try {
       const responseData = req.body.data;
       const insertedResponse = new Response({
@@ -31,17 +31,21 @@ const FormController = {
 
       await insertedResponse.save();
       const responseIdString = insertedResponse.id;
-      await FormPaymentController.connectResponseToFormPayment(
+      const response = await FormPaymentController.connectResponseToFormPayment(
         responseData,
         responseIdString,
       );
 
-      return res.status(201).json(insertedResponse);
+      if (!response.success) {
+        return res.status(response.status).json({ error: response.message });
+      } else {
+        return res.status(response.status).json(response.data);
+      }
     } catch (error) {
       next(error);
     }
-  },
-  async getResponsesByFormId(req, res, next) {
+  };
+  var getResponsesByFormId = async function (req, res, next) {
     try {
       const responses = await Response.find({
         form_id: req.params.form_id,
@@ -51,8 +55,8 @@ const FormController = {
     } catch (error) {
       next(error);
     }
-  },
-  async createForm(req, res, next) {
+  };
+  var createForm = async function (req, res, next) {
     try {
       const form_data = { title: req.body.title, fields: req.body.fields };
 
@@ -99,9 +103,9 @@ const FormController = {
     } catch (error) {
       next(error);
     }
-  },
+  };
 
-  async getFormByDocumentId(req, res, next) {
+  var getFormByDocumentId = async function (req, res, next) {
     try {
       const form_document_id = req.params.document_id;
       let data;
@@ -127,9 +131,9 @@ const FormController = {
       console.error(error);
       next(error);
     }
-  },
+  };
 
-  async updateForm(req, res, next) {
+  var updateForm = async function (req, res, next) {
     const { form_id } = req.params;
     try {
       const formResponse = await Form.findOne({
@@ -202,8 +206,8 @@ const FormController = {
     } catch (error) {
       next(error);
     }
-  },
-  async deleteForm(req, res, next) {
+  };
+  var deleteForm = async function (req, res, next) {
     const { form_id } = req.params;
     try {
       const formResponse = await Form.findOne({
@@ -226,7 +230,17 @@ const FormController = {
     } catch (error) {
       next(error);
     }
-  },
+  };
+
+  return {
+    getAllForms,
+    createResponse,
+    getResponsesByFormId,
+    createForm,
+    getFormByDocumentId,
+    updateForm,
+    deleteForm,
+  };
 };
 
-module.exports = FormController;
+module.exports = FormController();

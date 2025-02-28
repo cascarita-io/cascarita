@@ -71,10 +71,6 @@ module.exports = (sequelize, DataTypes) => {
       internal_status_updated_at: {
         type: DataTypes.DATE,
         allowNull: true,
-        validate: {
-          isDate: true,
-          isBefore: new Date().toString(),
-        },
       },
       internal_status_updated_by: {
         type: DataTypes.INTEGER,

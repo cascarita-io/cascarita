@@ -12,21 +12,64 @@ const FormTransactionController = function () {
         req.headers["stripe-signature"],
         endpointSecret,
       );
+      const paymentIntent = event.data.object;
 
       switch (event.type) {
-        case "payment_intent.amount_capturable_updated":
-          const paymentIntent = event.data.object;
-          const success = await FormPaymentController.updateStripePayment(
-            paymentIntent,
-          );
+        case "payment_intent.amount_capturable_updated": {
+          const paymentUpdateResult =
+            await FormPaymentController.updateStripePayment(paymentIntent);
+          return res.status(200).json({
+            received: true,
+            success: paymentUpdateResult.success,
+            message: paymentUpdateResult.success
+              ? paymentUpdateResult.data
+              : {
+                  error: paymentUpdateResult.error,
+                },
+          });
+        }
+
+        case "payment_intent.succeeded": {
+          const paymentUpdateResult =
+            await FormPaymentController.updateStripePayment(paymentIntent);
+
+          if (!paymentUpdateResult.success) {
+            console.warn(
+              `web-hook payment update failed: ${paymentUpdateResult.message}`,
+            );
+            return res.status(200).json({
+              received: true,
+              success: false,
+              error: paymentUpdateResult.message,
+            });
+          }
+
+          const userUpdateResult =
+            await FormPaymentController.handleUserUpdateStripe(paymentIntent);
+
+          if (!userUpdateResult.success) {
+            console.warn(
+              `web-hook user update failed: ${userUpdateResult.error}`,
+            );
+            return res.status(200).json({
+              received: true,
+              success: false,
+              error: userUpdateResult.error,
+            });
+          }
+
+          // TODO: Connect new user to a FormPayment Record
 
           return res.status(200).json({
-            message: success
-              ? "Payment updated successfully"
-              : "Payment update failed but webhook received",
+            received: true,
+            success: true,
+            message: "User payment processed successfully",
+            data: userUpdateResult.data,
           });
-        // @Chuy TODO: When Admin approves a stripe payment then logic can start here !
-        //case "payment_intent.succeeded":
+        }
+
+        // TODO: Hnadle a cancel
+        // TODO : Handle a a refund
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);

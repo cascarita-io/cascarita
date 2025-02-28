@@ -13,6 +13,14 @@ const responseSchema = new Schema(
       type: Schema.Types.Mixed,
       required: true,
     },
+    formatted_answers: {
+      type: Schema.Types.Mixed,
+      required: false,
+    },
+    user_selected_status: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true },
 );

@@ -274,10 +274,10 @@ export const updateFormPaymentStatus = async (
     const data = {
       payment_intent_id: paymentIntentId,
       status: status,
+      email: email,
+      answers: answers,
     };
-    // TODO: Saul to use these in BE
-    console.log("email: ", email);
-    console.log("response: ", answers);
+
     const response = await fetch(`/api/forms/status`, {
       method: "POST",
       headers: {
