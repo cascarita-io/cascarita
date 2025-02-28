@@ -1,4 +1,5 @@
 "use strict";
+require("dotenv").config();
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const { UserStripeAccounts } = require("../../models");
 const AccountController = require("../account.controller");
@@ -6,21 +7,9 @@ const AccountController = require("../account.controller");
 const ConnectAccountController = function () {
   const endpointSecret = process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET;
 
-  var verifyRequest = function (rawPayload, signature, endpointSecret) {
-    try {
-      return Stripe.webhooks.constructEvent(
-        rawPayload,
-        signature,
-        endpointSecret,
-      );
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
-
   var handleEvent = async function (req, res) {
     try {
-      let event = verifyRequest(
+      let event = Stripe.webhooks.constructEvent(
         req.body,
         req.headers["stripe-signature"],
         endpointSecret,
@@ -84,7 +73,6 @@ const ConnectAccountController = function () {
 
   return {
     handleEvent,
-    verifyRequest,
   };
 };
 
