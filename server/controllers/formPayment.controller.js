@@ -16,7 +16,7 @@ const FormPaymentController = function () {
     if (!paymentEntry) {
       return {
         success: false,
-        error: "no payment entry forund in response data",
+        error: "no payment entry found in response data",
         status: 404,
       };
     }
