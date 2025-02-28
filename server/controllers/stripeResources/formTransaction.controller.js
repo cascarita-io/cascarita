@@ -1,7 +1,6 @@
 "use strict";
 require("dotenv").config();
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
-// const ConnectedAccountController = require("./connectedAccount.controller");
 const FormPaymentController = require("../formPayment.controller");
 
 const FormTransactionController = function () {
