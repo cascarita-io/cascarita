@@ -1,6 +1,7 @@
 import styles from "../Settings.module.css";
 import { Avatar } from "@radix-ui/themes";
 import { useAuth0 } from "@auth0/auth0-react";
+import { FaUser } from "react-icons/fa";
 
 const AccountInfo = () => {
   const { user } = useAuth0();
@@ -13,7 +14,11 @@ const AccountInfo = () => {
         </div>
         <Avatar
           src={user && user.picture}
-          fallback="fallback"
+          fallback={
+            <div className={styles.avatarFallback}>
+              {user && user.name ? getInitials(user.name) : <FaUser />}
+            </div>
+          }
           size={"7"}
           radius="full"
           className={styles.avatar}
@@ -40,6 +45,16 @@ const AccountInfo = () => {
       </div>
     </section>
   );
+};
+
+// Helper function to get initials from user's name
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase()
+    .substring(0, 2); // Limit to 2 characters
 };
 
 export default AccountInfo;
