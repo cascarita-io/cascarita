@@ -1,5 +1,6 @@
 "use strict";
-const ConnectedAccountController = require("./connectedAccount.controller");
+require("dotenv").config();
+const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const FormPaymentController = require("../formPayment.controller");
 
 const FormTransactionController = function () {
@@ -7,11 +8,12 @@ const FormTransactionController = function () {
 
   var handleEvent = async function (req, res) {
     try {
-      let event = ConnectedAccountController.verifyRequest(
+      let event = Stripe.webhooks.constructEvent(
         req.body,
         req.headers["stripe-signature"],
         endpointSecret,
       );
+
       const paymentIntent = event.data.object;
 
       switch (event.type) {

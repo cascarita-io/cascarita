@@ -12,6 +12,12 @@ const StripeWebhooks = require("./routes/webhooks/stripe.webhooks");
 const morgan = require("morgan");
 
 const app = express();
+app.use(
+  "/api/webhook/stripe",
+  express.raw({ type: "application/json" }),
+  StripeWebhooks,
+);
+
 app.set("port", process.env.SERVER_PORT || 3000);
 
 app.get("/api/health", (req, res) => res.sendStatus(200));
