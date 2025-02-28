@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import useResponsiveHeader from "../../../hooks/useResponsiveHeader";
 import { useGetAllStripeAccounts } from "../../../api/stripe/query";
 import Cookies from "js-cookie";
-import { FaExternalLinkAlt } from "react-icons/fa";
+import { FaExternalLinkAlt, FaPlus } from "react-icons/fa";
 import StatusLabel from "../../../components/StatusLabel/StatusLabel";
 
 const Payment = () => {
@@ -40,12 +40,13 @@ const Payment = () => {
         <h2>{t("payment.title")}</h2>
 
         <Modal open={isStripeModalOpen} onOpenChange={setIsStripeModalOpen}>
-          <Modal.Button asChild>
+          <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               onClick={() => setIsStripeModalOpen(true)}
               className={styles.btn}
             >
-              {t("payment.addStripe")}
+              <p className={styles.showInDesktop}>{t("payment.addStripe")}</p>
+              <FaPlus className={styles.showInMobile} />
             </PrimaryButton>
           </Modal.Button>
 
@@ -58,7 +59,7 @@ const Payment = () => {
         </Modal>
       </div>
 
-      <p>{t("payment.subtitle")}</p>
+      <p className={styles.subtitle}>{t("payment.subtitle")}</p>
 
       {data == null || data?.length === 0 ? (
         <p className={tableStyles.noItemsMessage}>{t("payment.empty")}</p>
@@ -80,7 +81,6 @@ const Payment = () => {
                 {user.account_email}
               </td>
               <td>
-                {/* TODO: BUILD LINK TO STRIPE ACCOUNT DASHBOARD */}
                 <a href="#">
                   <FaExternalLinkAlt />
                 </a>

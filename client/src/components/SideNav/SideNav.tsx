@@ -6,7 +6,6 @@ import { FiUsers } from "react-icons/fi";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TbLogout } from "react-icons/tb";
-import { FaUser } from "react-icons/fa";
 import LogoutButton from "../LogoutButton/LogoutButton";
 import NavItem from "../NavItem/NavItem";
 import { useEffect } from "react";
