@@ -253,6 +253,15 @@ const FormPaymentController = function () {
     }
   };
 
+  var mapCashPaymentWithInternalStatus = function (status) {
+    switch (status) {
+      case "approved":
+        return 3; // 'Awaiting Approval'
+      default:
+        return 7; // 'Failed'
+    }
+  };
+
   var handleUserUpdateStripe = async function (paymentIntent) {
     try {
       const paymentResult = await findFormPaymentByPaymentIntentId(
@@ -385,14 +394,113 @@ const FormPaymentController = function () {
   };
 
   var handleCashPayment = async function (
-    payment_intent_id,
-    status,
+    paymentIntentId,
+    userSelectedStatus,
     email,
     answers,
   ) {
-    // delete the payment intent, ensure that its not succeded status
-    // set up status and who switched the toggle to approve/decline
-    // store data and then call the user constoller
+    try {
+      const userStripeAccount =
+        await AccountController.getUserStripeAccountByEmail(email);
+
+      if (!userStripeAccount.success) {
+        return userStripeAccount;
+      }
+      const accountData = userStripeAccount.data;
+      const stripeAccount = accountData.stripe_account_id;
+      const userId = accountData.userId;
+      const groupId = accountData.groupId;
+
+      const foundPaymentIntent = AccountController.getPaymentIntentStatus(
+        paymentIntentId,
+        stripeAccount,
+      );
+
+      if (!foundPaymentIntent) {
+        return foundPaymentIntent;
+      }
+
+      if (foundPaymentIntent.data.status === "succeeded") {
+        return {
+          success: false,
+          error: `payment intent has been captured already, cash payment flow cancelled`,
+          status: 304,
+        };
+      }
+
+      const reason = "Cancel Payment Intent, using cash as payment method";
+      const cancelledPaymentIntent =
+        await AccountController.cancelPaymentIntent(
+          paymentIntentId,
+          stripeAccount,
+          reason,
+        );
+
+      if (!cancelledPaymentIntent.success) {
+        return cancelledPaymentIntent;
+      }
+
+      const foundFormPayment = await FormPayment.findOne({
+        where: { payment_intent_id: paymentIntentId },
+      });
+
+      if (!foundFormPayment) {
+        return {
+          success: false,
+          error: `handeling cash flow, form payment record not found with id: ${paymentIntentId}`,
+          status: 404,
+        };
+      }
+
+      const formPaymentUpdates = {
+        internal_status_updated_by: userId,
+        internal_status_id:
+          mapCashPaymentWithInternalStatus(userSelectedStatus),
+        internal_status_updated_at: new Date(),
+      };
+
+      await foundFormPayment.update(formPaymentUpdates, { validate: true });
+
+      if (!answers || Object.keys(answers).length === 0) {
+        return {
+          success: false,
+          error: `no formatted answers to update Response document`,
+          status: 404,
+        };
+      }
+      const responseId = foundFormPayment.response_document_id;
+
+      await Response.updateOne(
+        { _id: responseId },
+        {
+          $set: {
+            formatted_answers: answers,
+            user_selected_status: userSelectedStatus,
+          },
+        },
+      );
+
+      const userData = getUserDataFromAnswers(answers, groupId);
+      const handeledUser = await UserController.createUserViaFromResponse(
+        userData,
+      );
+
+      if (!handeledUser) {
+        return updatedUserResponse;
+      }
+
+      return {
+        success: true,
+        data: handeledUser,
+        status: 200,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `error trying to handle cash paymnet; ${error.message}`,
+        status: 500,
+      };
+    }
   };
 
   return {
