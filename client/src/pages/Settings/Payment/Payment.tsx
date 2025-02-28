@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "../Payment/Payment.module.css";
 import tableStyles from "../../pages.module.css";
 
