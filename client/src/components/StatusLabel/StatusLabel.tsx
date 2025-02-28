@@ -1,8 +1,10 @@
 import styles from "./StatusLabel.module.css";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 export interface StatusLabelProps {
   status: "approved" | "rejected" | "pending";
   children: React.ReactNode;
+  renderDropdown?: boolean;
 }
 
 const statusLabelStyling = (status: string) => {
@@ -22,10 +24,15 @@ const statusLabelStyling = (status: string) => {
   };
 };
 
-const StatusLabel: React.FC<StatusLabelProps> = ({ status, children }) => {
+const StatusLabel: React.FC<StatusLabelProps> = ({
+  status,
+  children,
+  renderDropdown = false,
+}) => {
   return (
     <p style={statusLabelStyling(status)} className={styles.statusLabel}>
       {children}
+      {renderDropdown && <IoMdArrowDropdown />}
     </p>
   );
 };
