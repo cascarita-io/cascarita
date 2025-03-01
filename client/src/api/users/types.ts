@@ -21,16 +21,6 @@ export interface User {
   language_id: number;
 }
 
-export interface UserSettings {
-  first_name: string;
-  last_name: string;
-  email: string;
-  user_picture: string;
-  group_name: string;
-  group_code: string;
-  group_logo: string;
-}
-
 export interface UserSettingsResponse {
   first_name: string;
   last_name: string;
@@ -39,6 +29,7 @@ export interface UserSettingsResponse {
   group_name: string;
   group_code: string;
   group_logo: string;
+  role: string;
 }
 
 export interface RegisterUser {
