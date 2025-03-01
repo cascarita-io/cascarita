@@ -167,7 +167,7 @@
     transform: translate(-50%, -50%);
     width: 90vw;
     max-width: 650px;
-    max-height: 85vh;
+    max-height: 90vh;
     min-height: 0;
   }
   .content[data-state="open"] {
