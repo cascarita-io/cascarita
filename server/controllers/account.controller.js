@@ -369,6 +369,40 @@ const AccountController = function () {
     }
   };
 
+  var cancelPaymentIntent = async function (
+    paymentIntentId,
+    stripeAccountString,
+    reason = false,
+  ) {
+    try {
+      const paymentIntent = await Stripe.paymentIntents.cancel(
+        {
+          paymentIntentId,
+          //cancellation_reason: reason ? reason : "n/a",
+        },
+        {
+          stripeAccount: stripeAccountString,
+        },
+      );
+
+      if (!paymentIntent) {
+        return {
+          success: false,
+          error: `payment intent is already canceled or isn’t in a cancelable state : ${paymentIntentId}`,
+          status: 404,
+        };
+      }
+
+      return { success: true, data: paymentIntent, status: 200 };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to cancel stripe payment intent via api call: ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
   return {
     createAccountConnection,
     createPaymentIntent,
@@ -378,6 +412,7 @@ const AccountController = function () {
     calculateStripeStatus,
     getPublishableKey,
     capturePaymentIntent,
+    cancelPaymentIntent,
   };
 };
 

@@ -2,8 +2,10 @@
 
 require("dotenv").config();
 
-const { FormPayment, Form } = require("../models");
+const { FormPayment, Form, UserStripeAccounts } = require("../models");
+const formpayment = require("../models/formpayment");
 const Response = require("./../mongoModels/response");
+const accountController = require("./account.controller");
 const AccountController = require("./account.controller");
 const UserController = require("./user.controller");
 
@@ -226,12 +228,35 @@ const FormPaymentController = function () {
     try {
       const { payment_intent_id, status, email, answers } = req.body;
 
-      const formPayment = await AccountController.capturePaymentIntent(
-        payment_intent_id,
-        email,
-        answers,
-        status,
-      );
+      // return res.status(304).json({
+      //   status: status,
+      //   answers: answers,
+      // });
+
+      const { id } = await User.findOne({
+        where: { email: email },
+      });
+
+      const { stripe_account_id } = await UserStripeAccounts.findOne({
+        where: {
+          user_id: id,
+        },
+      });
+
+      let formPayment;
+      if (status === "rejected") {
+        formPayment = await AccountController.cancelPaymentIntent(
+          payment_intent_id,
+          stripe_account_id,
+        );
+      } else {
+        formPayment = await AccountController.capturePaymentIntent(
+          payment_intent_id,
+          email,
+          answers,
+          status,
+        );
+      }
 
       if (!formPayment.success) {
         return res.status(500).json({
@@ -395,6 +420,126 @@ const FormPaymentController = function () {
     }
   };
 
+  var handleCanceledStripePayment = async function (paymentIntent) {
+    try {
+      // const cancelableStatuses = [
+      //   "requires_payment_method",
+      //   "requires_capture",
+      //   "requires_confirmation",
+      //   "requires_action",
+      // ];
+
+      // const stripePaymentIntentStatus = paymentIntent.status;
+
+      // if (!cancelableStatuses.includes(stripePaymentIntentStatus)) {
+      //   return {
+      //     success: false,
+      //     error: `payment intent of id: ${paymentIntent.id}, can not be canceled because it has a status of: ${stripePaymentIntentStatus}`,
+      //     status: 400,
+      //   };
+      // }
+
+      const paymentResult = await findFormPaymentByPaymentIntentId(
+        paymentIntent.id,
+      );
+
+      if (!paymentResult.success) {
+        console.warn(
+          `Payment lookup failed for payment intent ${paymentIntent.id.substring(
+            0,
+            8,
+          )}`,
+        );
+        return paymentResult;
+      }
+
+      const formPayment = paymentResult.data;
+
+      // const updates
+
+      // const userStripeAccount = await UserStripeAccounts.findByPk(
+      //   formPayment.user_stripe_account_id,
+      // );
+
+      // if (!userStripeAccount) {
+      //   return {
+      //     success: false,
+      //     erorr: `no user stripe account found with id: ${formPayment.user_stripe_account_id} . for form payment record of ${formPayment.id}`,
+      //     status: 404,
+      //   };
+      // }
+
+      // const cancelDetails = getCancelDetails(paymentIntent, formPayment);
+      // const reason = cancelDetails.reason;
+      // const cancelType = cancelDetails.cancelType;
+      // const stripeAccountString = userStripeAccount.stripe_account_id;
+
+      //  await FormPayments.update(
+      //       {
+      //         status: "canceled",
+      //         cancel_reason: cancelDetails.reason,
+      //         cancel_type: cancelDetails.cancelType,
+      //         updated_at: new Date(),
+      //       },
+      //       { where: { id: formPayment.id } },
+      //     );
+      // const cancelledPaymentIntent = AccountController.cancelPaymentIntent(
+      //   paymentIntent.id,
+      //   stripeAccountString,
+      //   reason,
+      // );
+
+      // if (!cancelledPaymentIntent.success) {
+      //   return cancelledPaymentIntent;
+      // }
+
+      // now lets see why it got canceled ? User Input or Experation data on payment
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to handle canceled payment intent : ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
+  var getCancelDetails = function (paymentIntent, formPayment) {
+    const stripeStatus = paymentIntent.status;
+    const stripeCancellationReason = paymentIntent.cancellation_reason;
+    const stripeManualCaptureMethod = paymentIntent.capture_method === "manual";
+    const internalPaymentMethodId = formPayment.payment_method_id;
+    let logReason;
+    let cancelType;
+
+    if (internalPaymentMethodId == 2) {
+      logReason = `admin canceled through form responses ui on form payment id: ${formPayment.id}`;
+      cancelType = "internal-toggle";
+    } else if (
+      stripeStatus === "canceled" &&
+      stripeCancellationReason === "abandoned" &&
+      stripeManualCaptureMethod
+    ) {
+      logReason = `payment intent: ${paymentIntent.id} canceled due to manual capture expiration`;
+      cancelType = `payment-intent-expired`;
+    } else if (
+      stripeStatus === "canceled" &&
+      stripeCancellationReason === "requested_by_customer"
+    ) {
+      logReason = `payment intent: ${paymentIntent.id} canceled by customer request`;
+      cancelType = "customer-requested";
+    } else if (stripeStatus === "canceled") {
+      logReason = `payment intent: ${paymentIntent.id} canceled due to ${
+        stripeCancellationReason || "unknown reason"
+      }`;
+      cancelType = "other";
+    }
+
+    return {
+      reason,
+      cancelType,
+    };
+  };
+
   return {
     connectResponseToFormPayment,
     updateStripePayment,
@@ -404,6 +549,7 @@ const FormPaymentController = function () {
     updatePaymentStatus,
     handleUserUpdateStripe,
     updateFormPaymentType,
+    handleCanceledStripePayment,
   };
 };
 
