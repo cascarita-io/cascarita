@@ -51,23 +51,25 @@ const AccountInfo = () => {
         <div className={styles.sectionTitleWrapper}>
           <h2>Your Profile</h2>
           <p>Cascarita Account Information</p>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <h3>Group Code</h3>
-            <div className={styles.shareContainer}></div>
-            {copied ? (
-              <p className={styles.copiedMessage}>Copied to clipboard!</p>
-            ) : (
-              <p className={styles.groupCodeText} ref={textBoxRef}>
-                {user?.group_code}
-              </p>
-            )}
-            <button
-              className={`${styles.btn} ${styles.copyBtn}`}
-              onClick={handleCopy}
-            >
-              <FaCopy style={{ height: "16px", width: "16px" }} />
-            </button>
-          </div>
+          {user?.role === "Admin" && (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <h3>Group Code</h3>
+              <div className={styles.shareContainer}></div>
+              {copied ? (
+                <p className={styles.copiedMessage}>Copied to clipboard!</p>
+              ) : (
+                <p className={styles.groupCodeText} ref={textBoxRef}>
+                  {user?.group_code}
+                </p>
+              )}
+              <button
+                className={`${styles.btn} ${styles.copyBtn}`}
+                onClick={handleCopy}
+              >
+                <FaCopy style={{ height: "16px", width: "16px" }} />
+              </button>
+            </div>
+          )}
         </div>
         <Avatar
           src={user && user.user_picture}

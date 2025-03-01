@@ -10,7 +10,6 @@ import {
   UserResponse,
   LanguageCodeToLanguageId,
   RegisterUser,
-  UserSettings,
   UserSettingsResponse,
 } from "./types";
 import { User } from "./types";
