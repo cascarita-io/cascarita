@@ -15,7 +15,6 @@ import {
 } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
-import FormFooter from "../../components/FormFooter/FormFooter";
 
 const FormPage = () => {
   const { formId } = useParams();
