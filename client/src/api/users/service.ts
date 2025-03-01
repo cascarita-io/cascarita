@@ -6,13 +6,19 @@ import {
   UpdatePlayerTeamsData,
   AddUserData,
 } from "../../components/Forms/UserForm/types";
-import { UserResponse, LanguageCodeToLanguageId, RegisterUser } from "./types";
+import {
+  UserResponse,
+  LanguageCodeToLanguageId,
+  RegisterUser,
+  UserSettings,
+} from "./types";
+import { User } from "./types";
 
-type UserSettingsQueryKey = [string, number];
+type UserSettingsQueryKey = [string, number | undefined];
 
 const updateUsersLanguages = async (
   user_id: number,
-  language: string
+  language: string,
 ): Promise<UserResponse> => {
   const language_id = LanguageCodeToLanguageId[language as "en" | "esp"];
 
@@ -156,6 +162,39 @@ const deleteUser = async (data: DeleteUserData): Promise<void> => {
   }
 };
 
+type GetUserQueryKey = [string, string, string];
+
+const getUser = async ({
+  queryKey,
+}: QueryFunctionContext<GetUserQueryKey>): Promise<User> => {
+  const [, email, token] = queryKey;
+
+  try {
+    // Encode the email to ensure it's safe for use in a URL
+    const response = await fetch(
+      `/api/users?email=${encodeURIComponent(email)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    // Check if the response is OK (status in the range 200-299)
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw error;
+  }
+};
+
 const fetchUser = async (email: string, token: string) => {
   try {
     // Encode the email to ensure it's safe for use in a URL
@@ -167,7 +206,7 @@ const fetchUser = async (email: string, token: string) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     // Check if the response is OK (status in the range 200-299)
@@ -184,7 +223,7 @@ const fetchUser = async (email: string, token: string) => {
 };
 
 const updatePlayerTeams = async (
-  data: UpdatePlayerTeamsData
+  data: UpdatePlayerTeamsData,
 ): Promise<UserResponse> => {
   try {
     const response = await fetch(`/api/users/${data.id}/players/teams`, {
@@ -223,7 +262,7 @@ const getSession = async (data: GetSessionData) => {
 
 const getCompleteUserSettings = async ({
   queryKey,
-}: QueryFunctionContext<UserSettingsQueryKey>) => {
+}: QueryFunctionContext<UserSettingsQueryKey>): Promise<UserSettings> => {
   const [, user_id] = queryKey;
   try {
     const response = await fetch(`/api/users/settings/${user_id}`, {
@@ -252,4 +291,5 @@ export {
   getPlayersByGroupId,
   getSession,
   getCompleteUserSettings,
+  getUser,
 };
