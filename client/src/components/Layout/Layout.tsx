@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = () => {
   const [selectedItem, setSelectedItem] = useState("");
 
   const isBlacklisted = blackListRoutes.some((pattern) =>
-    matchPath(window.location.pathname, pattern, blackListExceptions)
+    matchPath(window.location.pathname, pattern, blackListExceptions),
   );
 
   return (
@@ -31,7 +31,7 @@ const Layout: React.FC<LayoutProps> = () => {
           />
         </main>
       ) : (
-        <main>
+        <main className={styles.formLayout}>
           <Outlet />
         </main>
       )}
