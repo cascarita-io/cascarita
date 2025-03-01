@@ -87,7 +87,8 @@ const AccountController = function () {
             enabled: true,
           },
           capture_method: "manual",
-          application_fee_amount: productObj.transactionFee,
+          // TODO: Explore application fee amount
+          // application_fee_amount: productObj.transactionFee,
         },
         {
           stripeAccount: req.params["account_id"],
