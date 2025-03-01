@@ -42,11 +42,12 @@
 .accountTable {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: repeat(auto-fill, 80px);
+  grid-template-rows: repeat(4, 80px);
 }
 
 .accountTableRow {
   display: grid;
+  gap: 8px;
   grid-template-columns: 2fr 5fr;
   align-items: center;
   border-top: 1px solid #dfe5ee;
@@ -79,6 +80,39 @@
   border-radius: 50%;
 }
 
+.shareContainer {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.copiedMessage {
+  color: darkgreen;
+  font-weight: 500;
+}
+
+.groupCodeText {
+  padding: 8px 16px;
+  background-color: lightgrey;
+  border-radius: 8px;
+  color: gray;
+}
+
+.btn {
+  border-radius: 21.5px;
+  padding: 13px 45px;
+  outline: 1px solid #170cb4;
+  background-color: #170cb4;
+  color: #ffffff;
+}
+
+.copyBtn {
+  background-color: #4238d5;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
 .logoutBtn {
   display: flex;
   align-items: center;
@@ -90,7 +124,7 @@
     display: flex;
     flex-direction: column;
     align-items: start;
-    gap: 4px;
+    gap: 6px;
   }
 
   .sectionHeader {
@@ -135,6 +169,7 @@
 
   .accountTableRow {
     display: grid;
+    gap: 8px;
     grid-template-columns: 3fr 5fr;
     align-items: center;
     border-top: 1px solid #dfe5ee;

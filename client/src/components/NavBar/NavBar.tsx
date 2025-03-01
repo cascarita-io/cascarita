@@ -7,7 +7,6 @@ const Navbar: React.FC<NavbarProps> & {
   Item: React.FC<NavbarItemProps>;
 } = ({ children, className = "" }) => {
   const navbarClassName = `${styles.navbar} ${className}`;
-
   return (
     <nav id="navbar">
       <ul className={navbarClassName}>{children}</ul>
@@ -23,16 +22,20 @@ const NavbarItem: React.FC<NavbarItemProps> = ({
 }) => {
   const navbarItemClassName = `${styles.navbarLink} ${className}`;
 
-  const activeClass = (isActive: boolean) => {
-    [isActive ? `${styles.navbarLinkActive}` : ""].join(" ");
+  const activeClass = ({ isActive }: { isActive: boolean }) => {
+    return isActive
+      ? `${navbarItemClassName} ${styles.navbarLinkActive}`
+      : navbarItemClassName;
   };
 
   return (
     <li className={styles.navbarItem}>
       <NavLink
-        className={`${navbarItemClassName} ${activeClass}`}
+        className={activeClass}
         to={href}
-        {...delegated}>
+        end // Add the "end" prop to match exactly this path
+        {...delegated}
+      >
         {children}
       </NavLink>
     </li>
@@ -40,5 +43,4 @@ const NavbarItem: React.FC<NavbarItemProps> = ({
 };
 
 Navbar.Item = NavbarItem;
-
 export default Navbar;

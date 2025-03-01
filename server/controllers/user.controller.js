@@ -32,6 +32,7 @@ const {
   TeamsSession,
   Season,
   Team,
+  Group,
 } = require("../models");
 const Db = require("../models");
 const GroupController = require("./group.controller");
@@ -629,6 +630,67 @@ const UserController = function () {
     });
   };
 
+  var getUserSettingsById = async function (req, res, next) {
+    try {
+      const { id } = req.params;
+
+      if (isNaN(id)) {
+        res.status(400).json({ error: "user id must be an integer" });
+      }
+
+      const user = await User.findByPk(id);
+      if (!user) {
+        res.status(404).json({ error: `no user was found with id ${id}` });
+      }
+
+      const group = await Group.findByPk(user.group_id);
+      if (!group) {
+        res.status(404).json({ error: `no group was found with id ${user.group_id}` });
+      }
+
+      const UserRole = await UserRoles.findOne({
+        where: {
+          user_id: user.id,
+        },
+      });
+
+      if (!UserRole) {
+        res.status(404).json({
+          error: `no user role was found with user id ${user.id}`
+        });
+      }
+
+      let groupCode = group.group_code;
+
+      var userRole = await Role.findByPk(UserRole.role_id);
+      if (!Role) {
+        res.status(404).json({
+          error: `no role was found with id ${UserRole.role_id}`
+        });
+      }
+
+      // Only admins and Staff are allowed to see the group code
+      if (userRole.name !== "Admin" && userRole.name !== "Staff") {
+        groupCode = "";
+      }
+
+      const userSettings = {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        user_picture: user.picture,
+        group_name: group.name,
+        group_code: groupCode,
+        group_logo: group.logo_url,
+        role: userRole.name,
+      };
+
+      return res.json({ userSettings });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   return {
     registerUser,
     logInUser,
@@ -643,6 +705,7 @@ const UserController = function () {
     updatePlayerTeams,
     getSession,
     createUserViaFromResponse,
+    getUserSettingsById,
   };
 };
 
