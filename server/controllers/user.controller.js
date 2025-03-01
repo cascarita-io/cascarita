@@ -661,16 +661,17 @@ const UserController = function () {
       }
 
       let groupCode = group.group_code;
-      // Only admins and Staff are allowed to see the group code
-      if (UserRole.role_id >= 3) {
-        groupCode = "";
-      }
 
       var userRole = await Role.findByPk(UserRole.role_id);
       if (!Role) {
         res.status(404).json({
           error: `no role was found with id ${UserRole.role_id}`
         });
+      }
+
+      // Only admins and Staff are allowed to see the group code
+      if (userRole.name !== "Admin" && userRole.name !== "Staff") {
+        groupCode = "";
       }
 
       const userSettings = {
