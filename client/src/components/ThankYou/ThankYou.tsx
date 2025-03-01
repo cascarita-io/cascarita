@@ -6,7 +6,7 @@ import styles from "./ThankYou.module.css";
 const ThankYou = () => {
   return (
     <>
-      <FormHeader />
+      <FormHeader used={100} total={100} />
       <div className={styles.container}>
         <div className={styles.iconContainer}>
           <BlueCheckMarkIcon />
