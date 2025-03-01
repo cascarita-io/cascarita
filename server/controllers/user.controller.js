@@ -661,8 +661,16 @@ const UserController = function () {
       }
 
       let groupCode = group.group_code;
+
+      var userRole = await Role.findByPk(UserRole.role_id);
+      if (!Role) {
+        res.status(404).json({
+          error: `no role was found with id ${UserRole.role_id}`
+        });
+      }
+
       // Only admins and Staff are allowed to see the group code
-      if (UserRole.role_id >= 3) {
+      if (userRole.name !== "Admin" && userRole.name !== "Staff") {
         groupCode = "";
       }
 
@@ -674,6 +682,7 @@ const UserController = function () {
         group_name: group.name,
         group_code: groupCode,
         group_logo: group.logo_url,
+        role: userRole.name,
       };
 
       return res.json({ userSettings });
