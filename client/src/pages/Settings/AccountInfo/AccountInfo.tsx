@@ -1,10 +1,7 @@
 import styles from "../Settings.module.css";
 import { Avatar } from "@radix-ui/themes";
 import { FaUser } from "react-icons/fa";
-import {
-  useFetchUser,
-  useGetCompleteUserSettings,
-} from "../../../api/users/query";
+import { useGetCompleteUserSettings } from "../../../api/users/query";
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import Cookies from "js-cookie";
@@ -27,14 +24,8 @@ const AccountInfo = () => {
   }, []);
 
   const userId = currentUser?.id;
-  console.log(userId);
-  const { data: userSettings } = useGetCompleteUserSettings(
-    userId ? userId : 0,
-  );
-
-  console.log("User Settings: " + userSettings);
-  const userFullName = `${userSettings?.first_name} ${userSettings?.last_name}`;
-  console.log("User Full Name: " + userFullName);
+  const { data: user } = useGetCompleteUserSettings(userId ? userId : 0);
+  const userFullName = `${user?.first_name} ${user?.last_name}`;
 
   return (
     <section className={styles.settingsWrapper}>
@@ -44,14 +35,10 @@ const AccountInfo = () => {
           <p>Cascarita Account Information</p>
         </div>
         <Avatar
-          src={userSettings && userSettings.user_picture}
+          src={user && user.user_picture}
           fallback={
             <div className={styles.avatarFallback}>
-              {userSettings && userFullName ? (
-                getInitials(userFullName)
-              ) : (
-                <FaUser />
-              )}
+              {user && userFullName ? getInitials(userFullName) : <FaUser />}
             </div>
           }
           size={"7"}
@@ -63,12 +50,12 @@ const AccountInfo = () => {
       <div className={styles.accountTable}>
         <div className={styles.accountTableRow}>
           <h3>Full Name</h3>
-          <p>{userSettings && userFullName}</p>
+          <p>{user && userFullName}</p>
         </div>
 
         <div className={styles.accountTableRow}>
           <h3>Email</h3>
-          <p>{userSettings && userSettings.email}</p>
+          <p>{user && user.email}</p>
         </div>
 
         <div className={styles.accountTableRow}>

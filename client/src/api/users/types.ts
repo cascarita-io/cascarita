@@ -31,6 +31,16 @@ export interface UserSettings {
   group_logo: string;
 }
 
+export interface UserSettingsResponse {
+  first_name: string;
+  last_name: string;
+  email: string;
+  user_picture: string;
+  group_name: string;
+  group_code: string;
+  group_logo: string;
+}
+
 export interface RegisterUser {
   group_id: string | number | null; // they might be joining an existing group
   first_name: string | null;

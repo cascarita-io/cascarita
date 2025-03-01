@@ -11,6 +11,7 @@ import {
   LanguageCodeToLanguageId,
   RegisterUser,
   UserSettings,
+  UserSettingsResponse,
 } from "./types";
 import { User } from "./types";
 
@@ -262,7 +263,7 @@ const getSession = async (data: GetSessionData) => {
 
 const getCompleteUserSettings = async ({
   queryKey,
-}: QueryFunctionContext<UserSettingsQueryKey>): Promise<UserSettings> => {
+}: QueryFunctionContext<UserSettingsQueryKey>): Promise<UserSettingsResponse> => {
   const [, user_id] = queryKey;
   try {
     const response = await fetch(`/api/users/settings/${user_id}`, {
@@ -272,7 +273,7 @@ const getCompleteUserSettings = async ({
       },
     });
     const result = await response.json();
-    return result;
+    return result.userSettings;
   } catch (error) {
     console.error("Error fetching users:", error);
     throw error;
