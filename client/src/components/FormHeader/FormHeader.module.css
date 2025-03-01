@@ -15,6 +15,10 @@
   margin-left: 50px;
 }
 
+.progressBarContainer {
+  padding-top: 80px;
+}
+
 .container {
   display: flex;
   justify-content: center;

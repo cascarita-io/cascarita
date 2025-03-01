@@ -1,8 +1,14 @@
 import { HomePageLogoIcon } from "../../assets/Icons";
+import ProgressBar from "../ProgressBar/ProgressBar";
 import styles from "./FormHeader.module.css";
 import { Text } from "@radix-ui/themes";
 
-function FormHeader() {
+interface FormHeaderProps {
+  used: number;
+  total: number;
+}
+
+const FormHeader: React.FC<FormHeaderProps> = ({ used, total }) => {
   return (
     <header className={styles.container}>
       <div className={styles.logoCon}>
@@ -13,8 +19,12 @@ function FormHeader() {
           <Text>cascarita</Text>
         </span>
       </div>
+
+      <div className={styles.progressBarContainer}>
+        <ProgressBar used={used} total={total} />
+      </div>
     </header>
   );
-}
+};
 
 export default FormHeader;

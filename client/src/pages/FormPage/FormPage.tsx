@@ -6,7 +6,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { AnswerMap, FieldComponents, FetchedForm } from "./types";
 import { createMongoResponse } from "../../api/forms/service";
 import FormHeader from "../../components/FormHeader/FormHeader";
-import FormFooter from "../../components/FormFooter/FormFooter";
 import styles from "./FormPage.module.css";
 import {
   Answer,
@@ -51,10 +50,10 @@ const FormPage = () => {
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
-    undefined
+    undefined,
   );
   const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -135,7 +134,7 @@ const FormPage = () => {
           });
           const responsesData = await createMongoResponse(
             formId ?? "",
-            updatedNormalizedAnswers
+            updatedNormalizedAnswers,
           );
           // TODO: Redirect to a thank you page!
           navigate("/thanks");
@@ -161,7 +160,7 @@ const FormPage = () => {
         });
         const responsesData = await createMongoResponse(
           formId ?? "",
-          updatedNormalizedAnswers
+          updatedNormalizedAnswers,
         );
         // TODO: Redirect to a thank you page!
         navigate("/thanks");
@@ -171,7 +170,7 @@ const FormPage = () => {
       // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers
+        normalizedAnswers,
       );
       navigate("/thanks");
       return responsesData;
@@ -198,7 +197,7 @@ const FormPage = () => {
 
   return (
     <>
-      <FormHeader />
+      <FormHeader used={used} total={total} />
       <div className={styles.progressBarContainer}>
         <ProgressBar used={used} total={total} />
       </div>
@@ -275,7 +274,6 @@ const FormPage = () => {
           </FormProvider>
         )}
       </div>
-      <FormFooter />
     </>
   );
 };
