@@ -666,6 +666,13 @@ const UserController = function () {
         groupCode = "";
       }
 
+      var userRole = await Role.findByPk(UserRole.role_id);
+      if (!Role) {
+        res.status(404).json({
+          error: `no role was found with id ${UserRole.role_id}`
+        });
+      }
+
       const userSettings = {
         first_name: user.first_name,
         last_name: user.last_name,
@@ -674,6 +681,7 @@ const UserController = function () {
         group_name: group.name,
         group_code: groupCode,
         group_logo: group.logo_url,
+        role: userRole.name,
       };
 
       return res.json({ userSettings });
