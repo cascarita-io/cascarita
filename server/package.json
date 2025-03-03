@@ -15,6 +15,8 @@
     "@aws-sdk/client-secrets-manager": "^3.675.0",
     "@aws-sdk/client-ses": "^3.750.0",
     "@aws-sdk/credential-provider-ini": "^3.675.0",
+    "@sentry/cli": "^2.42.2",
+    "@sentry/node": "^9.3.0",
     "@stripe/stripe-js": "^5.2.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^9.1.3",
