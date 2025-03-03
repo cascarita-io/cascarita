@@ -89,6 +89,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     []
   );
   const [openModal, setOpenModal] = useState(false);
+  const [paymentCaptureIndex, setPaymentCaptureIndex] = useState(0);
   const adminEmail = Cookies.get("email") || "";
   const [formDocumentId, setFormDocumentId] = useState("");
   console.log(formDocumentId);
@@ -213,9 +214,9 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     if (statusUpdate === "pending") {
       updatedStatus = "requires_payment_method";
     } else if (statusUpdate === "approved") {
-      updatedStatus = "approved";
+      updatedStatus = "succeeded";
     } else {
-      updatedStatus = "rejected";
+      updatedStatus = "canceled";
     }
 
     await updateFormPaymentStatus(
@@ -258,15 +259,20 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                   <PaymentCaptureModal
                     openModal={openModal}
                     setOpenModal={setOpenModal}
-                    status={status[index]}
-                    amount={formatMoney(amount[index])}
-                    user={user[index]}
-                    index={index}
+                    status={status[paymentCaptureIndex]}
+                    amount={formatMoney(amount[paymentCaptureIndex])}
+                    user={user[paymentCaptureIndex]}
+                    index={paymentCaptureIndex}
                     response={response}
                     handleStatusChange={handleStatusChange}
                   />
                   <DropdownMenuButton trigger={StatusButton(status[index])}>
-                    <DropdownMenuButton.Item onClick={() => setOpenModal(true)}>
+                    <DropdownMenuButton.Item
+                      onClick={() => {
+                        setOpenModal(true);
+                        setPaymentCaptureIndex(index);
+                      }}
+                    >
                       <StatusLabel status="approved">approved</StatusLabel>
                     </DropdownMenuButton.Item>
 
@@ -274,7 +280,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                       className={styles.separator}
                     />
 
-                    <DropdownMenuButton.Item onClick={() => setOpenModal(true)}>
+                    <DropdownMenuButton.Item
+                      onClick={() => {
+                        setOpenModal(true);
+                        setPaymentCaptureIndex(index);
+                      }}
+                    >
                       <StatusLabel status="rejected">rejected</StatusLabel>
                     </DropdownMenuButton.Item>
 
@@ -282,7 +293,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                       className={styles.separator}
                     />
 
-                    <DropdownMenuButton.Item onClick={() => setOpenModal(true)}>
+                    <DropdownMenuButton.Item
+                      onClick={() => {
+                        setOpenModal(true);
+                        setPaymentCaptureIndex(index);
+                      }}
+                    >
                       <StatusLabel status="pending">pending</StatusLabel>
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>
