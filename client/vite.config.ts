@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -9,5 +10,16 @@ export default defineConfig({
     port: 8080,
   },
 
-  plugins: [tsconfigPaths(), react()],
+  plugins: [
+    tsconfigPaths(),
+    react(),
+    sentryVitePlugin({
+      org: "cascarita-org",
+      project: "javascript-react",
+    }),
+  ],
+
+  build: {
+    sourcemap: true,
+  },
 });
