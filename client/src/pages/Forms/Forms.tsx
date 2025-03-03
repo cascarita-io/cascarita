@@ -192,13 +192,14 @@ const Forms = () => {
             {/* <FaPlus className={styles.btnTextMobile} /> */}
           </PrimaryButton>
 
-          <PrimaryButton
+          {/* TODO: UNCOMMENT CUSTOM FORMS WHEN READY */}
+          {/* <PrimaryButton
             className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
             onClick={handleNewFormClick}
           >
             <p className={styles.btnTextDesktop}>New Form</p>
             <FaPlus className={styles.btnTextMobile} />
-          </PrimaryButton>
+          </PrimaryButton> */}
         </div>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
