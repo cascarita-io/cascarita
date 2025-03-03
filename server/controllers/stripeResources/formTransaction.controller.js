@@ -70,7 +70,27 @@ const FormTransactionController = function () {
           });
         }
 
-        // TODO: Hnadle a cancel
+        case "payment_intent.canceled": {
+          const paymentUpdateResult =
+            await FormPaymentController.updateStripePayment(paymentIntent);
+
+          if (!paymentUpdateResult.success) {
+            console.warn(
+              `web-hook payment update failed: ${paymentUpdateResult.message}`,
+            );
+            return res.status(200).json({
+              received: true,
+              success: false,
+              error: paymentUpdateResult.message,
+            });
+          }
+
+          return res.status(200).json({
+            received: true,
+            success: true,
+            data: paymentUpdateResult.data,
+          });
+        }
         // TODO : Handle a a refund
 
         default:
