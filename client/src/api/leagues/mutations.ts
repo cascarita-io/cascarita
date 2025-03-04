@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNewLeague, updateLeague, deleteLeague } from "./service";
 import {
-  CreateNewLeagueData,
-  DeleteLeagueData,
-  UpdateLeagueData,
+  DeleteLeagueFormData,
+  LeagueFormData,
+  UpdateLeagueFormData,
 } from "../../components/Forms/LeagueForm/types";
 
 export const useCreateLeague = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateNewLeagueData) => createNewLeague(data),
+    mutationFn: (data: LeagueFormData) => createNewLeague(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["leagues"],
@@ -23,7 +23,7 @@ export const useUpdateLeague = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateLeagueData) => updateLeague(data),
+    mutationFn: (data: UpdateLeagueFormData) => updateLeague(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["leagues"],
@@ -46,7 +46,7 @@ export const useDeleteLeague = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DeleteLeagueData) => deleteLeague(data),
+    mutationFn: (data: DeleteLeagueFormData) => deleteLeague(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["leagues"],
