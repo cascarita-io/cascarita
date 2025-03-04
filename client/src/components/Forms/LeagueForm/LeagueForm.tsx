@@ -3,9 +3,9 @@ import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import {
   LeagueFormProps,
-  CreateNewLeagueData,
-  UpdateLeagueData,
-  DeleteLeagueData,
+  LeagueFormData,
+  UpdateLeagueFormData,
+  DeleteLeagueFormData,
 } from "./types";
 import { useAuth0 } from "@auth0/auth0-react";
 import DeleteForm from "../DeleteForm/DeleteForm";
@@ -18,6 +18,9 @@ import Cookies from "js-cookie";
 import { fetchUser } from "../../../api/users/service";
 import { User } from "../../../api/users/types";
 import { useTranslation } from "react-i18next";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { leagueSchema } from "./schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const LeagueForm: React.FC<LeagueFormProps> = ({
   afterSave,
@@ -25,11 +28,20 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
   leagueId,
 }) => {
   const { t } = useTranslation("Leagues");
-  const [leagueName, setLeagueName] = useState("");
-  const [leagueDesc, setLeagueDesc] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const { getAccessTokenSilently } = useAuth0();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LeagueFormData>({
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+    resolver: zodResolver(leagueSchema),
+  });
 
   const createLeagueMutation = useCreateLeague();
   const updateLeagueMutation = useUpdateLeague();
@@ -44,34 +56,26 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     })();
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const { leagueName, leagueDescription } = Object.fromEntries(
-      new FormData(event.currentTarget),
-    );
+  const onSubmit: SubmitHandler<LeagueFormData> = async (
+    data: LeagueFormData,
+  ) => {
+    const { name, description } = data;
 
-    const data = {
-      formData: {
-        name: leagueName,
-        description: leagueDescription,
-        group_id: currentUser?.group_id,
-      },
+    const payload = {
+      name: name,
+      description: description,
+      group_id: currentUser?.group_id,
     };
 
     switch (requestType) {
       case "POST":
-        createLeagueMutation.mutate(data as CreateNewLeagueData);
+        createLeagueMutation.mutate(payload as LeagueFormData);
         break;
       case "PATCH":
         updateLeagueMutation.mutate({
           id: leagueId,
-          ...data,
-        } as UpdateLeagueData);
-        break;
-      case "DELETE":
-        deleteLeagueMutation.mutate({
-          id: leagueId ? leagueId : 0,
-        } as DeleteLeagueData);
+          ...payload,
+        } as UpdateLeagueFormData);
         break;
       default:
         throw Error("No request type was supplied");
@@ -80,34 +84,38 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     afterSave();
   };
 
+  const onDelete = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    deleteLeagueMutation.mutate({
+      id: leagueId ? leagueId : 0,
+    } as DeleteLeagueFormData);
+    afterSave();
+  };
+
   return (
     <>
       {requestType === "DELETE" ? (
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
-          onSubmit={handleSubmit}
+          onSubmit={onDelete}
           className={styles.form}
         >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="leagueName">
                 {t("formContent.name")}
               </label>
               <input
-                className={styles.input}
-                required
+                {...register("name")}
+                className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="leagueName"
-                name="leagueName"
-                value={leagueName}
-                onChange={(event) =>
-                  setLeagueName(event.target.value.replaceAll("/", ""))
-                }
               />
+              <span className={styles.error}>{errors.name?.message}</span>
             </div>
 
             <div className={`${styles.inputContainer} ${styles.halfContainer}`}>
@@ -115,12 +123,10 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
                 {t("formContent.description")}
               </label>
               <input
+                {...register("description")}
                 className={styles.input}
                 placeholder={t("formContent.descriptionPlaceholder")}
                 id="leagueDesc"
-                name="leagueDescription"
-                value={leagueDesc}
-                onChange={(event) => setLeagueDesc(event.target.value)}
               />
             </div>
           </div>

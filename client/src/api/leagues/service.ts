@@ -1,9 +1,9 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
 import {
   LeagueResponse,
-  CreateNewLeagueData,
-  UpdateLeagueData,
-  DeleteLeagueData,
+  LeagueFormData,
+  UpdateLeagueFormData,
+  DeleteLeagueFormData,
 } from "../../components/Forms/LeagueForm/types";
 
 type LeagueQueryKey = [string, number];
@@ -28,7 +28,7 @@ const getLeagueByGroupId = async ({
 };
 
 const createNewLeague = async (
-  data: CreateNewLeagueData
+  payload: LeagueFormData,
 ): Promise<LeagueResponse> => {
   try {
     const response = await fetch("/api/leagues", {
@@ -36,7 +36,7 @@ const createNewLeague = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(payload),
     });
 
     return response.json();
@@ -47,15 +47,15 @@ const createNewLeague = async (
 };
 
 const updateLeague = async (
-  data: UpdateLeagueData
+  payload: UpdateLeagueFormData,
 ): Promise<LeagueResponse> => {
   try {
-    const response = await fetch(`/api/leagues/${data.id}`, {
+    const response = await fetch(`/api/leagues/${payload.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(payload),
     });
     return response.json();
   } catch (error) {
@@ -64,9 +64,9 @@ const updateLeague = async (
   }
 };
 
-const deleteLeague = async (data: DeleteLeagueData): Promise<void> => {
+const deleteLeague = async (payload: DeleteLeagueFormData): Promise<void> => {
   try {
-    const response = await fetch(`api/leagues/${data.id}`, {
+    const response = await fetch(`api/leagues/${payload.id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

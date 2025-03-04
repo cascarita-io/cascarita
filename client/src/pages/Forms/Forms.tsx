@@ -20,7 +20,6 @@ import React from "react";
 import ShareForm from "../../components/Forms/ShareForm/ShareForm";
 import Cookies from "js-cookie";
 import { fetchUser } from "../../api/users/service";
-import { FaPlus } from "react-icons/fa";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
@@ -83,7 +82,7 @@ const Forms = () => {
 
   const headers = useResponsiveHeader(
     [t("col1"), t("col2"), t("col4"), t("col5")],
-    [t("col1"), t("col5")]
+    [t("col1"), t("col5")],
   );
 
   useEffect(() => {
@@ -106,9 +105,9 @@ const Forms = () => {
     })();
   }, []);
 
-  const handleNewFormClick = () => {
-    navigate("/forms/edit");
-  };
+  // const handleNewFormClick = () => {
+  //   navigate("/forms/edit");
+  // };
 
   const handleTemplateClick = () => {
     setIsCreateOpen(true);
@@ -146,7 +145,7 @@ const Forms = () => {
 
   const filteredData = forms
     ?.filter((form: Form) =>
-      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase())
+      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase()),
     )
     ?.sort((a: Form, b: Form) => {
       if (sorts === t("sortOptions.item1")) {
@@ -192,13 +191,14 @@ const Forms = () => {
             {/* <FaPlus className={styles.btnTextMobile} /> */}
           </PrimaryButton>
 
-          <PrimaryButton
+          {/* TODO: UNCOMMENT CUSTOM FORMS WHEN READY */}
+          {/* <PrimaryButton
             className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
             onClick={handleNewFormClick}
           >
             <p className={styles.btnTextDesktop}>New Form</p>
             <FaPlus className={styles.btnTextMobile} />
-          </PrimaryButton>
+          </PrimaryButton> */}
         </div>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (
@@ -237,7 +237,7 @@ const Forms = () => {
                 <button
                   onClick={() =>
                     handleShareClick(
-                      `${window.location.origin}/forms/${form._id}`
+                      `${window.location.origin}/forms/${form._id}`,
                     )
                   }
                 >

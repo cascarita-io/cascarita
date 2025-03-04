@@ -80,6 +80,18 @@
   box-shadow: 0 0 0 2px lightblue;
 }
 
+input.invalid {
+  border: 1px solid red;
+  background-color: #fdd;
+}
+
+span.error {
+  color: red;
+  font-size: 0.75rem;
+  margin-top: 5px;
+  display: block;
+}
+
 .radioContainer {
   display: flex;
   align-items: center;
