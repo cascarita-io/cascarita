@@ -294,7 +294,7 @@ const FormPaymentController = function () {
       const formattedAnswers = response.formatted_answers;
       const userSelectedStatus = response.user_selected_status;
 
-      if (userSelectedStatus === "approved" && formattedAnswers) {
+      if (userSelectedStatus === "succeeded" && formattedAnswers) {
         const user = getUserDataFromAnswers(formattedAnswers, groupId);
 
         const updatedUserResponse =
