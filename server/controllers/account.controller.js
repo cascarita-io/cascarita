@@ -110,32 +110,6 @@ const AccountController = function () {
     }
   };
 
-  var getStripeAccountId = async function (accountId) {
-    const stripeAccount = await UserStripeAccounts.findByPk(accountId);
-    return stripeAccount.stripe_account_id;
-  };
-
-  var getClientSecret = async function (req, res, next) {
-    try {
-      const paymentIntentId = req.params["paymentIntentId"];
-      const stripeAccountId = await getStripeAccountId(
-        req.params["account_id"],
-      );
-
-      let paymentIntentIdStr = paymentIntentId.toString();
-      const paymentIntent = await Stripe.paymentIntents.retrieve(
-        paymentIntentIdStr,
-        {
-          stripeAccount: stripeAccountId,
-        },
-      );
-
-      res.status(200).json({ cleintSecret: paymentIntent.client_secret });
-    } catch (error) {
-      next(error);
-    }
-  };
-
   var getAllAccountsByGroupId = async function (req, res, next) {
     try {
       const groupId = req.params.group_id;
@@ -378,8 +352,6 @@ const AccountController = function () {
   return {
     createAccountConnection,
     createPaymentIntent,
-    getStripeAccountId,
-    getClientSecret,
     getAllAccountsByGroupId,
     calculateStripeStatus,
     getPublishableKey,
