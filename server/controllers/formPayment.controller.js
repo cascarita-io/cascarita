@@ -199,7 +199,7 @@ const FormPaymentController = function () {
     }
   };
 
-  var updatePaymentStatus = async function (req, res, next) {
+  var updatePaymentStatus = async function (req, res) {
     try {
       const { payment_intent_id, status, email, answers } = req.body;
 
@@ -211,9 +211,9 @@ const FormPaymentController = function () {
       );
 
       if (!formPayment.success) {
-        return res.status(500).json({
+        return res.status(formPayment.status).json({
           success: false,
-          error: "No response received from payment capture",
+          error: `process faled with error of : ${formPayment.error} `,
         });
       }
 
