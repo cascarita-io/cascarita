@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
       });
 
+      FormPayment.belongsTo(models.User, {
+        foreignKey: "payer_id",
+        targetKey: "id",
+      });
+
       FormPayment.belongsTo(models.PaymentMethod, {
         foreignKey: "payment_method_id",
         targetKey: "id",
@@ -34,8 +39,8 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       FormPayment.belongsTo(models.UserStripeAccounts, {
-        foreignKey: "user_stripe_account_id",
-        targetKey: "id",
+        foreignKey: "stripe_account_id_string",
+        targetKey: "stripe_account_id",
       });
     }
   }
@@ -84,14 +89,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
-      user_stripe_account_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
       response_document_id: {
         type: DataTypes.STRING,
         allowNull: true,
         unique: true,
+      },
+      stripe_account_id_string: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      payer_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
 

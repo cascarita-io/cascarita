@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
       });
       UserStripeAccounts.hasMany(models.FormPayment, {
-        foreignKey: "user_stripe_account_id",
-        sourceKey: "id",
+        foreignKey: "stripe_account_id_string",
+        sourceKey: "stripe_account_id",
       });
     }
   }
@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       stripe_account_id: {
         type: DataTypes.STRING,
+        unique: true,
         allowNull: false,
       },
       stripe_account_name: {
