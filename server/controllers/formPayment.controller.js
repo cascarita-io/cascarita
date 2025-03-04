@@ -261,18 +261,18 @@ const FormPaymentController = function () {
         };
       }
 
-      const existingPaymentIntent = paymentResult.data;
+      const existingFormPayment = paymentResult.data;
 
-      const form = await Form.findByPk(existingPaymentIntent.form_id);
+      const form = await Form.findByPk(existingFormPayment.form_id);
       if (!form) {
         console.error(
           `Form not found: ID ${
-            existingPaymentIntent.form_id
+            existingFormPayment.form_id
           } for payment ${paymentIntent.id.substring(0, 8)}`,
         );
         return {
           success: false,
-          error: `associated form not found with id: ${existingPaymentIntent.form_id}`,
+          error: `associated form not found with id: ${existingFormPayment.form_id}`,
           status: 404,
         };
       }
@@ -280,13 +280,13 @@ const FormPaymentController = function () {
       const groupId = form.group_id;
 
       const response = await Response.findById(
-        existingPaymentIntent.response_document_id,
+        existingFormPayment.response_document_id,
       );
 
       if (!response) {
         return {
           success: false,
-          error: `associated response not found with id: ${existingPaymentIntent.response_document_id}`,
+          error: `associated response not found with id: ${existingFormPayment.response_document_id}`,
           status: 404,
         };
       }
@@ -294,18 +294,7 @@ const FormPaymentController = function () {
       const formattedAnswers = response.formatted_answers;
       const userSelectedStatus = response.user_selected_status;
 
-      if (userSelectedStatus === "succeeded" && formattedAnswers) {
-        const user = getUserDataFromAnswers(formattedAnswers, groupId);
-
-        const updatedUserResponse =
-          await UserController.createUserViaFromResponse(user);
-
-        return {
-          success: updatedUserResponse.success, // could be false or true
-          data: updatedUserResponse.data,
-          status: updatedUserResponse.status,
-        };
-      } else {
+      if (!userSelectedStatus === "succeeded" && !formattedAnswers) {
         console.warn(
           `No user update performed - Status: ${userSelectedStatus}, Formatted answers present: ${!!formattedAnswers}`,
         );
@@ -315,6 +304,27 @@ const FormPaymentController = function () {
           status: 404,
         };
       }
+      const user = getUserDataFromAnswers(formattedAnswers, groupId);
+
+      const updatedUserResponse =
+        await UserController.createUserViaFromResponse(user);
+
+      if (!updatedUserResponse.success) {
+        return updatedUserResponse;
+      }
+
+      const updatedUser = updatedUserResponse.data;
+      const paymentData = {
+        payer_id: updatedUser.id,
+      };
+
+      await existingFormPayment.update(paymentData, { valudate: true });
+
+      return {
+        success: true,
+        data: `user ${updatedUser.last_name} created and linked to form payment of: ${existingFormPayment.id}`,
+        status: 201,
+      };
     } catch (error) {
       console.error(error.stack);
       return { success: false, error: error.message, status: 500 };
