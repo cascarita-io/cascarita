@@ -146,6 +146,12 @@ const UserController = function () {
       await User.build(newUser).validate();
       const result = await User.create(newUser);
 
+      // Assign the role of "Admin" to the new user.
+      await UserRoles.create({
+        user_id: result.id,
+        role_id: 1,
+      });
+
       return res.status(201).json(result);
     } catch (error) {
       console.error(error);
@@ -645,7 +651,9 @@ const UserController = function () {
 
       const group = await Group.findByPk(user.group_id);
       if (!group) {
-        res.status(404).json({ error: `no group was found with id ${user.group_id}` });
+        res
+          .status(404)
+          .json({ error: `no group was found with id ${user.group_id}` });
       }
 
       const UserRole = await UserRoles.findOne({
@@ -656,7 +664,7 @@ const UserController = function () {
 
       if (!UserRole) {
         res.status(404).json({
-          error: `no user role was found with user id ${user.id}`
+          error: `no user role was found with user id ${user.id}`,
         });
       }
 
@@ -665,7 +673,7 @@ const UserController = function () {
       var userRole = await Role.findByPk(UserRole.role_id);
       if (!Role) {
         res.status(404).json({
-          error: `no role was found with id ${UserRole.role_id}`
+          error: `no role was found with id ${UserRole.role_id}`,
         });
       }
 
@@ -689,7 +697,7 @@ const UserController = function () {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
   return {
     registerUser,
