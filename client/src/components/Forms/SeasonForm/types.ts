@@ -17,9 +17,9 @@ interface SeasonFormData {
 
 interface SeasonRequest {
   id?: number;
-  name?: string;
-  start_date?: string;
-  end_date?: string;
+  name: string;
+  start_date: string;
+  end_date: string;
   is_active?: boolean;
   league_id?: number;
 }
@@ -36,4 +36,4 @@ interface SeasonResponse {
   error?: string;
 }
 
-export type { SeasonFormProps, SeasonFormData, SeasonRequest, SeasonResponse };
+export type { SeasonFormProps, SeasonFormData, SeasonResponse, SeasonRequest };

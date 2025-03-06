@@ -54,7 +54,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
     };
 
     switch (requestType) {
-      case "POST":
+      case "POST": {
         const dataPost = await createSeasonMutation.mutateAsync(
           payload as SeasonRequest
         );
@@ -63,7 +63,8 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
           return;
         }
         break;
-      case "PATCH":
+      }
+      case "PATCH": {
         const dataUpdate = await updateSeasonMutation.mutateAsync({
           id: seasonId,
           ...payload,
@@ -73,11 +74,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
           return;
         }
         break;
-      case "DELETE":
-        deleteSeasonMutation.mutate({
-          id: seasonId ? seasonId : 0,
-        } as SeasonRequest);
-        break;
+      }
       default:
         throw Error("No request type was supplied");
     }

@@ -1,9 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNewLeague, updateLeague, deleteLeague } from "./service";
-import {
-  LeagueFormData,
-  LeagueRequest,
-} from "../../components/Forms/LeagueForm/types";
+import { LeagueRequest } from "../../components/Forms/LeagueForm/types";
 
 export const useCreateLeague = () => {
   const queryClient = useQueryClient();
