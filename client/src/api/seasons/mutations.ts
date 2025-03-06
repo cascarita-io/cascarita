@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNewSeason, updateSeason, deleteSeason } from "./services";
 import {
-  CreateNewSeasonData,
+  SeasonFormData,
   UpdateSeasonData,
   DeleteSeasonData,
 } from "../../components/Forms/SeasonForm/types";
@@ -10,7 +10,7 @@ export const useCreateSeason = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateNewSeasonData) => createNewSeason(data),
+    mutationFn: (data: SeasonFormData) => createNewSeason(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["seasons"],

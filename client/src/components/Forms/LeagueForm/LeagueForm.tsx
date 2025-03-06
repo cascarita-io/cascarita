@@ -57,7 +57,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
   }, []);
 
   const onSubmit: SubmitHandler<LeagueFormData> = async (
-    data: LeagueFormData,
+    data: LeagueFormData
   ) => {
     const { name, description } = data;
 

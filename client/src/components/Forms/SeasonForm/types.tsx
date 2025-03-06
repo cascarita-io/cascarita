@@ -12,17 +12,17 @@ interface SeasonFormData {
   name: string;
   start_date: string;
   end_date: string;
-  is_active: boolean;
+  is_active?: boolean;
   league_id: number;
-}
-
-interface CreateNewSeasonData {
-  formData: SeasonFormData;
 }
 
 interface UpdateSeasonData {
   id: number;
-  formData: SeasonFormData;
+  name: string;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  league_id: number;
 }
 
 interface DeleteSeasonData {

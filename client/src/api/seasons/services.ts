@@ -2,6 +2,7 @@ import { QueryFunctionContext } from "@tanstack/react-query";
 import {
   CreateNewSeasonData,
   DeleteSeasonData,
+  SeasonFormData,
   SeasonResponse,
   UpdateSeasonData,
 } from "../../components/Forms/SeasonForm/types";
@@ -47,7 +48,7 @@ const getSeasonsByLeagueId = async ({
 };
 
 const createNewSeason = async (
-  data: CreateNewSeasonData
+  payload: SeasonFormData
 ): Promise<SeasonResponse> => {
   try {
     const response = await fetch("/api/seasons", {
@@ -55,7 +56,7 @@ const createNewSeason = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(payload),
     });
     return response.json();
   } catch (error) {
@@ -65,15 +66,15 @@ const createNewSeason = async (
 };
 
 const updateSeason = async (
-  data: UpdateSeasonData
+  payload: UpdateSeasonData
 ): Promise<SeasonResponse> => {
   try {
-    const response = await fetch(`/api/seasons/${data.id}`, {
+    const response = await fetch(`/api/seasons/${payload.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(payload),
     });
     return response.json();
   } catch (error) {

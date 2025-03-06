@@ -7,7 +7,7 @@ interface LeagueFormProps {
 
 interface LeagueFormData {
   name: string;
-  description: string;
+  description?: string;
   group_id?: number;
 }
 
