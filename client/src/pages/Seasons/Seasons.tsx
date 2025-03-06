@@ -39,8 +39,6 @@ const Seasons = () => {
   const { data, isLoading, isError } = useGetSeasonByGroupId(groupId);
   const { data: leagueData } = useGetLeagueByGroupId(groupId);
 
-  console.log("leagueData in MAIN: ", leagueData);
-
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
       setDebouncedQuery(searchQuery);
