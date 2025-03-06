@@ -146,11 +146,25 @@ const UserController = function () {
       await User.build(newUser).validate();
       const result = await User.create(newUser);
 
-      // Assign the role of "Admin" to the new user.
-      await UserRoles.create({
-        user_id: result.id,
-        role_id: 1,
-      });
+      let adminRole;
+      try {
+        adminRole = await Role.findOne({ where: { name: "Admin" } });
+      } catch (error) {
+        return res.status(500).json({
+          error: `failed to find role with name "Admin": ${error.message}`,
+        });
+      }
+
+      try {
+        await UserRoles.create({
+          user_id: result.id,
+          role_id: adminRole.id,
+        });
+      } catch (error) {
+        return res.status(500).json({
+          error: `failed to assign role to user with id ${result.id}: ${error.message}`,
+        });
+      }
 
       return res.status(201).json(result);
     } catch (error) {
