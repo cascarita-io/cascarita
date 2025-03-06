@@ -43,7 +43,6 @@ interface SeasonResponse {
 export type {
   SeasonFormProps,
   SeasonFormData,
-  CreateNewSeasonData,
   UpdateSeasonData,
   DeleteSeasonData,
   SeasonResponse,

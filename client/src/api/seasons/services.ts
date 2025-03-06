@@ -1,6 +1,5 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
 import {
-  CreateNewSeasonData,
   DeleteSeasonData,
   SeasonFormData,
   SeasonResponse,

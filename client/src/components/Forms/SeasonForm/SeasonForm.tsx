@@ -51,11 +51,11 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
     const { name, start_date, end_date, league_id } = data;
 
     const payload = {
-      name: name,
-      start_date: start_date,
-      end_date: end_date,
+      name,
+      start_date,
+      end_date,
       is_active: true,
-      league_id: league_id,
+      league_id,
     };
 
     switch (requestType) {
@@ -65,7 +65,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
       case "PATCH":
         updateSeasonMutation.mutate({
           id: seasonId,
-          ...data,
+          ...payload,
         } as UpdateSeasonData);
         break;
 
@@ -94,7 +94,10 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit((data) => console.log(data))}
+        >
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="seasonName">
@@ -106,21 +109,24 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                 placeholder={t("formContent.name")}
                 id="seasonName"
 
+                //TODO: Make sure to address to avoid bugs
                 // onChange={(event) =>
                 //   setSeasonName(event.target.value.replaceAll("/", ""))
                 // }
               />
               <span className={styles.error}>{errors.name?.message}</span>
             </div>
+
             <div className={styles.inputContainer}>
               <label className={styles.label}>League</label>
               <select
-                {...register("league_id")}
+                {...register("league_id", {
+                  setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                })}
                 id="leagueId"
-                name="leagueId"
                 className={`${styles.input} ${errors.league_id ? styles.invalid : ""}`}
               >
-                <option value="">Select a league</option>
+                <option value={0}>Select a league</option>
                 {leagueData?.map((league) => (
                   <option key={league.id} value={league.id}>
                     {league.name}
@@ -129,6 +135,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
               </select>
               <span className={styles.error}>{errors.league_id?.message}</span>
             </div>
+
             <div className={styles.inputContainer}>
               <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="startDate">
@@ -139,7 +146,6 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                   className={`${styles.input} ${errors.start_date ? styles.invalid : ""}`}
                   type="date"
                   id="startDate"
-                  name="startDate"
                 />
                 <span className={styles.error}>
                   {errors.start_date?.message}
@@ -154,7 +160,6 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                   className={`${styles.input} ${errors.end_date ? styles.invalid : ""}`}
                   type="date"
                   id="endDate"
-                  name="endDate"
                 />
                 <span className={styles.error}>{errors.end_date?.message}</span>
               </div>
