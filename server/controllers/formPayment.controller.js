@@ -203,7 +203,7 @@ const FormPaymentController = function () {
     try {
       const { payment_intent_id, status, email, answers } = req.body;
 
-      const formPayment = await AccountController.capturePaymentIntent(
+      const formPayment = await AccountController.processPaymentIntent(
         payment_intent_id,
         email,
         answers,

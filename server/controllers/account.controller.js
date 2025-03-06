@@ -418,6 +418,24 @@ const AccountController = function () {
     }
   };
 
+  var processPaymentIntent = async function (
+    paymentIntentId,
+    email,
+    formattedAnswers,
+    userSelectedStatus,
+  ) {
+    if (userSelectedStatus === "canceled") {
+      return cancelPaymentIntent(paymentIntentId, email);
+    } else {
+      return capturePaymentIntent(
+        paymentIntentId,
+        email,
+        formattedAnswers,
+        userSelectedStatus,
+      );
+    }
+  };
+
   return {
     createAccountConnection,
     createPaymentIntent,
@@ -425,6 +443,7 @@ const AccountController = function () {
     calculateStripeStatus,
     getPublishableKey,
     capturePaymentIntent,
+    processPaymentIntent,
   };
 };
 
