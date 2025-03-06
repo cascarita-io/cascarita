@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import { SeasonFormData, SeasonFormProps, SeasonRequest } from "./types";
+import { SeasonFormProps, SeasonRequest } from "./types";
 import {
   useCreateSeason,
   useDeleteSeason,
