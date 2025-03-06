@@ -11,39 +11,29 @@ interface TeamFormProps {
 }
 
 interface TeamFormData {
-  name: string;
-  team_logo: File | null;
-  season_id: number;
-  division_id: number;
+  teamName: string;
+  seasonId: number;
+  divisionId: number;
+  linkToSeason: boolean;
 }
 
-interface CreateNewTeamData {
-  formData: TeamFormData;
-}
-
-interface UpdateTeamData {
-  id: number;
-  formData: TeamFormData;
-}
-
-interface DeleteTeamData {
-  id: number;
+interface TeamRequest {
+  id?: number;
+  name?: string;
+  group_id?: number;
+  division_id?: number;
+  team_logo?: string | null;
+  season_id?: number;
+  link_to_season?: boolean;
 }
 
 interface TeamResponse {
   id: number;
   groupId: number;
   name: string;
-  team_logo: HTMLImageElement;
+  team_logo: string | null;
   updated_at: string;
   created_at: string;
 }
 
-export type {
-  TeamFormProps,
-  TeamFormData,
-  CreateNewTeamData,
-  UpdateTeamData,
-  DeleteTeamData,
-  TeamResponse,
-};
+export type { TeamFormProps, TeamFormData, TeamRequest, TeamResponse };

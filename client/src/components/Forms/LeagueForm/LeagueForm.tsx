@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import {
-  LeagueFormProps,
-  LeagueFormData,
-  UpdateLeagueFormData,
-  DeleteLeagueFormData,
-} from "./types";
+import { LeagueFormProps, LeagueFormData, LeagueRequest } from "./types";
 import { useAuth0 } from "@auth0/auth0-react";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import {
@@ -18,7 +13,7 @@ import Cookies from "js-cookie";
 import { fetchUser } from "../../../api/users/service";
 import { User } from "../../../api/users/types";
 import { useTranslation } from "react-i18next";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, set } from "react-hook-form";
 import { leagueSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -28,6 +23,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
   leagueId,
 }) => {
   const { t } = useTranslation("Leagues");
+  const [error, setError] = React.useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const { getAccessTokenSilently } = useAuth0();
@@ -68,15 +64,27 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     };
 
     switch (requestType) {
-      case "POST":
-        createLeagueMutation.mutate(payload as LeagueFormData);
+      case "POST": {
+        const dataPost = await createLeagueMutation.mutateAsync(
+          payload as LeagueRequest
+        );
+        if (dataPost.error) {
+          setError(dataPost.error);
+          return;
+        }
         break;
-      case "PATCH":
-        updateLeagueMutation.mutate({
+      }
+      case "PATCH": {
+        const dataUpdate = await updateLeagueMutation.mutateAsync({
           id: leagueId,
           ...payload,
-        } as UpdateLeagueFormData);
+        } as LeagueRequest);
+        if (dataUpdate.error) {
+          setError(dataUpdate.error);
+          return;
+        }
         break;
+      }
       default:
         throw Error("No request type was supplied");
     }
@@ -88,7 +96,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     e.preventDefault();
     deleteLeagueMutation.mutate({
       id: leagueId ? leagueId : 0,
-    } as DeleteLeagueFormData);
+    } as LeagueRequest);
     afterSave();
   };
 
@@ -114,8 +122,12 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
                 className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="leagueName"
+                onChange={() => setError("")}
               />
-              <span className={styles.error}>{errors.name?.message}</span>
+              {errors.name && (
+                <span className={styles.error}>{errors.name?.message}</span>
+              )}
+              {error && <span className={styles.error}>{error}</span>}
             </div>
 
             <div className={`${styles.inputContainer} ${styles.halfContainer}`}>
