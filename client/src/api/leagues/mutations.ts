@@ -1,7 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNewLeague, updateLeague, deleteLeague } from "./service";
 import { LeagueRequest } from "../../components/Forms/LeagueForm/types";
-import { getLeagueByGroupId } from "./service";
 
 export const useCreateLeague = () => {
   const queryClient = useQueryClient();
@@ -56,13 +55,5 @@ export const useDeleteLeague = () => {
         await queryClient.invalidateQueries({ queryKey: ["leagues"] });
       }
     },
-  });
-};
-
-export const useGetLeagueByGroupId = (groupId: number) => {
-  return useQuery({
-    queryKey: ["leagues", groupId ? groupId : 0],
-    queryFn: getLeagueByGroupId,
-    enabled: groupId !== 0,
   });
 };
