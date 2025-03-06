@@ -2,24 +2,20 @@ import styles from "../pages.module.css";
 import Search from "../../components/Search/Search";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
-// import SelectMenu from "../../components/SelectMenu/SelectMenu";
 import Modal from "../../components/Modal/Modal";
 import LeagueForm from "../../components/Forms/LeagueForm/LeagueForm";
 import { LeagueType } from "./types";
-import { useQuery } from "@tanstack/react-query";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { getLeagueByGroupId } from "../../api/leagues/service";
 import { Outlet, useLocation } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import { useGetLeagueByGroupId } from "../../api/leagues/mutations";
 
 const Leagues = () => {
   const { t } = useTranslation("Leagues");
 
-  // const [filter, setFilter] = useState("");
-  // const [sorts, setSorts] = useState("");
   const [currentLeagueName, setCurrentLeagueName] = useState("");
   const [currentLeagueDescription, setCurrentLeagueDescription] = useState("");
   const [currentLeagueId, setCurrentLeagueId] = useState(0);
@@ -27,19 +23,12 @@ const Leagues = () => {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const { groupId } = useGroup();
 
-  useEffect(() => {}, [groupId]);
-
-  // const filterStatuses = [t("filterOptions.item1"), t("filterOptions.item2")];
-  // const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["leagues", groupId ? groupId : 0],
-    queryFn: getLeagueByGroupId,
-    enabled: groupId !== 0,
-  });
+  const { data, isLoading, isError } = useGetLeagueByGroupId(groupId);
+
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
       setDebouncedQuery(searchQuery);

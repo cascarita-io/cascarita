@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import { LeagueFormProps, LeagueFormData, LeagueRequest } from "./types";
@@ -39,10 +39,8 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     resolver: zodResolver(leagueSchema),
   });
 
-  useEffect(() => {
-    setValue("name", leagueName || "");
-    setValue("description", leagueDescription);
-  }, [leagueName, leagueDescription]);
+  setValue("name", leagueName || "");
+  setValue("description", leagueDescription);
 
   const createLeagueMutation = useCreateLeague();
   const updateLeagueMutation = useUpdateLeague();
