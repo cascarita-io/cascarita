@@ -17,6 +17,10 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   afterSave,
   requestType,
   seasonId,
+  seasonName,
+  seasonLeagueId,
+  seasonStartDate,
+  seasonEndDate,
   leagueData,
 }) => {
   const { t } = useTranslation("Seasons");
@@ -25,6 +29,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<SeasonFormData>({
     defaultValues: {
@@ -35,6 +40,23 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
     },
     resolver: zodResolver(seasonSchema),
   });
+
+  const parseDateTimeString = (dateString: string) => {
+    return new Date(dateString).toISOString().split("T")[0];
+  };
+
+  useEffect(() => {
+    setValue("name", seasonName || "");
+    setValue("league_id", Number(seasonLeagueId) || 0);
+    setValue(
+      "start_date",
+      seasonStartDate ? parseDateTimeString(seasonStartDate) : ""
+    );
+    setValue(
+      "end_date",
+      seasonEndDate ? parseDateTimeString(seasonEndDate) : ""
+    );
+  }, [seasonName, seasonLeagueId, seasonStartDate, seasonEndDate]);
 
   const createSeasonMutation = useCreateSeason();
   const updateSeasonMutation = useUpdateSeason();
