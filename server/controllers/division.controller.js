@@ -60,23 +60,34 @@ const DivisionController = {
       name: req.body.name,
     };
 
-    try {
-      await modelByPk(res, Group, form.group_id);
-      const isUnique = await isDivisionNameUnique(form.group_id, form.name);
-      if (!isUnique) {
-        res.status(400);
-        throw new Error("Division name already taken");
-      }
-      await Division.build(form).validate();
-
-      const division = await Division.create(form);
-      if (form.season_id) {
-        await sessionController.createSession(division.id, form.season_id);
-      }
-      res.status(201).json(division);
-    } catch (error) {
-      next(error);
+    const group = await Group.findByPk(form.group_id);
+    if (!group) {
+      return res.status(404).json({
+        error: `failed to find a group with id ${form.group_id}`,
+      });
     }
+
+    const isUnique = await isDivisionNameUnique(form.group_id, form.name);
+    if (!isUnique) {
+      return res.status(400).json({
+        error: "division name must be unique",
+      });
+    }
+
+    try {
+      await Division.build(form).validate();
+    } catch (error) {
+      return res.status(400).json({
+        error: `validation failed: ${error.message}`,
+      });
+    }
+
+    const division = await Division.create(form);
+    if (form.season_id) {
+      await sessionController.createSession(division.id, form.season_id);
+    }
+
+    res.status(201).json(division);
   },
   update: async function (req, res, next) {
     const { id } = req.params;

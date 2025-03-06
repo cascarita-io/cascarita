@@ -41,15 +41,42 @@ describe("Division routes", () => {
     });
 
     it("Should fail if division name validation fails", async () => {
-      const group = await TestDataGenerator.createDummyGroup("Group Cuatro");
-      const form = { group_id: group.id, name: "f" };
+      const group = await TestDataGenerator.createDummyGroup("Foo");
+      // Validation will fail because the name is too short
+      const form = { group_id: group.id, name: "" };
 
       const response = await request(app).post("/divisions").send(form);
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
+    });
+
+    it("Should fail if division name is not unique", async () => {
+      const group = await TestDataGenerator.createDummyGroup("Group Cinco");
+
+      // Create a division with the same name
+      await Division.create({
+        group_id: group.id,
+        name: "Division name",
+      });
+
+      const form = { group_id: group.id, name: "Division name" };
+
+      const response = await request(app).post("/divisions").send(form);
+      expect(response.status).toBe(400);
       expect(response.body).toMatchObject({
-        message:
-          "Validation error: Division name must be between 2 and 50 characters long",
+        error: "division name must be unique",
+      });
+    });
+
+    it("Should fail if group not found", async () => {
+      const invalidGroupId = 29;
+      const form = { group_id: invalidGroupId, name: "New Division" };
+
+      const response = await request(app).post("/divisions").send(form);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({
+        error: `failed to find a group with id ${invalidGroupId}`,
       });
     });
   });
