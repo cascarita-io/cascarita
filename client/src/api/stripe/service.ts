@@ -10,7 +10,7 @@ export const connectStripe = async (
   id: number,
   email: string,
   name: string,
-  description: string,
+  description: string
 ) => {
   const formData = {
     id: id,
@@ -47,6 +47,7 @@ export const createPaymentIntent = async (
   userStripeAccountSqlId: string,
   transactionAmount: number,
   transactionFee: number,
+  isCustomerPayingFee: boolean
 ): Promise<PaymentIntent | null> => {
   try {
     const response = await fetch(
@@ -61,8 +62,9 @@ export const createPaymentIntent = async (
           transactionFee,
           form_id,
           userStripeAccountSqlId,
+          isCustomerPayingFee,
         }),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -83,7 +85,7 @@ export const getPublishableKey = async (): Promise<string> => {
 
     if (!response.ok) {
       throw new Error(
-        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`,
+        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`
       );
     }
 
@@ -123,7 +125,7 @@ export const useStripePromise = (stripeAccount: string) => {
         nullthrows(publishableKey, "Publishable key is missing"),
         {
           stripeAccount,
-        },
+        }
       );
     },
   });
