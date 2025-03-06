@@ -312,38 +312,73 @@ const AccountController = function () {
     });
   };
 
-  var getPaymentIntentStatus = async function (
-    paymentIntentId,
-    stripeAccountId,
-  ) {
+  var getPaymentIntent = async function (paymentIntentId, stripeAccountId) {
     try {
-      const foundPaymentIntent = await Stripe.paymentIntents.retrieve(
+      const paymentIntent = await Stripe.paymentIntents.retrieve(
         paymentIntentId,
         {
           stripeAccount: stripeAccountId,
         },
       );
 
-      if (!foundPaymentIntent) {
+      if (!paymentIntent) {
         return {
           success: false,
-          error: "Payment intent not found",
+          error: `payment intent not found with id: ${paymentIntentId}`,
           status: 404,
         };
       }
 
       return {
         success: true,
-        data: {
-          status: foundPaymentIntent.status,
-          amount: foundPaymentIntent.amount,
-          capturable: foundPaymentIntent.amount_capturable > 0,
-        },
+        data: paymentIntent,
       };
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: `failed to get payment intent via api call : ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
+  var preparePaymentIntentOperation = async function (paymentIntentId, email) {
+    try {
+      const { id } = await User.findOne({
+        where: { email: email },
+      });
+
+      const formPayment = await FormPayment.findOne({
+        where: { payment_intent_id: paymentIntentId },
+      });
+
+      if (!formPayment) {
+        return {
+          success: false,
+          error: `no linked payment found for payment intent id: ${paymentIntentId}`,
+          status: 404,
+        };
+      }
+
+      const retrievePaymentIntent = await getPaymentIntent(
+        paymentIntentId,
+        formPayment.stripe_account_id_string,
+      );
+
+      if (!retrievePaymentIntent.success) {
+        return retrievePaymentIntent;
+      }
+
+      return {
+        success: true,
+        userId: id,
+        formPayment,
+        paymentIntentData: retrievePaymentIntent.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to prepare payment intent operation: ${error.message}`,
         status: 500,
       };
     }
