@@ -5,7 +5,6 @@ import {
   UpdateUserData,
   AddUserData,
   GetSessionData,
-  UpdatePlayerTeamsData,
 } from "../../components/Forms/UserForm/types";
 import {
   deleteUser,
@@ -14,6 +13,7 @@ import {
   getSession,
   updatePlayerTeams,
 } from "./service";
+import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
 
 export const useAddUser = () => {
   const queryClient = useQueryClient();
@@ -71,7 +71,7 @@ export const useUpdatePlayerTeams = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdatePlayerTeamsData) => updatePlayerTeams(data),
+    mutationFn: (data: PlayerRequest) => updatePlayerTeams(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["users"],
