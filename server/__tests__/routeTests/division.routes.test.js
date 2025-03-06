@@ -42,7 +42,7 @@ describe("Division routes", () => {
 
     it("Should fail if division name validation fails", async () => {
       const group = await TestDataGenerator.createDummyGroup("Foo");
-      // Validation will fail because the name is too short
+      // Validation should fail because the name is too short
       const form = { group_id: group.id, name: "" };
 
       const response = await request(app).post("/divisions").send(form);
@@ -52,16 +52,13 @@ describe("Division routes", () => {
 
     it("Should fail if division name is not unique", async () => {
       const group = await TestDataGenerator.createDummyGroup("Group Cinco");
-
-      // Create a division with the same name
-      await Division.create({
-        group_id: group.id,
-        name: "Division name",
-      });
-
       const form = { group_id: group.id, name: "Division name" };
 
+      // Create a division with the same name
+      await Division.create({ group_id: group.id, name: "Division name" });
+
       const response = await request(app).post("/divisions").send(form);
+
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({
         error: "division name must be unique",
@@ -93,6 +90,7 @@ describe("Division routes", () => {
       const response = await request(app)
         .patch(`/divisions/${division.id}`)
         .send(form);
+
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({ name: form.name });
     });
@@ -106,6 +104,29 @@ describe("Division routes", () => {
         .send(form);
 
       expect(response.status).toBe(404);
+      expect(response.body).toMatchObject({
+        error: `failed to find a division with id ${invalidDivisionId}`,
+      });
+    });
+
+    it("Should fail if division name is not unique", async () => {
+      const group = await TestDataGenerator.createDummyGroup("Group");
+      const division = await Division.create({
+        group_id: group.id,
+        name: "Division name",
+      });
+
+      // Should fail because the name is not unique
+      const form = { name: "Division name" };
+
+      const response = await request(app)
+        .patch(`/divisions/${division.id}`)
+        .send(form);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({
+        error: "division name must be unique",
+      });
     });
 
     it("Should fail if validation fails", async () => {
@@ -114,13 +135,14 @@ describe("Division routes", () => {
         group_id: group.id,
         name: "Division name",
       });
-      const form = { name: "s" };
+      // Validation should fail because the name is too short
+      const form = { name: "" };
 
       const response = await request(app)
         .patch(`/divisions/${division.id}`)
         .send(form);
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
     });
   });
 

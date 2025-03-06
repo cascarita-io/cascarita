@@ -84,7 +84,13 @@ const DivisionController = {
 
     const division = await Division.create(form);
     if (form.season_id) {
-      await sessionController.createSession(division.id, form.season_id);
+      try {
+        await sessionController.createSession(division.id, form.season_id);
+      } catch (error) {
+        return res.status(400).json({
+          error: `failed to create a session: ${error.message}`,
+        });
+      }
     }
 
     res.status(201).json(division);
@@ -93,21 +99,40 @@ const DivisionController = {
     const { id } = req.params;
     const { name } = req.body;
 
-    try {
-      const division = await modelByPk(res, Division, id);
-      const isUnique = await isDivisionNameUnique(division.group_id, name);
-      if (!isUnique) {
-        res.status(400);
-        throw new Error("Division name already taken");
-      }
-
-      division.name = name;
-      await division.validate();
-      await division.save();
-      res.json(division);
-    } catch (error) {
-      next(error);
+    const division = await Division.findByPk(id);
+    if (!division) {
+      res.status(404);
+      return res.json({
+        error: `failed to find a division with id ${id}`,
+      });
     }
+
+    const isUnique = await isDivisionNameUnique(division.group_id, name);
+    if (!isUnique) {
+      return res.status(400).json({
+        error: "division name must be unique",
+      });
+    }
+
+    division.name = name;
+
+    try {
+      await division.validate();
+    } catch (error) {
+      return res.status(400).json({
+        error: `validation failed: ${error.message}`,
+      });
+    }
+
+    try {
+      await division.save();
+    } catch (error) {
+      return res.status(500).json({
+        error: "failed to update division",
+      });
+    }
+
+    res.json(division);
   },
   delete: async function (req, res, next) {
     const { id } = req.params;
