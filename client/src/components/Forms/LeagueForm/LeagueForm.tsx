@@ -1,35 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import { LeagueFormProps, LeagueFormData, LeagueRequest } from "./types";
-import { useAuth0 } from "@auth0/auth0-react";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import {
   useCreateLeague,
   useDeleteLeague,
   useUpdateLeague,
 } from "../../../api/leagues/mutations";
-import Cookies from "js-cookie";
-import { fetchUser } from "../../../api/users/service";
-import { User } from "../../../api/users/types";
 import { useTranslation } from "react-i18next";
-import { useForm, SubmitHandler, set } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { leagueSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useGroup } from "../../GroupProvider/GroupProvider";
 
 const LeagueForm: React.FC<LeagueFormProps> = ({
   afterSave,
   requestType,
   leagueId,
+  leagueName,
+  leagueDescription,
 }) => {
   const { t } = useTranslation("Leagues");
   const [error, setError] = React.useState("");
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const { getAccessTokenSilently } = useAuth0();
+  const { groupId } = useGroup();
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LeagueFormData>({
     defaultValues: {
@@ -39,18 +39,14 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     resolver: zodResolver(leagueSchema),
   });
 
+  useEffect(() => {
+    setValue("name", leagueName || "");
+    setValue("description", leagueDescription);
+  }, [leagueName, leagueDescription]);
+
   const createLeagueMutation = useCreateLeague();
   const updateLeagueMutation = useUpdateLeague();
   const deleteLeagueMutation = useDeleteLeague();
-
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setCurrentUser(currentUser);
-    })();
-  }, []);
 
   const onSubmit: SubmitHandler<LeagueFormData> = async (
     data: LeagueFormData
@@ -60,7 +56,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     const payload = {
       name: name,
       description: description,
-      group_id: currentUser?.group_id,
+      group_id: groupId,
     };
 
     switch (requestType) {
