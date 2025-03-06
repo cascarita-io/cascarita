@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import { SeasonFormData, SeasonFormProps, SeasonRequest } from "./types";
@@ -68,6 +68,10 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
           id: seasonId,
           ...payload,
         } as SeasonRequest);
+        if (dataUpdate.error) {
+          setError(dataUpdate.error);
+          return;
+        }
         break;
       case "DELETE":
         deleteSeasonMutation.mutate({
@@ -111,6 +115,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                 className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
                 placeholder={t("formContent.name")}
                 id="seasonName"
+                onChange={() => setError("")}
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>

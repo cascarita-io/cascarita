@@ -22,6 +22,7 @@ interface LeagueResponse {
   name: string;
   description: string;
   group_id: number;
+  error?: string;
 }
 
 export type { LeagueFormProps, LeagueFormData, LeagueRequest, LeagueResponse };
