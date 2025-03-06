@@ -216,56 +216,31 @@ const AccountController = function () {
     userSelectedStatus,
   ) {
     try {
-      const { id } = await User.findOne({
-        where: { email: email },
-      });
-
-      const formPayment = await FormPayment.findOne({
-        where: { payment_intent_id: paymentIntentId },
-      });
-
-      if (!formPayment) {
-        return {
-          success: false,
-          error: `no linked stripe account found for payment intent id: ${paymentIntentId}`,
-          status: 404,
-        };
-      }
-
-      const retrievePaymentIntent = await getPaymentIntentStatus(
+      const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
-        formPayment.stripe_account_id_string,
+        email,
       );
 
-      if (!retrievePaymentIntent.success) {
-        return retrievePaymentIntent;
+      if (!preparedInfo.success) {
+        return preparedInfo;
       }
 
-      if (retrievePaymentIntent.data.status === "succeeded") {
+      const { userId, formPayment, paymentIntentData } = preparedInfo;
+
+      if (paymentIntentData.status === "succeeded") {
         return {
           success: false,
-          data: `payment intent of status succeeded can not be captured: ${retrievePaymentIntent.data}`,
+          data: `payment intent of status succeeded cannot be captured: ${paymentIntentData.id}`,
           status: 304,
         };
       }
 
-      const paymentIntent = await Stripe.paymentIntents.capture(
-        paymentIntentId,
-        {
-          stripeAccount: formPayment.stripe_account_id_string,
-        },
-      );
-
-      if (!paymentIntent) {
-        return {
-          success: false,
-          error: `no stripe payment intent found with id of: ${paymentIntentId}`,
-          status: 404,
-        };
-      }
+      await Stripe.paymentIntents.capture(paymentIntentData.id, {
+        stripeAccount: formPayment.stripe_account_id_string,
+      });
 
       const updates = {
-        internal_status_updated_by: id,
+        internal_status_updated_by: userId,
         internal_status_updated_at: new Date(),
       };
 
