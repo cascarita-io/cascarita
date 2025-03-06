@@ -62,7 +62,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
     accept: {
       "image/*": [],
     },
-    maxSize: 1024 * 1000 * 8,
+    maxSize: 1024 * 1000 * 10,
   });
 
   const style = useMemo(
