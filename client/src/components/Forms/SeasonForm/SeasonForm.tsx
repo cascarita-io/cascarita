@@ -1,12 +1,7 @@
 import React from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import {
-  CreateNewSeasonData,
-  DeleteSeasonData,
-  SeasonFormProps,
-  UpdateSeasonData,
-} from "./types";
+import { SeasonFormProps, SeasonRequest } from "./types";
 import {
   useCreateSeason,
   useDeleteSeason,
@@ -35,34 +30,32 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    const { seasonName, startDate, endDate } = Object.fromEntries(
-      new FormData(event.currentTarget),
+    const { seasonName, startDate, endDate, leagueId } = Object.fromEntries(
+      new FormData(event.currentTarget)
     );
 
-    const data = {
-      formData: {
-        name: seasonName,
-        start_date: startDate,
-        end_date: endDate,
-        is_active: true,
-        league_id: leagueId,
-      },
+    const payload = {
+      name: seasonName as string,
+      start_date: startDate as string,
+      end_date: endDate as string,
+      is_active: true,
+      league_id: Number(leagueId),
     };
 
     switch (requestType) {
       case "POST":
-        createSeasonMutation.mutate(data as CreateNewSeasonData);
+        createSeasonMutation.mutate(payload as SeasonRequest);
         break;
       case "PATCH":
         updateSeasonMutation.mutate({
           id: seasonId,
-          ...data,
-        } as UpdateSeasonData);
+          ...payload,
+        } as SeasonRequest);
         break;
       case "DELETE":
         deleteSeasonMutation.mutate({
           id: seasonId ? seasonId : 0,
-        } as DeleteSeasonData);
+        } as SeasonRequest);
         break;
       default:
         throw Error("No request type was supplied");
