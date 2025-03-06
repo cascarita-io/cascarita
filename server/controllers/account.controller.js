@@ -300,6 +300,65 @@ const AccountController = function () {
     }
   };
 
+  var cancelPaymentIntent = async function (paymentIntentId, email) {
+    try {
+      const cancelStatuses = [
+        "requires_payment_method",
+        "requires_capture",
+        "requires_confirmation",
+        "requires_action",
+      ];
+
+      const preparedInfo = await preparePaymentIntentOperation(
+        paymentIntentId,
+        email,
+      );
+
+      if (!preparedInfo.success) {
+        return preparedInfo;
+      }
+
+      const { userId, formPayment, paymentIntentData } = preparedInfo;
+
+      if (!cancelStatuses.includes(paymentIntentData.status)) {
+        return {
+          success: false,
+          data: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
+          status: 304,
+        };
+      }
+
+      const canceledPaymentIntent = await Stripe.paymentIntents.cancel(
+        paymentIntentId,
+        {
+          cancellation_reason: "requested_by_customer",
+          stripeAccount: formPayment.stripe_account_id_string,
+        },
+      );
+
+      const updates = {
+        internal_status_updated_by: userId,
+        internal_status_updated_at: new Date(),
+        internal_status_id: 11, // 'Cancelled
+        payment_intent_status: canceledPaymentIntent.status,
+      };
+
+      await formPayment.update(updates, { validate: true });
+
+      return {
+        success: true,
+        data: `successfully canceled payment intent: ${canceledPaymentIntent.id}`,
+        status: 200,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to cancel payment intent via stripe api call, error of: ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
   var createStripeFormPayment = async function (formData) {
     await FormPayment.create({
       form_id: formData.form_id,
