@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { Outlet, useLocation } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
-import { useGetLeagueByGroupId } from "../../api/leagues/mutations";
+import { useGetLeagueByGroupId } from "../../api/leagues/query";
 
 const Leagues = () => {
   const { t } = useTranslation("Leagues");
