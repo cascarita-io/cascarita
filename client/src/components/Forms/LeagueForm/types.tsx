@@ -8,18 +8,13 @@ interface LeagueFormProps {
 interface LeagueFormData {
   name: string;
   description?: string;
-  group_id: number;
 }
 
-interface UpdateLeagueFormData {
-  id: number;
-  name: string;
-  description: string;
+interface LeagueRequest {
+  id?: number;
+  name?: string;
+  description?: string;
   group_id?: number;
-}
-
-interface DeleteLeagueFormData {
-  id: number;
 }
 
 interface LeagueResponse {
@@ -29,10 +24,4 @@ interface LeagueResponse {
   group_id: number;
 }
 
-export type {
-  LeagueFormProps,
-  LeagueFormData,
-  UpdateLeagueFormData,
-  DeleteLeagueFormData,
-  LeagueResponse,
-};
+export type { LeagueFormProps, LeagueFormData, LeagueRequest, LeagueResponse };

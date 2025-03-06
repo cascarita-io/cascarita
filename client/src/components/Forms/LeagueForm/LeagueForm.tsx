@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import {
-  LeagueFormProps,
-  LeagueFormData,
-  UpdateLeagueFormData,
-  DeleteLeagueFormData,
-} from "./types";
+import { LeagueFormProps, LeagueFormData, LeagueRequest } from "./types";
 import { useAuth0 } from "@auth0/auth0-react";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import {
@@ -69,13 +64,13 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
 
     switch (requestType) {
       case "POST":
-        createLeagueMutation.mutate(payload as LeagueFormData);
+        createLeagueMutation.mutate(payload as LeagueRequest);
         break;
       case "PATCH":
         updateLeagueMutation.mutate({
           id: leagueId,
           ...payload,
-        } as UpdateLeagueFormData);
+        } as LeagueRequest);
         break;
       default:
         throw Error("No request type was supplied");
@@ -88,7 +83,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     e.preventDefault();
     deleteLeagueMutation.mutate({
       id: leagueId ? leagueId : 0,
-    } as DeleteLeagueFormData);
+    } as LeagueRequest);
     afterSave();
   };
 
