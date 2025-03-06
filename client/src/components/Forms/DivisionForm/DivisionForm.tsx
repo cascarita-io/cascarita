@@ -39,7 +39,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
     event.preventDefault();
     setIsLoading(true);
     const { divisionName } = Object.fromEntries(
-      new FormData(event.currentTarget),
+      new FormData(event.currentTarget)
     );
 
     const data = {

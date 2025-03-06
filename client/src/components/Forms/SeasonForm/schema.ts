@@ -22,12 +22,14 @@ export const seasonSchema = z
 
     start_date: z
       .string()
+      .min(1, { message: "Please enter a start date" })
       .regex(
         /^\d{4}-\d{2}-\d{2}$/,
         "Invalid date format (MM-DD-YYYY expected)"
       ),
     end_date: z
       .string()
+      .min(1, { message: "Please enter an end date" })
       .regex(
         /^\d{4}-\d{2}-\d{2}$/,
         "Invalid date format (MM-DD-YYYY expected)"

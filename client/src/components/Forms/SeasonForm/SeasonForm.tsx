@@ -25,6 +25,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   leagueData,
 }) => {
   const { t } = useTranslation("Seasons");
+  const [error, setError] = React.useState("");
 
   const {
     register,
@@ -60,18 +61,29 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
 
     switch (requestType) {
       case "POST":
-        createSeasonMutation.mutate(payload as SeasonFormData);
+        const dataPost = await createSeasonMutation.mutateAsync(
+          payload as SeasonFormData
+        );
+        if (dataPost.error) {
+          setError(dataPost.error);
+          return;
+        }
         break;
       case "PATCH":
-        updateSeasonMutation.mutate({
+        const dataUpdate = await updateSeasonMutation.mutateAsync({
           id: seasonId,
           ...payload,
         } as UpdateSeasonData);
+        if (dataUpdate.error) {
+          setError(dataUpdate.error);
+          return;
+        }
         break;
 
       default:
         throw Error("No request type was supplied");
     }
+
     afterSave();
   };
 
@@ -94,10 +106,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form
-          className={styles.form}
-          onSubmit={handleSubmit((data) => console.log(data))}
-        >
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="seasonName">
@@ -108,13 +117,11 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                 className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
                 placeholder={t("formContent.name")}
                 id="seasonName"
-
-                //TODO: Make sure to address to avoid bugs
-                // onChange={(event) =>
-                //   setSeasonName(event.target.value.replaceAll("/", ""))
-                // }
               />
-              <span className={styles.error}>{errors.name?.message}</span>
+              {errors.name && (
+                <span className={styles.error}>{errors.name?.message}</span>
+              )}
+              {error && <span className={styles.error}>{error}</span>}
             </div>
 
             <div className={styles.inputContainer}>
