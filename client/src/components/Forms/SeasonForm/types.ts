@@ -33,6 +33,7 @@ interface SeasonResponse {
   league_id: number;
   created_at: Date;
   updated_at: Date;
+  error: string;
 }
 
 export type { SeasonFormProps, SeasonFormData, SeasonRequest, SeasonResponse };
