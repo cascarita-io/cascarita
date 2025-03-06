@@ -305,8 +305,8 @@ const AccountController = function () {
 
       const canceledPaymentIntent = await Stripe.paymentIntents.cancel(
         paymentIntentId,
+        { cancellation_reason: "requested_by_customer" },
         {
-          cancellation_reason: "requested_by_customer",
           stripeAccount: formPayment.stripe_account_id_string,
         },
       );
