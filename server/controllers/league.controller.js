@@ -39,14 +39,13 @@ const LeagueController = function () {
     const newLeague = { group_id, name, description };
 
     try {
-      const leagueFound = await isNameUniqueWithinGroup(
+      const isUnique = await isNameUniqueWithinGroup(
         newLeague.group_id,
         newLeague.name,
       );
 
-      if (!leagueFound) {
-        res.status(400);
-        throw new Error("name is not unique");
+      if (!isUnique) {
+        return res.status(400).json({ error: "League name is not unique" });
       }
 
       await League.build(newLeague).validate();
@@ -79,13 +78,13 @@ const LeagueController = function () {
         }
       });
 
-      const leagueFound = await isNameUniqueWithinGroup(
+      const isUnique = await isNameUniqueWithinGroup(
         currentLeague.group_id,
         currentLeague.name,
       );
 
-      if (!leagueFound) {
-        throw new Error("name is not unique");
+      if (!isUnique) {
+        return res.status(400).json({ error: "League name is not unique" });
       }
 
       await currentLeague.validate();

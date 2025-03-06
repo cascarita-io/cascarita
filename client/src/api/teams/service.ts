@@ -1,8 +1,6 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
 import {
-  CreateNewTeamData,
-  DeleteTeamData,
-  UpdateTeamData,
+  TeamRequest,
   TeamResponse,
 } from "../../components/Forms/TeamsForm/types";
 
@@ -23,7 +21,7 @@ const getTeamsBySeasonDivisionId = async ({
           "Content-Type": "application/json",
         },
         mode: "cors",
-      },
+      }
     );
     return response.json();
   } catch (error) {
@@ -52,13 +50,11 @@ const getTeamsByGroupId = async ({
   }
 };
 
-const createNewTeam = async (
-  data: CreateNewTeamData,
-): Promise<TeamResponse> => {
+const createNewTeam = async (data: TeamRequest): Promise<TeamResponse> => {
   try {
     const response = await fetch(`/api/teams`, {
       method: "POST",
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
       headers: {
         "Content-Type": "application/json",
       },
@@ -70,11 +66,11 @@ const createNewTeam = async (
   }
 };
 
-const updateTeam = async (data: UpdateTeamData): Promise<TeamResponse> => {
+const updateTeam = async (data: TeamRequest): Promise<TeamResponse> => {
   try {
     const response = await fetch(`/api/teams/${data.id}`, {
       method: "PATCH",
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
       headers: {
         "Content-Type": "application/json",
       },
@@ -86,7 +82,7 @@ const updateTeam = async (data: UpdateTeamData): Promise<TeamResponse> => {
   }
 };
 
-const deleteTeam = async (data: DeleteTeamData): Promise<void> => {
+const deleteTeam = async (data: TeamRequest): Promise<void> => {
   try {
     const response = await fetch(`/api/teams/${data.id}`, {
       method: "DELETE",

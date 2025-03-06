@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "../Form.module.css";
-import {
-  CreateNewTeamData,
-  DeleteTeamData,
-  TeamFormProps,
-  UpdateTeamData,
-} from "./types";
+import { TeamRequest, TeamFormProps } from "./types";
 import FileUpload from "../../FileUpload/FileUpload";
 import Modal from "../../Modal/Modal";
 import {
@@ -43,7 +38,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
         const uploadUrl = await uploadPhotoToS3(
           fileUrl,
           "team_images",
-          "team_logo",
+          "team_logo"
         );
         setTeamLogo(uploadUrl.image_url);
       } else {
@@ -66,8 +61,9 @@ const TeamForm: React.FC<TeamFormProps> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
-    const teamName = formData.get("teamName") as string;
+    const { teamName, seasonId, divisionId, linkToSeason } = Object.fromEntries(
+      new FormData(event.currentTarget)
+    );
 
     const data = {
       formData: {
@@ -83,18 +79,18 @@ const TeamForm: React.FC<TeamFormProps> = ({
     // TODO: Refactor mutations to not rely on season but rather division
     switch (requestType) {
       case "POST":
-        createTeamMutation.mutate(data as CreateNewTeamData);
+        createTeamMutation.mutate(data as TeamRequest);
         break;
       case "PATCH":
         updateTeamMutation.mutate({
           id: teamId,
           ...data,
-        } as UpdateTeamData);
+        } as TeamRequest);
         break;
       case "DELETE":
         deleteTeamMutation.mutate({
           id: teamId ? teamId : 0,
-        } as DeleteTeamData);
+        } as TeamRequest);
         break;
       default:
         throw Error("No request type was supplied");

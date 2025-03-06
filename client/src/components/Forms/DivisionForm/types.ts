@@ -10,22 +10,15 @@ interface DivisionFormProps {
 }
 
 interface DivisionFormData {
-  name: string;
-  group_id: number;
-  season_id: number;
+  divisionName: string;
+  seasonId: number;
 }
 
-interface CreateNewDivisionData {
-  formData: DivisionFormData;
-}
-
-interface UpdateDivisionData {
-  id: number;
-  formData: DivisionFormData;
-}
-
-interface DeleteDivisionData {
-  id: number;
+interface DivisionRequest {
+  id?: number;
+  name?: string;
+  group_id?: number;
+  season_id?: number;
 }
 
 interface DivisionResponse {
@@ -38,8 +31,7 @@ interface DivisionResponse {
 
 export type {
   DivisionFormProps,
-  CreateNewDivisionData,
-  UpdateDivisionData,
-  DeleteDivisionData,
+  DivisionFormData,
+  DivisionRequest,
   DivisionResponse,
 };

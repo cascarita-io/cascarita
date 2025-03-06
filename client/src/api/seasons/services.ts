@@ -1,9 +1,7 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
 import {
-  CreateNewSeasonData,
-  DeleteSeasonData,
+  SeasonRequest,
   SeasonResponse,
-  UpdateSeasonData,
 } from "../../components/Forms/SeasonForm/types";
 
 type SeasonQueryKey = [string, number];
@@ -47,7 +45,7 @@ const getSeasonsByLeagueId = async ({
 };
 
 const createNewSeason = async (
-  data: CreateNewSeasonData
+  data: SeasonRequest
 ): Promise<SeasonResponse> => {
   try {
     const response = await fetch("/api/seasons", {
@@ -55,8 +53,9 @@ const createNewSeason = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
+    console.log(response);
     return response.json();
   } catch (error) {
     console.error("Error creating season:", error);
@@ -64,16 +63,14 @@ const createNewSeason = async (
   }
 };
 
-const updateSeason = async (
-  data: UpdateSeasonData
-): Promise<SeasonResponse> => {
+const updateSeason = async (data: SeasonRequest): Promise<SeasonResponse> => {
   try {
     const response = await fetch(`/api/seasons/${data.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
     return response.json();
   } catch (error) {
@@ -82,7 +79,7 @@ const updateSeason = async (
   }
 };
 
-const deleteSeason = async (data: DeleteSeasonData): Promise<void> => {
+const deleteSeason = async (data: SeasonRequest): Promise<void> => {
   try {
     const response = await fetch(`/api/seasons/${data.id}`, {
       method: "DELETE",

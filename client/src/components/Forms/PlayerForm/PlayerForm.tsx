@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./PlayerForm.module.css";
-import { PlayerFormProps } from "./types";
+import { PlayerFormProps, PlayerRequest } from "./types";
 import Modal from "../../Modal/Modal";
 import { useTranslation } from "react-i18next";
 import { TeamType } from "../../../pages/Teams/types";
@@ -53,15 +53,15 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
 
     const updatePlayerTeamsData = {
       id: player.id,
-      formData: {
-        team_id: selectedTeam,
-        session_id: session.id,
-      },
+      team_id: selectedTeam,
+      session_id: session.id,
     };
 
     switch (requestType) {
       case "PATCH":
-        updatePlayerTeamsMutation.mutate(updatePlayerTeamsData);
+        updatePlayerTeamsMutation.mutate(
+          updatePlayerTeamsData as PlayerRequest
+        );
         break;
       default:
         throw Error("No request type was supplied");

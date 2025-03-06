@@ -1,9 +1,7 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
 import {
   LeagueResponse,
-  LeagueFormData,
-  UpdateLeagueFormData,
-  DeleteLeagueFormData,
+  LeagueRequest,
 } from "../../components/Forms/LeagueForm/types";
 
 type LeagueQueryKey = [string, number];
@@ -28,7 +26,7 @@ const getLeagueByGroupId = async ({
 };
 
 const createNewLeague = async (
-  payload: LeagueFormData,
+  payload: LeagueRequest
 ): Promise<LeagueResponse> => {
   try {
     const response = await fetch("/api/leagues", {
@@ -47,7 +45,7 @@ const createNewLeague = async (
 };
 
 const updateLeague = async (
-  payload: UpdateLeagueFormData,
+  payload: LeagueRequest
 ): Promise<LeagueResponse> => {
   try {
     const response = await fetch(`/api/leagues/${payload.id}`, {
@@ -64,7 +62,7 @@ const updateLeague = async (
   }
 };
 
-const deleteLeague = async (payload: DeleteLeagueFormData): Promise<void> => {
+const deleteLeague = async (payload: LeagueRequest): Promise<void> => {
   try {
     const response = await fetch(`api/leagues/${payload.id}`, {
       method: "DELETE",
