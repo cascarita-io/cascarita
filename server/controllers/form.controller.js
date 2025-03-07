@@ -31,6 +31,7 @@ const FormController = function () {
 
       await insertedResponse.save();
       const responseIdString = insertedResponse.id;
+
       const response = await FormPaymentController.connectResponseToFormPayment(
         responseData,
         responseIdString,
