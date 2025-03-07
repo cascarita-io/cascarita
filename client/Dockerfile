@@ -2,8 +2,11 @@ FROM node:22-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@9.14.2 --activate
-COPY ./client /app
+
 WORKDIR /app
+COPY ./client .
+
+RUN rm -rf node_modules
 
 FROM base AS prod-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile

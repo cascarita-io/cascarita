@@ -3,23 +3,20 @@ interface LeagueFormProps {
   afterSave: () => void | null;
   requestType?: "POST" | "PATCH" | "DELETE";
   leagueId?: number;
+  leagueName?: string;
+  leagueDescription?: string;
 }
 
 interface LeagueFormData {
   name: string;
   description?: string;
-  group_id: number;
 }
 
-interface UpdateLeagueFormData {
-  id: number;
-  name: string;
-  description: string;
+interface LeagueRequest {
+  id?: number;
+  name?: string;
+  description?: string;
   group_id?: number;
-}
-
-interface DeleteLeagueFormData {
-  id: number;
 }
 
 interface LeagueResponse {
@@ -27,12 +24,7 @@ interface LeagueResponse {
   name: string;
   description: string;
   group_id: number;
+  error?: string;
 }
 
-export type {
-  LeagueFormProps,
-  LeagueFormData,
-  UpdateLeagueFormData,
-  DeleteLeagueFormData,
-  LeagueResponse,
-};
+export type { LeagueFormProps, LeagueFormData, LeagueRequest, LeagueResponse };

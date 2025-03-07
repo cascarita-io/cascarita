@@ -1,16 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNewSeason, updateSeason, deleteSeason } from "./services";
-import {
-  CreateNewSeasonData,
-  UpdateSeasonData,
-  DeleteSeasonData,
-} from "../../components/Forms/SeasonForm/types";
+import { SeasonRequest } from "../../components/Forms/SeasonForm/types";
 
 export const useCreateSeason = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateNewSeasonData) => createNewSeason(data),
+    mutationFn: (data: SeasonRequest) => createNewSeason(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["seasons"],
@@ -23,7 +19,7 @@ export const useUpdateSeason = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateSeasonData) => updateSeason(data),
+    mutationFn: (data: SeasonRequest) => updateSeason(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["seasons"],
@@ -46,7 +42,7 @@ export const useDeleteSeason = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DeleteSeasonData) => deleteSeason(data),
+    mutationFn: (data: SeasonRequest) => deleteSeason(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["seasons"],

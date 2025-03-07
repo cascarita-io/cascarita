@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import {
-  CreateNewDivisionData,
-  DeleteDivisionData,
-  DivisionFormProps,
-  UpdateDivisionData,
-} from "./types";
+import { DivisionFormProps, DivisionRequest } from "./types";
 import {
   useCreateDivision,
   useUpdateDivision,
@@ -38,32 +33,30 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    const { divisionName } = Object.fromEntries(
-      new FormData(event.currentTarget),
+    const { divisionName, seasonId } = Object.fromEntries(
+      new FormData(event.currentTarget)
     );
 
     const data = {
-      formData: {
-        name: divisionName,
-        group_id: groupId,
-        season_id: seasonId,
-      },
+      name: divisionName,
+      group_id: groupId,
+      season_id: Number(seasonId),
     };
 
     switch (requestType) {
       case "POST":
-        createDivisionMutation.mutate(data as CreateNewDivisionData);
+        createDivisionMutation.mutate(data as DivisionRequest);
         break;
       case "PATCH":
         updateDivisionMutation.mutate({
           id: divisionId,
           ...data,
-        } as UpdateDivisionData);
+        } as DivisionRequest);
         break;
       case "DELETE":
         deleteDivisionMutation.mutate({
           id: divisionId ? divisionId : 0,
-        } as DeleteDivisionData);
+        } as DivisionRequest);
         break;
       default:
         throw Error("No request type was supplied");

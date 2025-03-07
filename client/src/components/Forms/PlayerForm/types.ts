@@ -14,4 +14,17 @@ interface PlayerFormProps {
   requestType?: "POST" | "PATCH" | "DELETE";
 }
 
-export type { PlayerFormProps };
+interface PlayerFormData {
+  leagueId: number;
+  seasonId: number;
+  divisionId: number;
+  teamId: number;
+}
+
+interface PlayerRequest {
+  id?: number;
+  team_id?: number;
+  session_id?: number;
+}
+
+export type { PlayerFormProps, PlayerRequest, PlayerFormData };
