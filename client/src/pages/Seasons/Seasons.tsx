@@ -40,8 +40,6 @@ const Seasons = () => {
         queryFn: async () =>
           await getSeasonsByGroupId({
             queryKey: ["seasons", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
           }),
         enabled: groupId !== 0,
       },
@@ -96,7 +94,7 @@ const Seasons = () => {
 
   const filteredData = data
     ?.filter((season: SeasonType) =>
-      season.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+      season.name.toLowerCase().includes(debouncedQuery.toLowerCase())
     )
     ?.sort((a: SeasonType, b: SeasonType) => {
       if (sorts === t("sortOptions.item1")) {

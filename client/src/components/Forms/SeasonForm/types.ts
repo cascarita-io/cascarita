@@ -12,21 +12,16 @@ interface SeasonFormData {
   name: string;
   start_date: string;
   end_date: string;
-  is_active: boolean;
   league_id: number;
 }
 
-interface CreateNewSeasonData {
-  formData: SeasonFormData;
-}
-
-interface UpdateSeasonData {
-  id: number;
-  formData: SeasonFormData;
-}
-
-interface DeleteSeasonData {
-  id: number;
+interface SeasonRequest {
+  id?: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  is_active?: boolean;
+  league_id?: number;
 }
 
 interface SeasonResponse {
@@ -38,13 +33,7 @@ interface SeasonResponse {
   league_id: number;
   created_at: Date;
   updated_at: Date;
+  error?: string;
 }
 
-export type {
-  SeasonFormProps,
-  SeasonFormData,
-  CreateNewSeasonData,
-  UpdateSeasonData,
-  DeleteSeasonData,
-  SeasonResponse,
-};
+export type { SeasonFormProps, SeasonFormData, SeasonResponse, SeasonRequest };

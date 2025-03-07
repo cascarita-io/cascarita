@@ -1,16 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createDivision, deleteDivision, updateDivision } from "./service";
-import {
-  CreateNewDivisionData,
-  UpdateDivisionData,
-  DeleteDivisionData,
-} from "../../components/Forms/DivisionForm/types";
+import { DivisionRequest } from "../../components/Forms/DivisionForm/types";
 
 export const useCreateDivision = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateNewDivisionData) => createDivision(data),
+    mutationFn: (data: DivisionRequest) => createDivision(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["divisions"],
@@ -23,7 +19,7 @@ export const useUpdateDivision = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: UpdateDivisionData) => updateDivision(data),
+    mutationFn: (data: DivisionRequest) => updateDivision(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["divisions"],
@@ -46,7 +42,7 @@ export const useDeleteDivision = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: DeleteDivisionData) => deleteDivision(data),
+    mutationFn: (data: DivisionRequest) => deleteDivision(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["divisions"],
