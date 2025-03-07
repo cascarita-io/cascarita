@@ -230,7 +230,7 @@ const AccountController = function () {
       if (paymentIntentData.status === "succeeded") {
         return {
           success: false,
-          data: `payment intent of status succeeded cannot be captured: ${paymentIntentData.id}`,
+          data: `payment intent status is succeeded cannot be re-captured: ${paymentIntentData.id}`,
           status: 304,
         };
       }
@@ -381,6 +381,14 @@ const AccountController = function () {
       const { id } = await User.findOne({
         where: { email: email },
       });
+
+      if (!id) {
+        return {
+          success: false,
+          error: `no user found with email: ${email}`,
+          status: 404,
+        };
+      }
 
       const formPayment = await FormPayment.findOne({
         where: { payment_intent_id: paymentIntentId },
