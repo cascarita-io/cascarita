@@ -44,7 +44,6 @@ export const connectStripe = async (
 export const createPaymentIntent = async (
   stripeAccountId: string,
   form_id: string,
-  userStripeAccountSqlId: string,
   transactionAmount: number,
   transactionFee: number,
   isCustomerPayingFee: boolean
@@ -61,7 +60,6 @@ export const createPaymentIntent = async (
           transactionAmount,
           transactionFee,
           form_id,
-          userStripeAccountSqlId,
           isCustomerPayingFee,
         }),
       }
