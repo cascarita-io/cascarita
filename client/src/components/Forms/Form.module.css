@@ -62,18 +62,12 @@
 
 .input {
   width: 100%;
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 4px;
   padding: 8px 13px;
-  font-size: 15px;
-  line-height: 1;
+  font-size: 1rem;
   background-color: #f4f7fb;
   color: var(--violet-11);
   box-shadow: 0 0 0 1px var(--violet-7);
-  height: 40fallbackpx;
 }
 
 .input:focus {
@@ -81,7 +75,7 @@
 }
 
 input.invalid {
-  border: 1px solid red;
+  border: 1px solid #ff0000ab;
   background-color: #fdd;
 }
 

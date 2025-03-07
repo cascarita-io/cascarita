@@ -31,6 +31,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     register,
     handleSubmit,
     formState: { errors },
+    clearErrors,
   } = useForm<LeagueFormData>({
     defaultValues: {
       name: "",
@@ -122,7 +123,10 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
                 className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="leagueName"
-                onChange={() => setError("")}
+                onChange={() => {
+                  setError("");
+                  clearErrors("name");
+                }}
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
@@ -139,6 +143,9 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
                 className={styles.input}
                 placeholder={t("formContent.descriptionPlaceholder")}
                 id="leagueDesc"
+                onChange={() => {
+                  clearErrors("description");
+                }}
               />
             </div>
           </div>
