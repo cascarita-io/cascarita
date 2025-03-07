@@ -80,16 +80,23 @@ const AccountController = function () {
       let productObj = req.body;
       productObj.stripeAccountIdString = req.params["account_id"];
 
+      // TODO: Set up a more dynamic fee structure !
+      const cascaritaFee = 200;
+      const totalAmount = calculateTotalAmount(
+        productObj.transactionAmount,
+        productObj.isCustomerPayingFee,
+        cascaritaFee,
+      );
+
       const paymentIntent = await Stripe.paymentIntents.create(
         {
-          amount: productObj.transactionAmount,
+          amount: totalAmount,
           currency: "usd",
           automatic_payment_methods: {
             enabled: true,
           },
           capture_method: "manual",
-          // TODO: Explore application fee amount
-          // application_fee_amount: productObj.transactionFee,
+          application_fee_amount: cascaritaFee,
         },
         {
           stripeAccount: productObj.stripeAccountIdString,
@@ -107,6 +114,29 @@ const AccountController = function () {
     } catch (error) {
       console.error(error);
       next(error);
+    }
+  };
+
+  var calculateTotalAmount = function (
+    intendedAmount,
+    isCustomerPaying,
+    applicationFee,
+  ) {
+    const stripePercentage = 0.029;
+    const stripeFixedFee = 30;
+
+    if (isCustomerPaying) {
+      let totalAmount = Math.ceil(
+        (intendedAmount + applicationFee + stripeFixedFee) /
+          (1 - stripePercentage),
+      );
+      return totalAmount;
+    } else {
+      let totalAmount = intendedAmount + applicationFee;
+      let stripeFee = Math.ceil(
+        totalAmount * stripePercentage + stripeFixedFee,
+      );
+      return totalAmount + stripeFee;
     }
   };
 
