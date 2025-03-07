@@ -105,6 +105,7 @@ const AccountController = function () {
 
       productObj.paymentIntentId = paymentIntent.id;
       productObj.paymentIntentStatus = paymentIntent.status;
+      productObj.updatedTotal = totalAmount;
       await createStripeFormPayment(productObj);
 
       return res.status(200).json({
@@ -335,7 +336,7 @@ const AccountController = function () {
       form_id: formData.form_id,
       payment_method_id: 1, //since this go triggred, it is stripe payment
       internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.transactionAmount,
+      amount: formData.totalAmount,
       payment_intent_id: formData.paymentIntentId,
       payment_intent_status: formData.paymentIntentStatus,
       stripe_account_id_string: formData.stripeAccountIdString,
