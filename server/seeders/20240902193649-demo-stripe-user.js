@@ -19,6 +19,7 @@ module.exports = {
             logo_url: "https://example.com/logo",
             created_at: new Date(),
             updated_at: new Date(),
+            group_code: "1234",
           },
         ],
         { transaction },
