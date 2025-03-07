@@ -13,7 +13,7 @@ import Cookies from "js-cookie";
 import { fetchUser } from "../../../api/users/service";
 import { User } from "../../../api/users/types";
 import { useTranslation } from "react-i18next";
-import { useForm, SubmitHandler, set } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { leagueSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 

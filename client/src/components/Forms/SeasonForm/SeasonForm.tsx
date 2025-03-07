@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import { SeasonFormData, SeasonFormProps, SeasonRequest } from "./types";
