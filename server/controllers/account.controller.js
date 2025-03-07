@@ -108,6 +108,7 @@ const AccountController = function () {
       productObj.updatedTotal = totalAmount;
       await createStripeFormPayment(productObj);
 
+      console.log(JSON.stringify(paymentIntent));
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
         id: paymentIntent.id,
@@ -134,10 +135,7 @@ const AccountController = function () {
       return totalAmount;
     } else {
       let totalAmount = intendedAmount + applicationFee;
-      let stripeFee = Math.ceil(
-        totalAmount * stripePercentage + stripeFixedFee,
-      );
-      return totalAmount + stripeFee;
+      return totalAmount;
     }
   };
 
@@ -370,7 +368,7 @@ const AccountController = function () {
       form_id: formData.form_id,
       payment_method_id: 1, //since this go triggred, it is stripe payment
       internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.totalAmount,
+      amount: formData.updatedTotal,
       payment_intent_id: formData.paymentIntentId,
       payment_intent_status: formData.paymentIntentStatus,
       stripe_account_id_string: formData.stripeAccountIdString,
