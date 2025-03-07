@@ -33,20 +33,17 @@ export const useCreatePaymentIntent = (
         throw new Error("Form has no SQL id");
       }
 
-      const stripeAccountInternalId = field.properties?.stripe_account?.id;
-      if (!stripeAccountInternalId) {
-        throw new Error("No Stripe Account Internal ID");
-      }
-
       const priceValue = normalizePriceToCents(field.properties?.price?.value);
       const feeValue = normalizePriceToCents(field.properties?.price?.feeValue);
+      const isCustomerPayingFee =
+        field.properties?.price?.isCustomerPayingFee || false;
 
       const paymentIntent = await createPaymentIntent(
         stripeAccountId,
         sqlFormId,
-        stripeAccountInternalId,
         priceValue,
-        feeValue
+        feeValue,
+        isCustomerPayingFee
       );
 
       if (!paymentIntent) {
