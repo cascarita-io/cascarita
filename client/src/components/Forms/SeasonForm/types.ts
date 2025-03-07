@@ -5,6 +5,10 @@ interface SeasonFormProps {
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
   seasonId?: number;
+  seasonName?: string;
+  seasonLeagueId?: number;
+  seasonStartDate?: string;
+  seasonEndDate?: string;
   leagueData?: LeagueType[];
 }
 
