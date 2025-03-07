@@ -40,13 +40,16 @@ export const useCreatePaymentIntent = (
 
       const priceValue = normalizePriceToCents(field.properties?.price?.value);
       const feeValue = normalizePriceToCents(field.properties?.price?.feeValue);
+      const isCustomerPayingFee =
+        field.properties?.price?.isCustomerPayingFee || false;
 
       const paymentIntent = await createPaymentIntent(
         stripeAccountId,
         sqlFormId,
         stripeAccountInternalId,
         priceValue,
-        feeValue
+        feeValue,
+        isCustomerPayingFee
       );
 
       if (!paymentIntent) {
