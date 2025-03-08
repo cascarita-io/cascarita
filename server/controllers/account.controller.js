@@ -303,7 +303,7 @@ const AccountController = function () {
     }
   };
 
-  var cancelPaymentIntent = async function (paymentIntentId, email, isCashPayment) {
+  var cancelPaymentIntent = async function (paymentIntentId, email, isUserAction, isStripePayment) {
     try {
       const cancelStatuses = [
         "requires_payment_method",
@@ -315,7 +315,8 @@ const AccountController = function () {
       const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
         email,
-        isCashPayment, // if it is cash payment, we don't need to check user - payment intent is canceled by the system.
+        isUserAction, // if it is cash payment, we don't need to check user - payment intent is canceled by the system.
+        isStripePayment,
       );
 
       if (!preparedInfo.success) {
@@ -324,7 +325,7 @@ const AccountController = function () {
 
       const { userId, formPayment, paymentIntentData } = preparedInfo;
 
-      if (!cancelStatuses.includes(paymentIntentData.status)) {
+      if (isStripePayment && !cancelStatuses.includes(paymentIntentData.status)) {
         return {
           success: false,
           error: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
@@ -332,18 +333,23 @@ const AccountController = function () {
         };
       }
 
-      const canceledPaymentIntent = await Stripe.paymentIntents.cancel(
-        paymentIntentId,
-        { cancellation_reason: "requested_by_customer" },
-        {
-          stripeAccount: formPayment.stripe_account_id_string,
-        },
-      );
+      var canceledPaymentIntent;
+      if (isStripePayment) {
+        canceledPaymentIntent = await Stripe.paymentIntents.cancel(
+          paymentIntentId,
+          { cancellation_reason: "requested_by_customer" },
+          {
+            stripeAccount: formPayment.stripe_account_id_string,
+          },
+        );
+      } else {
+        canceledPaymentIntent = { status: "canceled" };
+      }
 
       const updates = {
         internal_status_updated_by: userId,
         internal_status_updated_at: new Date(),
-        internal_status_id: 11, // 'Cancelled
+        internal_status_id: 11, // 'Canceled
         payment_intent_status: canceledPaymentIntent.status,
       };
 
@@ -429,16 +435,16 @@ const AccountController = function () {
     }
   };
 
-  var preparePaymentIntentOperation = async function (paymentIntentId, email, isCashPayment) {
+  var preparePaymentIntentOperation = async function (paymentIntentId, email, isUserAction, isStripePayment) {
     try {
-      var id;
+      var user;
 
-      if (!isCashPayment) {
-        id = await User.findOne({
+      if (isUserAction) {
+        user = await User.findOne({
           where: { email: email },
         });
 
-        if (!id) {
+        if (!user) {
           return {
             success: false,
             error: `no user found with email: ${email}`,
@@ -459,18 +465,23 @@ const AccountController = function () {
         };
       }
 
-      const retrievePaymentIntent = await getPaymentIntent(
-        paymentIntentId,
-        formPayment.stripe_account_id_string,
-      );
+      var retrievePaymentIntent;
+      if (isStripePayment) {
+        retrievePaymentIntent = await getPaymentIntent(
+          paymentIntentId,
+          formPayment.stripe_account_id_string,
+        );
 
-      if (!retrievePaymentIntent.success) {
-        return retrievePaymentIntent;
+        if (!retrievePaymentIntent.success) {
+          return retrievePaymentIntent;
+        }
+      } else {
+        retrievePaymentIntent = { data: { status: "canceled" } };
       }
 
       return {
         success: true,
-        userId: id,
+        userId: user ? user.id : null,
         formPayment,
         paymentIntentData: retrievePaymentIntent.data,
       };
@@ -490,7 +501,12 @@ const AccountController = function () {
     userSelectedStatus,
   ) {
     if (userSelectedStatus === "canceled") {
-      return cancelPaymentIntent(paymentIntentId, email, false);
+      const isUserAction = true;
+      var isStripePayment = false;
+      if (paymentIntentId.startsWith("pi_")) {
+        isStripePayment = true;
+      }
+      return cancelPaymentIntent(paymentIntentId, email, isUserAction, isStripePayment);
     } else {
       return capturePaymentIntent(
         paymentIntentId,

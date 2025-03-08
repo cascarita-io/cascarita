@@ -42,7 +42,10 @@ const FormController = function () {
 
         /* TEMPORARY SOLUTION TO CANCEL THE STRIPE PAYMENT INTENT */
         const paymentIntentToCancel = paymentEntry.paymentIntentId;
-        var cancelRes = await AccountController.cancelPaymentIntent(paymentIntentToCancel, null, hasCashPayment);
+        const isUserAction = false; // system is canceling the stripe payment intent
+        const isStripePayment = true; // payment is a stripe payment
+        const email = null;
+        var cancelRes = await AccountController.cancelPaymentIntent(paymentIntentToCancel, email, isUserAction, isStripePayment);
         if (!cancelRes.success) {
           return res.status(cancelRes.status).json({ error: cancelRes.error });
         }
