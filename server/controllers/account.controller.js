@@ -106,9 +106,8 @@ const AccountController = function () {
       productObj.paymentIntentId = paymentIntent.id;
       productObj.paymentIntentStatus = paymentIntent.status;
       productObj.updatedTotal = totalAmount;
-      await createStripeFormPayment(productObj);
+      await createFormPayment(productObj);
 
-      console.log(JSON.stringify(paymentIntent));
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
         id: paymentIntent.id,
@@ -304,7 +303,7 @@ const AccountController = function () {
     }
   };
 
-  var cancelPaymentIntent = async function (paymentIntentId, email) {
+  var cancelPaymentIntent = async function (paymentIntentId, email, isCashPayment) {
     try {
       const cancelStatuses = [
         "requires_payment_method",
@@ -316,6 +315,7 @@ const AccountController = function () {
       const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
         email,
+        isCashPayment, // if it is cash payment, we don't need to check user - payment intent is canceled by the system.
       );
 
       if (!preparedInfo.success) {
@@ -327,7 +327,7 @@ const AccountController = function () {
       if (!cancelStatuses.includes(paymentIntentData.status)) {
         return {
           success: false,
-          data: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
+          error: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
           status: 304,
         };
       }
@@ -363,16 +363,40 @@ const AccountController = function () {
     }
   };
 
-  var createStripeFormPayment = async function (formData) {
-    await FormPayment.create({
-      form_id: formData.form_id,
-      payment_method_id: 1, //since this go triggred, it is stripe payment
-      internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.updatedTotal,
-      payment_intent_id: formData.paymentIntentId,
-      payment_intent_status: formData.paymentIntentStatus,
-      stripe_account_id_string: formData.stripeAccountIdString,
-    });
+  var createFormPayment = async function (formData) {
+
+    try {
+      const formPayment = await FormPayment.create({
+        form_id: formData.form_id,
+        payment_method_id: formData.payment_method_id || 1, // default to stripe if not provided
+        internal_status_id: formData.internal_status_id || 1, // default to 'Pending'
+        amount: formData.updatedTotal,
+        payment_intent_id: formData.paymentIntentId,
+        payment_intent_status: formData.paymentIntentStatus || null,
+        stripe_account_id_string: formData.stripeAccountIdString || null,
+        response_document_id: formData.response_document_id || null,
+      });
+
+      if (!formPayment) {
+        return {
+          success: false,
+          error: `failed to create form payment entry for form id: ${formData.form_id}`,
+          status: 500,
+        };
+      }
+
+      return {
+        success: true,
+        data: "successfully created form payment intent",
+        status: 201,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to create form payment intent: ${error.message}`,
+        status: 500,
+      };
+    }
   };
 
   var getPaymentIntent = async function (paymentIntentId, stripeAccountId) {
@@ -405,18 +429,22 @@ const AccountController = function () {
     }
   };
 
-  var preparePaymentIntentOperation = async function (paymentIntentId, email) {
+  var preparePaymentIntentOperation = async function (paymentIntentId, email, isCashPayment) {
     try {
-      const { id } = await User.findOne({
-        where: { email: email },
-      });
+      var id;
 
-      if (!id) {
-        return {
-          success: false,
-          error: `no user found with email: ${email}`,
-          status: 404,
-        };
+      if (!isCashPayment) {
+        id = await User.findOne({
+          where: { email: email },
+        });
+
+        if (!id) {
+          return {
+            success: false,
+            error: `no user found with email: ${email}`,
+            status: 404,
+          };
+        }
       }
 
       const formPayment = await FormPayment.findOne({
@@ -462,7 +490,7 @@ const AccountController = function () {
     userSelectedStatus,
   ) {
     if (userSelectedStatus === "canceled") {
-      return cancelPaymentIntent(paymentIntentId, email);
+      return cancelPaymentIntent(paymentIntentId, email, false);
     } else {
       return capturePaymentIntent(
         paymentIntentId,
@@ -481,6 +509,8 @@ const AccountController = function () {
     getPublishableKey,
     capturePaymentIntent,
     processPaymentIntent,
+    createFormPayment,
+    cancelPaymentIntent,
   };
 };
 
