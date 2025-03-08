@@ -121,7 +121,7 @@ const FormPaymentController = function () {
         (answer) => answer.type === "payment" && answer.paymentIntentId,
       );
 
-      paymentAnswer.paymen_type = "stripe_payment";
+      paymentAnswer.payment_type = "stripe_payment";
       paymentAnswer.payment_intent_status = stripePaymentIntent.status;
       paymentAnswer.amount = stripePaymentIntent.amount;
       paymentAnswer.payment_intent_auth_by_stripe_at = Date.now();
