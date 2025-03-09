@@ -239,7 +239,7 @@ const FormController = function () {
       await Response.deleteMany({ form_id: form_id });
       await FormMongo.deleteOne({ _id: form_id });
 
-      return res.status(204).json("form got deleted. L bozo");
+      return res.status(204).json("form deleted successfully");
     } catch (error) {
       next(error);
     }
