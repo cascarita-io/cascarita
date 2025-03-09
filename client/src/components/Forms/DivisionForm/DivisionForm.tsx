@@ -30,15 +30,18 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
     handleSubmit,
     formState: { errors },
     clearErrors,
+    watch,
   } = useForm<DivisionFormData>({
     defaultValues: {
       name: "",
       season_id: 0,
     },
     resolver: zodResolver(divisionSchema),
+    mode: "onChange",
   });
 
   const groupId = Cookies.get("group_id") || 0;
+  const divisionName = watch("name");
 
   const createDivisionMutation = useCreateDivision();
   const updateDivisionMutation = useUpdateDivision();
@@ -113,16 +116,17 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
               </label>
               <input
                 {...register("name")}
-                className={`${styles.input} ${errors.name || requestError ? styles.invalid : ""}`}
+                className={`${styles.input} ${errors.name || requestError || divisionName.length > 50 ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="divisionName"
-                onChange={() => {
-                  setRequestError("");
-                  clearErrors("name");
-                }}
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
+              )}
+              {!errors.name && divisionName.length > 50 && (
+                <span className={styles.error}>
+                  Division name cannot exceed 50 characters
+                </span>
               )}
               {requestError && (
                 <span className={styles.error}>{requestError}</span>

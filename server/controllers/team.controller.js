@@ -105,6 +105,8 @@ const TeamController = function () {
       next(error);
     }
   };
+
+  //TODO: Check within a Division, not group [Backend Ticket]
   var isNameUniqueWithinDivision = async function (groupId, teamName) {
     let teamFound = await Team.findOne({
       where: {
