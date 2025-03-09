@@ -10,6 +10,7 @@ import {
 import {
   getMongoFormById,
   getMongoFormResponses,
+  sendApprovalEmail,
 } from "../../api/forms/service";
 import { useTranslation } from "react-i18next";
 import { Answer } from "../../api/forms/types";
@@ -209,11 +210,45 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     const newStatus = [...status];
     newStatus[index] = statusUpdate;
     setStatus(newStatus);
-
     let updatedStatus = statusUpdate as string;
     if (statusUpdate === "pending") {
       updatedStatus = "requires_payment_method";
     } else if (statusUpdate === "approved") {
+      const leagueName =
+        formResponsesData[index].player.player?.league_name || "";
+      const email = formResponsesData[index]["email"].email;
+      const seasonName =
+        formResponsesData[index].player.player?.season_name || "";
+      const playerName = `${formResponsesData[index]["first_name"].short_text} ${formResponsesData[index]["last_name"].short_text}`;
+      const paymentAmount =
+        Number(formResponsesData[index]["payment"].amount) / 100;
+      const paymentDate = new Date().toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const transactionId =
+        formResponsesData[index]["payment"].paymentIntentId || "";
+      console.log(
+        email,
+        leagueName,
+        seasonName,
+        playerName,
+        paymentAmount,
+        paymentDate,
+        transactionId
+      );
+      if (email) {
+        await sendApprovalEmail(
+          [email],
+          leagueName,
+          seasonName,
+          playerName,
+          paymentAmount,
+          paymentDate,
+          transactionId
+        );
+      }
       updatedStatus = "succeeded";
     } else {
       updatedStatus = "canceled";

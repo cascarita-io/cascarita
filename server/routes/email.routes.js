@@ -31,13 +31,25 @@ const createTemplatedEmail = (emails, link) => {
   });
 };
 
-const createApprovalEmail = (emails, team_name, league_name) => {
+const createApprovalEmail = (
+  emails,
+  league_name,
+  season_name,
+  player_name,
+  payment_amount,
+  payment_date,
+  transaction_id,
+) => {
   return new SendBulkTemplatedEmailCommand({
     Destinations: emails.map((email) => ({
       Destination: { ToAddresses: [email] },
       ReplacementTemplateData: JSON.stringify({
-        team_name: team_name,
+        player_name: player_name,
         league_name: league_name,
+        season_name: season_name,
+        payment_amount: payment_amount,
+        payment_date: payment_date,
+        transaction_id: transaction_id,
       }),
     })),
     DefaultTemplateData: JSON.stringify({
@@ -77,11 +89,23 @@ module.exports = (checkJwt) => {
 
   router.post("/approval/send", async (req, res) => {
     try {
-      const { emails, team_name, league_name } = req.body; //
+      const {
+        emails,
+        league_name,
+        season_name,
+        player_name,
+        payment_amount,
+        payment_date,
+        transaction_id,
+      } = req.body;
       const createTemplateEmailCommand = createApprovalEmail(
         emails,
-        team_name,
         league_name,
+        season_name,
+        player_name,
+        payment_amount,
+        payment_date,
+        transaction_id,
       );
 
       try {

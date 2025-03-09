@@ -242,14 +242,22 @@ export const sendEmail = async (emails: string[], formLink: string) => {
 
 export const sendApprovalEmail = async (
   emails: string[],
-  teamName: string,
-  leagueName: string
+  leagueName: string,
+  seasonName: string,
+  playerName: string,
+  paymentAmount: number,
+  paymentDate: string,
+  transactionId: string
 ) => {
   try {
     const data = {
       emails: emails,
-      team_name: teamName,
       league_name: leagueName,
+      season_name: seasonName,
+      player_name: playerName,
+      payment_amount: paymentAmount,
+      payment_date: paymentDate,
+      transaction_id: transactionId,
     };
     const response = await fetch(`/api/email/approval/send`, {
       method: "POST",
