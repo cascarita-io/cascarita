@@ -9,10 +9,10 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "../pages.module.css";
 import { FaPlus } from "react-icons/fa";
-import Cookies from "js-cookie";
-import { SeasonType } from "./types";
 import { useGetSeasonsByGroupId } from "../../api/seasons/query";
 import { useGetLeaguesByGroupId } from "../../api/leagues/query";
+import { SeasonType } from "./types";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
 
 const Seasons = () => {
   const { t } = useTranslation("Seasons");
@@ -21,6 +21,10 @@ const Seasons = () => {
   const [sorts, setSorts] = useState("");
   const [currentSeasonName, setCurrentSeasonName] = useState("");
   const [currentSeasonId, setCurrentSeasonId] = useState(0);
+  const [currentSeasonLeagueId, setCurrentSeasonLeagueId] = useState(0);
+  const [currentSeasonStartDate, setCurrentSeasonStartDate] = useState("");
+  const [currentSeasonEndDate, setCurrentSeasonEndDate] = useState("");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -28,7 +32,7 @@ const Seasons = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const groupId = Number(Cookies.get("group_id")) || 0;
+  const { groupId } = useGroup();
 
   const {
     data: seasons,
@@ -52,13 +56,24 @@ const Seasons = () => {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const handleEdit = (seasonName: string, seasonId: number) => {
+  const handleEdit = (
+    seasonName: string,
+    seasonId: number,
+    seasonLeagueId: number,
+    seasonStartDate: string,
+    seasonEndDate: string
+  ) => {
     setCurrentSeasonName(seasonName);
     setCurrentSeasonId(seasonId);
+    console.log("seasonLeagueId", seasonLeagueId);
+    setCurrentSeasonLeagueId(Number(seasonLeagueId));
+    setCurrentSeasonStartDate(seasonStartDate);
+    setCurrentSeasonEndDate(seasonEndDate);
     setIsEditOpen(true);
   };
 
@@ -161,7 +176,15 @@ const Seasons = () => {
                 <td>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      onClick={() => handleEdit(season.name, season.id)}
+                      onClick={() =>
+                        handleEdit(
+                          season.name,
+                          season.id,
+                          season.league_id,
+                          season.start_date,
+                          season.end_date
+                        )
+                      }
                     >
                       {t("edit")}
                     </DropdownMenuButton.Item>
@@ -189,6 +212,10 @@ const Seasons = () => {
             afterSave={() => setIsEditOpen(false)}
             requestType="PATCH"
             seasonId={currentSeasonId}
+            seasonName={currentSeasonName}
+            seasonLeagueId={currentSeasonLeagueId}
+            seasonStartDate={currentSeasonStartDate}
+            seasonEndDate={currentSeasonEndDate}
             leagueData={leagues}
           />
         </Modal.Content>

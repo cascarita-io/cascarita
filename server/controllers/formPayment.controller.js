@@ -8,6 +8,38 @@ const AccountController = require("./account.controller");
 const UserController = require("./user.controller");
 
 const FormPaymentController = function () {
+  var getFormPaymentsByFormId = async function (form_id) {
+    try {
+      let formPayments = [];
+      let forms = await Form.findAll({
+        where: {
+          document_id: form_id,
+        },
+      });
+
+      for (let form of forms) {
+        let payments = await FormPayment.findAll({
+          where: {
+            form_id: form.id,
+          },
+        });
+        formPayments = formPayments.concat(payments);
+      }
+
+      return {
+        success: true,
+        data: formPayments,
+        status: 201,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "failed to find form with form_id",
+        status: 500,
+      };
+    }
+  };
+
   var connectResponseToFormPayment = async function (responseData, responseId) {
     const paymentEntry = responseData.find(
       (item) => item.field?.type === "payment" && item.paymentIntentId,
@@ -71,7 +103,7 @@ const FormPaymentController = function () {
         };
       }
 
-      const existingPaymentIntent = paymentResult.data;
+      const existingFormPaymentIntent = paymentResult.data;
 
       const internalStatusId = mapStripeStatusWithInternalStatus(
         paymentIntent.status,
@@ -83,8 +115,11 @@ const FormPaymentController = function () {
         payment_intent_status: paymentIntent.status,
       };
 
-      await existingPaymentIntent.update(updates, { validate: true });
-      await updateMongoPaymentResponse(existingPaymentIntent);
+      await existingFormPaymentIntent.update(updates, { validate: true });
+      await updateMongoPaymentResponse(
+        existingFormPaymentIntent,
+        paymentIntent,
+      );
 
       return {
         success: true,
@@ -101,7 +136,10 @@ const FormPaymentController = function () {
     }
   };
 
-  var updateMongoPaymentResponse = async function (paymentData) {
+  var updateMongoPaymentResponse = async function (
+    paymentData,
+    stripePaymentIntent,
+  ) {
     try {
       const documentId = paymentData.response_document_id;
       let response = await Response.findById(documentId);
@@ -116,14 +154,17 @@ const FormPaymentController = function () {
       );
 
       paymentAnswer.paymen_type = "stripe_payment";
-      paymentAnswer.payment_intent_status = paymentData.payment_intent_status;
-      paymentAnswer.amount = paymentData.amount;
+      paymentAnswer.payment_intent_status = stripePaymentIntent.status;
+      paymentAnswer.amount = stripePaymentIntent.amount;
       paymentAnswer.payment_intent_auth_by_stripe_at = Date.now();
       if (paymentData.payment_intent_status === "requires_capture") {
         paymentAnswer.payment_intent_capture_by =
           Date.now() + 4 * 24 * 60 * 60 * 1000; // 4 days in milliseconds
       } else if (paymentData.payment_intent_status === "succeeded") {
         paymentAnswer.payment_intent_captured_at = Date.now();
+      } else if (paymentData.payment_intent_status === "canceled") {
+        paymentAnswer.cancellation_reason =
+          stripePaymentIntent.cancellation_reason;
       }
 
       await Response.updateOne(
@@ -170,30 +211,14 @@ const FormPaymentController = function () {
     const { form_id } = req.body;
 
     try {
-      let formPayments = [];
-      let forms = await Form.findAll({
-        where: {
-          document_id: form_id,
-        },
-      });
+      const formPayments = await getFormPaymentsByFormId(form_id);
 
-      for (let form of forms) {
-        let payments = await FormPayment.findAll({
-          where: {
-            form_id: form.id,
-          },
-        });
-        formPayments = formPayments.concat(payments);
+      if (!formPayments.success) {
+        console.warn("failed to find form with form_id");
+        return res.status(formPayments.success).json(formPayments.error);
       }
 
-      if (!formPayments) {
-        res.status(404);
-        throw new Error(
-          `no form payment record found with form document id: ${req.params.form_id}`,
-        );
-      }
-
-      return res.status(200).json(formPayments);
+      return res.status(200).json(formPayments.data);
     } catch (error) {
       next(error);
     }
@@ -203,7 +228,7 @@ const FormPaymentController = function () {
     try {
       const { payment_intent_id, status, email, answers } = req.body;
 
-      const formPayment = await AccountController.capturePaymentIntent(
+      const formPayment = await AccountController.processPaymentIntent(
         payment_intent_id,
         email,
         answers,
@@ -383,6 +408,7 @@ const FormPaymentController = function () {
   };
 
   return {
+    getFormPaymentsByFormId,
     connectResponseToFormPayment,
     updateStripePayment,
     updateMongoPaymentResponse,

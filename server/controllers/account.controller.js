@@ -80,16 +80,23 @@ const AccountController = function () {
       let productObj = req.body;
       productObj.stripeAccountIdString = req.params["account_id"];
 
+      // TODO: Set up a more dynamic fee structure !
+      const cascaritaFee = 200;
+      const totalAmount = calculateTotalAmount(
+        productObj.transactionAmount,
+        productObj.isCustomerPayingFee,
+        cascaritaFee,
+      );
+
       const paymentIntent = await Stripe.paymentIntents.create(
         {
-          amount: productObj.transactionAmount,
+          amount: totalAmount,
           currency: "usd",
           automatic_payment_methods: {
             enabled: true,
           },
           capture_method: "manual",
-          // TODO: Explore application fee amount
-          // application_fee_amount: productObj.transactionFee,
+          application_fee_amount: cascaritaFee,
         },
         {
           stripeAccount: productObj.stripeAccountIdString,
@@ -98,8 +105,10 @@ const AccountController = function () {
 
       productObj.paymentIntentId = paymentIntent.id;
       productObj.paymentIntentStatus = paymentIntent.status;
+      productObj.updatedTotal = totalAmount;
       await createStripeFormPayment(productObj);
 
+      console.log(JSON.stringify(paymentIntent));
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
         id: paymentIntent.id,
@@ -107,6 +116,26 @@ const AccountController = function () {
     } catch (error) {
       console.error(error);
       next(error);
+    }
+  };
+
+  var calculateTotalAmount = function (
+    intendedAmount,
+    isCustomerPaying,
+    applicationFee,
+  ) {
+    const stripePercentage = 0.029;
+    const stripeFixedFee = 30;
+
+    if (isCustomerPaying) {
+      let totalAmount = Math.ceil(
+        (intendedAmount + applicationFee + stripeFixedFee) /
+          (1 - stripePercentage),
+      );
+      return totalAmount;
+    } else {
+      let totalAmount = intendedAmount + applicationFee;
+      return totalAmount;
     }
   };
 
@@ -216,56 +245,31 @@ const AccountController = function () {
     userSelectedStatus,
   ) {
     try {
-      const { id } = await User.findOne({
-        where: { email: email },
-      });
-
-      const formPayment = await FormPayment.findOne({
-        where: { payment_intent_id: paymentIntentId },
-      });
-
-      if (!formPayment) {
-        return {
-          success: false,
-          error: `no linked stripe account found for payment intent id: ${paymentIntentId}`,
-          status: 404,
-        };
-      }
-
-      const retrievePaymentIntent = await getPaymentIntentStatus(
+      const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
-        formPayment.stripe_account_id_string,
+        email,
       );
 
-      if (!retrievePaymentIntent.success) {
-        return retrievePaymentIntent;
+      if (!preparedInfo.success) {
+        return preparedInfo;
       }
 
-      if (retrievePaymentIntent.data.status === "succeeded") {
+      const { userId, formPayment, paymentIntentData } = preparedInfo;
+
+      if (paymentIntentData.status === "succeeded") {
         return {
           success: false,
-          data: `payment intent of status succeeded can not be captured: ${retrievePaymentIntent.data}`,
+          data: `payment intent status is succeeded cannot be re-captured: ${paymentIntentData.id}`,
           status: 304,
         };
       }
 
-      const paymentIntent = await Stripe.paymentIntents.capture(
-        paymentIntentId,
-        {
-          stripeAccount: formPayment.stripe_account_id_string,
-        },
-      );
-
-      if (!paymentIntent) {
-        return {
-          success: false,
-          error: `no stripe payment intent found with id of: ${paymentIntentId}`,
-          status: 404,
-        };
-      }
+      await Stripe.paymentIntents.capture(paymentIntentData.id, {
+        stripeAccount: formPayment.stripe_account_id_string,
+      });
 
       const updates = {
-        internal_status_updated_by: id,
+        internal_status_updated_by: userId,
         internal_status_updated_at: new Date(),
       };
 
@@ -300,52 +304,172 @@ const AccountController = function () {
     }
   };
 
+  var cancelPaymentIntent = async function (paymentIntentId, email) {
+    try {
+      const cancelStatuses = [
+        "requires_payment_method",
+        "requires_capture",
+        "requires_confirmation",
+        "requires_action",
+      ];
+
+      const preparedInfo = await preparePaymentIntentOperation(
+        paymentIntentId,
+        email,
+      );
+
+      if (!preparedInfo.success) {
+        return preparedInfo;
+      }
+
+      const { userId, formPayment, paymentIntentData } = preparedInfo;
+
+      if (!cancelStatuses.includes(paymentIntentData.status)) {
+        return {
+          success: false,
+          data: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
+          status: 304,
+        };
+      }
+
+      const canceledPaymentIntent = await Stripe.paymentIntents.cancel(
+        paymentIntentId,
+        { cancellation_reason: "requested_by_customer" },
+        {
+          stripeAccount: formPayment.stripe_account_id_string,
+        },
+      );
+
+      const updates = {
+        internal_status_updated_by: userId,
+        internal_status_updated_at: new Date(),
+        internal_status_id: 11, // 'Cancelled
+        payment_intent_status: canceledPaymentIntent.status,
+      };
+
+      await formPayment.update(updates, { validate: true });
+
+      return {
+        success: true,
+        data: `successfully canceled payment intent: ${canceledPaymentIntent.id}`,
+        status: 200,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to cancel payment intent via stripe api call, error of: ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
   var createStripeFormPayment = async function (formData) {
     await FormPayment.create({
       form_id: formData.form_id,
       payment_method_id: 1, //since this go triggred, it is stripe payment
       internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.transactionAmount,
+      amount: formData.updatedTotal,
       payment_intent_id: formData.paymentIntentId,
       payment_intent_status: formData.paymentIntentStatus,
       stripe_account_id_string: formData.stripeAccountIdString,
     });
   };
 
-  var getPaymentIntentStatus = async function (
-    paymentIntentId,
-    stripeAccountId,
-  ) {
+  var getPaymentIntent = async function (paymentIntentId, stripeAccountId) {
     try {
-      const foundPaymentIntent = await Stripe.paymentIntents.retrieve(
+      const paymentIntent = await Stripe.paymentIntents.retrieve(
         paymentIntentId,
         {
           stripeAccount: stripeAccountId,
         },
       );
 
-      if (!foundPaymentIntent) {
+      if (!paymentIntent) {
         return {
           success: false,
-          error: "Payment intent not found",
+          error: `payment intent not found with id: ${paymentIntentId}`,
           status: 404,
         };
       }
 
       return {
         success: true,
-        data: {
-          status: foundPaymentIntent.status,
-          amount: foundPaymentIntent.amount,
-          capturable: foundPaymentIntent.amount_capturable > 0,
-        },
+        data: paymentIntent,
       };
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: `failed to get payment intent via api call : ${error.message}`,
         status: 500,
       };
+    }
+  };
+
+  var preparePaymentIntentOperation = async function (paymentIntentId, email) {
+    try {
+      const { id } = await User.findOne({
+        where: { email: email },
+      });
+
+      if (!id) {
+        return {
+          success: false,
+          error: `no user found with email: ${email}`,
+          status: 404,
+        };
+      }
+
+      const formPayment = await FormPayment.findOne({
+        where: { payment_intent_id: paymentIntentId },
+      });
+
+      if (!formPayment) {
+        return {
+          success: false,
+          error: `no linked payment found for payment intent id: ${paymentIntentId}`,
+          status: 404,
+        };
+      }
+
+      const retrievePaymentIntent = await getPaymentIntent(
+        paymentIntentId,
+        formPayment.stripe_account_id_string,
+      );
+
+      if (!retrievePaymentIntent.success) {
+        return retrievePaymentIntent;
+      }
+
+      return {
+        success: true,
+        userId: id,
+        formPayment,
+        paymentIntentData: retrievePaymentIntent.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to prepare payment intent operation: ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
+  var processPaymentIntent = async function (
+    paymentIntentId,
+    email,
+    formattedAnswers,
+    userSelectedStatus,
+  ) {
+    if (userSelectedStatus === "canceled") {
+      return cancelPaymentIntent(paymentIntentId, email);
+    } else {
+      return capturePaymentIntent(
+        paymentIntentId,
+        email,
+        formattedAnswers,
+        userSelectedStatus,
+      );
     }
   };
 
@@ -356,6 +480,7 @@ const AccountController = function () {
     calculateStripeStatus,
     getPublishableKey,
     capturePaymentIntent,
+    processPaymentIntent,
   };
 };
 

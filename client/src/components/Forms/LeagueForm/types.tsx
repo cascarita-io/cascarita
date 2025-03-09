@@ -3,6 +3,8 @@ interface LeagueFormProps {
   afterSave: () => void | null;
   requestType?: "POST" | "PATCH" | "DELETE";
   leagueId?: number;
+  leagueName?: string;
+  leagueDescription?: string;
 }
 
 interface LeagueFormData {

@@ -31,6 +31,7 @@ const FormController = function () {
 
       await insertedResponse.save();
       const responseIdString = insertedResponse.id;
+
       const response = await FormPaymentController.connectResponseToFormPayment(
         responseData,
         responseIdString,
@@ -216,17 +217,29 @@ const FormController = function () {
         },
       });
       if (!formResponse) {
-        res.status(404);
-        throw new Error(`no form with form id: ${form_id}`);
+        res.status(404).json([`no form with form id: ${form_id}`]);
+      }
+
+      const formPayments = await FormPaymentController.getFormPaymentsByFormId(
+        form_id,
+      );
+
+      if (!formPayments.success) {
+        console.warn("failed to find form with form_id");
+        return res.status(formPayments.success).json(formPayments.error);
+      }
+
+      if (formPayments.data.length > 0) {
+        return res
+          .status(200)
+          .json({ error: "form cannot be deleted due to payment response(s)" });
       }
 
       await formResponse.destroy();
-
       await Response.deleteMany({ form_id: form_id });
-
       await FormMongo.deleteOne({ _id: form_id });
 
-      res.status(204).json();
+      return res.status(204).json("form deleted successfully");
     } catch (error) {
       next(error);
     }
