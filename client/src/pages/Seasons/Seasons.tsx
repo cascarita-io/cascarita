@@ -70,7 +70,6 @@ const Seasons = () => {
   ) => {
     setCurrentSeasonName(seasonName);
     setCurrentSeasonId(seasonId);
-    console.log("seasonLeagueId", seasonLeagueId);
     setCurrentSeasonLeagueId(Number(seasonLeagueId));
     setCurrentSeasonStartDate(seasonStartDate);
     setCurrentSeasonEndDate(seasonEndDate);
