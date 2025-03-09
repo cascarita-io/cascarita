@@ -5,7 +5,7 @@ export const teamSchema = z
     name: z
       .string()
       .min(1, "Team name is required")
-      .max(100, "Team name cannot exceed 100 characters"),
+      .max(30, "Team name cannot exceed 30 characters"),
 
     link_to_season: z.boolean().default(false),
 

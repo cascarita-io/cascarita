@@ -46,10 +46,11 @@ const TeamForm: React.FC<TeamFormProps> = ({
       link_to_season: false,
     },
     resolver: zodResolver(teamSchema),
+    mode: "onChange",
   });
 
   const isLinkSeason = watch("link_to_season");
-
+  const teamName = watch("name");
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
@@ -142,17 +143,17 @@ const TeamForm: React.FC<TeamFormProps> = ({
               </label>
               <input
                 {...register("name")}
-                className={`${styles.input} ${errors.name || requestError ? styles.invalid : ""}`}
+                className={`${styles.input} ${errors.name || requestError || teamName.length > 30 ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="teamName"
-                onChange={() => {
-                  setRequestError("");
-                  clearErrors("name");
-                }}
               />
-
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
+              )}
+              {!errors.name && teamName.length > 30 && (
+                <span className={styles.error}>
+                  Team name cannot exceed 30 characters
+                </span>
               )}
               {requestError && (
                 <span className={styles.error}>{requestError}</span>
