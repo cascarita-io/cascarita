@@ -34,8 +34,8 @@ const createTemplatedEmail = (emails, link) => {
 module.exports = (checkJwt) => {
   router.post("/send", async (req, res) => {
     try {
-      const { emails, link } = req.body;
-      const createTemplateEmailCommand = createTemplatedEmail(emails, link);
+      const { emails, link } = req.body; //
+      const createTemplateEmailCommand = createTemplatedEmail(emails, link); //
 
       try {
         const result = await sesClient.send(createTemplateEmailCommand);
