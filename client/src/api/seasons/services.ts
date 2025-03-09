@@ -9,8 +9,8 @@ type SeasonQueryKey = [string, number];
 const getSeasonsByGroupId = async ({
   queryKey,
 }: QueryFunctionContext<SeasonQueryKey>) => {
+  const [, groupId] = queryKey;
   try {
-    const [, groupId] = queryKey;
     const response = await fetch(`/api/seasons/group/${groupId}`, {
       method: "GET",
       headers: {
