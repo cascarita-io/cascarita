@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getLeagueByGroupId } from "./service";
+import { getLeaguesByGroupId } from "./service";
 
-export const useGetLeagueByGroupId = (groupId: number) => {
+export const useGetLeaguesByGroupId = (groupId: number) => {
   return useQuery({
     queryKey: ["leagues", groupId ? groupId : 0],
-    queryFn: getLeagueByGroupId,
+    queryFn: getLeaguesByGroupId,
     enabled: groupId !== 0,
   });
 };

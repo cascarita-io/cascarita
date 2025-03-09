@@ -8,6 +8,38 @@ const AccountController = require("./account.controller");
 const createPayerUser = require("../utilityFunctions/createPayerUser");
 
 const FormPaymentController = function () {
+  var getFormPaymentsByFormId = async function (form_id) {
+    try {
+      let formPayments = [];
+      let forms = await Form.findAll({
+        where: {
+          document_id: form_id,
+        },
+      });
+
+      for (let form of forms) {
+        let payments = await FormPayment.findAll({
+          where: {
+            form_id: form.id,
+          },
+        });
+        formPayments = formPayments.concat(payments);
+      }
+
+      return {
+        success: true,
+        data: formPayments,
+        status: 201,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "failed to find form with form_id",
+        status: 500,
+      };
+    }
+  };
+
   var connectResponseToFormPayment = async function (responseData, responseId) {
     const paymentEntry = responseData.find(
       (item) => item.field?.type === "payment" && item.paymentIntentId,
@@ -179,30 +211,14 @@ const FormPaymentController = function () {
     const { form_id } = req.body;
 
     try {
-      let formPayments = [];
-      let forms = await Form.findAll({
-        where: {
-          document_id: form_id,
-        },
-      });
+      const formPayments = await getFormPaymentsByFormId(form_id);
 
-      for (let form of forms) {
-        let payments = await FormPayment.findAll({
-          where: {
-            form_id: form.id,
-          },
-        });
-        formPayments = formPayments.concat(payments);
+      if (!formPayments.success) {
+        console.warn("failed to find form with form_id");
+        return res.status(formPayments.success).json(formPayments.error);
       }
 
-      if (!formPayments) {
-        res.status(404);
-        throw new Error(
-          `no form payment record found with form document id: ${req.params.form_id}`,
-        );
-      }
-
-      return res.status(200).json(formPayments);
+      return res.status(200).json(formPayments.data);
     } catch (error) {
       next(error);
     }
@@ -355,6 +371,7 @@ const FormPaymentController = function () {
   };
 
   return {
+    getFormPaymentsByFormId,
     connectResponseToFormPayment,
     updateStripePayment,
     updateMongoPaymentResponse,

@@ -64,9 +64,9 @@ const DivisionController = {
       await modelByPk(res, Group, form.group_id);
       const isUnique = await isDivisionNameUnique(form.group_id, form.name);
       if (!isUnique) {
-        res.status(400);
-        throw new Error("Division name already taken");
+        return res.status(400).json({ error: "Division name is not unique" });
       }
+
       await Division.build(form).validate();
 
       const division = await Division.create(form);
@@ -86,8 +86,7 @@ const DivisionController = {
       const division = await modelByPk(res, Division, id);
       const isUnique = await isDivisionNameUnique(division.group_id, name);
       if (!isUnique) {
-        res.status(400);
-        throw new Error("Division name already taken");
+        return res.status(400).json({ error: "Division name is not unique" });
       }
 
       division.name = name;

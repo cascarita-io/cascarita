@@ -11,7 +11,7 @@ import { Currency, Field, Form } from "../../../api/forms/types";
 import { useQueries } from "@tanstack/react-query";
 import { fetchUser } from "../../../api/users/service";
 import { getSeasonsByGroupId } from "../../../api/seasons/services";
-import { getLeagueByGroupId } from "../../../api/leagues/service";
+import { getLeaguesByGroupId } from "../../../api/leagues/service";
 
 import { useAuth0 } from "@auth0/auth0-react";
 import { LeagueType } from "../../../pages/Leagues/types";
@@ -277,7 +277,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
       {
         queryKey: ["leagues", groupId],
         queryFn: async () =>
-          await getLeagueByGroupId({
+          await getLeaguesByGroupId({
             queryKey: ["leagues", groupId],
             meta: undefined,
             signal: new AbortController().signal,
