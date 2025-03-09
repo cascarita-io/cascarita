@@ -1,6 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
-import { Index } from "@sequelize/core/decorators-legacy";
+
 module.exports = (sequelize, DataTypes) => {
   class StripeEvent extends Model {
     /**
