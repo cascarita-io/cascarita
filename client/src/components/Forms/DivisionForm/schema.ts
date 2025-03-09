@@ -3,8 +3,8 @@ import { z } from "zod";
 export const divisionSchema = z.object({
   name: z
     .string()
-    .min(1, "Season name is required")
-    .max(100, "Season name cannot exceed 100 characters"),
+    .min(2, "Season name is must be at least 2 characters")
+    .max(50, "Season name cannot exceed 50 characters"),
 
   season_id: z
     .number({
