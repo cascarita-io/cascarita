@@ -10,6 +10,12 @@
   gap: 4px;
 }
 
+.inlineInputContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .inputShare {
   background: none;
   border: none;

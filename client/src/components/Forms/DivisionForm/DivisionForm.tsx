@@ -14,7 +14,6 @@ import { SeasonType } from "../../../pages/Seasons/types";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { divisionSchema } from "./schema";
-import { SeasonFormData } from "../SeasonForm/types";
 
 const DivisionForm: React.FC<DivisionFormProps> = ({
   afterSave,
@@ -31,7 +30,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
     handleSubmit,
     formState: { errors },
     clearErrors,
-  } = useForm({
+  } = useForm<DivisionFormData>({
     defaultValues: {
       name: "",
       season_id: 0,

@@ -11,10 +11,11 @@ interface TeamFormProps {
 }
 
 interface TeamFormData {
-  teamName: string;
-  seasonId: number;
-  divisionId: number;
-  linkToSeason: boolean;
+  name: string;
+  season_id?: number;
+  division_id?: number;
+  link_to_season: boolean;
+  file_url?: File;
 }
 
 interface TeamRequest {
@@ -22,7 +23,7 @@ interface TeamRequest {
   name?: string;
   group_id?: number;
   division_id?: number;
-  team_logo?: string | null;
+  team_logo?: string;
   season_id?: number;
   link_to_season?: boolean;
 }
@@ -34,6 +35,7 @@ interface TeamResponse {
   team_logo: string | null;
   updated_at: string;
   created_at: string;
+  error?: string;
 }
 
 export type { TeamFormProps, TeamFormData, TeamRequest, TeamResponse };

@@ -1,6 +1,6 @@
 interface FileUploadProps {
   className?: string;
-  setFileValue?: (url: File | null) => void;
+  setFileValue?: (url?: File) => void;
 }
 
 export type { FileUploadProps };

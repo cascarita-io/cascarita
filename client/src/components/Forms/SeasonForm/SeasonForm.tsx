@@ -144,7 +144,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
               <span className={styles.error}>{errors.league_id?.message}</span>
             </div>
 
-            <div className={styles.inputContainer}>
+            <div className={styles.inlineInputContainer}>
               <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="startDate">
                   {t("formContent.start")}
@@ -160,6 +160,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                   {errors.start_date?.message}
                 </span>
               </div>
+
               <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="endDate">
                   {t("formContent.end")}

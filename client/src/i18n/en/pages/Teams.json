@@ -10,12 +10,13 @@
     "delete": "Yes, I'm sure",
     "deleteMessage": "Are you sure you want to delete this team?",
     "name": "Team Name",
-    "linkToSeason": "Link your team to a season",
+    "linkToSeason": "Link your team to a season?",
     "season": "Season",
     "division": "Division",
     "namePlaceholder": "Team Name",
     "logo": "Team Logo",
     "submit": "Submit",
+    "submitting": "Submitting...",
     "cancel": "Cancel"
   },
   "tableHeaders": {
