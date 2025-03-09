@@ -240,6 +240,35 @@ export const sendEmail = async (emails: string[], formLink: string) => {
   }
 };
 
+export const sendApprovalEmail = async (
+  emails: string[],
+  teamName: string,
+  leagueName: string
+) => {
+  try {
+    const data = {
+      emails: emails,
+      team_name: teamName,
+      league_name: leagueName,
+    };
+    const response = await fetch(`/api/email/approval/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error emailing form: ${response.statusText}`);
+    }
+    return response.json();
+  } catch (err) {
+    console.error("Error emailing responses:", err);
+    throw err;
+  }
+};
+
 export const getFormPayments = async (formId: string) => {
   try {
     const data = {
