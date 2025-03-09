@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import { SeasonFormData, SeasonFormProps, SeasonRequest } from "./types";
@@ -26,37 +26,26 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   const { t } = useTranslation("Seasons");
   const [error, setError] = React.useState("");
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<SeasonFormData>({
-    defaultValues: {
-      name: "",
-      league_id: 0,
-      start_date: "",
-      end_date: "",
-    },
-    resolver: zodResolver(seasonSchema),
-  });
-
   const parseDateTimeString = (dateString: string) => {
     return new Date(dateString).toISOString().split("T")[0];
   };
 
-  useEffect(() => {
-    setValue("name", seasonName || "");
-    setValue("league_id", Number(seasonLeagueId) || 0);
-    setValue(
-      "start_date",
-      seasonStartDate ? parseDateTimeString(seasonStartDate) : ""
-    );
-    setValue(
-      "end_date",
-      seasonEndDate ? parseDateTimeString(seasonEndDate) : ""
-    );
-  }, [seasonName, seasonLeagueId, seasonStartDate, seasonEndDate]);
+  const startDate = seasonStartDate ? parseDateTimeString(seasonStartDate) : "";
+  const endDate = seasonEndDate ? parseDateTimeString(seasonEndDate) : "";
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    clearErrors,
+  } = useForm<SeasonFormData>({
+    defaultValues: {
+      name: seasonName || "",
+      league_id: seasonLeagueId || 0,
+      start_date: startDate || "",
+      end_date: endDate || "",
+    },
+    resolver: zodResolver(seasonSchema),
+  });
 
   const createSeasonMutation = useCreateSeason();
   const updateSeasonMutation = useUpdateSeason();
@@ -131,10 +120,13 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
               </label>
               <input
                 {...register("name")}
-                className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
+                className={`${styles.input} ${errors.name || error ? styles.invalid : ""}`}
                 placeholder={t("formContent.name")}
                 id="seasonName"
-                onChange={() => setError("")}
+                onChange={() => {
+                  setError("");
+                  clearErrors("name");
+                }}
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
@@ -150,6 +142,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                 })}
                 id="leagueId"
                 className={`${styles.input} ${errors.league_id ? styles.invalid : ""}`}
+                onChange={() => clearErrors("league_id")}
               >
                 <option value={0}>Select a league</option>
                 {leagueData?.map((league) => (
@@ -161,7 +154,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
               <span className={styles.error}>{errors.league_id?.message}</span>
             </div>
 
-            <div className={styles.inputContainer}>
+            <div className={styles.inlineInputContainer}>
               <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="startDate">
                   {t("formContent.start")}
@@ -171,11 +164,13 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                   className={`${styles.input} ${errors.start_date ? styles.invalid : ""}`}
                   type="date"
                   id="startDate"
+                  onChange={() => clearErrors("start_date")}
                 />
                 <span className={styles.error}>
                   {errors.start_date?.message}
                 </span>
               </div>
+
               <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="endDate">
                   {t("formContent.end")}
@@ -185,6 +180,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                   className={`${styles.input} ${errors.end_date ? styles.invalid : ""}`}
                   type="date"
                   id="endDate"
+                  onChange={() => clearErrors("end_date")}
                 />
                 <span className={styles.error}>{errors.end_date?.message}</span>
               </div>

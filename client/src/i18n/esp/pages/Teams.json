@@ -10,10 +10,12 @@
     "name": "Nombre",
     "namePlaceholder": "Nombre del equipo",
     "submit": "Enviar",
+    "submitting": "Enviando...",
     "cancel": "Cancelar",
     "logo": "Logo del equipo",
     "delete": "Si, estoy seguro",
-    "deleteMessage": "¿Estás seguro de que deseas eliminar este equipo?"
+    "deleteMessage": "¿Estás seguro de que deseas eliminar este equipo?",
+    "linkToSeason": "¿Vincular tu equipo a una temporada?"
   },
   "tableHeaders": {
     "name": "Nombre del Equipo",
