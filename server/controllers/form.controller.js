@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const Response = require("./../mongoModels/response");
 const FormMongo = require("./../mongoModels/form");
-const { Form, User } = require("../models");
+const { Form, User, FormPayment } = require("../models");
 const FormPaymentController = require("./formPayment.controller");
 const generatePaymentIntentId = require("../utilityFunctions/paymentIntents");
 const AccountController = require("./account.controller");
@@ -49,6 +49,13 @@ const FormController = function () {
         if (!cancelRes.success) {
           return res.status(cancelRes.status).json({ error: cancelRes.error });
         }
+        // delete stale stripe FormPayment:
+        const stalePaymentIntent = await FormPayment.findOne({
+          where: {
+            payment_intent_id: paymentIntentToCancel,
+          },
+        });
+        await stalePaymentIntent.destroy();
         /* END OF TEMP BLOCK */
 
         paymentEntry.amount = paymentEntry.amount * 100; //convert to cents

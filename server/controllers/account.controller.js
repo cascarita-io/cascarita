@@ -3,6 +3,8 @@
 require("dotenv").config();
 
 const Response = require("../mongoModels/response");
+const createPayerUser = require("../utilityFunctions/createPayerUser");
+const { Form } = require("../models");
 
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const {
@@ -242,11 +244,15 @@ const AccountController = function () {
     email,
     formattedAnswers,
     userSelectedStatus,
+    isUserAction,
+    isStripePayment,
   ) {
     try {
       const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
         email,
+        isUserAction,
+        isStripePayment,
       );
 
       if (!preparedInfo.success) {
@@ -255,7 +261,7 @@ const AccountController = function () {
 
       const { userId, formPayment, paymentIntentData } = preparedInfo;
 
-      if (paymentIntentData.status === "succeeded") {
+      if (isStripePayment && paymentIntentData.status === "succeeded") {
         return {
           success: false,
           data: `payment intent status is succeeded cannot be re-captured: ${paymentIntentData.id}`,
@@ -263,14 +269,20 @@ const AccountController = function () {
         };
       }
 
-      await Stripe.paymentIntents.capture(paymentIntentData.id, {
-        stripeAccount: formPayment.stripe_account_id_string,
-      });
+      if (isStripePayment) {
+        await Stripe.paymentIntents.capture(paymentIntentData.id, {
+          stripeAccount: formPayment.stripe_account_id_string,
+        });
+      }
 
       const updates = {
         internal_status_updated_by: userId,
         internal_status_updated_at: new Date(),
       };
+
+      if (!isStripePayment) {
+        updates.internal_status_id = 3 //approved
+      }
 
       await formPayment.update(updates, { validate: true });
 
@@ -286,6 +298,16 @@ const AccountController = function () {
             },
           },
         );
+      }
+
+      if (!isStripePayment) {
+        const form_id = formPayment.form_id
+        const form = await Form.findByPk(form_id);
+        const groupId = form.group_id;
+
+        var paymentData = await createPayerUser(formattedAnswers, groupId);
+        // updates formPayment with payer_id:
+        await formPayment.update(paymentData, { valudate: true });
       }
 
       return {
@@ -476,7 +498,8 @@ const AccountController = function () {
           return retrievePaymentIntent;
         }
       } else {
-        retrievePaymentIntent = { data: { status: "canceled" } };
+        // for consistency, although this status is not checked for cash payments:
+        retrievePaymentIntent = { data: { status: "processing_cash_payment" } };
       }
 
       return {
@@ -500,12 +523,12 @@ const AccountController = function () {
     formattedAnswers,
     userSelectedStatus,
   ) {
+    const isUserAction = true;
+    var isStripePayment = false;
+    if (paymentIntentId.startsWith("pi_")) {
+      isStripePayment = true;
+    }
     if (userSelectedStatus === "canceled") {
-      const isUserAction = true;
-      var isStripePayment = false;
-      if (paymentIntentId.startsWith("pi_")) {
-        isStripePayment = true;
-      }
       return cancelPaymentIntent(paymentIntentId, email, isUserAction, isStripePayment);
     } else {
       return capturePaymentIntent(
@@ -513,6 +536,8 @@ const AccountController = function () {
         email,
         formattedAnswers,
         userSelectedStatus,
+        isUserAction,
+        isStripePayment,
       );
     }
   };
