@@ -1,4 +1,4 @@
-import { Answer, Form, GetFormsParams } from "./types";
+import { Answer, Form, GetFormsParams, FormResponse } from "./types";
 
 import { User } from "../users/types";
 
@@ -88,7 +88,7 @@ export const updateForm = async (
   }
 };
 
-export const deleteForm = async (id: string) => {
+export const deleteForm = async (id: string): Promise<FormResponse> => {
   try {
     const response = await fetch(`/api/forms/${id}`, {
       method: "DELETE",
@@ -97,6 +97,8 @@ export const deleteForm = async (id: string) => {
     if (!response.ok) {
       throw new Error("Failed to delete form");
     }
+
+    return response.json();
   } catch (err) {
     console.error("Error deleting form:", err);
     throw err;
