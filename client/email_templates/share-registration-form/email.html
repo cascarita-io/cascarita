@@ -62,66 +62,70 @@
             </tr>
             <tr>
               <td style="padding: 30px">
-                <p style="font-size: 18px; margin: 0 0 25px 0">
-                  Hello {{player_name}},
-                </p>
+                <p style="font-size: 18px; margin: 0 0 25px 0">Hello,</p>
                 <p style="line-height: 1.6; margin: 0 0 25px 0">
-                  Great news! Your payment has been successfully processed and
-                  approved. You are now officially registered for the
-                  <strong>{{league_name}}</strong>
-                  <strong>{{season_name}}</strong> season. ⚽
+                  Welcome to
+                  <a
+                    href="https://cascarita.io"
+                    target="_blank"
+                    style="
+                      color: #4238d5;
+                      text-decoration: none;
+                      font-weight: bold;
+                    "
+                    >Cascarita</a
+                  >! A league admin has invited you to fill out a form to
+                  complete your registration.
                 </p>
                 <table
                   width="100%"
                   cellpadding="0"
                   cellspacing="0"
+                  border="0"
                   style="
-                    background-color: #f1f1f1;
-                    border-left: 4px solid #4238d5;
-                    padding: 20px;
+                    background-color: rgba(66, 56, 213, 0.1);
                     border-radius: 6px;
-                    margin: 25px 0;
+                    margin: 20px 0;
                   "
                 >
                   <tr>
-                    <td>
-                      <h3
+                    <td style="padding: 15px; color: #4238d5; font-size: 14px">
+                      <span
                         style="
+                          margin-right: 10px;
                           font-weight: bold;
-                          margin: 0 0 15px 0;
-                          color: #4238d5;
+                          font-size: 18px;
                         "
+                        >ℹ️</span
                       >
-                        Payment Details
-                      </h3>
-                      <table width="100%" cellpadding="8" cellspacing="0">
-                        <tr style="border-bottom: 1px solid #eeeeee">
-                          <td style="color: #1e1e1e">Amount</td>
-                          <td style="font-weight: bold; text-align: right">
-                            ${{payment_amount}}
-                          </td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #eeeeee">
-                          <td style="color: #1e1e1e">Date</td>
-                          <td style="font-weight: bold; text-align: right">
-                            {{payment_date}}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td style="color: #1e1e1e">Transaction ID</td>
-                          <td style="font-weight: bold; text-align: right">
-                            {{transaction_id}}
-                          </td>
-                        </tr>
-                      </table>
+                      Click the button below to access your registration form.
+                      This will help the league administrators set up your
+                      player profile.
                     </td>
                   </tr>
                 </table>
-                <p style="line-height: 1.6; margin: 0 0 25px 0">
-                  Your registration is now confirmed! You'll receive additional
-                  information about team assignments, and upcoming matches from
-                  your league organizer.
-                </p>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center" style="padding: 30px 0">
+                      <a
+                        href="{{form_link}}"
+                        target="_blank"
+                        style="
+                          display: inline-block;
+                          background-color: #4238d5;
+                          color: white;
+                          padding: 14px 30px;
+                          font-size: 16px;
+                          font-weight: 600;
+                          text-decoration: none;
+                          border-radius: 50px;
+                          box-shadow: 0 4px 8px rgba(66, 56, 213, 0.2);
+                        "
+                        >Fill Out the Form</a
+                      >
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr>
