@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import styles from "./FileUpload.module.css";
 import { FileRejection, useDropzone } from "react-dropzone";
-import { FileIcon, Cross1Icon } from "@radix-ui/react-icons";
+import { ImageIcon, Cross1Icon } from "@radix-ui/react-icons";
 import { FileUploadProps } from "./types";
 
 const focusedStyle = {
@@ -78,7 +78,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
     event.stopPropagation();
     setFilePreview("");
     if (setFileValue) {
-      setFileValue(null);
+      setFileValue(undefined);
     }
   };
 
@@ -99,6 +99,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
               URL.revokeObjectURL(filePreview);
             }}
           />
+          {filePreview && (
+            <aside>
+              <button className={styles.removeBtn} onClick={removeFile}>
+                <Cross1Icon />
+              </button>
+            </aside>
+          )}
         </div>
       )}
 
@@ -107,35 +114,27 @@ const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
         <div className={styles.dropZoneContent}>
           {!filePreview && (
             <>
-              <FileIcon className={styles.fileIcon} width={60} height={60} />
+              <ImageIcon className={styles.fileIcon} width={60} height={60} />
               <p className={styles.textSm}>Drop the files here ...</p>
             </>
           )}
         </div>
       ) : (
-        <div className={styles.dropZoneContent}>
+        <>
           {!filePreview && (
-            <>
-              <FileIcon className={styles.fileIcon} width={60} height={60} />
+            <div className={styles.dropZoneContent}>
+              <ImageIcon className={styles.fileIcon} width={60} height={60} />
               <p className={styles.textSm}>
                 Drag and drop a file here or{" "}
                 <span className={styles.boldLogoText}>Choose a file</span>
               </p>
-            </>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       {isDragReject && <p className={styles.errorText}>File is not accepted</p>}
       {errorMessage && <p className={styles.errorText}>{errorMessage}</p>}
-
-      {filePreview && (
-        <aside>
-          <button className={styles.removeBtn} onClick={removeFile}>
-            <Cross1Icon />
-          </button>
-        </aside>
-      )}
     </div>
   );
 };

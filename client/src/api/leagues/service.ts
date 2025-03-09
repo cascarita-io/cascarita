@@ -6,7 +6,7 @@ import {
 
 type LeagueQueryKey = [string, number];
 
-const getLeagueByGroupId = async ({
+const getLeaguesByGroupId = async ({
   queryKey,
 }: QueryFunctionContext<LeagueQueryKey>) => {
   const [, groupId] = queryKey;
@@ -84,4 +84,4 @@ const deleteLeague = async (payload: LeagueRequest): Promise<void> => {
   }
 };
 
-export { getLeagueByGroupId, createNewLeague, updateLeague, deleteLeague };
+export { getLeaguesByGroupId, createNewLeague, updateLeague, deleteLeague };

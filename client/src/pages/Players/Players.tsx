@@ -13,7 +13,7 @@ import Modal from "../../components/Modal/Modal";
 import { getDivisionByGroupId } from "../../api/divisions/service";
 import { getSeasonsByGroupId } from "../../api/seasons/services";
 import { getTeamsByGroupId } from "../../api/teams/service";
-import { getLeagueByGroupId } from "../../api/leagues/service";
+import { getLeaguesByGroupId } from "../../api/leagues/service";
 import PlayerForm from "../../components/Forms/PlayerForm/PlayerForm";
 
 const Players = () => {
@@ -62,7 +62,7 @@ const Players = () => {
       {
         queryKey: ["leagues", groupId],
         queryFn: async () =>
-          await getLeagueByGroupId({
+          await getLeaguesByGroupId({
             queryKey: ["leagues", groupId],
             meta: undefined,
             signal: new AbortController().signal,

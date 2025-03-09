@@ -10,8 +10,8 @@ interface DivisionFormProps {
 }
 
 interface DivisionFormData {
-  divisionName: string;
-  seasonId: number;
+  name: string;
+  season_id: number;
 }
 
 interface DivisionRequest {
@@ -19,6 +19,7 @@ interface DivisionRequest {
   name?: string;
   group_id?: number;
   season_id?: number;
+  error?: string;
 }
 
 interface DivisionResponse {
@@ -27,6 +28,7 @@ interface DivisionResponse {
   name: string;
   updated_at: string;
   created_at: string;
+  error: string;
 }
 
 export type {

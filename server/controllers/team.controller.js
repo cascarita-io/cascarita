@@ -1,6 +1,17 @@
 "use strict";
-const { Team, Group, Division, TeamsSession, Session, Season } = require("./../models");
-const { getSessionByDivisionAndSeasonId } = require("./session.controller");
+const {
+  Team,
+  Group,
+  Division,
+  TeamsSession,
+  Session,
+  Season,
+} = require("./../models");
+const {
+  getSessionByDivisionAndSeasonId,
+  getOrCreateSession,
+} = require("./session.controller");
+const Db = require("../models");
 
 const TeamController = function () {
   var getTeamsBySeasonDivisionId = async function (req, res, next) {
@@ -80,8 +91,8 @@ const TeamController = function () {
           const season = await Season.findOne({
             where: {
               id: session.season_id,
-            }
-          })
+            },
+          });
           finalTeams[index].dataValues.division_name = division.name;
           finalTeams[index].dataValues.division_id = division.id;
           finalTeams[index].dataValues.season_name = season.name;
@@ -94,6 +105,8 @@ const TeamController = function () {
       next(error);
     }
   };
+
+  //TODO: Check within a Division, not group [Backend Ticket]
   var isNameUniqueWithinDivision = async function (groupId, teamName) {
     let teamFound = await Team.findOne({
       where: {
@@ -115,6 +128,7 @@ const TeamController = function () {
       link_to_season,
     } = req.body;
     const newTeam = { group_id, name, team_logo, division_id, season_id };
+    const transaction = await Db.sequelize.transaction();
 
     try {
       const group = await Group.findOne({
@@ -127,35 +141,37 @@ const TeamController = function () {
         throw new Error(`no such group with id ${newTeam.group_id}`);
       }
 
-      const teamNameUnique = await isNameUniqueWithinDivision(
+      const isUnique = await isNameUniqueWithinDivision(
         newTeam.group_id,
         newTeam.name,
       );
 
-      if (!teamNameUnique) {
-        res.status(400);
-        throw new Error("team name is not unique within the division");
+      if (!isUnique) {
+        return res
+          .status(400)
+          .json({ error: "Team name is not unique within the division" });
       }
 
-      await Team.build(newTeam).validate();
-      const result = await Team.create(newTeam);
+      await Team.build(newTeam, { transaction }).validate();
+      const result = await Team.create(newTeam, { transaction });
       if (!link_to_season) {
+        await transaction.commit();
         return res.status(201).json(result);
       } else {
         if (division_id && season_id) {
-          const session_id = await getSessionByDivisionAndSeasonId(
-            division_id,
-            season_id,
-          );
+          const data = { division_id, season_id };
+          const { id } = await getOrCreateSession(data, transaction);
           const team_id = result.id;
-          const newTeamSession = { team_id, session_id };
-          await TeamsSession.build(newTeamSession).validate();
-          await TeamsSession.create(newTeamSession);
+          const newTeamSession = { team_id, session_id: id };
+          await TeamsSession.build(newTeamSession, { transaction }).validate();
+          await TeamsSession.create(newTeamSession, { transaction });
         }
 
+        await transaction.commit();
         return res.status(201).json(result);
       }
     } catch (error) {
+      await transaction.rollback();
       next(error);
     }
   };

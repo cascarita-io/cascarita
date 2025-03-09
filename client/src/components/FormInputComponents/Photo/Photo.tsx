@@ -18,7 +18,7 @@ const Photo = ({ field, index }: FieldProps) => {
     setValue,
   } = useFormContext();
 
-  const [fileUrl, setFileUrl] = useState<File | null>(null);
+  const [fileUrl, setFileUrl] = useState<File | undefined>(undefined);
   register(`answers.${index}.photo`);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const Photo = ({ field, index }: FieldProps) => {
       )}
 
       <FileUpload
-        setFileValue={(url: File | null) => {
+        setFileValue={(url?: File) => {
           setFileUrl(url);
         }}
         className={styles.logoInputContainer}
