@@ -71,7 +71,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     };
 
     switch (requestType) {
-      case "PATCH":
+      case "PATCH": {
         const dataUpdate = await updatePlayerTeamsMutation.mutateAsync(
           updatePlayerTeamsData as PlayerRequest
         );
@@ -80,6 +80,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
           return;
         }
         break;
+      }
       default:
         throw Error("No request type was supplied");
     }
