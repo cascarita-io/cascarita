@@ -139,7 +139,7 @@ export interface Answer {
     division_name: string;
     team_name: string;
     division_id?: number;
-    team_id?: number;
+    team_id?: number | string;
   };
   payment?: string;
   payment_type?: string;

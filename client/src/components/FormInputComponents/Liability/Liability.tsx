@@ -10,8 +10,6 @@ const Liability = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as { [key: number]: { liability?: FieldError } } | undefined
   )?.[index]?.liability;
