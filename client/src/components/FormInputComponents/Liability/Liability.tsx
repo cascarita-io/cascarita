@@ -10,8 +10,6 @@ const Liability = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as { [key: number]: { liability?: FieldError } } | undefined
   )?.[index]?.liability;
@@ -36,9 +34,8 @@ const Liability = ({ field, index }: FieldProps) => {
           type="checkbox"
           className={styles.input}
           id={`liability-${index}`}
-          {...register(`answers.${index}.liability`, {
-            required: required && t("required"),
-          })}
+          defaultChecked={true}
+          {...register(`answers.${index}.liability`)}
         />
       </div>
     </section>

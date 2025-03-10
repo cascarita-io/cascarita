@@ -55,7 +55,6 @@ const createNewSeason = async (
       },
       body: JSON.stringify(data),
     });
-    console.log(response);
     return response.json();
   } catch (error) {
     console.error("Error creating season:", error);

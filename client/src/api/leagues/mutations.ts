@@ -27,7 +27,7 @@ export const useUpdateLeague = () => {
     },
     onSettled: async (_, error, variables) => {
       if (error) {
-        console.log(`Error from Update: ${error}`);
+        console.error(`Error from Update: ${error}`);
       } else {
         await queryClient.invalidateQueries({ queryKey: ["leagues"] });
         await queryClient.invalidateQueries({
@@ -50,7 +50,7 @@ export const useDeleteLeague = () => {
     },
     onSettled: async (_, error) => {
       if (error) {
-        console.log(`Error from Delete: ${error}`);
+        console.error(`Error from Delete: ${error}`);
       } else {
         await queryClient.invalidateQueries({ queryKey: ["leagues"] });
       }

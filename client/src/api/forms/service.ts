@@ -308,7 +308,6 @@ export const updateFormPaymentStatus = async (
   email: string,
   answers: Record<string, Answer>
 ) => {
-  console.log("Inside of updateFormPaymentStatus in service.ts");
   try {
     const data = {
       payment_intent_id: paymentIntentId,

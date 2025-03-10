@@ -13,9 +13,8 @@ const Signature = ({ field, index }: FieldProps) => {
   const { required, max_length: maxLength } = field.validations ?? {};
 
   const fieldError = (
-    errors.answers as { [key: number]: { signature?: FieldError } } | undefined
-  )?.[index]?.signature;
-
+    errors.answers as { [key: number]: { short_text?: FieldError } } | undefined
+  )?.[index]?.short_text;
   return (
     <section className={styles.container}>
       <div className={styles.questionContainer}>
