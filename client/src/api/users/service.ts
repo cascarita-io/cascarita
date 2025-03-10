@@ -222,9 +222,7 @@ const fetchUser = async (email: string, token: string) => {
   }
 };
 
-const updatePlayerTeams = async (
-  data: PlayerRequest
-): Promise<UserResponse> => {
+const updatePlayerTeams = async (data: PlayerRequest): Promise<void> => {
   try {
     const response = await fetch(`/api/users/${data.id}/players/teams`, {
       method: "PATCH",
@@ -234,8 +232,10 @@ const updatePlayerTeams = async (
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
-    return result;
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return;
   } catch (error) {
     console.error("Error updating user:", error);
     throw error;

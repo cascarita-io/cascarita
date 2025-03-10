@@ -138,11 +138,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form
-          className={styles.form}
-          // onSubmit={handleSubmit((data) => console.log(data))}
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="teamName">

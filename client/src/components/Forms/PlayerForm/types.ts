@@ -15,6 +15,7 @@ interface PlayerFormProps {
 }
 
 interface PlayerFormData {
+  link_to_team?: boolean;
   league_id: number;
   season_id: number;
   division_id: number;

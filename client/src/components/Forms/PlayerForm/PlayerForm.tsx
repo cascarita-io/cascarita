@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import styles from "../Form.module.css";
 import { PlayerFormData, PlayerFormProps, PlayerRequest } from "./types";
@@ -25,20 +25,16 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   teams,
 }) => {
   const { t } = useTranslation("Players");
-  const [error, setError] = React.useState("");
-  const [selectedLeague, setSelectedLeague] = useState(player.league_id || 0);
-  const [selectedSeason, setSelectedSeason] = useState(player.season_id || 0);
-  const [selectedDivision, setSelectedDivision] = useState(
-    player.division_id || 0
-  );
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-    clearErrors,
+    watch,
   } = useForm<PlayerFormData>({
     defaultValues: {
+      link_to_team: player.league_id ? true : false,
       season_id: player.season_id || 0,
       division_id: player.division_id || 0,
       league_id: player.league_id || 0,
@@ -46,15 +42,21 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
         (player.teams?.length ?? 0 > 0) ? player.teams?.[0]?.id || 0 : -1,
     },
     resolver: zodResolver(playerSchema),
+    mode: "onChange",
   });
 
+  const selectedLeague = watch("league_id");
+  const selectedSeason = watch("season_id");
+  const selectedDivision = watch("division_id");
+
+  const isLinkTeam = watch("link_to_team");
   const getSessionDataMutation = useGetPlayerSession();
   const updatePlayerTeamsMutation = useUpdatePlayerTeams();
 
   const onSubmit: SubmitHandler<PlayerFormData> = async (
     data: PlayerFormData
   ) => {
-    const { season_id, division_id, team_id } = data;
+    const { season_id, division_id, team_id, link_to_team } = data;
 
     const getPlayerSessionData = {
       division_id: division_id,
@@ -66,19 +68,15 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
 
     const updatePlayerTeamsData = {
       id: player.id,
-      team_id: team_id,
+      team_id: link_to_team ? team_id : -1,
       session_id: session.id,
     };
 
     switch (requestType) {
       case "PATCH": {
-        const dataUpdate = await updatePlayerTeamsMutation.mutateAsync(
+        updatePlayerTeamsMutation.mutate(
           updatePlayerTeamsData as PlayerRequest
         );
-        if (dataUpdate.error) {
-          setError(dataUpdate.error);
-          return;
-        }
         break;
       }
       default:
@@ -89,128 +87,127 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-      <div className={styles.inputContainer}>
-        <label className={styles.label}>
-          {t("formContent.unlinkLinkToTeam")}
+      <div className={styles.radioContainer}>
+        <input
+          {...register("link_to_team")}
+          type="checkbox"
+          id="isLinkToTeam"
+          onChange={() => {
+            setValue("link_to_team", !watch("link_to_team"));
+          }}
+        />
+        <label className={styles.label} htmlFor="isLinkToTeam">
+          {t("formContent.linkToSeason")}
         </label>
       </div>
-      {error && <span className={styles.error}>{error}</span>}
-      <div className={styles.inputContainer}>
-        <label className={styles.label}>League</label>
-        {errors.league_id && (
-          <span className={styles.error}>{errors.league_id.message}</span>
-        )}
-        <select
-          {...register("league_id")}
-          id="leagueId"
-          name="leagueId"
-          className={styles.input}
-          onChange={(e) => {
-            setSelectedLeague(Number(e.target.value));
-            setError("");
-            clearErrors("league_id");
-          }}
-        >
-          <option value="0">Select a league</option>
-          {leagues?.map((league: LeagueType) => (
-            <option key={league.id} value={league.id}>
-              {league.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      {selectedLeague !== 0 && (
-        <div className={styles.inputContainer}>
-          <label className={styles.label}>Season</label>
-          {errors.season_id && (
-            <span className={styles.error}>{errors.season_id.message}</span>
-          )}
-          <select
-            {...register("season_id")}
-            id="seasonId"
-            name="seasonId"
-            className={styles.input}
-            onChange={(e) => {
-              setSelectedSeason(Number(e.target.value));
-              setError("");
-              clearErrors("season_id");
-            }}
-          >
-            <option value="0">Select a season</option>
-            {seasons
-              ?.filter(
-                (season: SeasonType) => season.league_id === selectedLeague
-              )
-              .map((season: SeasonType) => (
-                <option key={season.id} value={season.id}>
-                  {season.name}
+      {isLinkTeam && (
+        <>
+          <div className={styles.inputContainer}>
+            <label className={styles.label}>League</label>
+            {errors.league_id && (
+              <span className={styles.error}>{errors.league_id.message}</span>
+            )}
+            <select
+              {...register("league_id", {
+                setValueAs: (value) => (value === "" ? 0 : Number(value)),
+              })}
+              id="leagueId"
+              className={styles.input}
+            >
+              <option value={0}>Select a league</option>
+              {leagues?.map((league: LeagueType) => (
+                <option key={league.id} value={league.id}>
+                  {league.name}
                 </option>
               ))}
-          </select>
-        </div>
-      )}
-      {selectedSeason !== 0 && (
-        <div className={styles.inputContainer}>
-          <label className={styles.label}>Division</label>
-          {errors.division_id && (
-            <span className={styles.error}>{errors.division_id.message}</span>
+            </select>
+          </div>
+          {selectedLeague !== 0 && (
+            <div className={styles.inputContainer}>
+              <label className={styles.label}>Season</label>
+              {errors.season_id && (
+                <span className={styles.error}>{errors.season_id.message}</span>
+              )}
+              <select
+                {...register("season_id", {
+                  setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                })}
+                id="seasonId"
+                className={styles.input}
+              >
+                <option value={0}>Select a season</option>
+                {seasons
+                  ?.filter(
+                    (season: SeasonType) => season.league_id === selectedLeague
+                  )
+                  .map((season: SeasonType) => (
+                    <option key={season.id} value={season.id}>
+                      {season.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
           )}
-          <select
-            {...register("division_id")}
-            id="divisionId"
-            name="divisionId"
-            className={styles.input}
-            onChange={(e) => {
-              setSelectedDivision(Number(e.target.value));
-              setError("");
-              clearErrors("division_id");
-            }}
-          >
-            <option value="0">Select a division</option>
-            {divisions
-              ?.filter(
-                (division: DivisionType) =>
-                  division.season_id === selectedSeason
-              )
-              .map((division: DivisionType) => (
-                <option key={division.id} value={division.id}>
-                  {division.name}
-                </option>
-              ))}
-          </select>
-        </div>
-      )}
-      {selectedDivision !== 0 && (
-        <div className={styles.inputContainer}>
-          <label className={styles.label}>Team</label>
-          {errors.team_id && (
-            <span className={styles.error}>{errors.team_id.message}</span>
+          {selectedLeague !== 0 && selectedSeason !== 0 && (
+            <div className={styles.inputContainer}>
+              <label className={styles.label}>Division</label>
+              {errors.division_id && (
+                <span className={styles.error}>
+                  {errors.division_id.message}
+                </span>
+              )}
+              <select
+                {...register("division_id", {
+                  setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                })}
+                id="divisionId"
+                className={styles.input}
+              >
+                <option value={0}>Select a division</option>
+                {divisions
+                  ?.filter(
+                    (division: DivisionType) =>
+                      division.season_id === selectedSeason
+                  )
+                  .map((division: DivisionType) => (
+                    <option key={division.id} value={division.id}>
+                      {division.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
           )}
-          <select
-            {...register("team_id")}
-            id="teamId"
-            name="teamId"
-            className={styles.input}
-            onChange={() => {
-              setError("");
-              clearErrors("team_id");
-            }}
-          >
-            <option value={0}>Select a team</option>
-            <option value={-1}>Free agent</option>
-            {teams
-              ?.filter(
-                (team: TeamType) => team.division_id === selectedDivision
-              )
-              .map((team: TeamType) => (
-                <option key={team.id} value={team.id}>
-                  {team.name}
-                </option>
-              ))}
-          </select>
-        </div>
+          {selectedLeague !== 0 &&
+            selectedSeason !== 0 &&
+            selectedDivision !== 0 && (
+              <div className={styles.inputContainer}>
+                <label className={styles.label}>Team</label>
+                {errors.team_id && (
+                  <span className={styles.error}>{errors.team_id.message}</span>
+                )}
+                <select
+                  {...register("team_id", {
+                    setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                  })}
+                  id="teamId"
+                  className={styles.input}
+                >
+                  <option value={0}>Select a team</option>
+                  <option value={-1}>Free agent</option>
+                  {teams
+                    ?.filter(
+                      (team: TeamType) => team.division_id === selectedDivision
+                    )
+                    .map((team: TeamType) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+        </>
       )}
-
       <div className={styles.formBtnContainer}>
         <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
           {t("formContent.cancel")}
