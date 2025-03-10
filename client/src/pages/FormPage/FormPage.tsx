@@ -15,6 +15,8 @@ import {
 } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema, FormSchemaType } from "./schema";
 
 const FormPage = () => {
   const { formId } = useParams();
@@ -42,18 +44,17 @@ const FormPage = () => {
   const total = form?.form_data.fields.length ?? 0;
   const [used, setUsed] = useState(1);
 
-  const methods = useForm<{
-    answers: Record<string, Answer>;
-  }>({
+  const methods = useForm<FormSchemaType>({
     defaultValues: { answers: {} },
     mode: "onChange",
+    resolver: zodResolver(formSchema),
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
-    undefined,
+    undefined
   );
   const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -134,7 +135,7 @@ const FormPage = () => {
           });
           const responsesData = await createMongoResponse(
             formId ?? "",
-            updatedNormalizedAnswers,
+            updatedNormalizedAnswers
           );
           // TODO: Redirect to a thank you page!
           navigate("/thanks");
@@ -160,7 +161,7 @@ const FormPage = () => {
         });
         const responsesData = await createMongoResponse(
           formId ?? "",
-          updatedNormalizedAnswers,
+          updatedNormalizedAnswers
         );
         // TODO: Redirect to a thank you page!
         navigate("/thanks");
@@ -170,7 +171,7 @@ const FormPage = () => {
       // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers,
+        normalizedAnswers
       );
       navigate("/thanks");
       return responsesData;

@@ -134,12 +134,12 @@ export interface Answer {
   player?: {
     season_name: string;
     league_name: string;
-    season_id: number | null;
-    league_id: number | null;
+    season_id?: number;
+    league_id?: number;
     division_name: string;
     team_name: string;
-    division_id: number | null;
-    team_id: number | null;
+    division_id?: number;
+    team_id?: number;
   };
   payment?: string;
   payment_type?: string;
