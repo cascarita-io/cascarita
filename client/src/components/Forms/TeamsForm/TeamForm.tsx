@@ -22,12 +22,20 @@ import { teamSchema } from "./schema";
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
+  teamName,
+  seasonId,
+  divisionId,
+  teamLogo,
   teamId,
   divisionsData,
   seasonsData,
 }) => {
   const { t } = useTranslation("Teams");
   const [requestError, setRequestError] = useState("");
+  console.log("teamLogo", teamLogo, teamLogo ? false : true);
+  const [isChangingPhoto, setIsChangingPhoto] = useState(
+    teamLogo ? false : true
+  );
   const groupId = Number(Cookies.get("group_id")) || 0;
 
   const {
@@ -39,18 +47,18 @@ const TeamForm: React.FC<TeamFormProps> = ({
     watch,
   } = useForm<TeamFormData>({
     defaultValues: {
-      name: "",
-      season_id: 0,
-      division_id: 0,
+      name: teamName || "",
+      season_id: seasonId || 0,
+      division_id: divisionId || 0,
       file_url: undefined,
-      link_to_season: false,
+      link_to_season: divisionId && seasonId ? true : false,
     },
     resolver: zodResolver(teamSchema),
     mode: "onChange",
   });
 
   const isLinkSeason = watch("link_to_season");
-  const teamName = watch("name");
+  const name = watch("name");
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
@@ -143,14 +151,14 @@ const TeamForm: React.FC<TeamFormProps> = ({
               </label>
               <input
                 {...register("name")}
-                className={`${styles.input} ${errors.name || requestError || teamName.length > 30 ? styles.invalid : ""}`}
+                className={`${styles.input} ${errors.name || requestError || name.length > 30 ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="teamName"
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
               )}
-              {!errors.name && teamName.length > 30 && (
+              {!errors.name && name.length > 30 && (
                 <span className={styles.error}>
                   Team name cannot exceed 30 characters
                 </span>
@@ -234,12 +242,38 @@ const TeamForm: React.FC<TeamFormProps> = ({
 
             <div className={styles.inputContainer}>
               <label className={styles.label}>{t("formContent.logo")}</label>
-              <FileUpload
-                setFileValue={(url?: File) => {
-                  setValue("file_url", url);
-                }}
-                className={styles.logoInputContainer}
-              />
+              {!isChangingPhoto ? (
+                <div>
+                  <img
+                    src={teamLogo}
+                    alt="team logo"
+                    style={{ width: "150px", height: "150px" }}
+                    className={styles.logoPreview}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsChangingPhoto(true)}
+                    style={{
+                      background: "#007bff",
+                      color: "white",
+                      border: "none",
+                      marginTop: "10px",
+                      borderRadius: "25px",
+                      padding: "5px 10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Change Logo
+                  </button>
+                </div>
+              ) : (
+                <FileUpload
+                  setFileValue={(url?: File) => {
+                    setValue("file_url", url);
+                  }}
+                  className={styles.logoInputContainer}
+                />
+              )}
             </div>
           </div>
 
