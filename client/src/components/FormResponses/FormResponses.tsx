@@ -89,8 +89,10 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
     []
   );
-  const [openModal, setOpenModal] = useState(false);
-  const [paymentCaptureIndex, setPaymentCaptureIndex] = useState(0);
+  const [openPaymentModal, setOpenPaymentModal] = useState(false);
+  const [currentPaymentIndex, setCurrentPaymentIndex] = useState<number | null>(
+    null
+  );
   const adminEmail = Cookies.get("email") || "";
   const [formDocumentId, setFormDocumentId] = useState("");
   console.log(formDocumentId);
@@ -181,9 +183,9 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       await Promise.all(
         formPayments.map(
           async (paymentData: FormPaymentType, index: number) => {
-            if (paymentData.payment_intent_status === "succeeded") {
+            if (paymentData.internal_status_id === 3) {
               statusData[index] = "approved";
-            } else if (paymentData.payment_intent_status === "canceled") {
+            } else if (paymentData.internal_status_id === 11) {
               statusData[index] = "rejected";
             } else {
               statusData[index] = "pending";
@@ -262,6 +264,11 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     );
   };
 
+  const handleOpenPaymentModal = (index: number) => {
+    setCurrentPaymentIndex(index);
+    setOpenPaymentModal(true);
+  };
+
   const registrationTypeHeaders = [
     "#",
     "Name",
@@ -278,6 +285,19 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
 
   return (
     <div className={styles.container}>
+      {currentPaymentIndex !== null && (
+        <PaymentCaptureModal
+          openModal={openPaymentModal}
+          setOpenModal={setOpenPaymentModal}
+          status={status[currentPaymentIndex]}
+          amount={formatMoney(amount[currentPaymentIndex])}
+          user={user[currentPaymentIndex]}
+          index={currentPaymentIndex}
+          response={formResponsesData[currentPaymentIndex]}
+          handleStatusChange={handleStatusChange}
+        />
+      )}
+
       {formType === 1 ? (
         <DashboardTable
           headers={registrationTypeHeaders}
@@ -291,22 +311,9 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{paymentType[index]}</td>
               {formType === 1 && (
                 <td>
-                  <PaymentCaptureModal
-                    openModal={openModal}
-                    setOpenModal={setOpenModal}
-                    status={status[paymentCaptureIndex]}
-                    amount={formatMoney(amount[paymentCaptureIndex])}
-                    user={user[paymentCaptureIndex]}
-                    index={paymentCaptureIndex}
-                    response={response}
-                    handleStatusChange={handleStatusChange}
-                  />
                   <DropdownMenuButton trigger={StatusButton(status[index])}>
                     <DropdownMenuButton.Item
-                      onClick={() => {
-                        setOpenModal(true);
-                        setPaymentCaptureIndex(index);
-                      }}
+                      onClick={() => handleOpenPaymentModal(index)}
                     >
                       <StatusLabel status="approved">approved</StatusLabel>
                     </DropdownMenuButton.Item>
@@ -316,10 +323,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => {
-                        setOpenModal(true);
-                        setPaymentCaptureIndex(index);
-                      }}
+                      onClick={() => handleOpenPaymentModal(index)}
                     >
                       <StatusLabel status="rejected">rejected</StatusLabel>
                     </DropdownMenuButton.Item>
@@ -329,10 +333,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => {
-                        setOpenModal(true);
-                        setPaymentCaptureIndex(index);
-                      }}
+                      onClick={() => handleOpenPaymentModal(index)}
                     >
                       <StatusLabel status="pending">pending</StatusLabel>
                     </DropdownMenuButton.Item>

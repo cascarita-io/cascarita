@@ -5,7 +5,7 @@ require("dotenv").config();
 const { FormPayment, Form } = require("../models");
 const Response = require("./../mongoModels/response");
 const AccountController = require("./account.controller");
-const UserController = require("./user.controller");
+const createPayerUser = require("../utilityFunctions/createPayerUser");
 
 const FormPaymentController = function () {
   var getFormPaymentsByFormId = async function (form_id) {
@@ -153,7 +153,7 @@ const FormPaymentController = function () {
         (answer) => answer.type === "payment" && answer.paymentIntentId,
       );
 
-      paymentAnswer.paymen_type = "stripe_payment";
+      paymentAnswer.payment_type = "stripe_payment";
       paymentAnswer.payment_intent_status = stripePaymentIntent.status;
       paymentAnswer.amount = stripePaymentIntent.amount;
       paymentAnswer.payment_intent_auth_by_stripe_at = Date.now();
@@ -329,19 +329,8 @@ const FormPaymentController = function () {
           status: 404,
         };
       }
-      const user = getUserDataFromAnswers(formattedAnswers, groupId);
-
-      const updatedUserResponse =
-        await UserController.createUserViaFromResponse(user);
-
-      if (!updatedUserResponse.success) {
-        return updatedUserResponse;
-      }
-
-      const updatedUser = updatedUserResponse.data;
-      const paymentData = {
-        payer_id: updatedUser.id,
-      };
+      // sets up user data:
+      paymentData = await createPayerUser(formattedAnswers, groupId);
 
       await existingFormPayment.update(paymentData, { valudate: true });
 
@@ -354,32 +343,6 @@ const FormPaymentController = function () {
       console.error(error.stack);
       return { success: false, error: error.message, status: 500 };
     }
-  };
-
-  var getUserDataFromAnswers = function (formattedAnswers, groupId) {
-    const user = {
-      first_name: formattedAnswers.first_name?.short_text,
-      last_name: formattedAnswers.last_name?.short_text,
-      email: formattedAnswers.email?.email,
-      phone_number: formattedAnswers.phone_number?.phone_number,
-      address: formattedAnswers.address?.long_text,
-      date: formattedAnswers.date?.date,
-      photo: formattedAnswers.photo?.photo,
-      signature: formattedAnswers.signature?.short_text,
-      liability: formattedAnswers.liability?.liability,
-      team_id: formattedAnswers.player?.player?.team_id,
-      team_name: formattedAnswers.player?.player?.team_name,
-      league_name: formattedAnswers.player?.player?.league_name,
-      league_id: formattedAnswers.player?.player?.league_id,
-      season_name: formattedAnswers.player?.player?.season_name,
-      season_id: formattedAnswers.player?.player?.season_id,
-      division_name: formattedAnswers.player?.player?.division_name,
-      division_id: formattedAnswers.player?.player?.division_id,
-      payment_intent_id: formattedAnswers.payment?.paymentIntentId,
-      payment_amount: formattedAnswers.payment?.amount,
-      group_id: groupId,
-    };
-    return user;
   };
 
   var updateFormPaymentType = async function (req, res, next) {
