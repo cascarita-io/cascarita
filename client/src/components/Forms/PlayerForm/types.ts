@@ -15,10 +15,11 @@ interface PlayerFormProps {
 }
 
 interface PlayerFormData {
-  leagueId: number;
-  seasonId: number;
-  divisionId: number;
-  teamId: number;
+  link_to_team?: boolean;
+  league_id: number;
+  season_id: number;
+  division_id: number;
+  team_id: number;
 }
 
 interface PlayerRequest {

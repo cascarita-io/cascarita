@@ -4,6 +4,7 @@ interface DivisionFormProps {
   //Use to set open state from true to false after form submission
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
+  divisionName?: string;
   divisionId?: number;
   seasonId?: number;
   seasonData?: SeasonType[];

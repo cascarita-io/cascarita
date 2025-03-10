@@ -4,13 +4,13 @@ import {
   DeleteUserData,
   UpdateUserData,
   AddUserData,
-  GetSessionData,
+  PlayerSessionRequest,
 } from "../../components/Forms/UserForm/types";
 import {
   deleteUser,
   updateUser,
   addUser,
-  getSession,
+  getPlayerSession,
   updatePlayerTeams,
 } from "./service";
 import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
@@ -54,14 +54,14 @@ export const useDeleteUser = () => {
   });
 };
 
-export const useGetSession = () => {
+export const useGetPlayerSession = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: GetSessionData) => getSession(data),
+    mutationFn: (data: PlayerSessionRequest) => getPlayerSession(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: ["players"],
       });
     },
   });
@@ -74,7 +74,7 @@ export const useUpdatePlayerTeams = () => {
     mutationFn: (data: PlayerRequest) => updatePlayerTeams(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: ["players"],
       });
     },
   });
