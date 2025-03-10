@@ -35,9 +35,7 @@ const Liability = ({ field, index }: FieldProps) => {
           className={styles.input}
           id={`liability-${index}`}
           defaultChecked={true}
-          {...register(`answers.${index}.liability`, {
-            // required: required && t("required"),
-          })}
+          {...register(`answers.${index}.liability`)}
         />
       </div>
     </section>

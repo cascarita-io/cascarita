@@ -95,7 +95,6 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   );
   const adminEmail = Cookies.get("email") || "";
   const [formDocumentId, setFormDocumentId] = useState("");
-  console.log(formDocumentId);
   const { t } = useTranslation("FormResponses");
 
   const formatDate = (dateString: string, daysAhead: number = 0): string => {
