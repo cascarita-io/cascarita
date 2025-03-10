@@ -16,8 +16,14 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
-  const [filePreview, setFilePreview] = React.useState<string>("");
+const FileUpload: React.FC<FileUploadProps> = ({
+  className,
+  setFileValue,
+  imagePreview,
+}) => {
+  const [filePreview, setFilePreview] = React.useState<string>(
+    imagePreview || ""
+  );
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const onDropAccepted = useCallback((acceptedFiles: File[]) => {

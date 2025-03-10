@@ -32,9 +32,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
 }) => {
   const { t } = useTranslation("Teams");
   const [requestError, setRequestError] = useState("");
-  const [isChangingPhoto, setIsChangingPhoto] = useState(
-    teamLogo ? false : true
-  );
   const { groupId } = useGroup();
 
   const {
@@ -237,38 +234,13 @@ const TeamForm: React.FC<TeamFormProps> = ({
 
             <div className={styles.inputContainer}>
               <label className={styles.label}>{t("formContent.logo")}</label>
-              {!isChangingPhoto ? (
-                <div>
-                  <img
-                    src={teamLogo}
-                    alt="team logo"
-                    style={{ width: "150px", height: "150px" }}
-                    className={styles.logoPreview}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsChangingPhoto(true)}
-                    style={{
-                      background: "#007bff",
-                      color: "white",
-                      border: "none",
-                      marginTop: "10px",
-                      borderRadius: "25px",
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Change Logo
-                  </button>
-                </div>
-              ) : (
-                <FileUpload
-                  setFileValue={(url?: File) => {
-                    setValue("file_url", url);
-                  }}
-                  className={styles.logoInputContainer}
-                />
-              )}
+              <FileUpload
+                setFileValue={(url?: File) => {
+                  setValue("file_url", url);
+                }}
+                imagePreview={teamLogo}
+                className={styles.logoInputContainer}
+              />
             </div>
           </div>
 
