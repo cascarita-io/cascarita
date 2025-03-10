@@ -173,6 +173,7 @@ export const getMongoFormById = async (formId: string) => {
   }
 };
 
+// THIS GETS the responses from mongodb:
 export const getMongoFormResponses = async (formId: string) => {
   try {
     const response = await fetch(`/api/forms/${formId}/responses`);
@@ -240,6 +241,43 @@ export const sendEmail = async (emails: string[], formLink: string) => {
   }
 };
 
+export const sendApprovalEmail = async (
+  emails: string[],
+  leagueName: string,
+  seasonName: string,
+  playerName: string,
+  paymentAmount: number,
+  paymentDate: string,
+  transactionId: string
+) => {
+  try {
+    const data = {
+      emails: emails,
+      league_name: leagueName,
+      season_name: seasonName,
+      player_name: playerName,
+      payment_amount: paymentAmount,
+      payment_date: paymentDate,
+      transaction_id: transactionId,
+    };
+    const response = await fetch(`/api/email/approval/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error emailing form: ${response.statusText}`);
+    }
+    // return response.json();
+  } catch (err) {
+    console.error("Error emailing responses:", err);
+    throw err;
+  }
+};
+// This is fetching the form payments info:
 export const getFormPayments = async (formId: string) => {
   try {
     const data = {
@@ -270,6 +308,7 @@ export const updateFormPaymentStatus = async (
   email: string,
   answers: Record<string, Answer>
 ) => {
+  console.log("Inside of updateFormPaymentStatus in service.ts");
   try {
     const data = {
       payment_intent_id: paymentIntentId,

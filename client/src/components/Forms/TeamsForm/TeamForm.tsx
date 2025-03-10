@@ -10,7 +10,6 @@ import {
 } from "../../../api/teams/mutations";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
-import Cookies from "js-cookie";
 import { DivisionType } from "../../../pages/Division/types";
 import { SeasonType } from "../../../pages/Seasons/types";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -18,17 +17,22 @@ import { useUploadPhotoS3 } from "../../../api/photo/mutations";
 import { UploadPhotoRequest } from "../../../api/photo/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "./schema";
+import { useGroup } from "../../GroupProvider/GroupProvider";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
+  teamName,
+  seasonId,
+  divisionId,
+  teamLogo,
   teamId,
   divisionsData,
   seasonsData,
 }) => {
   const { t } = useTranslation("Teams");
   const [requestError, setRequestError] = useState("");
-  const groupId = Number(Cookies.get("group_id")) || 0;
+  const { groupId } = useGroup();
 
   const {
     register,
@@ -39,18 +43,18 @@ const TeamForm: React.FC<TeamFormProps> = ({
     watch,
   } = useForm<TeamFormData>({
     defaultValues: {
-      name: "",
-      season_id: 0,
-      division_id: 0,
+      name: teamName || "",
+      season_id: seasonId || 0,
+      division_id: divisionId || 0,
       file_url: undefined,
-      link_to_season: false,
+      link_to_season: divisionId && seasonId ? true : false,
     },
     resolver: zodResolver(teamSchema),
     mode: "onChange",
   });
 
   const isLinkSeason = watch("link_to_season");
-  const teamName = watch("name");
+  const name = watch("name");
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
@@ -131,11 +135,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form
-          className={styles.form}
-          // onSubmit={handleSubmit((data) => console.log(data))}
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="teamName">
@@ -143,14 +143,14 @@ const TeamForm: React.FC<TeamFormProps> = ({
               </label>
               <input
                 {...register("name")}
-                className={`${styles.input} ${errors.name || requestError || teamName.length > 30 ? styles.invalid : ""}`}
+                className={`${styles.input} ${errors.name || requestError || name.length > 30 ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="teamName"
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
               )}
-              {!errors.name && teamName.length > 30 && (
+              {!errors.name && name.length > 30 && (
                 <span className={styles.error}>
                   Team name cannot exceed 30 characters
                 </span>
@@ -238,6 +238,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
                 setFileValue={(url?: File) => {
                   setValue("file_url", url);
                 }}
+                imagePreview={teamLogo}
                 className={styles.logoInputContainer}
               />
             </div>

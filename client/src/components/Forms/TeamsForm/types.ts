@@ -6,6 +6,10 @@ interface TeamFormProps {
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
   teamId?: number;
+  teamName?: string;
+  seasonId?: number;
+  divisionId?: number;
+  teamLogo?: string;
   divisionsData?: DivisionType[];
   seasonsData?: SeasonType[];
 }

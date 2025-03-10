@@ -9,13 +9,12 @@ import Modal from "../../components/Modal/Modal";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import { useQueries } from "@tanstack/react-query";
-import { getDivisionByGroupId } from "../../api/divisions/service";
-import { getSeasonsByGroupId } from "../../api/seasons/services";
 import DivisionForm from "../../components/Forms/DivisionForm/DivisionForm";
 import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
-import Cookies from "js-cookie";
+import { useGetSeasonsByGroupId } from "../../api/seasons/query";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import { useGetDivisionsByGroupId } from "../../api/divisions/query";
 
 const Divisions = () => {
   const { t } = useTranslation("Divisions");
@@ -24,6 +23,7 @@ const Divisions = () => {
   // const [sorts, setSorts] = useState("");
   const [currentDivisionName, setCurrentDivisionName] = useState("");
   const [currentDivisionId, setCurrentDivisionId] = useState(0);
+  const [currentSeasonId, setCurrentSeasonId] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -33,7 +33,7 @@ const Divisions = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const groupId = Number(Cookies.get("group_id")) || 0;
+  const { groupId } = useGroup();
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -45,39 +45,17 @@ const Divisions = () => {
     };
   }, [searchQuery]);
 
-  const results = useQueries({
-    queries: [
-      {
-        queryKey: ["seasons", groupId],
-        queryFn: async () =>
-          await getSeasonsByGroupId({
-            queryKey: ["seasons", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-      {
-        queryKey: ["divisions", groupId],
-        queryFn: async () =>
-          await getDivisionByGroupId({
-            queryKey: ["divisions", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-    ],
-  });
+  const { data: seasons } = useGetSeasonsByGroupId(groupId);
+  const { data: divisions } = useGetDivisionsByGroupId(groupId);
 
-  const [seasonsQuery, divisionsQuery] = results;
-  const data = divisionsQuery.data;
-  const isLoading = divisionsQuery.isLoading;
-  const isError = divisionsQuery.isError;
-
-  const handleEdit = (divisionName: string, divisionId: number) => {
+  const handleEdit = (
+    divisionName: string,
+    divisionId: number,
+    seasonId: number
+  ) => {
     setCurrentDivisionName(divisionName);
     setCurrentDivisionId(divisionId);
+    setCurrentSeasonId(seasonId);
     setIsEditOpen(true);
   };
 
@@ -87,8 +65,8 @@ const Divisions = () => {
     setIsDeleteOpen(true);
   };
 
-  const filteredData = data?.filter((division: DivisionType) =>
-    division.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+  const filteredData = divisions?.filter((division: DivisionType) =>
+    division.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   const location = useLocation();
@@ -101,7 +79,7 @@ const Divisions = () => {
     <>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>
-          {data && data.length > 0 && (
+          {divisions && divisions.length > 0 && (
             <Search onSearchChange={setSearchQuery} />
           )}
         </div>
@@ -120,7 +98,7 @@ const Divisions = () => {
             <DivisionForm
               afterSave={() => setIsCreateOpen(false)}
               requestType="POST"
-              seasonData={seasonsQuery.data}
+              seasonData={seasons}
             />
           </Modal.Content>
         </Modal>
@@ -138,42 +116,32 @@ const Divisions = () => {
           ]}
           headerColor="light"
         >
-          {isLoading ? (
-            <tr>
-              <td>{t("loading")}</td>
-            </tr>
-          ) : isError || !data ? (
-            <tr>
-              <td>{t("error")}</td>
-            </tr>
-          ) : (
-            data?.map((division: DivisionType, idx: number) => (
-              <tr key={idx} className={styles.tableRow}>
-                <td className={styles.tableData}>{division.name}</td>
-                <td className={styles.tableData}>{division.league_name}</td>
-                <td className={styles.tableData}>{division.season_name}</td>
-                <td className={styles.tableData}>
-                  <DropdownMenuButton>
-                    <DropdownMenuButton.Item
-                      onClick={() => handleEdit(division.name, division.id)}
-                    >
-                      {t("edit")}
-                    </DropdownMenuButton.Item>
+          {divisions?.map((division: DivisionType, idx: number) => (
+            <tr key={idx} className={styles.tableRow}>
+              <td className={styles.tableData}>{division.name}</td>
+              <td className={styles.tableData}>{division.league_name}</td>
+              <td className={styles.tableData}>{division.season_name}</td>
+              <td className={styles.tableData}>
+                <DropdownMenuButton>
+                  <DropdownMenuButton.Item
+                    onClick={() =>
+                      handleEdit(division.name, division.id, division.season_id)
+                    }
+                  >
+                    {t("edit")}
+                  </DropdownMenuButton.Item>
 
-                    <DropdownMenuButton.Separator
-                      className={styles.separator}
-                    />
+                  <DropdownMenuButton.Separator className={styles.separator} />
 
-                    <DropdownMenuButton.Item
-                      onClick={() => handleDelete(division.name, division.id)}
-                    >
-                      {t("delete")}
-                    </DropdownMenuButton.Item>
-                  </DropdownMenuButton>
-                </td>
-              </tr>
-            ))
-          )}
+                  <DropdownMenuButton.Item
+                    onClick={() => handleDelete(division.name, division.id)}
+                  >
+                    {t("delete")}
+                  </DropdownMenuButton.Item>
+                </DropdownMenuButton>
+              </td>
+            </tr>
+          ))}
         </DashboardTable>
       )}
 
@@ -183,7 +151,9 @@ const Divisions = () => {
             afterSave={() => setIsEditOpen(false)}
             requestType="PATCH"
             divisionId={currentDivisionId}
-            seasonData={seasonsQuery.data}
+            divisionName={currentDivisionName}
+            seasonId={currentSeasonId}
+            seasonData={seasons}
           />
         </Modal.Content>
       </Modal>

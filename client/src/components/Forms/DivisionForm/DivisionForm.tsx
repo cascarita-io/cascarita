@@ -18,8 +18,9 @@ import { divisionSchema } from "./schema";
 const DivisionForm: React.FC<DivisionFormProps> = ({
   afterSave,
   divisionId,
+  seasonId,
+  divisionName,
   requestType,
-  // seasonId,
   seasonData,
 }) => {
   const { t } = useTranslation("Divisions");
@@ -33,15 +34,15 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
     watch,
   } = useForm<DivisionFormData>({
     defaultValues: {
-      name: "",
-      season_id: 0,
+      name: divisionName || "",
+      season_id: seasonId || 0,
     },
     resolver: zodResolver(divisionSchema),
     mode: "onChange",
   });
 
   const groupId = Cookies.get("group_id") || 0;
-  const divisionName = watch("name");
+  const name = watch("name");
 
   const createDivisionMutation = useCreateDivision();
   const updateDivisionMutation = useUpdateDivision();
@@ -116,14 +117,14 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
               </label>
               <input
                 {...register("name")}
-                className={`${styles.input} ${errors.name || requestError || divisionName.length > 50 ? styles.invalid : ""}`}
+                className={`${styles.input} ${errors.name || requestError || name.length > 50 ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="divisionName"
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
               )}
-              {!errors.name && divisionName.length > 50 && (
+              {!errors.name && name.length > 50 && (
                 <span className={styles.error}>
                   Division name cannot exceed 50 characters
                 </span>

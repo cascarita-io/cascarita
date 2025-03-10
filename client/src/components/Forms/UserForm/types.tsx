@@ -25,11 +25,9 @@ interface UpdatePlayerTeamsData {
   };
 }
 
-interface GetSessionData {
-  formData: {
-    division_id: number;
-    season_id: number;
-  };
+interface PlayerSessionRequest {
+  division_id: number;
+  season_id: number;
 }
 
 interface UpdateUserTeamData {
@@ -55,5 +53,5 @@ export type {
   UpdatePlayerTeamsData,
   AddUserData,
   UpdateUserTeamData,
-  GetSessionData,
+  PlayerSessionRequest,
 };

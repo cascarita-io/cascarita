@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCompleteUserSettings, getUser } from "./service";
+import {
+  getCompleteUserSettings,
+  getPlayersByGroupId,
+  getUser,
+} from "./service";
 
 export const useFetchUser = (email: string, token: string) => {
   return useQuery({
@@ -13,5 +17,13 @@ export const useGetCompleteUserSettings = (userId: number) => {
     queryKey: ["user_settings", userId ? userId : 0],
     queryFn: getCompleteUserSettings,
     enabled: userId !== 0,
+  });
+};
+
+export const useGetPlayersByGroupId = (groupId: number) => {
+  return useQuery({
+    queryKey: ["players", groupId],
+    queryFn: getPlayersByGroupId,
+    enabled: groupId !== 0,
   });
 };
