@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
 import { PlayerType } from "./types";
 import Modal from "../../components/Modal/Modal";
-import { getDivisionByGroupId } from "../../api/divisions/service";
+import { getDivisionsByGroupId } from "../../api/divisions/service";
 import { getSeasonsByGroupId } from "../../api/seasons/services";
 import { getTeamsByGroupId } from "../../api/teams/service";
 import { getLeaguesByGroupId } from "../../api/leagues/service";
@@ -52,7 +52,7 @@ const Players = () => {
       {
         queryKey: ["divisions", groupId],
         queryFn: async () =>
-          await getDivisionByGroupId({
+          await getDivisionsByGroupId({
             queryKey: ["divisions", groupId],
             meta: undefined,
             signal: new AbortController().signal,

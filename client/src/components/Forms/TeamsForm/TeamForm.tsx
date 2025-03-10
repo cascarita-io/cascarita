@@ -10,7 +10,6 @@ import {
 } from "../../../api/teams/mutations";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
-import Cookies from "js-cookie";
 import { DivisionType } from "../../../pages/Division/types";
 import { SeasonType } from "../../../pages/Seasons/types";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -18,6 +17,7 @@ import { useUploadPhotoS3 } from "../../../api/photo/mutations";
 import { UploadPhotoRequest } from "../../../api/photo/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "./schema";
+import { useGroup } from "../../GroupProvider/GroupProvider";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
@@ -32,11 +32,10 @@ const TeamForm: React.FC<TeamFormProps> = ({
 }) => {
   const { t } = useTranslation("Teams");
   const [requestError, setRequestError] = useState("");
-  console.log("teamLogo", teamLogo, teamLogo ? false : true);
   const [isChangingPhoto, setIsChangingPhoto] = useState(
     teamLogo ? false : true
   );
-  const groupId = Number(Cookies.get("group_id")) || 0;
+  const { groupId } = useGroup();
 
   const {
     register,
