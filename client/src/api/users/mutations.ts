@@ -74,7 +74,7 @@ export const useUpdatePlayerTeams = () => {
     mutationFn: (data: PlayerRequest) => updatePlayerTeams(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: ["players"],
       });
     },
   });
