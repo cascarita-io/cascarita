@@ -55,6 +55,7 @@ const FormPage = () => {
   } = methods;
 
   console.log("Errors: ", errors);
+  console.log("Answers: ", methods.watch(`answers`));
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
     undefined
@@ -215,7 +216,7 @@ const FormPage = () => {
           <FormProvider {...methods}>
             <form
               className={styles.formContent}
-              onSubmit={methods.handleSubmit(onSubmit)}
+              onSubmit={methods.handleSubmit((data) => console.log(data))}
             >
               <h1 className={styles.title}>{form?.form_data.title}</h1>
               {form.form_data.fields
@@ -272,7 +273,7 @@ const FormPage = () => {
                       e.preventDefault();
                       setUsed((prev) => prev + 1);
                     }}
-                    disabled={hasErrors() || isNotEmpty()}
+                    disabled={hasErrors() || isNotEmpty() || watch}
                   >
                     Next
                   </button>

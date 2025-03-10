@@ -38,9 +38,7 @@ const PhoneNumber = ({ field, index }: FieldProps) => {
         className={styles.input}
         type="tel"
         placeholder="(201) 555-0123"
-        {...register(`answers.${index}.phone_number`, {
-          required: required && t("required"),
-        })}
+        {...register(`answers.${index}.phone_number`)}
       />
     </section>
   );

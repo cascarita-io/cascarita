@@ -10,8 +10,6 @@ const Signature = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required, max_length: maxLength } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as { [key: number]: { short_text?: FieldError } } | undefined
   )?.[index]?.short_text;

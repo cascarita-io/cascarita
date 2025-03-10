@@ -34,7 +34,6 @@ const Liability = ({ field, index }: FieldProps) => {
           type="checkbox"
           className={styles.input}
           id={`liability-${index}`}
-          defaultChecked={true}
           {...register(`answers.${index}.liability`)}
         />
       </div>

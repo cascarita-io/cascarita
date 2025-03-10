@@ -13,6 +13,8 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
+  console.log(field);
+
   const { required } = field.validations ?? {};
   const [isOther, setIsOther] = useState(false);
 
@@ -82,7 +84,6 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
         <select
           className={styles.input}
           {...register(`answers.${index}.player.team_id`, {
-            required: required && t("required"),
             onChange: (e) => {
               const selectedTeam =
                 field.properties?.player_block_choices?.teams.find(
@@ -121,13 +122,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
       {isOther === true && (
         <div>
           <h4 className={styles.question}>Enter Team Name</h4>
-          <input
-            className={styles.input}
-            type="text"
-            onChange={(e) => {
-              setValue(`answers.${index}.player.team_name`, e.target.value);
-            }}
-          />
+          <input className={styles.input} type="text" />
         </div>
       )}
       {fieldError && (

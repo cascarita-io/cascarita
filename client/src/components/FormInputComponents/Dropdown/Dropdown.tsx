@@ -31,9 +31,7 @@ const Dropdown = ({ field, index }: FieldProps) => {
       )}
       <select
         className={styles.input}
-        {...register(`answers.${index}.dropdown`, {
-          required: required && t("required"),
-        })}
+        {...register(`answers.${index}.dropdown`)}
       >
         <option value="">{t("dropdown.placeholder")}</option>
         {field.properties?.choices?.map((choice) => (

@@ -51,10 +51,7 @@ const MultipleChoice = ({ field, index }: FieldProps) => {
               {...register(
                 isMultipleSelection
                   ? `answers.${index}.choices.labels`
-                  : `answers.${index}.choice.label`,
-                {
-                  required: required && t("required"),
-                },
+                  : `answers.${index}.choice.label`
               )}
             />
             {choice.label}

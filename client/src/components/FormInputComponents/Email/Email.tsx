@@ -33,13 +33,7 @@ const Email = ({ field, index }: FieldProps) => {
         className={styles.input}
         type="email"
         placeholder="name@example.com"
-        {...register(`answers.${index}.email`, {
-          required: required && t("required"),
-          pattern: {
-            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: t("email.invalid"),
-          },
-        })}
+        {...register(`answers.${index}.email`)}
       />
     </section>
   );
