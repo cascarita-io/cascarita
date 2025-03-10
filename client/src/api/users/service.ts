@@ -2,7 +2,7 @@ import { QueryFunctionContext } from "@tanstack/react-query";
 import {
   DeleteUserData,
   UpdateUserData,
-  GetSessionData,
+  PlayerSessionRequest,
   AddUserData,
 } from "../../components/Forms/UserForm/types";
 import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
@@ -242,14 +242,14 @@ const updatePlayerTeams = async (
   }
 };
 
-const getSession = async (data: GetSessionData) => {
+const getPlayerSession = async (data: PlayerSessionRequest) => {
   try {
     const response = await fetch(`/api/users/session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
 
     const result = await response.json();
@@ -289,7 +289,7 @@ export {
   fetchUser,
   updatePlayerTeams,
   getPlayersByGroupId,
-  getSession,
+  getPlayerSession,
   getCompleteUserSettings,
   getUser,
 };
