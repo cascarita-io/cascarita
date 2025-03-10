@@ -173,6 +173,7 @@ export const getMongoFormById = async (formId: string) => {
   }
 };
 
+// THIS GETS the responses from mongodb:
 export const getMongoFormResponses = async (formId: string) => {
   try {
     const response = await fetch(`/api/forms/${formId}/responses`);
@@ -270,13 +271,13 @@ export const sendApprovalEmail = async (
     if (!response.ok) {
       throw new Error(`Error emailing form: ${response.statusText}`);
     }
-    return response.json();
+    // return response.json();
   } catch (err) {
     console.error("Error emailing responses:", err);
     throw err;
   }
 };
-
+// This is fetching the form payments info:
 export const getFormPayments = async (formId: string) => {
   try {
     const data = {
@@ -307,6 +308,7 @@ export const updateFormPaymentStatus = async (
   email: string,
   answers: Record<string, Answer>
 ) => {
+  console.log("Inside of updateFormPaymentStatus in service.ts");
   try {
     const data = {
       payment_intent_id: paymentIntentId,

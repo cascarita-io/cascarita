@@ -181,9 +181,9 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       await Promise.all(
         formPayments.map(
           async (paymentData: FormPaymentType, index: number) => {
-            if (paymentData.payment_intent_status === "succeeded") {
+            if (paymentData.internal_status_id === 3) {
               statusData[index] = "approved";
-            } else if (paymentData.payment_intent_status === "canceled") {
+            } else if (paymentData.internal_status_id === 11) {
               statusData[index] = "rejected";
             } else {
               statusData[index] = "pending";
