@@ -33,13 +33,7 @@ const ShortText = ({ field, index }: FieldProps) => {
         className={styles.input}
         type="text"
         placeholder={t("shortText.placeholder")}
-        {...register(`answers.${index}.short_text`, {
-          required: required && t("required"),
-          maxLength: maxLength && {
-            value: maxLength,
-            message: `${t("shortText.minLength")} ${maxLength}`,
-          },
-        })}
+        {...register(`answers.${index}.short_text`)}
       />
     </section>
   );

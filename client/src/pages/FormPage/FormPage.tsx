@@ -50,6 +50,12 @@ const FormPage = () => {
     resolver: zodResolver(formSchema),
   });
 
+  const {
+    formState: { errors },
+  } = methods;
+
+  console.log("Errors: ", errors);
+
   const [currentField, setCurrentField] = useState<Field | undefined>(
     undefined
   );
@@ -111,6 +117,8 @@ const FormPage = () => {
           };
         }
       }) ?? [];
+
+    console.log("Answers: ", normalizedAnswers);
 
     try {
       if (
@@ -252,7 +260,6 @@ const FormPage = () => {
                     type="submit"
                     id="submitButton"
                     className={styles.submitButton}
-                    disabled={hasErrors() || isNotEmpty()}
                   >
                     Submit
                   </button>
