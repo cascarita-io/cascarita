@@ -18,6 +18,7 @@ import { fetchUser } from "../../api/users/service";
 import BlueCheckMarkIcon from "../../assets/Icons/BlueCheckMarkIcon";
 import { Text } from "@radix-ui/themes";
 import Modal from "../../components/Modal/Modal";
+import { useGetFormByDocumentId } from "../../api/forms/query";
 
 interface CreateFormConfirmationModalProps {
   openModal: boolean;
@@ -97,8 +98,13 @@ const NewForm = () => {
     "Date",
     "Payment",
   ];
+  const { data: formData } = useGetFormByDocumentId(formId ?? "");
 
   const handleDrop = (label: FieldType) => {
+    if (formData.form_type === 1) {
+      alert("You cannot add a field to a templated registration form");
+      return;
+    }
     const uniqueId = uuidv4();
     const newItem: DroppedItem = {
       id: uniqueId,
@@ -229,6 +235,7 @@ const NewForm = () => {
                 <DraggableButton
                   key={index}
                   label={label}
+                  // TODO: uncomment when registration is working
                   onDrop={() => handleDrop(label as FieldType)}
                 />
               ))}
