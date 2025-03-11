@@ -10,8 +10,6 @@ const Dropdown = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as { [key: number]: { drop_down?: FieldError } } | undefined
   )?.[index]?.drop_down;

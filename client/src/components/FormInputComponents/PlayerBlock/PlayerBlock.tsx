@@ -13,8 +13,6 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  console.log(field);
-
   const { required } = field.validations ?? {};
   const [isOther, setIsOther] = useState(false);
 
@@ -54,7 +52,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
           <input
             type="hidden"
             {...register(`answers.${index}.player.season_id`, {
-              setValueAs: (value) => (value ? 0 : Number(value)),
+              value: field.season_id,
             })}
           />
 
@@ -69,7 +67,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
           <input
             type="hidden"
             {...register(`answers.${index}.player.division_id`, {
-              setValueAs: (value) => (value ? 0 : Number(value)),
+              value: field.division_id,
             })}
           />
         </div>
@@ -84,6 +82,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
         <select
           className={styles.input}
           {...register(`answers.${index}.player.team_id`, {
+            required: required && t("required"),
             onChange: (e) => {
               const selectedTeam =
                 field.properties?.player_block_choices?.teams.find(
@@ -122,7 +121,13 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
       {isOther === true && (
         <div>
           <h4 className={styles.question}>Enter Team Name</h4>
-          <input className={styles.input} type="text" />
+          <input
+            className={styles.input}
+            type="text"
+            onChange={(e) => {
+              setValue(`answers.${index}.player.team_name`, e.target.value);
+            }}
+          />
         </div>
       )}
       {fieldError && (

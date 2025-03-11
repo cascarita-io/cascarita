@@ -31,7 +31,9 @@ const Date = ({ field, index }: FieldProps) => {
       <input
         type="date"
         className={styles.input}
-        {...register(`answers.${index}.date`)}
+        {...register(`answers.${index}.date`, {
+          required: "Please enter date of birth",
+        })}
       />
     </section>
   );

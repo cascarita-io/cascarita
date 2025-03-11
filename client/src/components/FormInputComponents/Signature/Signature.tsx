@@ -31,7 +31,12 @@ const Signature = ({ field, index }: FieldProps) => {
         className={styles.input}
         type="text"
         placeholder={t("shortText.placeholder")}
-        {...register(`answers.${index}.short_text`)}
+        {...register(`answers.${index}.short_text`, {
+          maxLength: {
+            value: 30,
+            message: "Can not exceed more than 30 characters",
+          },
+        })}
       />
     </section>
   );

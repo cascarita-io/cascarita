@@ -15,8 +15,7 @@ import {
 } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema, FormSchemaType } from "./schema";
+import { FormSchemaType } from "./schema";
 
 const FormPage = () => {
   const { formId } = useParams();
@@ -47,15 +46,7 @@ const FormPage = () => {
   const methods = useForm<FormSchemaType>({
     defaultValues: { answers: {} },
     mode: "onChange",
-    resolver: zodResolver(formSchema),
   });
-
-  const {
-    formState: { errors },
-  } = methods;
-
-  console.log("Errors: ", errors);
-  console.log("Answers: ", methods.watch(`answers`));
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
     undefined
@@ -118,8 +109,6 @@ const FormPage = () => {
           };
         }
       }) ?? [];
-
-    console.log("Answers: ", normalizedAnswers);
 
     try {
       if (
@@ -216,7 +205,7 @@ const FormPage = () => {
           <FormProvider {...methods}>
             <form
               className={styles.formContent}
-              onSubmit={methods.handleSubmit((data) => console.log(data))}
+              onSubmit={methods.handleSubmit(onSubmit)}
             >
               <h1 className={styles.title}>{form?.form_data.title}</h1>
               {form.form_data.fields
@@ -273,7 +262,7 @@ const FormPage = () => {
                       e.preventDefault();
                       setUsed((prev) => prev + 1);
                     }}
-                    disabled={hasErrors() || isNotEmpty() || watch}
+                    disabled={hasErrors() || isNotEmpty()}
                   >
                     Next
                   </button>

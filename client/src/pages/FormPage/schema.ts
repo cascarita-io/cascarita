@@ -74,7 +74,7 @@ const answerSchema = z.object({
   liability: z
     .boolean()
     .optional()
-    .refine((val) => val !== false, {
+    .refine((val) => val === true, {
       message: "Liability must be accepted.",
     }),
   signature: z
