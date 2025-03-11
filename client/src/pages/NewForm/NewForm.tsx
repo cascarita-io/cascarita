@@ -235,7 +235,6 @@ const NewForm = () => {
                 <DraggableButton
                   key={index}
                   label={label}
-                  // TODO: uncomment when registration is working
                   onDrop={() => handleDrop(label as FieldType)}
                 />
               ))}
