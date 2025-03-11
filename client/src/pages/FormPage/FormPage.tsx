@@ -41,7 +41,6 @@ const FormPage = () => {
   const methods = useForm<FormSchemaType>({
     defaultValues: { answers: {} },
     mode: "onChange",
-    resolver: zodResolver(formSchema),
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
@@ -246,7 +245,6 @@ const FormPage = () => {
                     type="submit"
                     id="submitButton"
                     className={styles.submitButton}
-                    disabled={hasErrors() || isNotEmpty()}
                   >
                     Submit
                   </button>

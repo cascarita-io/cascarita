@@ -10,8 +10,6 @@ const Date = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as { [key: number]: { date?: FieldError } } | undefined
   )?.[index]?.date;
@@ -34,7 +32,7 @@ const Date = ({ field, index }: FieldProps) => {
         type="date"
         className={styles.input}
         {...register(`answers.${index}.date`, {
-          required: required && t("required"),
+          required: "Please enter date of birth",
         })}
       />
     </section>

@@ -69,10 +69,14 @@ const answerSchema = z.object({
     .string()
     .min(9, "Must be greater 9 than digits")
     .max(20, "Must be less than 20 digits")
+    .regex(/^\d+$/, "Must contain only numbers")
     .optional(),
-  liability: z.boolean().refine((val) => val === true, {
-    message: "Liability must be accepted.",
-  }),
+  liability: z
+    .boolean()
+    .optional()
+    .refine((val) => val === true, {
+      message: "Liability must be accepted.",
+    }),
   signature: z
     .string()
     .max(30, "Can not exceed more than 30 characters")
