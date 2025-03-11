@@ -52,7 +52,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
           <input
             type="hidden"
             {...register(`answers.${index}.player.season_id`, {
-              setValueAs: (value) => (value ? 0 : Number(value)),
+              value: field.season_id,
             })}
           />
 
@@ -67,7 +67,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
           <input
             type="hidden"
             {...register(`answers.${index}.player.division_id`, {
-              setValueAs: (value) => (value ? 0 : Number(value)),
+              value: field.division_id,
             })}
           />
         </div>

@@ -15,8 +15,7 @@ import {
 } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema, FormSchemaType } from "./schema";
+import { FormSchemaType } from "./schema";
 
 const FormPage = () => {
   const { formId } = useParams();
@@ -47,7 +46,6 @@ const FormPage = () => {
   const methods = useForm<FormSchemaType>({
     defaultValues: { answers: {} },
     mode: "onChange",
-    resolver: zodResolver(formSchema),
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
@@ -252,7 +250,6 @@ const FormPage = () => {
                     type="submit"
                     id="submitButton"
                     className={styles.submitButton}
-                    disabled={hasErrors() || isNotEmpty()}
                   >
                     Submit
                   </button>

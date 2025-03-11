@@ -10,8 +10,6 @@ const PhoneNumber = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as
       | { [key: number]: { phone_number?: FieldError } }
@@ -39,7 +37,18 @@ const PhoneNumber = ({ field, index }: FieldProps) => {
         type="tel"
         placeholder="(201) 555-0123"
         {...register(`answers.${index}.phone_number`, {
-          required: required && t("required"),
+          minLength: {
+            value: 9,
+            message: "Must be at least 9 digits",
+          },
+          maxLength: {
+            value: 19,
+            message: "Must be less than 20 digits",
+          },
+          pattern: {
+            value: /^\d+$/,
+            message: "Number must be numeric",
+          },
         })}
       />
     </section>

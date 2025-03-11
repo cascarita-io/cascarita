@@ -10,8 +10,6 @@ const Email = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as { [key: number]: { email?: FieldError } } | undefined
   )?.[index]?.email;
@@ -34,10 +32,10 @@ const Email = ({ field, index }: FieldProps) => {
         type="email"
         placeholder="name@example.com"
         {...register(`answers.${index}.email`, {
-          required: required && t("required"),
+          required: "Email is required",
           pattern: {
-            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: t("email.invalid"),
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            message: "Invalid email address",
           },
         })}
       />
