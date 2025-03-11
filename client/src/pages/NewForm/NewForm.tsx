@@ -55,8 +55,8 @@ const NewForm = () => {
   const location = useLocation();
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
   const [openModal, setOpenModal] = useState(false);
-  const [formId, setFormId] = useState<string | null>(
-    (location.state?.id as string) ?? null
+  const [formId, setFormId] = useState<string | undefined>(
+    (location.state?.id as string) ?? undefined
   );
   const defaultItems = fields
     ? fields.map((field) => ({
@@ -257,6 +257,7 @@ const NewForm = () => {
             <div className={styles.canvasStyles}>
               <DNDCanvas
                 ref={canvasRef}
+                formId={formId}
                 importedFields={fields}
                 items={droppedItems}
                 handleDelete={handleDelete}
