@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FormProvider, useForm } from "react-hook-form";
-import { AnswerMap, FieldComponents, FetchedForm } from "./types";
+import { AnswerMap, FieldComponents } from "./types";
 import { createMongoResponse } from "../../api/forms/service";
 import FormHeader from "../../components/FormHeader/FormHeader";
 import styles from "./FormPage.module.css";
@@ -13,8 +13,7 @@ import {
 } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema, FormSchemaType } from "./schema";
+import { FormSchemaType } from "./schema";
 import { useGetFormByDocumentId } from "../../api/forms/query";
 
 const FormPage = () => {
@@ -204,7 +203,7 @@ const FormPage = () => {
             >
               <h1 className={styles.title}>{form?.form_data.title}</h1>
               {form.form_data.fields
-                .filter((_, index: number) => index === used - 1)
+                .filter((_: Field, index: number) => index === used - 1)
                 .map((field: Field) => {
                   const FieldComponent = FieldComponents[field.type];
                   if (!FieldComponent) return null;
