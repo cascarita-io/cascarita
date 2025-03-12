@@ -23,6 +23,10 @@ import { StripeAccount } from "../../DragAndDropComponents/DraggablePayment/type
 import { getDivisionsBySeasonId } from "../../../api/divisions/service";
 import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
 import Tooltip from "@mui/material/Tooltip";
+import { useGetAllStripeAccounts } from "../../../api/stripe/query";
+import PaymentBlock from "../../PaymentBlock/PaymentBlock";
+import cashImage from "../../../assets/cash.jpg";
+import stripeImage from "../../../assets/stripe.jpg";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
@@ -231,6 +235,7 @@ const RedirectToLeagues = () => {
 const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   afterSave,
 }) => {
+  const [page, setPage] = useState(1);
   const [template, setTemplate] = useState("");
   const [title, setTitle] = useState("Registration Form");
   const [leagueName, setLeagueName] = useState("");
@@ -296,6 +301,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
       },
     ],
   });
+  const { data: stripeAccounts } = useGetAllStripeAccounts(groupId);
 
   const [seasonsQuery, leaguesQuery, stripeAccountsQuery] = results;
 
@@ -410,194 +416,255 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <div style={{ display: "grid", gap: "24px" }}>
-        <div className={styles.inputContainer}>
-          <label className={styles.label}>Template Type</label>
-          <select
-            className={styles.input}
-            name="template"
-            id="template"
-            onChange={(e) => setTemplate(e.target.value)}
-            required
-          >
-            <option value="">Select a template</option>
-            <option value="registration">Registration</option>
-          </select>
-        </div>
-        {template === "registration" && (
-          <>
-            <div className={styles.inputContainer}>
-              {errorMsg && (
-                <label className={styles.label} style={{ color: "red" }}>
-                  {errorMsg}
-                </label>
-              )}
-              <label className={styles.label} htmlFor="leagueName">
-                Form Title
-              </label>
-              <input
-                className={styles.input}
-                type="text"
-                placeholder="Title"
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-            <div className={styles.inputContainer}>
-              <label className={styles.label} htmlFor="leagueName">
-                League Name
-              </label>
-              <select
-                className={styles.input}
-                name="leagueName"
-                id="leagueId"
-                required
-                onChange={(e) => {
-                  const [name, id] = e.target.value.split(".");
-                  setLeagueName(name);
-                  setLeagueId(Number(id));
-                }}
-              >
-                <option value="">Select a league</option>
-                {leaguesQuery.data?.map((league: LeagueType) => (
-                  <option key={league.id} value={`${league.name}.${league.id}`}>
-                    {league.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {leagueId !== 0 &&
-              seasonsQuery.data?.filter(
-                (season: SeasonType) => season.league_id === leagueId
-              ).length > 0 && (
-                <div className={styles.inputContainer}>
-                  <label className={styles.label} htmlFor="seasonName">
-                    Season Name
-                  </label>
-                  <select
-                    className={styles.input}
-                    name="seasonName"
-                    id="seasonId"
-                    required
-                    onChange={(e) => {
-                      const [name, id] = e.target.value.split(".");
-                      setSeasonName(name);
-                      setSeasonId(Number(id));
-                    }}
-                  >
-                    <option value="">Select a season</option>
-                    {seasonsQuery.data
-                      ?.filter(
-                        (season: SeasonType) => season.league_id === leagueId
-                      )
-                      .map((season: SeasonType) => (
-                        <option
-                          key={season.id}
-                          value={`${season.name}.${season.id}`}
-                        >
-                          {season.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              )}
-            {seasonId !== 0 && (
+      {page === 1 && (
+        <div style={{ display: "grid", gap: "24px" }}>
+          <div className={styles.inputContainer}>
+            <label className={styles.label}>Template Type</label>
+            <select
+              className={styles.input}
+              name="template"
+              id="template"
+              onChange={(e) => setTemplate(e.target.value)}
+              required
+            >
+              <option value="">Select a template</option>
+              <option value="registration">Registration</option>
+            </select>
+          </div>
+          {template === "registration" && (
+            <>
               <div className={styles.inputContainer}>
-                <label className={styles.label} htmlFor="divisionName">
-                  Division Name
+                {errorMsg && (
+                  <label className={styles.label} style={{ color: "red" }}>
+                    {errorMsg}
+                  </label>
+                )}
+                <label className={styles.label} htmlFor="leagueName">
+                  Form Title
+                </label>
+                <input
+                  className={styles.input}
+                  type="text"
+                  placeholder="Title"
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className={styles.inputContainer}>
+                <label className={styles.label} htmlFor="leagueName">
+                  League Name
                 </label>
                 <select
                   className={styles.input}
-                  name="divisionName"
-                  id="divisionId"
+                  name="leagueName"
+                  id="leagueId"
                   required
                   onChange={(e) => {
                     const [name, id] = e.target.value.split(".");
-                    setDivisionName(name);
-                    setDivisionId(Number(id));
+                    setLeagueName(name);
+                    setLeagueId(Number(id));
                   }}
                 >
-                  <option value="">Select a division</option>
-                  {divisions.map((division: DivisionType) => (
+                  <option value="">Select a league</option>
+                  {leaguesQuery.data?.map((league: LeagueType) => (
                     <option
-                      key={division.id}
-                      value={`${division.name}.${division.id}`}
+                      key={league.id}
+                      value={`${league.name}.${league.id}`}
                     >
-                      {division.name}
+                      {league.name}
                     </option>
                   ))}
                 </select>
               </div>
-            )}
-            <div className={styles.inputContainer}>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <label className={styles.label} htmlFor="price">
-                  Price
+              {leagueId !== 0 &&
+                seasonsQuery.data?.filter(
+                  (season: SeasonType) => season.league_id === leagueId
+                ).length > 0 && (
+                  <div className={styles.inputContainer}>
+                    <label className={styles.label} htmlFor="seasonName">
+                      Season Name
+                    </label>
+                    <select
+                      className={styles.input}
+                      name="seasonName"
+                      id="seasonId"
+                      required
+                      onChange={(e) => {
+                        const [name, id] = e.target.value.split(".");
+                        setSeasonName(name);
+                        setSeasonId(Number(id));
+                      }}
+                    >
+                      <option value="">Select a season</option>
+                      {seasonsQuery.data
+                        ?.filter(
+                          (season: SeasonType) => season.league_id === leagueId
+                        )
+                        .map((season: SeasonType) => (
+                          <option
+                            key={season.id}
+                            value={`${season.name}.${season.id}`}
+                          >
+                            {season.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                )}
+              {seasonId !== 0 && (
+                <div className={styles.inputContainer}>
+                  <label className={styles.label} htmlFor="divisionName">
+                    Division Name
+                  </label>
+                  <select
+                    className={styles.input}
+                    name="divisionName"
+                    id="divisionId"
+                    required
+                    onChange={(e) => {
+                      const [name, id] = e.target.value.split(".");
+                      setDivisionName(name);
+                      setDivisionId(Number(id));
+                    }}
+                  >
+                    <option value="">Select a division</option>
+                    {divisions.map((division: DivisionType) => (
+                      <option
+                        key={division.id}
+                        value={`${division.name}.${division.id}`}
+                      >
+                        {division.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className={styles.inputContainer}>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <label className={styles.label} htmlFor="price">
+                    Price
+                  </label>
+                  <span style={{ alignContent: "center" }}>$</span>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Price"
+                    value={price}
+                    onChange={(e) => {
+                      setPrice(Number(e.target.value));
+                      const calcFee = calculateStripeFee(
+                        Number(e.target.value)
+                      );
+                      setFeeValue(calcFee);
+                    }}
+                    required
+                  />
+                  <label className={styles.label} htmlFor="fee">
+                    Processing Fee
+                    <Tooltip title="This is the fee that Stripe charges for processing payments.">
+                      <span style={{ color: "grey", paddingLeft: "4px" }}>
+                        ?
+                      </span>
+                    </Tooltip>
+                  </label>
+                  <span style={{ alignContent: "center" }}>$</span>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Fee"
+                    value={feeValue}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className={styles.inputContainer}>
+                <label className={styles.label} htmlFor="isCustomerPayingFee">
+                  Who will pay the processing fee?
                 </label>
-                <span style={{ alignContent: "center" }}>$</span>
-                <input
+                <select
                   className={styles.input}
-                  type="text"
-                  placeholder="Price"
-                  value={price}
+                  name="isCustomerPayingFee"
+                  id="isCustomerPayingFee"
                   onChange={(e) => {
-                    setPrice(Number(e.target.value));
-                    const calcFee = calculateStripeFee(Number(e.target.value));
-                    setFeeValue(calcFee);
+                    setPaymentFeeRecipient(e.target.value);
                   }}
                   required
-                />
-                <label className={styles.label} htmlFor="fee">
-                  Processing Fee
-                  <Tooltip title="This is the fee that Stripe charges for processing payments.">
-                    <span style={{ color: "grey", paddingLeft: "4px" }}>?</span>
-                  </Tooltip>
-                </label>
-                <span style={{ alignContent: "center" }}>$</span>
-                <input
-                  className={styles.input}
-                  type="text"
-                  placeholder="Fee"
-                  value={feeValue}
-                  readOnly
-                />
+                >
+                  <option value="">Select Option</option>
+                  <option value="org">Organization</option>
+                  <option value="customer">Customer</option>
+                </select>
               </div>
-            </div>
-            <div className={styles.inputContainer}>
-              <label className={styles.label} htmlFor="isCustomerPayingFee">
-                Who will pay the processing fee?
-              </label>
-              <select
-                className={styles.input}
-                name="isCustomerPayingFee"
-                id="isCustomerPayingFee"
-                onChange={(e) => {
-                  setPaymentFeeRecipient(e.target.value);
-                }}
-                required
-              >
-                <option value="">Select Option</option>
-                <option value="org">Organization</option>
-                <option value="customer">Customer</option>
-              </select>
-            </div>
-          </>
-        )}
-        <div className={styles.formBtnContainer}>
-          <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
-            Cancel
-          </Modal.Close>
+            </>
+          )}
+          <div className={styles.formBtnContainer}>
+            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
+              Cancel
+            </Modal.Close>
 
-          <div>
-            <button
-              type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}
-            >
-              Create
-            </button>
+            <div>
+              <button
+                onClick={() => setPage(page + 1)}
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+      {page === 2 && (
+        <div style={{ display: "grid", gap: "24px" }}>
+          <div className={styles.inputContainer}>
+            {stripeAccounts === undefined ||
+              (stripeAccounts.length === 0 && (
+                <label className={styles.label} style={{ color: "red" }}>
+                  Cannot create registration form since no Stripe Account found
+                  in your league
+                </label>
+              ))}
+            <label className={styles.label}>Accepted Payment Types</label>
+            <div
+              style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+            >
+              <PaymentBlock enabled={true}>
+                <img src={cashImage} alt="Cash" />
+              </PaymentBlock>
+              <PaymentBlock
+                enabled={
+                  stripeAccounts !== undefined && stripeAccounts.length > 0
+                }
+              >
+                <img src={stripeImage} alt="Cash" />
+              </PaymentBlock>
+            </div>
+          </div>
+          <div className={styles.formBtnContainer}>
+            <button
+              onClick={() => setPage(page - 1)}
+              className={`${styles.btn} ${styles.cancelBtn}`}
+            >
+              Back
+            </button>
+
+            {stripeAccounts !== undefined && stripeAccounts.length > 0 ? (
+              <button
+                type="submit"
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
+                Create
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/settings/payment")}
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
+                Link Stripe Account
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </form>
   );
 };
