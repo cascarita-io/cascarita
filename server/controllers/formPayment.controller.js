@@ -218,7 +218,12 @@ const FormPaymentController = function () {
         return res.status(formPayments.success).json(formPayments.error);
       }
 
-      return res.status(200).json(formPayments.data);
+      const data = formPayments.data;
+      const completedFormPayment = data.filter(
+        (payment) => payment.response_document_id,
+      );
+
+      return res.status(200).json(completedFormPayment);
     } catch (error) {
       next(error);
     }
