@@ -329,14 +329,14 @@ const FormPaymentController = function () {
           status: 404,
         };
       }
-      // sets up user data:
-      paymentData = await createPayerUser(formattedAnswers, groupId);
+
+      const paymentData = await createPayerUser(formattedAnswers, groupId);
 
       await existingFormPayment.update(paymentData, { valudate: true });
 
       return {
         success: true,
-        data: `user ${updatedUser.last_name} created and linked to form payment of: ${existingFormPayment.id}`,
+        data: `user created and linked to form payment of: ${existingFormPayment.id}`,
         status: 201,
       };
     } catch (error) {
