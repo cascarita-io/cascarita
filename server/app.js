@@ -24,8 +24,6 @@ app.set("port", process.env.SERVER_PORT || 3000);
 
 app.get("/api/health", (req, res) => res.sendStatus(200));
 
-Sentry.setupExpressErrorHandler(app);
-
 app.use(cookieParser());
 
 // Enable CORS before using the router
@@ -79,6 +77,7 @@ app.use("/api/images", S3Routes);
 
 // // Error handler should be the last middleware used
 // app.use(Middlewares.errorHandler);
+Sentry.setupExpressErrorHandler(app);
 
 http.createServer(app).listen(app.get("port"), function () {
   console.log("Express server listening on port " + app.get("port"));
