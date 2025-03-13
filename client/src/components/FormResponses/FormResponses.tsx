@@ -26,6 +26,7 @@ import {
   updateFormPaymentStatus,
 } from "../../api/forms/service";
 import PaymentCapture from "../PaymentCapture/PaymentCapture";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
@@ -116,10 +117,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     return date.toLocaleDateString(undefined, options);
   };
 
-  const formatMoney = (amount: number): string => {
-    //formats cents to dollars
-    return `$${(amount / 100).toFixed(2)}`;
-  };
+  const formattedCurrency = formatCurrency(amount);
 
   useEffect(() => {
     (async () => {
@@ -297,7 +295,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
           openModal={openPaymentModal}
           setOpenModal={setOpenPaymentModal}
           status={status[currentPaymentIndex]}
-          amount={formatMoney(amount[currentPaymentIndex])}
+          amount={formattedCurrency[currentPaymentIndex]}
           user={user[currentPaymentIndex]}
           index={currentPaymentIndex}
           response={formResponsesData[currentPaymentIndex]}
@@ -389,7 +387,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               </td>
               <td>{formatDate(submittedAt[index])}</td>
               <td>{email[index]}</td>
-              <td>{formatMoney(amount[index])}</td>
+              <td>{`$${formattedCurrency[index]}`}</td>
               <td>
                 {paymentType[index] === "Credit Card / Stripe"
                   ? formatDate(submittedAt[index], 3)
