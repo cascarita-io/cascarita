@@ -416,8 +416,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         {stripeAccounts === undefined ||
           (stripeAccounts.length === 0 && (
             <label className={styles.label} style={{ color: "red" }}>
-              Please link a Stripe Account before creating a
-              formclient/src/assets/stripe.jpg
+              Please link a Stripe Account before creating a form
             </label>
           ))}
         <div className={styles.inputContainer}>
