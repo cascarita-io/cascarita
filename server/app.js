@@ -46,9 +46,6 @@ const checkJwt = require("./checkJwt");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// // Error handler should be the last middleware used
-// app.use(Middlewares.errorHandler);
-
 const DivisionController = require("./routes/division.routes")(checkJwt);
 const FieldRoutes = require("./routes/field.routes")(checkJwt);
 const GroupRoutes = require("./routes/group.routes")(checkJwt);
@@ -80,6 +77,9 @@ app.use("/api/images", S3Routes);
 
 // The Sentry error handler middleware must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
+
+// // Error handler should be the last middleware used
+// app.use(Middlewares.errorHandler);
 
 http.createServer(app).listen(app.get("port"), function () {
   console.log("Express server listening on port " + app.get("port"));
