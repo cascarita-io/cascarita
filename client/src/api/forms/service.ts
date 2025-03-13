@@ -278,6 +278,40 @@ export const sendApprovalEmail = async (
     throw err;
   }
 };
+
+export const sendRejectionEmail = async (
+  emails: string[],
+  leagueName: string,
+  seasonName: string,
+  playerName: string,
+  paymentAmount: number
+) => {
+  try {
+    const data = {
+      emails: emails,
+      league_name: leagueName,
+      season_name: seasonName,
+      player_name: playerName,
+      payment_amount: paymentAmount,
+    };
+    const response = await fetch(`/api/email/rejection/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error emailing form: ${response.statusText}`);
+    }
+    // return response.json();
+  } catch (err) {
+    console.error("Error emailing responses:", err);
+    throw err;
+  }
+};
+
 // This is fetching the form payments info:
 export const getFormPayments = async (formId: string) => {
   try {

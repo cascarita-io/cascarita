@@ -1,12 +1,20 @@
+.statusLabel {
+  width: 100%;
+  padding: 1px 12px;
+}
+
 .container {
   width: 100%;
-  overflow: auto; /* Enable scrolling if needed */
-  max-height: 500px; /* Set a maximum height for the container */
+  overflow: auto;
+  /* Enable scrolling if needed */
+  max-height: 500px;
+  /* Set a maximum height for the container */
 }
 
 .table {
   width: 100%;
-  border-collapse: separate; /* Don't collapse */
+  border-collapse: separate;
+  /* Don't collapse */
   border-spacing: 0;
 }
 
@@ -19,7 +27,8 @@
 .table td {
   padding: 8px;
   text-align: left;
-  min-width: 20px; /* Set minimum width for cells */
+  min-width: 20px;
+  /* Set minimum width for cells */
   /* Apply both top and bottom borders to the <th> */
   border-bottom: 1px solid #ddd;
   border-right: 1px solid #ddd;
@@ -34,8 +43,10 @@
 .table th {
   background-color: #f2f2f2;
   position: sticky;
-  top: 0; /* Stick the header to the top */
-  z-index: 1; /* Ensure the header stays above table rows */
+  top: 0;
+  /* Stick the header to the top */
+  z-index: 1;
+  /* Ensure the header stays above table rows */
 }
 
 .table tbody tr:nth-child(even) {
@@ -52,4 +63,10 @@
   padding: 5px;
   border-radius: 30px;
   width: 70px;
+}
+
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }

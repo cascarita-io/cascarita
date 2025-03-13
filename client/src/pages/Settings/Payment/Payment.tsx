@@ -73,7 +73,10 @@ const Payment = () => {
             <tr key={user.id}>
               <td>{user.stripe_account_name}</td>
               <td>
-                <StatusLabel status={user.stripe_status}>
+                <StatusLabel
+                  className={styles.statusLabel}
+                  status={user.stripe_status}
+                >
                   {user.stripe_status}
                 </StatusLabel>
               </td>
