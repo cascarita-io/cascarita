@@ -26,6 +26,11 @@
   /* Optional: Adjust width as needed */
 }
 
+.logoInputContainer {
+  display: flex;
+  justify-content: center;
+}
+
 .copiedMessage {
   color: #aaaaaa;
   font-weight: 500;
