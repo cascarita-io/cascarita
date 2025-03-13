@@ -21,6 +21,8 @@ const Photo = ({ field, index }: FieldProps) => {
   const [fileUrl, setFileUrl] = useState<File | undefined>(undefined);
   register(`answers.${index}.photo`);
 
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     const uploadPhoto = async () => {
       if (fileUrl) {
@@ -30,6 +32,7 @@ const Photo = ({ field, index }: FieldProps) => {
           "player_photo"
         );
         setValue(`answers.${index}.photo`, uploadUrl.image_url);
+        setPhotoUrl(uploadUrl.image_url);
       } else {
         setValue(`answers.${index}.photo`, "");
       }
@@ -59,6 +62,7 @@ const Photo = ({ field, index }: FieldProps) => {
       )}
 
       <FileUpload
+        imagePreview={photoUrl}
         setFileValue={(url?: File) => {
           setFileUrl(url);
         }}
