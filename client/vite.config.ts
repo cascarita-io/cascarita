@@ -8,6 +8,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 8080,
+    allowedHosts: ["app.cascarita.io"],
   },
 
   plugins: [

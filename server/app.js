@@ -4,7 +4,6 @@ const cors = require("cors");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const express = require("express");
-const Sentry = require("@sentry/node");
 const http = require("http");
 const helmet = require("helmet");
 const path = require("path");
@@ -12,6 +11,7 @@ const Middlewares = require("./middlewares");
 const { startMongoConnection } = require("./mongodb");
 const StripeWebhooks = require("./routes/webhooks/stripe.webhooks");
 const morgan = require("morgan");
+const Sentry = require("@sentry/node");
 
 const app = express();
 app.use(
@@ -23,6 +23,8 @@ app.use(
 app.set("port", process.env.SERVER_PORT || 3000);
 
 app.get("/api/health", (req, res) => res.sendStatus(200));
+
+Sentry.setupExpressErrorHandler(app);
 
 app.use(cookieParser());
 
@@ -74,9 +76,6 @@ app.use("/api/forms", FormRoutes);
 app.use("/api/accounts", AccountRoutes);
 app.use("/api/email", EmailRoutes);
 app.use("/api/images", S3Routes);
-
-// The Sentry error handler middleware must be registered before any other error middleware and after all controllers
-Sentry.setupExpressErrorHandler(app);
 
 // // Error handler should be the last middleware used
 // app.use(Middlewares.errorHandler);
