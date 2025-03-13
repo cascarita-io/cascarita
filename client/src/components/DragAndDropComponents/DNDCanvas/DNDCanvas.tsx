@@ -23,11 +23,13 @@ import { Currency, Field, Form } from "../../../api/forms/types";
 import DraggableLiability from "../DraggableLiability/DraggableLiability";
 import DraggableSignature from "../DraggableSignature/DraggableSignature";
 import DraggableDate from "../DraggableDate/DraggableDate";
+import { useGetFormByDocumentId } from "../../../api/forms/query";
 
 const DNDCanvas = forwardRef(
   (
     {
       items,
+      formId,
       handleDelete,
       handleCopy,
       saveForm,
@@ -44,6 +46,10 @@ const DNDCanvas = forwardRef(
         methods.handleSubmit(onSubmit)();
       },
     }));
+
+    const { data: formData } = useGetFormByDocumentId(
+      formId === undefined ? "" : formId
+    );
 
     const componentMap = {
       multiple_choice: DraggableMultipleChoice,
@@ -198,11 +204,19 @@ const DNDCanvas = forwardRef(
     };
 
     const onDelete = (index: number, name: string) => {
-      remove(index);
-      handleDelete(name);
+      if (Number(formData.form_type) !== 1) {
+        remove(index);
+        handleDelete(name);
+      } else {
+        alert("You cannot delete a field from a templated registration form");
+      }
     };
 
     const onCopy = (field: Field, index: number) => {
+      if (Number(formData.form_type) === 1) {
+        alert("You cannot copy a field from a templated registration form");
+        return;
+      }
       const newRef = uuidv4();
       insert(index + 1, { ...field, ref: newRef });
       handleCopy(index, {
