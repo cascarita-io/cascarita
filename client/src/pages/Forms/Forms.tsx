@@ -20,7 +20,6 @@ import React from "react";
 import ShareForm from "../../components/Forms/ShareForm/ShareForm";
 import Cookies from "js-cookie";
 import { fetchUser } from "../../api/users/service";
-import { FaPlus } from "react-icons/fa";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
@@ -106,9 +105,9 @@ const Forms = () => {
     })();
   }, []);
 
-  const handleNewFormClick = () => {
-    navigate("/forms/edit");
-  };
+  // const handleNewFormClick = () => {
+  //   navigate("/forms/edit");
+  // };
 
   const handleTemplateClick = () => {
     setIsCreateOpen(true);
@@ -192,13 +191,14 @@ const Forms = () => {
             {/* <FaPlus className={styles.btnTextMobile} /> */}
           </PrimaryButton>
 
-          <PrimaryButton
+          {/* TODO: UNCOMMENT CUSTOM FORMS WHEN READY */}
+          {/* <PrimaryButton
             className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
             onClick={handleNewFormClick}
           >
             <p className={styles.btnTextDesktop}>New Form</p>
             <FaPlus className={styles.btnTextMobile} />
-          </PrimaryButton>
+          </PrimaryButton> */}
         </div>
       </div>
       {filteredData == null || filteredData?.length === 0 ? (

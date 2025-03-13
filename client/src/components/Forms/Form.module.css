@@ -10,6 +10,12 @@
   gap: 4px;
 }
 
+.inlineInputContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .inputShare {
   background: none;
   border: none;
@@ -62,22 +68,28 @@
 
 .input {
   width: 100%;
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 4px;
   padding: 8px 13px;
-  font-size: 15px;
-  line-height: 1;
+  font-size: 1rem;
   background-color: #f4f7fb;
   color: var(--violet-11);
   box-shadow: 0 0 0 1px var(--violet-7);
-  height: 40fallbackpx;
 }
 
 .input:focus {
   box-shadow: 0 0 0 2px lightblue;
+}
+
+input.invalid {
+  border: 1px solid #ff0000ab;
+  background-color: #fdd;
+}
+
+span.error {
+  color: red;
+  font-size: 0.75rem;
+  margin-top: 5px;
+  display: block;
 }
 
 .radioContainer {

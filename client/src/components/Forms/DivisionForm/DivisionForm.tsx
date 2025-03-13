@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import {
-  CreateNewDivisionData,
-  DeleteDivisionData,
-  DivisionFormProps,
-  UpdateDivisionData,
-} from "./types";
+import { DivisionFormData, DivisionFormProps, DivisionRequest } from "./types";
 import {
   useCreateDivision,
   useUpdateDivision,
@@ -16,59 +11,90 @@ import DeleteForm from "../DeleteForm/DeleteForm";
 import Cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
 import { SeasonType } from "../../../pages/Seasons/types";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { divisionSchema } from "./schema";
 
 const DivisionForm: React.FC<DivisionFormProps> = ({
   afterSave,
   divisionId,
+  seasonId,
+  divisionName,
   requestType,
-  // seasonId,
   seasonData,
 }) => {
   const { t } = useTranslation("Divisions");
-  const [divisionName, setDivisionName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [seasonId, setSeasonId] = useState(0);
+  const [requestError, setRequestError] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    clearErrors,
+    watch,
+  } = useForm<DivisionFormData>({
+    defaultValues: {
+      name: divisionName || "",
+      season_id: seasonId || 0,
+    },
+    resolver: zodResolver(divisionSchema),
+    mode: "onChange",
+  });
 
   const groupId = Cookies.get("group_id") || 0;
+  const name = watch("name");
 
   const createDivisionMutation = useCreateDivision();
   const updateDivisionMutation = useUpdateDivision();
   const deleteDivisionMutation = useDeleteDivision();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    const { divisionName } = Object.fromEntries(
-      new FormData(event.currentTarget),
-    );
+  const onSubmit: SubmitHandler<DivisionFormData> = async (
+    data: DivisionFormData
+  ) => {
+    const { name, season_id } = data;
 
-    const data = {
-      formData: {
-        name: divisionName,
-        group_id: groupId,
-        season_id: seasonId,
-      },
+    const payload = {
+      name,
+      group_id: groupId,
+      season_id: season_id,
     };
 
     switch (requestType) {
-      case "POST":
-        createDivisionMutation.mutate(data as CreateNewDivisionData);
+      case "POST": {
+        const dataPost = await createDivisionMutation.mutateAsync(
+          payload as DivisionRequest
+        );
+        if (dataPost.error) {
+          setRequestError(dataPost.error);
+          return;
+        }
         break;
-      case "PATCH":
-        updateDivisionMutation.mutate({
+      }
+
+      case "PATCH": {
+        const dataUpdate = await updateDivisionMutation.mutateAsync({
           id: divisionId,
-          ...data,
-        } as UpdateDivisionData);
+          ...payload,
+        } as DivisionRequest);
+        if (dataUpdate.error) {
+          setRequestError(dataUpdate.error);
+          return;
+        }
         break;
-      case "DELETE":
-        deleteDivisionMutation.mutate({
-          id: divisionId ? divisionId : 0,
-        } as DeleteDivisionData);
-        break;
+      }
+
       default:
         throw Error("No request type was supplied");
     }
 
+    afterSave();
+  };
+
+  const onDelete = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    deleteDivisionMutation.mutate({
+      id: divisionId ? divisionId : 0,
+    } as DivisionRequest);
     afterSave();
   };
 
@@ -78,46 +104,61 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
         <DeleteForm
           className={styles.form}
           destructBtnLabel={t("formContent.delete")}
-          onSubmit={handleSubmit}
+          onSubmit={onDelete}
         >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="seasonName">
                 {t("formContent.name")}
               </label>
               <input
-                className={styles.input}
-                required
+                {...register("name")}
+                className={`${styles.input} ${errors.name || requestError || name.length > 50 ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="divisionName"
-                name="divisionName"
-                value={divisionName}
-                onChange={(event) =>
-                  setDivisionName(event.target.value.replaceAll("/", ""))
-                }
               />
+              {errors.name && (
+                <span className={styles.error}>{errors.name?.message}</span>
+              )}
+              {!errors.name && name.length > 50 && (
+                <span className={styles.error}>
+                  Division name cannot exceed 50 characters
+                </span>
+              )}
+              {requestError && (
+                <span className={styles.error}>{requestError}</span>
+              )}
             </div>
+
             <div className={styles.inputContainer}>
-              <label className={styles.label}>{t("formContent.season")}</label>
+              <label className={styles.label} htmlFor="seasonId">
+                {t("formContent.season")}
+              </label>
               <select
-                required
+                {...register("season_id", {
+                  setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                })}
                 id="seasonId"
-                name="seasonId"
-                value={seasonId}
-                onChange={(e) => setSeasonId(Number(e.target.value))}
-                className={styles.input}
+                className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
+                onChange={() => clearErrors("season_id")}
               >
-                <option>Select a season</option>
+                <option value={0}>Select a league</option>
                 {seasonData?.map((season: SeasonType) => (
                   <option key={season.id} value={season.id}>
                     {season.name} - {season.league_name}
                   </option>
                 ))}
               </select>
+
+              {errors.season_id && (
+                <span className={styles.error}>
+                  {errors.season_id?.message}
+                </span>
+              )}
             </div>
           </div>
 
@@ -126,9 +167,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
               type="submit"
               className={`${styles.btn} ${styles.submitBtn}`}
             >
-              {isLoading === true
-                ? t("formContent.submitting")
-                : t("formContent.submit")}
+              {t("formContent.submit")}
             </button>
 
             <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>

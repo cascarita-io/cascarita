@@ -4,8 +4,10 @@ require("dotenv").config();
 
 const Response = require("./../mongoModels/response");
 const FormMongo = require("./../mongoModels/form");
-const { Form, User } = require("../models");
+const { Form, User, FormPayment } = require("../models");
 const FormPaymentController = require("./formPayment.controller");
+const generatePaymentIntentId = require("../utilityFunctions/paymentIntents");
+const AccountController = require("./account.controller");
 
 const FormController = function () {
   var getAllForms = async function (req, res, next) {
@@ -22,19 +24,73 @@ const FormController = function () {
   var createResponse = async function (req, res, next) {
     try {
       const responseData = req.body.data;
+      const doc_form_id = req.body.form_id
       const insertedResponse = new Response({
-        form_id: req.body.form_id,
+        form_id: doc_form_id,
         response: {
           answers: responseData,
         },
       });
 
+      const paymentEntry = responseData.find(
+      (item) => item.field?.type === "payment",
+      );
+
+      const hasCashPayment = (paymentEntry && paymentEntry.payment_type === "cash");
+
+      if (hasCashPayment) {
+
+        /* TEMPORARY SOLUTION TO CANCEL THE STRIPE PAYMENT INTENT */
+        const paymentIntentToCancel = paymentEntry.paymentIntentId;
+        const isUserAction = false; // system is canceling the stripe payment intent
+        const isStripePayment = true; // payment is a stripe payment
+        const email = null;
+        var cancelRes = await AccountController.cancelPaymentIntent(paymentIntentToCancel, email, isUserAction, isStripePayment);
+        if (!cancelRes.success) {
+          return res.status(cancelRes.status).json({ error: cancelRes.error });
+        }
+        // delete stale stripe FormPayment:
+        const stalePaymentIntent = await FormPayment.findOne({
+          where: {
+            payment_intent_id: paymentIntentToCancel,
+          },
+        });
+        await stalePaymentIntent.destroy();
+        /* END OF TEMP BLOCK */
+
+        paymentEntry.amount = paymentEntry.amount * 100; //convert to cents
+        const cashPaymentIntentId = generatePaymentIntentId();
+        paymentEntry.paymentIntentId = cashPaymentIntentId;
+      }
+
+      // Save the response to the mongo database
       await insertedResponse.save();
       const responseIdString = insertedResponse.id;
-      const response = await FormPaymentController.connectResponseToFormPayment(
-        responseData,
-        responseIdString,
-      );
+
+      var response;
+      // Splits into cash flow
+      if (hasCashPayment) {
+        const form = await Form.findOne({ where: { document_id: doc_form_id } });
+        const form_id = form.id;
+
+        const paymentData = {
+          form_id: form_id,
+          payment_method_id: 2, //cash
+          internal_status_id: 1, //pending
+          updatedTotal: paymentEntry.amount,
+          paymentIntentId: paymentEntry.paymentIntentId,
+          response_document_id: responseIdString,
+        };
+
+        // create cash FormPayment
+        response = await AccountController.createFormPayment(paymentData);
+      } else {
+        // Handle stripe payment response:
+        response = await FormPaymentController.connectResponseToFormPayment(
+            responseData,
+            responseIdString,
+          );
+      }
 
       if (!response.success) {
         return res.status(response.status).json({ error: response.message });
@@ -50,8 +106,7 @@ const FormController = function () {
       const responses = await Response.find({
         form_id: req.params.form_id,
       });
-
-      return res.status(201).json(responses);
+      return res.status(200).json(responses);
     } catch (error) {
       next(error);
     }
@@ -216,17 +271,29 @@ const FormController = function () {
         },
       });
       if (!formResponse) {
-        res.status(404);
-        throw new Error(`no form with form id: ${form_id}`);
+        res.status(404).json([`no form with form id: ${form_id}`]);
+      }
+
+      const formPayments = await FormPaymentController.getFormPaymentsByFormId(
+        form_id,
+      );
+
+      if (!formPayments.success) {
+        console.warn("failed to find form with form_id");
+        return res.status(formPayments.success).json(formPayments.error);
+      }
+
+      if (formPayments.data.length > 0) {
+        return res
+          .status(200)
+          .json({ error: "form cannot be deleted due to payment response(s)" });
       }
 
       await formResponse.destroy();
-
       await Response.deleteMany({ form_id: form_id });
-
       await FormMongo.deleteOne({ _id: form_id });
 
-      res.status(204).json();
+      return res.status(204).json("form deleted successfully");
     } catch (error) {
       next(error);
     }

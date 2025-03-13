@@ -7,13 +7,12 @@ import SeasonForm from "../../components/Forms/SeasonForm/SeasonForm";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueries } from "@tanstack/react-query";
-import { getSeasonsByGroupId } from "../../api/seasons/services";
 import styles from "../pages.module.css";
 import { FaPlus } from "react-icons/fa";
-import { getLeagueByGroupId } from "../../api/leagues/service";
-import Cookies from "js-cookie";
+import { useGetSeasonsByGroupId } from "../../api/seasons/query";
+import { useGetLeaguesByGroupId } from "../../api/leagues/query";
 import { SeasonType } from "./types";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
 
 const Seasons = () => {
   const { t } = useTranslation("Seasons");
@@ -22,46 +21,25 @@ const Seasons = () => {
   const [sorts, setSorts] = useState("");
   const [currentSeasonName, setCurrentSeasonName] = useState("");
   const [currentSeasonId, setCurrentSeasonId] = useState(0);
+  const [currentSeasonLeagueId, setCurrentSeasonLeagueId] = useState(0);
+  const [currentSeasonStartDate, setCurrentSeasonStartDate] = useState("");
+  const [currentSeasonEndDate, setCurrentSeasonEndDate] = useState("");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  // const filterStatuses = [t("filterOptions.item1"), t("filterOptions.item2")];
   const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const { groupId } = useGroup();
 
-  const groupId = Number(Cookies.get("group_id")) || 0;
-
-  const results = useQueries({
-    queries: [
-      {
-        queryKey: ["seasons", groupId],
-        queryFn: async () =>
-          await getSeasonsByGroupId({
-            queryKey: ["seasons", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-      {
-        queryKey: ["leagues", groupId],
-        queryFn: async () =>
-          await getLeagueByGroupId({
-            queryKey: ["leagues", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-    ],
-  });
-
-  const [seasonsQuery, leaguesQuery] = results;
-  const data = seasonsQuery.data;
-  const isLoading = seasonsQuery.isLoading;
-  const isError = seasonsQuery.isError;
+  const {
+    data: seasons,
+    isLoading: isSeasonsLoading,
+    isError: isSeasonsError,
+  } = useGetSeasonsByGroupId(groupId);
+  const { data: leagues } = useGetLeaguesByGroupId(groupId);
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -78,13 +56,23 @@ const Seasons = () => {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const handleEdit = (seasonName: string, seasonId: number) => {
+  const handleEdit = (
+    seasonName: string,
+    seasonId: number,
+    seasonLeagueId: number,
+    seasonStartDate: string,
+    seasonEndDate: string
+  ) => {
     setCurrentSeasonName(seasonName);
     setCurrentSeasonId(seasonId);
+    setCurrentSeasonLeagueId(Number(seasonLeagueId));
+    setCurrentSeasonStartDate(seasonStartDate);
+    setCurrentSeasonEndDate(seasonEndDate);
     setIsEditOpen(true);
   };
 
@@ -94,9 +82,9 @@ const Seasons = () => {
     setIsDeleteOpen(true);
   };
 
-  const filteredData = data
+  const filteredSeasons = seasons
     ?.filter((season: SeasonType) =>
-      season.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+      season.name.toLowerCase().includes(debouncedQuery.toLowerCase())
     )
     ?.sort((a: SeasonType, b: SeasonType) => {
       if (sorts === t("sortOptions.item1")) {
@@ -113,11 +101,11 @@ const Seasons = () => {
     <>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>
-          {data && data.length > 0 && (
+          {seasons && seasons.length > 0 && (
             <Search onSearchChange={setSearchQuery} />
           )}
 
-          {data && data.length > 0 && (
+          {seasons && seasons.length > 0 && (
             <div className={styles.filterContainer}>
               <p className={styles.filterSubTitle}>{t("sort")}</p>
               <SelectMenu
@@ -152,29 +140,29 @@ const Seasons = () => {
             <SeasonForm
               afterSave={() => setIsCreateOpen(false)}
               requestType="POST"
-              leagueData={leaguesQuery.data}
+              leagueData={leagues}
             />
           </Modal.Content>
         </Modal>
       </div>
 
-      {filteredData == null || filteredData?.length === 0 ? (
+      {filteredSeasons == null || filteredSeasons?.length === 0 ? (
         <p className={styles.noItemsMessage}>{t("empty")}</p>
       ) : (
         <DashboardTable
           headers={[t("col1"), t("col2"), t("col3"), t("col4"), t("col5")]}
           headerColor="light"
         >
-          {isLoading ? (
+          {isSeasonsLoading ? (
             <tr>
               <td>{t("loading")}</td>
             </tr>
-          ) : isError || !data ? (
+          ) : isSeasonsError || !seasons ? (
             <tr>
               <td>{t("error")}</td>
             </tr>
           ) : (
-            filteredData?.map((season: SeasonType, idx: number) => (
+            filteredSeasons?.map((season: SeasonType, idx: number) => (
               <tr key={idx} className={styles.tableRow}>
                 <td className={styles.tableData}>{season.name}</td>
                 <td className={styles.tableData}>{season.league_name}</td>
@@ -187,7 +175,15 @@ const Seasons = () => {
                 <td>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      onClick={() => handleEdit(season.name, season.id)}
+                      onClick={() =>
+                        handleEdit(
+                          season.name,
+                          season.id,
+                          season.league_id,
+                          season.start_date,
+                          season.end_date
+                        )
+                      }
                     >
                       {t("edit")}
                     </DropdownMenuButton.Item>
@@ -215,7 +211,11 @@ const Seasons = () => {
             afterSave={() => setIsEditOpen(false)}
             requestType="PATCH"
             seasonId={currentSeasonId}
-            leagueData={leaguesQuery.data}
+            seasonName={currentSeasonName}
+            seasonLeagueId={currentSeasonLeagueId}
+            seasonStartDate={currentSeasonStartDate}
+            seasonEndDate={currentSeasonEndDate}
+            leagueData={leagues}
           />
         </Modal.Content>
       </Modal>

@@ -13,6 +13,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./server:/app
+      - /app/node_modules
     depends_on:
       db:
         condition: service_healthy

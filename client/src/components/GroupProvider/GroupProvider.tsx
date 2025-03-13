@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-
+import Cookies from "js-cookie";
 interface GroupContextProps {
   groupId: number;
   setGroupId: (id: number) => void;
@@ -8,7 +8,9 @@ interface GroupContextProps {
 const GroupContext = createContext<GroupContextProps | undefined>(undefined);
 
 export const GroupProvider = ({ children }: { children: ReactNode }) => {
-  const [groupId, setGroupId] = useState<number>(0);
+  const [groupId, setGroupId] = useState<number>(
+    Number(Cookies.get("group_id")) || 0
+  );
 
   return (
     <GroupContext.Provider value={{ groupId, setGroupId }}>

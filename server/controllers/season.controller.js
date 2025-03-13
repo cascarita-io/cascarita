@@ -172,8 +172,7 @@ const SeasonController = {
         form.league_id,
       );
       if (!isUnique) {
-        res.status(400);
-        throw new Error("name is not unique");
+        return res.status(400).json({ error: "Season name is not unique" });
       }
 
       await Season.build(form).validate();
@@ -195,16 +194,15 @@ const SeasonController = {
       }
 
       Object.keys(req.body).forEach((key) => {
-        if (key !== "league_id") {
-          season[key] = req.body[key] ? req.body[key] : season[key];
-        }
+        season[key] = req.body[key] ? req.body[key] : season[key];
       });
 
       const { name, league_id } = season;
       const isUnique = await isNameUniqueWithinLeague(name, league_id);
       if (!isUnique) {
-        res.status(400);
-        throw new Error("name is not unique");
+        return res
+          .status(400)
+          .json({ error: "Season name is not unique within league" });
       }
 
       await season.validate();

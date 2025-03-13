@@ -1,82 +1,93 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
-import {
-  LeagueFormProps,
-  CreateNewLeagueData,
-  UpdateLeagueData,
-  DeleteLeagueData,
-} from "./types";
-import { useAuth0 } from "@auth0/auth0-react";
+import { LeagueFormProps, LeagueFormData, LeagueRequest } from "./types";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import {
   useCreateLeague,
   useDeleteLeague,
   useUpdateLeague,
 } from "../../../api/leagues/mutations";
-import Cookies from "js-cookie";
-import { fetchUser } from "../../../api/users/service";
-import { User } from "../../../api/users/types";
 import { useTranslation } from "react-i18next";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { leagueSchema } from "./schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useGroup } from "../../GroupProvider/GroupProvider";
 
 const LeagueForm: React.FC<LeagueFormProps> = ({
   afterSave,
   requestType,
   leagueId,
+  leagueName,
+  leagueDescription,
 }) => {
   const { t } = useTranslation("Leagues");
-  const [leagueName, setLeagueName] = useState("");
-  const [leagueDesc, setLeagueDesc] = useState("");
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [error, setError] = React.useState("");
 
-  const { getAccessTokenSilently } = useAuth0();
+  const { groupId } = useGroup();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    clearErrors,
+  } = useForm<LeagueFormData>({
+    defaultValues: {
+      name: leagueName || "",
+      description: leagueDescription || "",
+    },
+    resolver: zodResolver(leagueSchema),
+  });
 
   const createLeagueMutation = useCreateLeague();
   const updateLeagueMutation = useUpdateLeague();
   const deleteLeagueMutation = useDeleteLeague();
 
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setCurrentUser(currentUser);
-    })();
-  }, []);
+  const onSubmit: SubmitHandler<LeagueFormData> = async (
+    data: LeagueFormData
+  ) => {
+    const { name, description } = data;
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const { leagueName, leagueDescription } = Object.fromEntries(
-      new FormData(event.currentTarget),
-    );
-
-    const data = {
-      formData: {
-        name: leagueName,
-        description: leagueDescription,
-        group_id: currentUser?.group_id,
-      },
+    const payload = {
+      name: name,
+      description: description,
+      group_id: groupId,
     };
 
     switch (requestType) {
-      case "POST":
-        createLeagueMutation.mutate(data as CreateNewLeagueData);
+      case "POST": {
+        const dataPost = await createLeagueMutation.mutateAsync(
+          payload as LeagueRequest
+        );
+        if (dataPost.error) {
+          setError(dataPost.error);
+          return;
+        }
         break;
-      case "PATCH":
-        updateLeagueMutation.mutate({
+      }
+      case "PATCH": {
+        const dataUpdate = await updateLeagueMutation.mutateAsync({
           id: leagueId,
-          ...data,
-        } as UpdateLeagueData);
+          ...payload,
+        } as LeagueRequest);
+        if (dataUpdate.error) {
+          setError(dataUpdate.error);
+          return;
+        }
         break;
-      case "DELETE":
-        deleteLeagueMutation.mutate({
-          id: leagueId ? leagueId : 0,
-        } as DeleteLeagueData);
-        break;
+      }
       default:
         throw Error("No request type was supplied");
     }
 
+    afterSave();
+  };
+
+  const onDelete = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    deleteLeagueMutation.mutate({
+      id: leagueId ? leagueId : 0,
+    } as LeagueRequest);
     afterSave();
   };
 
@@ -85,29 +96,32 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
       {requestType === "DELETE" ? (
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
-          onSubmit={handleSubmit}
+          onSubmit={onDelete}
           className={styles.form}
         >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="leagueName">
                 {t("formContent.name")}
               </label>
               <input
-                className={styles.input}
-                required
+                {...register("name")}
+                className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="leagueName"
-                name="leagueName"
-                value={leagueName}
-                onChange={(event) =>
-                  setLeagueName(event.target.value.replaceAll("/", ""))
-                }
+                onChange={() => {
+                  setError("");
+                  clearErrors("name");
+                }}
               />
+              {errors.name && (
+                <span className={styles.error}>{errors.name?.message}</span>
+              )}
+              {error && <span className={styles.error}>{error}</span>}
             </div>
 
             <div className={`${styles.inputContainer} ${styles.halfContainer}`}>
@@ -115,12 +129,13 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
                 {t("formContent.description")}
               </label>
               <input
+                {...register("description")}
                 className={styles.input}
                 placeholder={t("formContent.descriptionPlaceholder")}
                 id="leagueDesc"
-                name="leagueDescription"
-                value={leagueDesc}
-                onChange={(event) => setLeagueDesc(event.target.value)}
+                onChange={() => {
+                  clearErrors("description");
+                }}
               />
             </div>
           </div>

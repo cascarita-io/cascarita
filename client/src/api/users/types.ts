@@ -9,6 +9,7 @@ export interface UserResponse {
   language_id: number;
   created_at: Date;
   updated_at: Date;
+  error?: string;
 }
 
 export interface User {

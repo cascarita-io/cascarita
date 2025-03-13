@@ -2,10 +2,10 @@ import { QueryFunctionContext } from "@tanstack/react-query";
 import {
   DeleteUserData,
   UpdateUserData,
-  GetSessionData,
-  UpdatePlayerTeamsData,
+  PlayerSessionRequest,
   AddUserData,
 } from "../../components/Forms/UserForm/types";
+import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
 import {
   UserResponse,
   LanguageCodeToLanguageId,
@@ -18,7 +18,7 @@ type UserSettingsQueryKey = [string, number | undefined];
 
 const updateUsersLanguages = async (
   user_id: number,
-  language: string,
+  language: string
 ): Promise<UserResponse> => {
   const language_id = LanguageCodeToLanguageId[language as "en" | "esp"];
 
@@ -179,7 +179,7 @@ const getUser = async ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
 
     // Check if the response is OK (status in the range 200-299)
@@ -206,7 +206,7 @@ const fetchUser = async (email: string, token: string) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
 
     // Check if the response is OK (status in the range 200-299)
@@ -222,34 +222,34 @@ const fetchUser = async (email: string, token: string) => {
   }
 };
 
-const updatePlayerTeams = async (
-  data: UpdatePlayerTeamsData,
-): Promise<UserResponse> => {
+const updatePlayerTeams = async (data: PlayerRequest): Promise<void> => {
   try {
     const response = await fetch(`/api/users/${data.id}/players/teams`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
 
-    const result = await response.json();
-    return result;
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return;
   } catch (error) {
     console.error("Error updating user:", error);
     throw error;
   }
 };
 
-const getSession = async (data: GetSessionData) => {
+const getPlayerSession = async (data: PlayerSessionRequest) => {
   try {
     const response = await fetch(`/api/users/session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
 
     const result = await response.json();
@@ -289,7 +289,7 @@ export {
   fetchUser,
   updatePlayerTeams,
   getPlayersByGroupId,
-  getSession,
+  getPlayerSession,
   getCompleteUserSettings,
   getUser,
 };

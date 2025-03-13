@@ -30,7 +30,6 @@ const DashboardTable: React.FC<TableProps> = ({
             position: "sticky",
             top: 0,
             background: headColor,
-            zIndex: 1,
           }}
         >
           <tr>

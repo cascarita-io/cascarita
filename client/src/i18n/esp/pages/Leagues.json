@@ -29,6 +29,9 @@
     "create": "Crear liga",
     "edit": "Editar liga"
   },
+  "formValidation": {
+    "empty": "El nombre de la liga no puede estar vacío"
+  },
   "empty": "No hay ligas para mostrar...",
   "loading": "Cargando...",
   "error": "Error al obtener datos"

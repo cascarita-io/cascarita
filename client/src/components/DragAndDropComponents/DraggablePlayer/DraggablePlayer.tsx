@@ -7,7 +7,7 @@ import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
 import Switch from "react-switch";
 // import { useTranslation } from "react-i18next";
 import { DraggableProps } from "../types";
-import { getLeagueByGroupId } from "../../../api/leagues/service";
+import { getLeaguesByGroupId } from "../../../api/leagues/service";
 import { getSeasonsByLeagueId } from "../../../api/seasons/services";
 import Cookies from "js-cookie";
 import { LeagueType } from "../../../pages/Leagues/types";
@@ -39,7 +39,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
 
   useEffect(() => {
     const fetchLeagues = async () => {
-      const leaguesData: LeagueType[] = await getLeagueByGroupId({
+      const leaguesData: LeagueType[] = await getLeaguesByGroupId({
         queryKey: ["league", groupId],
         signal: new AbortController().signal,
         meta: undefined,

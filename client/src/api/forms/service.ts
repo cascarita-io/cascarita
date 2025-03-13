@@ -1,6 +1,7 @@
 import { Answer, Form, GetFormsParams } from "./types";
 
 import { User } from "../users/types";
+import { QueryFunctionContext } from "@tanstack/react-query";
 
 // TODO: Implement a paginated API to call this for our forms
 // This will include filters, query, and sorting
@@ -160,7 +161,7 @@ export const getMongoForms = async (groupId: number) => {
 
 export const getMongoFormById = async (formId: string) => {
   try {
-    const response = await fetch(`/api/forms/${formId}`);
+    const response = await fetch(`/api/forms/document/${formId}`);
 
     if (!response.ok) {
       throw new Error(`Error fetching form: ${response.statusText}`);
@@ -173,6 +174,7 @@ export const getMongoFormById = async (formId: string) => {
   }
 };
 
+// THIS GETS the responses from mongodb:
 export const getMongoFormResponses = async (formId: string) => {
   try {
     const response = await fetch(`/api/forms/${formId}/responses`);
@@ -240,6 +242,43 @@ export const sendEmail = async (emails: string[], formLink: string) => {
   }
 };
 
+export const sendApprovalEmail = async (
+  emails: string[],
+  leagueName: string,
+  seasonName: string,
+  playerName: string,
+  paymentAmount: number,
+  paymentDate: string,
+  transactionId: string
+) => {
+  try {
+    const data = {
+      emails: emails,
+      league_name: leagueName,
+      season_name: seasonName,
+      player_name: playerName,
+      payment_amount: paymentAmount,
+      payment_date: paymentDate,
+      transaction_id: transactionId,
+    };
+    const response = await fetch(`/api/email/approval/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error emailing form: ${response.statusText}`);
+    }
+    // return response.json();
+  } catch (err) {
+    console.error("Error emailing responses:", err);
+    throw err;
+  }
+};
+// This is fetching the form payments info:
 export const getFormPayments = async (formId: string) => {
   try {
     const data = {
@@ -321,6 +360,26 @@ export const updateFormPaymentType = async (
     return response.json();
   } catch (err) {
     console.error("Error fetching payment intents:", err);
+    throw err;
+  }
+};
+
+type FormQueryKey = [string, string];
+
+export const getFormByDocumentId = async ({
+  queryKey,
+}: QueryFunctionContext<FormQueryKey>) => {
+  const [, documentId] = queryKey;
+  try {
+    const response = await fetch(`/api/forms/document/${documentId}`);
+
+    if (!response.ok) {
+      throw new Error(`Error fetching form: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (err) {
+    console.error("Error fetching form:", err);
     throw err;
   }
 };

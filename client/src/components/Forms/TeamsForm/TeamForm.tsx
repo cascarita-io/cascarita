@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "../Form.module.css";
-import {
-  CreateNewTeamData,
-  DeleteTeamData,
-  TeamFormProps,
-  UpdateTeamData,
-} from "./types";
+import { TeamRequest, TeamFormProps, TeamFormData } from "./types";
 import FileUpload from "../../FileUpload/FileUpload";
 import Modal from "../../Modal/Modal";
 import {
@@ -15,91 +10,117 @@ import {
 } from "../../../api/teams/mutations";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import { useTranslation } from "react-i18next";
-import Cookies from "js-cookie";
 import { DivisionType } from "../../../pages/Division/types";
 import { SeasonType } from "../../../pages/Seasons/types";
-import { uploadPhotoToS3 } from "../../../api/photo/service";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useUploadPhotoS3 } from "../../../api/photo/mutations";
+import { UploadPhotoRequest } from "../../../api/photo/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { teamSchema } from "./schema";
+import { useGroup } from "../../GroupProvider/GroupProvider";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
   requestType,
+  teamName,
+  seasonId,
+  divisionId,
+  teamLogo,
   teamId,
   divisionsData,
   seasonsData,
 }) => {
   const { t } = useTranslation("Teams");
-  const [teamName, setTeamName] = useState("");
-  const [divisionId, setDivisionId] = useState(0);
-  const [seasonId, setSeasonId] = useState(0);
-  const [linkToSeason, setLinkToSeason] = useState(true);
-  const groupId = Number(Cookies.get("group_id")) || 0;
+  const [requestError, setRequestError] = useState("");
+  const { groupId } = useGroup();
 
-  const [fileUrl, setFileUrl] = useState<File | null>(null);
-  const [teamLogo, setTeamLogo] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    clearErrors,
+    watch,
+  } = useForm<TeamFormData>({
+    defaultValues: {
+      name: teamName || "",
+      season_id: seasonId || 0,
+      division_id: divisionId || 0,
+      file_url: undefined,
+      link_to_season: divisionId && seasonId ? true : false,
+    },
+    resolver: zodResolver(teamSchema),
+    mode: "onChange",
+  });
 
-  useEffect(() => {
-    const uploadPhoto = async () => {
-      if (fileUrl) {
-        const uploadUrl = await uploadPhotoToS3(
-          fileUrl,
-          "team_images",
-          "team_logo",
-        );
-        setTeamLogo(uploadUrl.image_url);
-      } else {
-        setTeamLogo(null);
-      }
-    };
-    uploadPhoto();
-  }, [fileUrl]);
-
-  useEffect(() => {
-    if (seasonId !== 0) {
-      setLinkToSeason(true);
-    }
-  }, [seasonId]);
-
+  const isLinkSeason = watch("link_to_season");
+  const name = watch("name");
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
+  const uploadUrlMutation = useUploadPhotoS3();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onSubmit: SubmitHandler<TeamFormData> = async (data: TeamFormData) => {
+    const { name, season_id, division_id, file_url, link_to_season } = data;
 
-    const formData = new FormData(event.currentTarget);
-    const teamName = formData.get("teamName") as string;
+    let s3PhotoUpload;
+    if (file_url) {
+      const s3Payload = {
+        file_url: file_url,
+        folder_name: "team_images",
+        image_type: "team_logo",
+      };
 
-    const data = {
-      formData: {
-        name: teamName,
-        team_logo: teamLogo,
-        group_id: groupId,
-        division_id: divisionId,
-        season_id: seasonId,
-        link_to_season: linkToSeason,
-      },
+      s3PhotoUpload = await uploadUrlMutation.mutateAsync(
+        s3Payload as UploadPhotoRequest
+      );
+    }
+
+    const payload = {
+      name,
+      team_logo: s3PhotoUpload ? s3PhotoUpload.image_url : undefined,
+      group_id: groupId,
+      division_id,
+      season_id,
+      link_to_season,
     };
 
-    // TODO: Refactor mutations to not rely on season but rather division
     switch (requestType) {
-      case "POST":
-        createTeamMutation.mutate(data as CreateNewTeamData);
+      case "POST": {
+        const dataPost = await createTeamMutation.mutateAsync(
+          payload as TeamRequest
+        );
+        if (dataPost.error) {
+          setRequestError(dataPost.error);
+          return;
+        }
         break;
-      case "PATCH":
-        updateTeamMutation.mutate({
+      }
+
+      case "PATCH": {
+        const dataUpdate = await updateTeamMutation.mutateAsync({
           id: teamId,
-          ...data,
-        } as UpdateTeamData);
+          ...payload,
+        } as TeamRequest);
+        if (dataUpdate.error) {
+          setRequestError(dataUpdate.error);
+          return;
+        }
         break;
-      case "DELETE":
-        deleteTeamMutation.mutate({
-          id: teamId ? teamId : 0,
-        } as DeleteTeamData);
-        break;
+      }
+
       default:
         throw Error("No request type was supplied");
     }
 
+    afterSave();
+  };
+
+  const onDelete = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    deleteTeamMutation.mutate({
+      id: teamId ? teamId : 0,
+    } as TeamRequest);
     afterSave();
   };
 
@@ -108,93 +129,119 @@ const TeamForm: React.FC<TeamFormProps> = ({
       {requestType === "DELETE" ? (
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
-          onSubmit={handleSubmit}
+          onSubmit={onDelete}
           className={styles.form}
         >
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <div style={{ display: "grid", gap: "24px" }}>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="teamName">
                 {t("formContent.name")}
               </label>
               <input
-                required
-                className={styles.input}
-                type="text"
+                {...register("name")}
+                className={`${styles.input} ${errors.name || requestError || name.length > 30 ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="teamName"
-                name="teamName"
-                value={teamName}
-                onChange={(event) =>
-                  setTeamName(event.target.value.replaceAll("/", ""))
-                }
               />
+              {errors.name && (
+                <span className={styles.error}>{errors.name?.message}</span>
+              )}
+              {!errors.name && name.length > 30 && (
+                <span className={styles.error}>
+                  Team name cannot exceed 30 characters
+                </span>
+              )}
+              {requestError && (
+                <span className={styles.error}>{requestError}</span>
+              )}
             </div>
-
-            <div className={styles.inputContainer}>
-              <label className={styles.label}>{t("formContent.season")}</label>
-              <select
-                id="seasonId"
-                name="seasonId"
-                value={seasonId}
-                className={styles.input}
-                onChange={(e) => setSeasonId(Number(e.target.value))}
-                required={linkToSeason}
-              >
-                <option value="">Select a season</option>
-                {seasonsData?.map((season: SeasonType) => (
-                  <option key={season.id} value={season.id}>
-                    {season.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {seasonId !== 0 && (
-              <div className={styles.inputContainer}>
-                <label className={styles.label}>
-                  {t("formContent.division")}
-                </label>
-                <select
-                  id="divisionId"
-                  name="divisionId"
-                  value={divisionId}
-                  className={styles.input}
-                  onChange={(e) => setDivisionId(Number(e.target.value))}
-                  required={linkToSeason}
-                >
-                  <option value="">Select a division</option>
-                  {divisionsData?.map((division: DivisionType) => (
-                    <option key={division.id} value={division.id}>
-                      {division.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
 
             <div className={styles.radioContainer}>
-              <label className={styles.label}>
+              <input
+                {...register("link_to_season")}
+                type="checkbox"
+                id="isLinkToSeason"
+                onChange={() => {
+                  setValue("link_to_season", !watch("link_to_season"));
+                }}
+              />
+              <label className={styles.label} htmlFor="isLinkToSeason">
                 {t("formContent.linkToSeason")}
               </label>
-              <input
-                type="checkbox"
-                id="linkToSeason"
-                name="linkToSeason"
-                checked={linkToSeason}
-                onChange={(e) => setLinkToSeason(e.target.checked)}
-              />
             </div>
 
-            <FileUpload
-              setFileValue={(url: File | null) => {
-                setFileUrl(url);
-              }}
-              className={styles.logoInputContainer}
-            />
+            {isLinkSeason && (
+              <>
+                <div className={styles.inputContainer}>
+                  <label className={styles.label} htmlFor="seasonId">
+                    {t("formContent.season")}
+                  </label>
+                  <select
+                    {...register("season_id", {
+                      setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                    })}
+                    id="seasonId"
+                    className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
+                    onChange={() => {
+                      clearErrors("season_id");
+                    }}
+                  >
+                    <option value={0}>Select a season</option>
+                    {seasonsData?.map((season: SeasonType) => (
+                      <option key={season.id} value={season.id}>
+                        {season.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.season_id && (
+                    <span className={styles.error}>
+                      {errors.season_id.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className={styles.inputContainer}>
+                  <label className={styles.label} htmlFor="divisionId">
+                    {t("formContent.division")}
+                  </label>
+                  <select
+                    {...register("division_id", {
+                      setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                    })}
+                    id="divisionId"
+                    className={`${styles.input} ${errors.division_id ? styles.invalid : ""}`}
+                    onChange={() => clearErrors("division_id")}
+                  >
+                    <option value={0}>Select a division</option>
+                    {divisionsData?.map((division: DivisionType) => (
+                      <option key={division.id} value={division.id}>
+                        {division.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.division_id && (
+                    <span className={styles.error}>
+                      {errors.division_id.message}
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
+
+            <div className={styles.inputContainer}>
+              <label className={styles.label}>{t("formContent.logo")}</label>
+              <FileUpload
+                setFileValue={(url?: File) => {
+                  setValue("file_url", url);
+                }}
+                imagePreview={teamLogo}
+                className={styles.logoInputContainer}
+              />
+            </div>
           </div>
 
           <div className={styles.formBtnContainer}>
@@ -202,7 +249,9 @@ const TeamForm: React.FC<TeamFormProps> = ({
               type="submit"
               className={`${styles.btn} ${styles.submitBtn}`}
             >
-              {t("formContent.submit")}
+              {isSubmitting
+                ? t("formContent.submitting")
+                : t("formContent.submit")}
             </button>
 
             <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>

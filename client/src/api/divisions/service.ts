@@ -1,14 +1,12 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
 import {
-  CreateNewDivisionData,
-  DeleteDivisionData,
+  DivisionRequest,
   DivisionResponse,
-  UpdateDivisionData,
 } from "../../components/Forms/DivisionForm/types";
 
 type divisionQueryKey = [string, number];
 
-const getDivisionByGroupId = async ({
+const getDivisionsByGroupId = async ({
   queryKey,
 }: QueryFunctionContext<divisionQueryKey>) => {
   const [, groupId] = queryKey;
@@ -48,7 +46,7 @@ const getDivisionsBySeasonId = async ({
 };
 
 const createDivision = async (
-  data: CreateNewDivisionData
+  data: DivisionRequest
 ): Promise<DivisionResponse> => {
   try {
     const response = await fetch("/api/divisions", {
@@ -56,7 +54,7 @@ const createDivision = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
     return response.json();
   } catch (error) {
@@ -66,7 +64,7 @@ const createDivision = async (
 };
 
 const updateDivision = async (
-  data: UpdateDivisionData
+  data: DivisionRequest
 ): Promise<DivisionResponse> => {
   try {
     const response = await fetch(`/api/divisions/${data.id}`, {
@@ -74,7 +72,7 @@ const updateDivision = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
     return response.json();
   } catch (error) {
@@ -83,7 +81,7 @@ const updateDivision = async (
   }
 };
 
-const deleteDivision = async (data: DeleteDivisionData): Promise<void> => {
+const deleteDivision = async (data: DivisionRequest): Promise<void> => {
   try {
     const response = await fetch(`/api/divisions/${data.id}`, {
       method: "DELETE",
@@ -107,7 +105,7 @@ const deleteDivision = async (data: DeleteDivisionData): Promise<void> => {
 };
 export {
   getDivisionsBySeasonId,
-  getDivisionByGroupId,
+  getDivisionsByGroupId,
   createDivision,
   updateDivision,
   deleteDivision,

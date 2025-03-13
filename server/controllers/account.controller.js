@@ -3,6 +3,8 @@
 require("dotenv").config();
 
 const Response = require("../mongoModels/response");
+const createPayerUser = require("../utilityFunctions/createPayerUser");
+const { Form } = require("../models");
 
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const {
@@ -78,26 +80,35 @@ const AccountController = function () {
   var createPaymentIntent = async function (req, res, next) {
     try {
       let productObj = req.body;
+      productObj.stripeAccountIdString = req.params["account_id"];
+
+      // TODO: Set up a more dynamic fee structure !
+      const cascaritaFee = 200;
+      const totalAmount = calculateTotalAmount(
+        productObj.transactionAmount,
+        productObj.isCustomerPayingFee,
+        cascaritaFee,
+      );
 
       const paymentIntent = await Stripe.paymentIntents.create(
         {
-          amount: productObj.transactionAmount,
+          amount: totalAmount,
           currency: "usd",
           automatic_payment_methods: {
             enabled: true,
           },
           capture_method: "manual",
-          // TODO: Explore application fee amount
-          // application_fee_amount: productObj.transactionFee,
+          application_fee_amount: cascaritaFee,
         },
         {
-          stripeAccount: req.params["account_id"],
+          stripeAccount: productObj.stripeAccountIdString,
         },
       );
 
       productObj.paymentIntentId = paymentIntent.id;
       productObj.paymentIntentStatus = paymentIntent.status;
-      await createStripeFormPayment(productObj);
+      productObj.updatedTotal = totalAmount;
+      await createFormPayment(productObj);
 
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
@@ -109,29 +120,23 @@ const AccountController = function () {
     }
   };
 
-  var getStripeAccountId = async function (accountId) {
-    const stripeAccount = await UserStripeAccounts.findByPk(accountId);
-    return stripeAccount.stripe_account_id;
-  };
+  var calculateTotalAmount = function (
+    intendedAmount,
+    isCustomerPaying,
+    applicationFee,
+  ) {
+    const stripePercentage = 0.029;
+    const stripeFixedFee = 30;
 
-  var getClientSecret = async function (req, res, next) {
-    try {
-      const paymentIntentId = req.params["paymentIntentId"];
-      const stripeAccountId = await getStripeAccountId(
-        req.params["account_id"],
+    if (isCustomerPaying) {
+      let totalAmount = Math.ceil(
+        (intendedAmount + applicationFee + stripeFixedFee) /
+          (1 - stripePercentage),
       );
-
-      let paymentIntentIdStr = paymentIntentId.toString();
-      const paymentIntent = await Stripe.paymentIntents.retrieve(
-        paymentIntentIdStr,
-        {
-          stripeAccount: stripeAccountId,
-        },
-      );
-
-      res.status(200).json({ cleintSecret: paymentIntent.client_secret });
-    } catch (error) {
-      next(error);
+      return totalAmount;
+    } else {
+      let totalAmount = intendedAmount + applicationFee;
+      return totalAmount;
     }
   };
 
@@ -239,69 +244,50 @@ const AccountController = function () {
     email,
     formattedAnswers,
     userSelectedStatus,
+    isUserAction,
+    isStripePayment,
   ) {
     try {
-      const { id } = await User.findOne({
-        where: { email: email },
-      });
-
-      const { stripe_account_id } = await UserStripeAccounts.findOne({
-        where: {
-          user_id: id,
-        },
-      });
-
-      const retrievePaymentIntent = await getPaymentIntentStatus(
+      const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
-        stripe_account_id,
+        email,
+        isUserAction,
+        isStripePayment,
       );
 
-      if (!retrievePaymentIntent.success) {
+      if (!preparedInfo.success) {
+        return preparedInfo;
+      }
+
+      const { userId, formPayment, paymentIntentData } = preparedInfo;
+
+      if (isStripePayment && paymentIntentData.status === "succeeded") {
         return {
           success: false,
-          error: retrievePaymentIntent.error,
-          status: retrievePaymentIntent.status,
+          data: `payment intent status is succeeded cannot be re-captured: ${paymentIntentData.id}`,
+          status: 304,
         };
       }
 
-      if (retrievePaymentIntent.data.status === "succeeded") {
-        return {
-          success: true,
-          data: retrievePaymentIntent.data,
-          status: 200,
-        };
+      if (isStripePayment) {
+        await Stripe.paymentIntents.capture(paymentIntentData.id, {
+          stripeAccount: formPayment.stripe_account_id_string,
+        });
       }
 
-      const paymentIntent = await Stripe.paymentIntents.capture(
-        paymentIntentId,
-        {
-          stripeAccount: stripe_account_id,
-        },
-      );
+      const updates = {
+        internal_status_updated_by: userId,
+        internal_status_updated_at: new Date(),
+      };
 
-      if (!paymentIntent) {
-        return {
-          success: false,
-          error: `no stripe payment intent found with id of: ${paymentIntentId}`,
-          status: 404,
-        };
+      if (!isStripePayment) {
+        updates.internal_status_id = 3 //approved
       }
 
-      const formPaymentResult = await FormPayment.findOne({
-        where: { payment_intent_id: paymentIntentId },
-      });
-
-      if (formPaymentResult) {
-        const updates = {
-          internal_status_updated_by: id,
-          internal_status_updated_at: new Date(),
-        };
-
-        await formPaymentResult.update(updates, { validate: true });
-      }
+      await formPayment.update(updates, { validate: true });
 
       if (formattedAnswers) {
-        const responseId = formPaymentResult.response_document_id;
+        const responseId = formPayment.response_document_id;
 
         await Response.updateOne(
           { _id: responseId },
@@ -314,71 +300,258 @@ const AccountController = function () {
         );
       }
 
-      return { success: true, data: paymentIntent, status: 200 };
+      if (!isStripePayment) {
+        const form_id = formPayment.form_id
+        const form = await Form.findByPk(form_id);
+        const groupId = form.group_id;
+
+        var paymentData = await createPayerUser(formattedAnswers, groupId);
+        // updates formPayment with payer_id:
+        await formPayment.update(paymentData, { valudate: true });
+      }
+
+      return {
+        success: true,
+        data: `successfuly captured payment intent: ${paymentIntentId}`,
+        status: 200,
+      };
     } catch (error) {
       console.error(error);
-      return { success: false, error: error.message, status: 500 };
+      return {
+        success: false,
+        error: `process of capturing payment intent failed:  ${error.message}`,
+        status: 500,
+      };
     }
   };
 
-  var createStripeFormPayment = async function (formData) {
-    await FormPayment.create({
-      form_id: formData.form_id,
-      payment_method_id: 1, //since this go triggred, it is stripe payment
-      internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.transactionAmount,
-      payment_intent_id: formData.paymentIntentId,
-      payment_intent_status: formData.paymentIntentStatus,
-      user_stripe_account_id: formData.userStripeAccountSqlId,
-    });
+  var cancelPaymentIntent = async function (paymentIntentId, email, isUserAction, isStripePayment) {
+    try {
+      const cancelStatuses = [
+        "requires_payment_method",
+        "requires_capture",
+        "requires_confirmation",
+        "requires_action",
+      ];
+
+      const preparedInfo = await preparePaymentIntentOperation(
+        paymentIntentId,
+        email,
+        isUserAction, // if it is cash payment, we don't need to check user - payment intent is canceled by the system.
+        isStripePayment,
+      );
+
+      if (!preparedInfo.success) {
+        return preparedInfo;
+      }
+
+      const { userId, formPayment, paymentIntentData } = preparedInfo;
+
+      if (isStripePayment && !cancelStatuses.includes(paymentIntentData.status)) {
+        return {
+          success: false,
+          error: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
+          status: 304,
+        };
+      }
+
+      var canceledPaymentIntent;
+      if (isStripePayment) {
+        canceledPaymentIntent = await Stripe.paymentIntents.cancel(
+          paymentIntentId,
+          { cancellation_reason: "requested_by_customer" },
+          {
+            stripeAccount: formPayment.stripe_account_id_string,
+          },
+        );
+      } else {
+        canceledPaymentIntent = { status: "canceled" };
+      }
+
+      const updates = {
+        internal_status_updated_by: userId,
+        internal_status_updated_at: new Date(),
+        internal_status_id: 11, // 'Canceled
+        payment_intent_status: canceledPaymentIntent.status,
+      };
+
+      await formPayment.update(updates, { validate: true });
+
+      return {
+        success: true,
+        data: `successfully canceled payment intent: ${canceledPaymentIntent.id}`,
+        status: 200,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to cancel payment intent via stripe api call, error of: ${error.message}`,
+        status: 500,
+      };
+    }
   };
 
-  var getPaymentIntentStatus = async function (
-    paymentIntentId,
-    stripeAccountId,
-  ) {
+  var createFormPayment = async function (formData) {
+
     try {
-      const foundPaymentIntent = await Stripe.paymentIntents.retrieve(
+      const formPayment = await FormPayment.create({
+        form_id: formData.form_id,
+        payment_method_id: formData.payment_method_id || 1, // default to stripe if not provided
+        internal_status_id: formData.internal_status_id || 1, // default to 'Pending'
+        amount: formData.updatedTotal,
+        payment_intent_id: formData.paymentIntentId,
+        payment_intent_status: formData.paymentIntentStatus || null,
+        stripe_account_id_string: formData.stripeAccountIdString || null,
+        response_document_id: formData.response_document_id || null,
+      });
+
+      if (!formPayment) {
+        return {
+          success: false,
+          error: `failed to create form payment entry for form id: ${formData.form_id}`,
+          status: 500,
+        };
+      }
+
+      return {
+        success: true,
+        data: "successfully created form payment intent",
+        status: 201,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to create form payment intent: ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
+  var getPaymentIntent = async function (paymentIntentId, stripeAccountId) {
+    try {
+      const paymentIntent = await Stripe.paymentIntents.retrieve(
         paymentIntentId,
         {
           stripeAccount: stripeAccountId,
         },
       );
 
-      if (!foundPaymentIntent) {
+      if (!paymentIntent) {
         return {
           success: false,
-          error: "Payment intent not found",
+          error: `payment intent not found with id: ${paymentIntentId}`,
           status: 404,
         };
       }
 
       return {
         success: true,
-        data: {
-          status: foundPaymentIntent.status,
-          amount: foundPaymentIntent.amount,
-          capturable: foundPaymentIntent.amount_capturable > 0,
-        },
+        data: paymentIntent,
       };
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: `failed to get payment intent via api call : ${error.message}`,
         status: 500,
       };
+    }
+  };
+
+  var preparePaymentIntentOperation = async function (paymentIntentId, email, isUserAction, isStripePayment) {
+    try {
+      var user;
+
+      if (isUserAction) {
+        user = await User.findOne({
+          where: { email: email },
+        });
+
+        if (!user) {
+          return {
+            success: false,
+            error: `no user found with email: ${email}`,
+            status: 404,
+          };
+        }
+      }
+
+      const formPayment = await FormPayment.findOne({
+        where: { payment_intent_id: paymentIntentId },
+      });
+
+      if (!formPayment) {
+        return {
+          success: false,
+          error: `no linked payment found for payment intent id: ${paymentIntentId}`,
+          status: 404,
+        };
+      }
+
+      var retrievePaymentIntent;
+      if (isStripePayment) {
+        retrievePaymentIntent = await getPaymentIntent(
+          paymentIntentId,
+          formPayment.stripe_account_id_string,
+        );
+
+        if (!retrievePaymentIntent.success) {
+          return retrievePaymentIntent;
+        }
+      } else {
+        // for consistency, although this status is not checked for cash payments:
+        retrievePaymentIntent = { data: { status: "processing_cash_payment" } };
+      }
+
+      return {
+        success: true,
+        userId: user ? user.id : null,
+        formPayment,
+        paymentIntentData: retrievePaymentIntent.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to prepare payment intent operation: ${error.message}`,
+        status: 500,
+      };
+    }
+  };
+
+  var processPaymentIntent = async function (
+    paymentIntentId,
+    email,
+    formattedAnswers,
+    userSelectedStatus,
+  ) {
+    const isUserAction = true;
+    var isStripePayment = false;
+    if (paymentIntentId.startsWith("pi_")) {
+      isStripePayment = true;
+    }
+    if (userSelectedStatus === "canceled") {
+      return cancelPaymentIntent(paymentIntentId, email, isUserAction, isStripePayment);
+    } else {
+      return capturePaymentIntent(
+        paymentIntentId,
+        email,
+        formattedAnswers,
+        userSelectedStatus,
+        isUserAction,
+        isStripePayment,
+      );
     }
   };
 
   return {
     createAccountConnection,
     createPaymentIntent,
-    getStripeAccountId,
-    getClientSecret,
     getAllAccountsByGroupId,
     calculateStripeStatus,
     getPublishableKey,
     capturePaymentIntent,
+    processPaymentIntent,
+    createFormPayment,
+    cancelPaymentIntent,
   };
 };
 
