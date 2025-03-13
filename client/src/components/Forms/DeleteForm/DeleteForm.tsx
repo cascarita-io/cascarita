@@ -5,13 +5,14 @@ import Modal from "../../Modal/Modal";
 import { useTranslation } from "react-i18next";
 
 const DeleteForm: React.FC<DeleteFormProps> = ({
+  afterSave,
   destructBtnLabel,
   children,
   ...delegated
 }) => {
   const { t } = useTranslation("DeleteForm");
   return (
-    <form {...delegated}>
+    <><p>Are you sure?</p><form {...delegated}>
       {children}
       <div className={styles.formBtnContainer}>
         <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
@@ -22,7 +23,7 @@ const DeleteForm: React.FC<DeleteFormProps> = ({
           {destructBtnLabel ? destructBtnLabel : t("deleteLabel")}
         </button>
       </div>
-    </form>
+    </form></>
   );
 };
 

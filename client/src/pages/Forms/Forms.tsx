@@ -82,10 +82,7 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
 }) => (
   <Modal open={isOpen} onOpenChange={onOpen}>
     <Modal.Content title="Delete Form">
-        <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
-          No, Keep this Form
-        </Modal.Close>
-      <button type="submit" className={`${styles.btn} ${styles.submitBtn}`}>Yes</button>
+      <DeleteForm afterSave={false} children={undefined}/>
     </Modal.Content>
   </Modal>
 );
