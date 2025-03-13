@@ -1,6 +1,7 @@
 import { Answer, Form, GetFormsParams } from "./types";
 
 import { User } from "../users/types";
+import { QueryFunctionContext } from "@tanstack/react-query";
 
 // TODO: Implement a paginated API to call this for our forms
 // This will include filters, query, and sorting
@@ -160,7 +161,7 @@ export const getMongoForms = async (groupId: number) => {
 
 export const getMongoFormById = async (formId: string) => {
   try {
-    const response = await fetch(`/api/forms/${formId}`);
+    const response = await fetch(`/api/forms/document/${formId}`);
 
     if (!response.ok) {
       throw new Error(`Error fetching form: ${response.statusText}`);
@@ -393,6 +394,26 @@ export const updateFormPaymentType = async (
     return response.json();
   } catch (err) {
     console.error("Error fetching payment intents:", err);
+    throw err;
+  }
+};
+
+type FormQueryKey = [string, string];
+
+export const getFormByDocumentId = async ({
+  queryKey,
+}: QueryFunctionContext<FormQueryKey>) => {
+  const [, documentId] = queryKey;
+  try {
+    const response = await fetch(`/api/forms/document/${documentId}`);
+
+    if (!response.ok) {
+      throw new Error(`Error fetching form: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (err) {
+    console.error("Error fetching form:", err);
     throw err;
   }
 };
