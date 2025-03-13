@@ -604,23 +604,21 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
             Cancel
           </Modal.Close>
 
-          <div>
-            {stripeAccounts !== undefined && stripeAccounts.length > 0 ? (
-              <button
-                type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}
-              >
-                Create
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate("/settings/payment")}
-                className={`${styles.btn} ${styles.submitBtn}`}
-              >
-                Link Stripe Account
-              </button>
-            )}
-          </div>
+          {stripeAccounts !== undefined && stripeAccounts.length > 0 ? (
+            <button
+              type="submit"
+              className={`${styles.btn} ${styles.submitBtn}`}
+            >
+              Create
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/settings/payment")}
+              className={`${styles.btn} ${styles.submitBtn}`}
+            >
+              Link Stripe Account
+            </button>
+          )}
         </div>
       </div>
     </form>
