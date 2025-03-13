@@ -6,6 +6,7 @@ const { FormPayment, Form } = require("../models");
 const Response = require("./../mongoModels/response");
 const AccountController = require("./account.controller");
 const createPayerUser = require("../utilityFunctions/createPayerUser");
+const formpayment = require("../models/formpayment");
 
 const FormPaymentController = function () {
   var getFormPaymentsByFormId = async function (form_id) {
@@ -218,7 +219,12 @@ const FormPaymentController = function () {
         return res.status(formPayments.success).json(formPayments.error);
       }
 
-      return res.status(200).json(formPayments.data);
+      const data = formPayments.data;
+      const completedFormPayment = data.filter(
+        (payment) => payment.response_document_id,
+      );
+
+      return res.status(200).json(completedFormPayment);
     } catch (error) {
       next(error);
     }
