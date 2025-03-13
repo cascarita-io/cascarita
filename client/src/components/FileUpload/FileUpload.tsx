@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styles from "./FileUpload.module.css";
 import { FileRejection, useDropzone } from "react-dropzone";
 import { ImageIcon, Cross1Icon } from "@radix-ui/react-icons";
 import { FileUploadProps } from "./types";
+import PulseLoader from "react-spinners/PulseLoader";
 
 const focusedStyle = {
   borderColor: "#2196f3",
@@ -24,13 +25,24 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [filePreview, setFilePreview] = React.useState<string>(
     imagePreview || ""
   );
+  const [isLoading, setIsLoading] = React.useState(imagePreview ? true : false);
+
+  useEffect(() => {
+    if (imagePreview) {
+      setIsLoading(false);
+      setFilePreview(imagePreview);
+    } else {
+      setFilePreview("");
+    }
+  }, [imagePreview]);
+
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const onDropAccepted = useCallback((acceptedFiles: File[]) => {
     const file = new FileReader();
 
     file.onload = () => {
-      setFilePreview(file.result as string);
+      setIsLoading(true);
       if (setFileValue) {
         setFileValue(acceptedFiles[0]);
       }
@@ -102,7 +114,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
             src={filePreview || undefined}
             alt=""
             onLoad={() => {
-              URL.revokeObjectURL(filePreview);
+              if (filePreview?.startsWith("blob:")) {
+                URL.revokeObjectURL(filePreview);
+              }
             }}
           />
           {filePreview && (
@@ -116,7 +130,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
       )}
 
       <input {...getInputProps()} />
-      {isDragActive ? (
+      {isLoading && !filePreview ? (
+        <PulseLoader color="#2196f3" loading={isLoading} />
+      ) : isDragActive ? (
         <div className={styles.dropZoneContent}>
           {!filePreview && (
             <>
