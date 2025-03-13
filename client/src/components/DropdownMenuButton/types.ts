@@ -4,6 +4,7 @@ interface DropdownMenuButtonProps {
   onView?: () => void;
   children?: React.ReactNode;
   trigger?: React.ReactNode;
+  className?: string;
 }
 
 interface DropdownMenuItemProps {

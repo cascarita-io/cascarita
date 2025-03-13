@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../Form.module.css";
 import { TeamRequest, TeamFormProps, TeamFormData } from "./types";
 import FileUpload from "../../FileUpload/FileUpload";
@@ -13,8 +13,7 @@ import { useTranslation } from "react-i18next";
 import { DivisionType } from "../../../pages/Division/types";
 import { SeasonType } from "../../../pages/Seasons/types";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useUploadPhotoS3 } from "../../../api/photo/mutations";
-import { UploadPhotoRequest } from "../../../api/photo/types";
+import { uploadPhotoToS3 } from "../../../api/photo/service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "./schema";
 import { useGroup } from "../../GroupProvider/GroupProvider";
@@ -32,6 +31,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
 }) => {
   const { t } = useTranslation("Teams");
   const [requestError, setRequestError] = useState("");
+  const [teamPhoto, setTeamPhoto] = useState<string | undefined>(teamLogo);
   const { groupId } = useGroup();
 
   const {
@@ -53,32 +53,33 @@ const TeamForm: React.FC<TeamFormProps> = ({
     mode: "onChange",
   });
 
+  const fileUrl = watch("file_url");
+  useEffect(() => {
+    const uploadPhoto = async () => {
+      if (fileUrl) {
+        const uploadUrl = await uploadPhotoToS3(
+          fileUrl,
+          "registration_images",
+          "player_photo"
+        );
+        setTeamPhoto(uploadUrl.image_url);
+      }
+    };
+    uploadPhoto();
+  }, [fileUrl]);
+
   const isLinkSeason = watch("link_to_season");
   const name = watch("name");
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
-  const uploadUrlMutation = useUploadPhotoS3();
 
   const onSubmit: SubmitHandler<TeamFormData> = async (data: TeamFormData) => {
-    const { name, season_id, division_id, file_url, link_to_season } = data;
-
-    let s3PhotoUpload;
-    if (file_url) {
-      const s3Payload = {
-        file_url: file_url,
-        folder_name: "team_images",
-        image_type: "team_logo",
-      };
-
-      s3PhotoUpload = await uploadUrlMutation.mutateAsync(
-        s3Payload as UploadPhotoRequest
-      );
-    }
+    const { name, season_id, division_id, link_to_season } = data;
 
     const payload = {
       name,
-      team_logo: s3PhotoUpload ? s3PhotoUpload.image_url : undefined,
+      team_logo: teamPhoto ? teamPhoto : undefined,
       group_id: groupId,
       division_id,
       season_id,
@@ -238,7 +239,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
                 setFileValue={(url?: File) => {
                   setValue("file_url", url);
                 }}
-                imagePreview={teamLogo}
+                imagePreview={teamPhoto}
                 className={styles.logoInputContainer}
               />
             </div>

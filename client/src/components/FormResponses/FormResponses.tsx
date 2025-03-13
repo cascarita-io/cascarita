@@ -11,6 +11,7 @@ import {
   getMongoFormById,
   getMongoFormResponses,
   sendApprovalEmail,
+  sendRejectionEmail,
 } from "../../api/forms/service";
 import { useTranslation } from "react-i18next";
 import { Answer } from "../../api/forms/types";
@@ -25,10 +26,15 @@ import {
   updateFormPaymentStatus,
 } from "../../api/forms/service";
 import PaymentCapture from "../PaymentCapture/PaymentCapture";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
-    <StatusLabel status={status} renderDropdown={true}>
+    <StatusLabel
+      className={styles.statusLabel}
+      status={status}
+      renderDropdown={true}
+    >
       {status}
     </StatusLabel>
   );
@@ -111,10 +117,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     return date.toLocaleDateString(undefined, options);
   };
 
-  const formatMoney = (amount: number): string => {
-    //formats cents to dollars
-    return `$${(amount / 100).toFixed(2)}`;
-  };
+  const formattedCurrency = formatCurrency(amount);
 
   useEffect(() => {
     (async () => {
@@ -213,33 +216,26 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     newStatus[index] = statusUpdate;
     setStatus(newStatus);
     let updatedStatus = statusUpdate as string;
+
+    const leagueName =
+      formResponsesData[index].player.player?.league_name || "";
+    const email = formResponsesData[index]["email"].email;
+    const seasonName =
+      formResponsesData[index].player.player?.season_name || "";
+    const playerName = `${formResponsesData[index]["first_name"].short_text} ${formResponsesData[index]["last_name"].short_text}`;
+    const paymentAmount =
+      Number(formResponsesData[index]["payment"].amount) / 100;
+    const paymentDate = new Date().toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const transactionId =
+      formResponsesData[index]["payment"].paymentIntentId || "";
+
     if (statusUpdate === "pending") {
       updatedStatus = "requires_payment_method";
     } else if (statusUpdate === "approved") {
-      const leagueName =
-        formResponsesData[index].player.player?.league_name || "";
-      const email = formResponsesData[index]["email"].email;
-      const seasonName =
-        formResponsesData[index].player.player?.season_name || "";
-      const playerName = `${formResponsesData[index]["first_name"].short_text} ${formResponsesData[index]["last_name"].short_text}`;
-      const paymentAmount =
-        Number(formResponsesData[index]["payment"].amount) / 100;
-      const paymentDate = new Date().toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      const transactionId =
-        formResponsesData[index]["payment"].paymentIntentId || "";
-      console.log(
-        email,
-        leagueName,
-        seasonName,
-        playerName,
-        paymentAmount,
-        paymentDate,
-        transactionId
-      );
       if (email) {
         await sendApprovalEmail(
           [email],
@@ -253,6 +249,15 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       }
       updatedStatus = "succeeded";
     } else {
+      if (email) {
+        await sendRejectionEmail(
+          [email],
+          leagueName,
+          seasonName,
+          playerName,
+          paymentAmount
+        );
+      }
       updatedStatus = "canceled";
     }
 
@@ -290,7 +295,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
           openModal={openPaymentModal}
           setOpenModal={setOpenPaymentModal}
           status={status[currentPaymentIndex]}
-          amount={formatMoney(amount[currentPaymentIndex])}
+          amount={formattedCurrency[currentPaymentIndex]}
           user={user[currentPaymentIndex]}
           index={currentPaymentIndex}
           response={formResponsesData[currentPaymentIndex]}
@@ -311,11 +316,19 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{paymentType[index]}</td>
               {formType === 1 && (
                 <td>
-                  <DropdownMenuButton trigger={StatusButton(status[index])}>
+                  <DropdownMenuButton
+                    className={styles.dropdown}
+                    trigger={StatusButton(status[index])}
+                  >
                     <DropdownMenuButton.Item
                       onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="approved">approved</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="approved"
+                      >
+                        approved
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
 
                     <DropdownMenuButton.Separator
@@ -325,7 +338,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     <DropdownMenuButton.Item
                       onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="rejected">rejected</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="rejected"
+                      >
+                        rejected
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
 
                     <DropdownMenuButton.Separator
@@ -335,7 +353,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     <DropdownMenuButton.Item
                       onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="pending">pending</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="pending"
+                      >
+                        pending
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>
                 </td>
@@ -364,7 +387,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               </td>
               <td>{formatDate(submittedAt[index])}</td>
               <td>{email[index]}</td>
-              <td>{formatMoney(amount[index])}</td>
+              <td>{`$${formattedCurrency[index]}`}</td>
               <td>
                 {paymentType[index] === "Credit Card / Stripe"
                   ? formatDate(submittedAt[index], 3)

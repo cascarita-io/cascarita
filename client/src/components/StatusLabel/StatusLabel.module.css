@@ -1,9 +1,7 @@
 .statusLabel {
-  width: fit-content;
-  font-size: 0.925rem;
-  padding: 1px 10px;
-  border-radius: 30px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  border-radius: 30px;
 }
