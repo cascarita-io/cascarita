@@ -28,7 +28,11 @@ import PaymentCapture from "../PaymentCapture/PaymentCapture";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
-    <StatusLabel status={status} renderDropdown={true}>
+    <StatusLabel
+      className={styles.statusLabel}
+      status={status}
+      renderDropdown={true}
+    >
       {status}
     </StatusLabel>
   );
@@ -311,11 +315,19 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{paymentType[index]}</td>
               {formType === 1 && (
                 <td>
-                  <DropdownMenuButton trigger={StatusButton(status[index])}>
+                  <DropdownMenuButton
+                    className={styles.dropdown}
+                    trigger={StatusButton(status[index])}
+                  >
                     <DropdownMenuButton.Item
                       onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="approved">approved</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="approved"
+                      >
+                        approved
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
 
                     <DropdownMenuButton.Separator
@@ -325,7 +337,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     <DropdownMenuButton.Item
                       onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="rejected">rejected</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="rejected"
+                      >
+                        rejected
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
 
                     <DropdownMenuButton.Separator
@@ -335,7 +352,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     <DropdownMenuButton.Item
                       onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="pending">pending</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="pending"
+                      >
+                        pending
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>
                 </td>

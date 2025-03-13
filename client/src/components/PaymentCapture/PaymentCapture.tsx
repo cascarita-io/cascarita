@@ -4,6 +4,7 @@ import { Answer } from "../../api/forms/types";
 import styles from "../Forms/Form.module.css";
 import Modal from "../Modal/Modal";
 import { AcceptIcon, RejectIcon } from "../../assets/Icons";
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 
 interface PaymentCaptureModalProps {
   amount: string;
@@ -57,22 +58,24 @@ const CapturePayment: React.FC<CapturePaymentProps> = ({
         </Modal.Close>
 
         <button
-          className={`${styles.btn} ${styles.submitBtn}`}
+          className={`${styles.btn} ${styles.btnReject}`}
           onClick={() => {
             setCaptureStatus(REJECTED);
             handleStatusChange(index, REJECTED, response);
           }}
         >
+          <CrossCircledIcon style={{ borderRadius: "50%" }} />
           Reject
         </button>
 
         <button
-          className={`${styles.btn} ${styles.submitBtn}`}
+          className={`${styles.btn} ${styles.btnApprove}`}
           onClick={() => {
             setCaptureStatus(APPROVED);
             handleStatusChange(index, APPROVED, response);
           }}
         >
+          <CheckCircledIcon style={{ borderRadius: "50%" }} />
           Approve
         </button>
       </div>
