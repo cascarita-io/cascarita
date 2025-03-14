@@ -30,6 +30,16 @@ const liabilityText =
 const signatureText =
   "By providing my e-signature below, I consent that I have read, reviewed and accept the terms contained within this registration form.";
 
+const NODE_ENV_IS_PROD = (import.meta as any).env.PROD;
+
+const termsOfServiceText = `By filling this form, I agree to the terms of service and privacy policy of Cascarita.`;
+const termsOfServiceLink = NODE_ENV_IS_PROD
+  ? "https://app.cascarita.io/terms"
+  : "http://localhost/terms";
+const privacyPolicyLink = NODE_ENV_IS_PROD
+  ? "https://app.cascarita.io/privacy"
+  : "http://localhost/privacy";
+
 const createRegistrationFormData = (
   leagueId: number,
   leagueName: string,
@@ -44,6 +54,7 @@ const createRegistrationFormData = (
   stripeAccountId: string,
   paymentFeeRecipient: string
 ): Form => {
+  const terms_of_service_id = uuidv4();
   const first_name_id = uuidv4();
   const last_name_id = uuidv4();
   const email_id = uuidv4();
@@ -57,6 +68,20 @@ const createRegistrationFormData = (
   const photo_block_id = uuidv4();
 
   const data: Field[] = [
+    {
+      id: terms_of_service_id,
+      ref: terms_of_service_id,
+      type: "liability",
+      title: "Terms of Service and Privacy Policy",
+      properties: {
+        description: termsOfServiceText,
+        termsOfService: termsOfServiceLink,
+        privacyPolicy: privacyPolicyLink,
+      },
+      validations: {
+        required: true,
+      },
+    },
     {
       id: first_name_id,
       ref: first_name_id,

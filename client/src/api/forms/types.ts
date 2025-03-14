@@ -51,6 +51,8 @@ export interface Properties {
     stripe_account_id: string;
   };
   player_block_choices?: PlayerBlockChoices;
+  termsOfService?: string;
+  privacyPolicy?: string;
 }
 
 export interface Field {
