@@ -8,12 +8,12 @@ import Page from "../../components/Page/Page";
 import styles from "../pages.module.css";
 import pagesStyles from "../pages.module.css";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+// import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import { User } from "./types";
 import Search from "../../components/Search/Search";
 // import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import Modal from "../../components/Modal/Modal";
-import UserForm from "../../components/Forms/UserForm/UserForm";
+// import Modal from "../../components/Modal/Modal";
+// import UserForm from "../../components/Forms/UserForm/UserForm";
 import { useAuth0 } from "@auth0/auth0-react";
 import Cookies from "js-cookie";
 import { FaUser } from "react-icons/fa";
@@ -41,21 +41,21 @@ const Users = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   // const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User>();
+  // const [isEditOpen, setIsEditOpen] = useState(false);
+  // const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  // // const [selectedUser, setSelectedUser] = useState<User>();
 
   const { groupId } = useGroup();
   const tableHeaders = useResponsiveHeader(
-    ["Name", "Role", "Options"],
-    ["Name", "Options"]
+    ["Name", "Role", "Email"],
+    ["Name", "Email"]
   );
 
   const { data: users, isLoading, isError } = useGetUsersByGroupId(groupId);
 
-  const formatName = (user: User) => {
-    return `${user.first_name} ${user.last_name}`;
-  };
+  // const formatName = (user: User) => {
+  //   return `${user.first_name} ${user.last_name}`;
+  // };
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -82,15 +82,16 @@ const Users = () => {
     }
   }, [users, debouncedQuery]);
 
-  const handleEditUser = (user: User) => {
-    setSelectedUser(user);
-    setIsEditOpen(true);
-  };
+  // //TODO: UNCOMMENT ONCE WE CAN ADD USERS
+  // const handleEditUser = (user: User) => {
+  //   setSelectedUser(user);
+  //   setIsEditOpen(true);
+  // };
 
-  const handleDeleteUser = (user: User) => {
-    setSelectedUser(user);
-    setIsDeleteOpen(true);
-  };
+  // const handleDeleteUser = (user: User) => {
+  //   setSelectedUser(user);
+  //   setIsDeleteOpen(true);
+  // };
 
   return (
     <Page title={t("title")}>
@@ -137,7 +138,7 @@ const Users = () => {
               <tr key={user.id} className={styles.tableRow}>
                 <td className={styles.tableData}>
                   <Avatar
-                    src={user && user.image_url}
+                    src={user && user.picture}
                     className={styles.avatar}
                     alt={user.first_name + " " + user.last_name}
                     fallback={
@@ -152,13 +153,22 @@ const Users = () => {
                     <p
                       className={styles.showInMobile}
                       style={{ fontSize: "0.7rem" }}
-                    >{`${user.role_id}`}</p>
+                    >
+                      {user.UserRoles.length > 0
+                        ? user.UserRoles.join(", ")
+                        : "No Role Given"}
+                    </p>
                   </div>
                 </td>
 
                 <td className={`${styles.tableData} ${styles.showInDesktop}`}>
-                  {user.role_id}
+                  {user.UserRoles.length > 0
+                    ? user.UserRoles.join(", ")
+                    : "No Role"}
                 </td>
+
+                <td className={`${styles.tableData} `}>{user.email}</td>
+                {/* //TODO: UNCOMMENT ONCE WE CAN ADD USERS
                 <td className={styles.tableData}>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
@@ -177,14 +187,15 @@ const Users = () => {
                       Delete
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>
-                </td>
+                </td> */}
               </tr>
             ))
           )}
         </DashboardTable>
       )}
 
-      <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
+      {/* //TODO: UNCOMMENT ONCE WE CAN ADD USERS
+       <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
         <Modal.Content
           title={`Edit ${selectedUser ? formatName(selectedUser) : ""}`}
         >
@@ -206,7 +217,7 @@ const Users = () => {
             selectedUserId={selectedUser?.id}
           />
         </Modal.Content>
-      </Modal>
+      </Modal> */}
     </Page>
   );
 };
