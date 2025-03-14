@@ -425,13 +425,34 @@ const UserController = function () {
         attributes: {
           exclude: ["created_at", "updated_at", "group_id", "language_id"],
         },
+        include: [
+          {
+            model: UserRoles,
+            required: false, // Use left join to include users without roles
+            include: [
+              {
+                model: Role,
+                attributes: ["name"],
+              },
+            ],
+          },
+        ],
       });
 
-      if (!users) {
+      if (!users || users.length === 0) {
         res.status(404);
         throw new Error(`no users were found with group id ${group_id}`);
       }
-      return res.status(200).json(users);
+
+      const usersWithRoles = users.map(user => {
+        const roles = user.UserRoles.map(userRole => userRole.Role.name);
+        return {
+          ...user.toJSON(),
+          UserRoles: roles,
+        };
+      });
+
+      return res.json(usersWithRoles);
     } catch (error) {
       next(error);
     }
