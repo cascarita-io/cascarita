@@ -12,7 +12,7 @@ const DeleteForm: React.FC<DeleteFormProps> = ({
 }) => {
   const { t } = useTranslation("DeleteForm");
   return (
-    <><p>Are you sure?</p><form {...delegated}>
+    <form {...delegated}>
       {children}
       <div className={styles.formBtnContainer}>
         <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
@@ -23,7 +23,7 @@ const DeleteForm: React.FC<DeleteFormProps> = ({
           {destructBtnLabel ? destructBtnLabel : t("deleteLabel")}
         </button>
       </div>
-    </form></>
+    </form>
   );
 };
 
