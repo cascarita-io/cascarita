@@ -14,9 +14,10 @@ const uploadPhotoToS3 = async (
       method: "POST",
       body: formData,
     });
+
     return response.json();
   } catch (error) {
-    console.error("Error creating season:", error);
+    console.error("Error uploading photo:", error);
     throw error;
   }
 };

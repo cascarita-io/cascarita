@@ -11,7 +11,7 @@ import { Currency, Field, Form } from "../../../api/forms/types";
 import { useQueries } from "@tanstack/react-query";
 import { fetchUser } from "../../../api/users/service";
 import { getSeasonsByGroupId } from "../../../api/seasons/services";
-import { getLeagueByGroupId } from "../../../api/leagues/service";
+import { getLeaguesByGroupId } from "../../../api/leagues/service";
 
 import { useAuth0 } from "@auth0/auth0-react";
 import { LeagueType } from "../../../pages/Leagues/types";
@@ -23,6 +23,7 @@ import { StripeAccount } from "../../DragAndDropComponents/DraggablePayment/type
 import { getDivisionsBySeasonId } from "../../../api/divisions/service";
 import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
 import Tooltip from "@mui/material/Tooltip";
+import { useGetAllStripeAccounts } from "../../../api/stripe/query";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
@@ -277,7 +278,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
       {
         queryKey: ["leagues", groupId],
         queryFn: async () =>
-          await getLeagueByGroupId({
+          await getLeaguesByGroupId({
             queryKey: ["leagues", groupId],
             meta: undefined,
             signal: new AbortController().signal,
@@ -296,6 +297,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
       },
     ],
   });
+  const { data: stripeAccounts } = useGetAllStripeAccounts(groupId);
 
   const [seasonsQuery, leaguesQuery, stripeAccountsQuery] = results;
 
@@ -411,6 +413,12 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <div style={{ display: "grid", gap: "24px" }}>
+        {stripeAccounts === undefined ||
+          (stripeAccounts.length === 0 && (
+            <label className={styles.label} style={{ color: "red" }}>
+              Please link a Stripe Account before creating a form
+            </label>
+          ))}
         <div className={styles.inputContainer}>
           <label className={styles.label}>Template Type</label>
           <select
@@ -419,6 +427,9 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
             id="template"
             onChange={(e) => setTemplate(e.target.value)}
             required
+            disabled={
+              stripeAccounts === undefined || stripeAccounts.length === 0
+            }
           >
             <option value="">Select a template</option>
             <option value="registration">Registration</option>
@@ -529,12 +540,12 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                 </select>
               </div>
             )}
-            <div className={styles.inputContainer}>
-              <div style={{ display: "flex", gap: "10px" }}>
+            <div className={styles.inlineInputContainer}>
+              <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="price">
-                  Price
+                  Price $USD
                 </label>
-                <span style={{ alignContent: "center" }}>$</span>
+
                 <input
                   className={styles.input}
                   type="text"
@@ -547,13 +558,14 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                   }}
                   required
                 />
+              </div>
+              <div className={styles.inputContainer}>
                 <label className={styles.label} htmlFor="fee">
-                  Processing Fee
+                  Processing Fee $USD
                   <Tooltip title="This is the fee that Stripe charges for processing payments.">
                     <span style={{ color: "grey", paddingLeft: "4px" }}>?</span>
                   </Tooltip>
                 </label>
-                <span style={{ alignContent: "center" }}>$</span>
                 <input
                   className={styles.input}
                   type="text"
@@ -563,6 +575,10 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                 />
               </div>
             </div>
+            <p className={styles.label} style={{ color: "green" }}>
+              Payments accepted are <strong>cash</strong> and{" "}
+              <strong>credit card</strong>.
+            </p>
             <div className={styles.inputContainer}>
               <label className={styles.label} htmlFor="isCustomerPayingFee">
                 Who will pay the processing fee?
@@ -588,14 +604,21 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
             Cancel
           </Modal.Close>
 
-          <div>
+          {stripeAccounts !== undefined && stripeAccounts.length > 0 ? (
             <button
               type="submit"
               className={`${styles.btn} ${styles.submitBtn}`}
             >
               Create
             </button>
-          </div>
+          ) : (
+            <button
+              onClick={() => navigate("/settings/payment")}
+              className={`${styles.btn} ${styles.submitBtn}`}
+            >
+              Link Stripe Account
+            </button>
+          )}
         </div>
       </div>
     </form>

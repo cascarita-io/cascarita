@@ -10,12 +10,9 @@ const Signature = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required, max_length: maxLength } = field.validations ?? {};
-
   const fieldError = (
-    errors.answers as { [key: number]: { signature?: FieldError } } | undefined
-  )?.[index]?.signature;
-
+    errors.answers as { [key: number]: { short_text?: FieldError } } | undefined
+  )?.[index]?.short_text;
   return (
     <section className={styles.container}>
       <div className={styles.questionContainer}>
@@ -35,10 +32,9 @@ const Signature = ({ field, index }: FieldProps) => {
         type="text"
         placeholder={t("shortText.placeholder")}
         {...register(`answers.${index}.short_text`, {
-          required: required && t("required"),
-          maxLength: maxLength && {
-            value: maxLength,
-            message: `${t("shortText.minLength")} ${maxLength}`,
+          maxLength: {
+            value: 30,
+            message: "Can not exceed more than 30 characters",
           },
         })}
       />

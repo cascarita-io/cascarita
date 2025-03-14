@@ -3,10 +3,7 @@
   border-radius: 6px;
   background-color: #fff;
   color: #000;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding: 6px 8px;
   min-width: 100px;
   max-width: 150px;
   text-align: center;
@@ -16,7 +13,7 @@
   outline: none;
 }
 
-.options > div:focus {
+.options>div:focus {
   background-color: #f4f7fb;
   outline: none;
   border-radius: 5px;

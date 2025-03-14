@@ -2,19 +2,32 @@ import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
 import styles from "./Liability.module.css";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 const Liability = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
   const {
     register,
+    watch,
     formState: { errors },
+    trigger,
   } = useFormContext();
-
-  const { required } = field.validations ?? {};
 
   const fieldError = (
     errors.answers as { [key: number]: { liability?: FieldError } } | undefined
   )?.[index]?.liability;
+
+  const liabilityChecked = watch(`answers.${index}.liability`) || false;
+
+  useEffect(() => {
+    trigger(`answers.${index}.liability`);
+  }, [index, trigger]);
+
+  useEffect(() => {
+    if (liabilityChecked) {
+      trigger(`answers.${index}.liability`);
+    }
+  }, [liabilityChecked, index, trigger]);
 
   return (
     <section className={styles.container}>
@@ -37,7 +50,7 @@ const Liability = ({ field, index }: FieldProps) => {
           className={styles.input}
           id={`liability-${index}`}
           {...register(`answers.${index}.liability`, {
-            required: required && t("required"),
+            required: "Please accept liability before proceeding",
           })}
         />
       </div>

@@ -1,3 +1,4 @@
+require("./instrument");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
@@ -10,6 +11,7 @@ const Middlewares = require("./middlewares");
 const { startMongoConnection } = require("./mongodb");
 const StripeWebhooks = require("./routes/webhooks/stripe.webhooks");
 const morgan = require("morgan");
+const Sentry = require("@sentry/node");
 
 const app = express();
 app.use(
@@ -44,9 +46,6 @@ const checkJwt = require("./checkJwt");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Error handler should be the last middleware used
-app.use(Middlewares.errorHandler);
-
 const DivisionController = require("./routes/division.routes")(checkJwt);
 const FieldRoutes = require("./routes/field.routes")(checkJwt);
 const GroupRoutes = require("./routes/group.routes")(checkJwt);
@@ -75,6 +74,10 @@ app.use("/api/forms", FormRoutes);
 app.use("/api/accounts", AccountRoutes);
 app.use("/api/email", EmailRoutes);
 app.use("/api/images", S3Routes);
+
+// // Error handler should be the last middleware used
+// app.use(Middlewares.errorHandler);
+Sentry.setupExpressErrorHandler(app);
 
 http.createServer(app).listen(app.get("port"), function () {
   console.log("Express server listening on port " + app.get("port"));

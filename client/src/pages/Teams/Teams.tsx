@@ -4,25 +4,27 @@ import Search from "../../components/Search/Search";
 // import SelectMenu from "../../components/SelectMenu/SelectMenu";
 import Modal from "../../components/Modal/Modal";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import { getTeamsByGroupId } from "../../api/teams/service";
-import { getSeasonsByGroupId } from "../../api/seasons/services";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import { useQueries } from "@tanstack/react-query";
 import { TeamType } from "./types";
-import { getDivisionByGroupId } from "../../api/divisions/service";
 import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
 import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
-import Cookies from "js-cookie";
 import { Avatar } from "@radix-ui/themes";
 import { FaUsers } from "react-icons/fa6";
+import { useGetTeamsByGroupId } from "../../api/teams/query";
+import { useGetSeasonsByGroupId } from "../../api/seasons/query";
+import { useGetDivisionsByGroupId } from "../../api/divisions/query";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
 
 const Teams = () => {
   const { t } = useTranslation("Teams");
   // const [sorts, setSorts] = useState("");
   const [currentTeamName, setCurrentTeamName] = useState("");
   const [currentTeamId, setCurrentTeamId] = useState(0);
+  const [currentTeamSeasonId, setCurrentTeamSeasonId] = useState(0);
+  const [currentTeamDivisionId, setCurrentTeamDivisionId] = useState(0);
+  const [currentTeamLogo, setCurrentTeamLogo] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -30,47 +32,11 @@ const Teams = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const groupId = Number(Cookies.get("group_id")) || 0;
+  const { groupId } = useGroup();
 
-  const results = useQueries({
-    queries: [
-      {
-        queryKey: ["teams", groupId],
-        queryFn: async () =>
-          await getTeamsByGroupId({
-            queryKey: ["teams", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-      {
-        queryKey: ["seasons", groupId],
-        queryFn: async () =>
-          await getSeasonsByGroupId({
-            queryKey: ["seasons", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-      {
-        queryKey: ["divisions", groupId],
-        queryFn: async () =>
-          await getDivisionByGroupId({
-            queryKey: ["divisions", groupId],
-            meta: undefined,
-            signal: new AbortController().signal,
-          }),
-        enabled: groupId !== 0,
-      },
-    ],
-  });
-
-  const [teamsQuery, seasonsQuery, divisionsQuery] = results;
-  const data = teamsQuery.data;
-  const isLoading = teamsQuery.isLoading;
-  const isError = teamsQuery.isError;
+  const { data: teams, isLoading, isError } = useGetTeamsByGroupId(groupId);
+  const { data: seasons } = useGetSeasonsByGroupId(groupId);
+  const { data: divisions } = useGetDivisionsByGroupId(groupId);
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -82,9 +48,18 @@ const Teams = () => {
     };
   }, [searchQuery]);
 
-  const handleEdit = (teamName: string, teamId: number) => {
+  const handleEdit = (
+    teamName: string,
+    teamId: number,
+    seasonId: number,
+    divisionId: number,
+    teamLogo: string
+  ) => {
     setCurrentTeamName(teamName);
     setCurrentTeamId(teamId);
+    setCurrentTeamSeasonId(seasonId);
+    setCurrentTeamDivisionId(divisionId);
+    setCurrentTeamLogo(teamLogo);
     setIsEditOpen(true);
   };
 
@@ -94,7 +69,7 @@ const Teams = () => {
     setIsDeleteOpen(true);
   };
 
-  const filteredData = data?.filter((team: TeamType) =>
+  const filteredData = teams?.filter((team: TeamType) =>
     team.name.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
@@ -102,7 +77,7 @@ const Teams = () => {
     <>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>
-          {data && data.length > 0 && (
+          {teams && teams.length > 0 && (
             <Search onSearchChange={setSearchQuery} />
           )}
         </div>
@@ -121,8 +96,8 @@ const Teams = () => {
           <Modal.Content title={t("formContent.title")}>
             <TeamForm
               afterSave={() => setIsCreateOpen(false)}
-              divisionsData={divisionsQuery.data}
-              seasonsData={seasonsQuery.data}
+              divisionsData={divisions}
+              seasonsData={seasons}
               requestType="POST"
             />
           </Modal.Content>
@@ -145,12 +120,12 @@ const Teams = () => {
             <tr>
               <td>{t("loading")}</td>
             </tr>
-          ) : isError || !data ? (
+          ) : isError || !teams ? (
             <tr>
               <td>{t("error")}</td>
             </tr>
           ) : (
-            data?.map((team: TeamType, idx: number) => (
+            teams?.map((team: TeamType, idx: number) => (
               <tr key={idx} className={styles.tableRow}>
                 <td className={styles.tableData}>
                   <div
@@ -183,7 +158,15 @@ const Teams = () => {
                 <td>
                   <DropdownMenuButton>
                     <DropdownMenuButton.Item
-                      onClick={() => handleEdit(team.name, team.id)}
+                      onClick={() =>
+                        handleEdit(
+                          team.name,
+                          team.id,
+                          team.season_id,
+                          team.division_id,
+                          team.team_logo
+                        )
+                      }
                     >
                       {t("edit")}
                     </DropdownMenuButton.Item>
@@ -210,9 +193,13 @@ const Teams = () => {
           <TeamForm
             afterSave={() => setIsEditOpen(false)}
             requestType="PATCH"
-            divisionsData={divisionsQuery.data}
-            seasonsData={seasonsQuery.data}
+            divisionsData={divisions}
+            seasonsData={seasons}
             teamId={currentTeamId}
+            teamName={currentTeamName}
+            seasonId={currentTeamSeasonId}
+            divisionId={currentTeamDivisionId}
+            teamLogo={currentTeamLogo}
           />
         </Modal.Content>
       </Modal>

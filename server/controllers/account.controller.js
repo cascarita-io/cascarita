@@ -3,6 +3,8 @@
 require("dotenv").config();
 
 const Response = require("../mongoModels/response");
+const createPayerUser = require("../utilityFunctions/createPayerUser");
+const { Form } = require("../models");
 
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const {
@@ -106,9 +108,8 @@ const AccountController = function () {
       productObj.paymentIntentId = paymentIntent.id;
       productObj.paymentIntentStatus = paymentIntent.status;
       productObj.updatedTotal = totalAmount;
-      await createStripeFormPayment(productObj);
+      await createFormPayment(productObj);
 
-      console.log(JSON.stringify(paymentIntent));
       return res.status(200).json({
         client_secret: paymentIntent.client_secret,
         id: paymentIntent.id,
@@ -243,11 +244,15 @@ const AccountController = function () {
     email,
     formattedAnswers,
     userSelectedStatus,
+    isUserAction,
+    isStripePayment,
   ) {
     try {
       const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
         email,
+        isUserAction,
+        isStripePayment,
       );
 
       if (!preparedInfo.success) {
@@ -256,7 +261,7 @@ const AccountController = function () {
 
       const { userId, formPayment, paymentIntentData } = preparedInfo;
 
-      if (paymentIntentData.status === "succeeded") {
+      if (isStripePayment && paymentIntentData.status === "succeeded") {
         return {
           success: false,
           data: `payment intent status is succeeded cannot be re-captured: ${paymentIntentData.id}`,
@@ -264,14 +269,20 @@ const AccountController = function () {
         };
       }
 
-      await Stripe.paymentIntents.capture(paymentIntentData.id, {
-        stripeAccount: formPayment.stripe_account_id_string,
-      });
+      if (isStripePayment) {
+        await Stripe.paymentIntents.capture(paymentIntentData.id, {
+          stripeAccount: formPayment.stripe_account_id_string,
+        });
+      }
 
       const updates = {
         internal_status_updated_by: userId,
         internal_status_updated_at: new Date(),
       };
+
+      if (!isStripePayment) {
+        updates.internal_status_id = 3 //approved
+      }
 
       await formPayment.update(updates, { validate: true });
 
@@ -289,6 +300,16 @@ const AccountController = function () {
         );
       }
 
+      if (!isStripePayment) {
+        const form_id = formPayment.form_id
+        const form = await Form.findByPk(form_id);
+        const groupId = form.group_id;
+
+        var paymentData = await createPayerUser(formattedAnswers, groupId);
+        // updates formPayment with payer_id:
+        await formPayment.update(paymentData, { valudate: true });
+      }
+
       return {
         success: true,
         data: `successfuly captured payment intent: ${paymentIntentId}`,
@@ -304,7 +325,7 @@ const AccountController = function () {
     }
   };
 
-  var cancelPaymentIntent = async function (paymentIntentId, email) {
+  var cancelPaymentIntent = async function (paymentIntentId, email, isUserAction, isStripePayment) {
     try {
       const cancelStatuses = [
         "requires_payment_method",
@@ -316,6 +337,8 @@ const AccountController = function () {
       const preparedInfo = await preparePaymentIntentOperation(
         paymentIntentId,
         email,
+        isUserAction, // if it is cash payment, we don't need to check user - payment intent is canceled by the system.
+        isStripePayment,
       );
 
       if (!preparedInfo.success) {
@@ -324,26 +347,31 @@ const AccountController = function () {
 
       const { userId, formPayment, paymentIntentData } = preparedInfo;
 
-      if (!cancelStatuses.includes(paymentIntentData.status)) {
+      if (isStripePayment && !cancelStatuses.includes(paymentIntentData.status)) {
         return {
           success: false,
-          data: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
+          error: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
           status: 304,
         };
       }
 
-      const canceledPaymentIntent = await Stripe.paymentIntents.cancel(
-        paymentIntentId,
-        { cancellation_reason: "requested_by_customer" },
-        {
-          stripeAccount: formPayment.stripe_account_id_string,
-        },
-      );
+      var canceledPaymentIntent;
+      if (isStripePayment) {
+        canceledPaymentIntent = await Stripe.paymentIntents.cancel(
+          paymentIntentId,
+          { cancellation_reason: "requested_by_customer" },
+          {
+            stripeAccount: formPayment.stripe_account_id_string,
+          },
+        );
+      } else {
+        canceledPaymentIntent = { status: "canceled" };
+      }
 
       const updates = {
         internal_status_updated_by: userId,
         internal_status_updated_at: new Date(),
-        internal_status_id: 11, // 'Cancelled
+        internal_status_id: 11, // 'Canceled
         payment_intent_status: canceledPaymentIntent.status,
       };
 
@@ -363,16 +391,40 @@ const AccountController = function () {
     }
   };
 
-  var createStripeFormPayment = async function (formData) {
-    await FormPayment.create({
-      form_id: formData.form_id,
-      payment_method_id: 1, //since this go triggred, it is stripe payment
-      internal_status_id: 1, // set it to default 'Pending'
-      amount: formData.updatedTotal,
-      payment_intent_id: formData.paymentIntentId,
-      payment_intent_status: formData.paymentIntentStatus,
-      stripe_account_id_string: formData.stripeAccountIdString,
-    });
+  var createFormPayment = async function (formData) {
+
+    try {
+      const formPayment = await FormPayment.create({
+        form_id: formData.form_id,
+        payment_method_id: formData.payment_method_id || 1, // default to stripe if not provided
+        internal_status_id: formData.internal_status_id || 1, // default to 'Pending'
+        amount: formData.updatedTotal,
+        payment_intent_id: formData.paymentIntentId,
+        payment_intent_status: formData.paymentIntentStatus || null,
+        stripe_account_id_string: formData.stripeAccountIdString || null,
+        response_document_id: formData.response_document_id || null,
+      });
+
+      if (!formPayment) {
+        return {
+          success: false,
+          error: `failed to create form payment entry for form id: ${formData.form_id}`,
+          status: 500,
+        };
+      }
+
+      return {
+        success: true,
+        data: "successfully created form payment intent",
+        status: 201,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to create form payment intent: ${error.message}`,
+        status: 500,
+      };
+    }
   };
 
   var getPaymentIntent = async function (paymentIntentId, stripeAccountId) {
@@ -405,18 +457,22 @@ const AccountController = function () {
     }
   };
 
-  var preparePaymentIntentOperation = async function (paymentIntentId, email) {
+  var preparePaymentIntentOperation = async function (paymentIntentId, email, isUserAction, isStripePayment) {
     try {
-      const { id } = await User.findOne({
-        where: { email: email },
-      });
+      var user;
 
-      if (!id) {
-        return {
-          success: false,
-          error: `no user found with email: ${email}`,
-          status: 404,
-        };
+      if (isUserAction) {
+        user = await User.findOne({
+          where: { email: email },
+        });
+
+        if (!user) {
+          return {
+            success: false,
+            error: `no user found with email: ${email}`,
+            status: 404,
+          };
+        }
       }
 
       const formPayment = await FormPayment.findOne({
@@ -431,18 +487,24 @@ const AccountController = function () {
         };
       }
 
-      const retrievePaymentIntent = await getPaymentIntent(
-        paymentIntentId,
-        formPayment.stripe_account_id_string,
-      );
+      var retrievePaymentIntent;
+      if (isStripePayment) {
+        retrievePaymentIntent = await getPaymentIntent(
+          paymentIntentId,
+          formPayment.stripe_account_id_string,
+        );
 
-      if (!retrievePaymentIntent.success) {
-        return retrievePaymentIntent;
+        if (!retrievePaymentIntent.success) {
+          return retrievePaymentIntent;
+        }
+      } else {
+        // for consistency, although this status is not checked for cash payments:
+        retrievePaymentIntent = { data: { status: "processing_cash_payment" } };
       }
 
       return {
         success: true,
-        userId: id,
+        userId: user ? user.id : null,
         formPayment,
         paymentIntentData: retrievePaymentIntent.data,
       };
@@ -461,14 +523,21 @@ const AccountController = function () {
     formattedAnswers,
     userSelectedStatus,
   ) {
+    const isUserAction = true;
+    var isStripePayment = false;
+    if (paymentIntentId.startsWith("pi_")) {
+      isStripePayment = true;
+    }
     if (userSelectedStatus === "canceled") {
-      return cancelPaymentIntent(paymentIntentId, email);
+      return cancelPaymentIntent(paymentIntentId, email, isUserAction, isStripePayment);
     } else {
       return capturePaymentIntent(
         paymentIntentId,
         email,
         formattedAnswers,
         userSelectedStatus,
+        isUserAction,
+        isStripePayment,
       );
     }
   };
@@ -481,6 +550,8 @@ const AccountController = function () {
     getPublishableKey,
     capturePaymentIntent,
     processPaymentIntent,
+    createFormPayment,
+    cancelPaymentIntent,
   };
 };
 

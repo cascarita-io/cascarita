@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getMongoFormById } from "../../api/forms/service";
 import { FormProvider, useForm } from "react-hook-form";
-import { AnswerMap, FieldComponents, FetchedForm } from "./types";
+import { AnswerMap, FieldComponents } from "./types";
 import { createMongoResponse } from "../../api/forms/service";
 import FormHeader from "../../components/FormHeader/FormHeader";
 import styles from "./FormPage.module.css";
@@ -15,6 +13,8 @@ import {
 } from "../../api/forms/types";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
+import { FormSchemaType } from "./schema";
+import { useGetFormByDocumentId } from "../../api/forms/query";
 
 const FormPage = () => {
   const { formId } = useParams();
@@ -27,33 +27,26 @@ const FormPage = () => {
       paymentIntentId: string;
     }>;
   } | null>(null);
+
   const {
     data: form,
     isLoading,
     error,
-  } = useQuery<FetchedForm, Error>({
-    queryKey: ["form", formId],
-    queryFn: () =>
-      formId
-        ? getMongoFormById(formId)
-        : Promise.reject(new Error("Form ID is undefined")),
-  });
+  } = useGetFormByDocumentId(formId === undefined ? "" : formId);
 
   const total = form?.form_data.fields.length ?? 0;
   const [used, setUsed] = useState(1);
 
-  const methods = useForm<{
-    answers: Record<string, Answer>;
-  }>({
+  const methods = useForm<FormSchemaType>({
     defaultValues: { answers: {} },
     mode: "onChange",
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
-    undefined,
+    undefined
   );
   const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
-    undefined,
+    undefined
   );
 
   useEffect(() => {
@@ -134,7 +127,7 @@ const FormPage = () => {
           });
           const responsesData = await createMongoResponse(
             formId ?? "",
-            updatedNormalizedAnswers,
+            updatedNormalizedAnswers
           );
           // TODO: Redirect to a thank you page!
           navigate("/thanks");
@@ -160,7 +153,7 @@ const FormPage = () => {
         });
         const responsesData = await createMongoResponse(
           formId ?? "",
-          updatedNormalizedAnswers,
+          updatedNormalizedAnswers
         );
         // TODO: Redirect to a thank you page!
         navigate("/thanks");
@@ -170,7 +163,7 @@ const FormPage = () => {
       // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers,
+        normalizedAnswers
       );
       navigate("/thanks");
       return responsesData;
@@ -210,7 +203,7 @@ const FormPage = () => {
             >
               <h1 className={styles.title}>{form?.form_data.title}</h1>
               {form.form_data.fields
-                .filter((_, index: number) => index === used - 1)
+                .filter((_: Field, index: number) => index === used - 1)
                 .map((field: Field) => {
                   const FieldComponent = FieldComponents[field.type];
                   if (!FieldComponent) return null;
@@ -251,7 +244,6 @@ const FormPage = () => {
                     type="submit"
                     id="submitButton"
                     className={styles.submitButton}
-                    disabled={hasErrors() || isNotEmpty()}
                   >
                     Submit
                   </button>

@@ -103,7 +103,7 @@ const Forms = () => {
 
   const headers = useResponsiveHeader(
     [t("col1"), t("col2"), t("col4"), t("col5")],
-    [t("col1"), t("col5")],
+    [t("col1"), t("col5")]
   );
 
   useEffect(() => {
@@ -169,7 +169,7 @@ const Forms = () => {
 
   const filteredData = forms
     ?.filter((form: Form) =>
-      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase()),
+      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase())
     )
     ?.sort((a: Form, b: Form) => {
       if (sorts === t("sortOptions.item1")) {
@@ -261,7 +261,7 @@ const Forms = () => {
                 <button
                   onClick={() =>
                     handleShareClick(
-                      `${window.location.origin}/forms/${form._id}`,
+                      `${window.location.origin}/forms/${form._id}`
                     )
                   }
                 >

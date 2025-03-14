@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import styles from "./FileUpload.module.css";
 import { FileRejection, useDropzone } from "react-dropzone";
-import { FileIcon, Cross1Icon } from "@radix-ui/react-icons";
+import { ImageIcon, Cross1Icon } from "@radix-ui/react-icons";
 import { FileUploadProps } from "./types";
+import PulseLoader from "react-spinners/PulseLoader";
 
 const focusedStyle = {
   borderColor: "#2196f3",
@@ -16,15 +17,32 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
-  const [filePreview, setFilePreview] = React.useState<string>("");
+const FileUpload: React.FC<FileUploadProps> = ({
+  className,
+  setFileValue,
+  imagePreview,
+}) => {
+  const [filePreview, setFilePreview] = React.useState<string>(
+    imagePreview || ""
+  );
+  const [isLoading, setIsLoading] = React.useState(imagePreview ? true : false);
+
+  useEffect(() => {
+    if (imagePreview) {
+      setIsLoading(false);
+      setFilePreview(imagePreview);
+    } else {
+      setFilePreview("");
+    }
+  }, [imagePreview]);
+
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const onDropAccepted = useCallback((acceptedFiles: File[]) => {
     const file = new FileReader();
 
     file.onload = () => {
-      setFilePreview(file.result as string);
+      setIsLoading(true);
       if (setFileValue) {
         setFileValue(acceptedFiles[0]);
       }
@@ -78,7 +96,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
     event.stopPropagation();
     setFilePreview("");
     if (setFileValue) {
-      setFileValue(null);
+      setFileValue(undefined);
     }
   };
 
@@ -96,46 +114,49 @@ const FileUpload: React.FC<FileUploadProps> = ({ className, setFileValue }) => {
             src={filePreview || undefined}
             alt=""
             onLoad={() => {
-              URL.revokeObjectURL(filePreview);
+              if (filePreview?.startsWith("blob:")) {
+                URL.revokeObjectURL(filePreview);
+              }
             }}
           />
+          {filePreview && (
+            <aside>
+              <button className={styles.removeBtn} onClick={removeFile}>
+                <Cross1Icon />
+              </button>
+            </aside>
+          )}
         </div>
       )}
 
       <input {...getInputProps()} />
-      {isDragActive ? (
+      {isLoading && !filePreview ? (
+        <PulseLoader color="#2196f3" loading={isLoading} />
+      ) : isDragActive ? (
         <div className={styles.dropZoneContent}>
           {!filePreview && (
             <>
-              <FileIcon className={styles.fileIcon} width={60} height={60} />
+              <ImageIcon className={styles.fileIcon} width={60} height={60} />
               <p className={styles.textSm}>Drop the files here ...</p>
             </>
           )}
         </div>
       ) : (
-        <div className={styles.dropZoneContent}>
+        <>
           {!filePreview && (
-            <>
-              <FileIcon className={styles.fileIcon} width={60} height={60} />
+            <div className={styles.dropZoneContent}>
+              <ImageIcon className={styles.fileIcon} width={60} height={60} />
               <p className={styles.textSm}>
                 Drag and drop a file here or{" "}
                 <span className={styles.boldLogoText}>Choose a file</span>
               </p>
-            </>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       {isDragReject && <p className={styles.errorText}>File is not accepted</p>}
       {errorMessage && <p className={styles.errorText}>{errorMessage}</p>}
-
-      {filePreview && (
-        <aside>
-          <button className={styles.removeBtn} onClick={removeFile}>
-            <Cross1Icon />
-          </button>
-        </aside>
-      )}
     </div>
   );
 };

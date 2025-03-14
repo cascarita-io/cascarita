@@ -1,6 +1,7 @@
 import { Answer } from "../../../api/forms/types";
 import DashboardTable from "../../DashboardTable/DashboardTable";
 import styles from "./FormResponseModal.module.css";
+import { formatCurrency } from "../../../utils/formatCurrency";
 
 interface FormResponseModalProps {
   answers: Record<string, Answer> | undefined;
@@ -53,7 +54,7 @@ const FormResponseModal: React.FC<FormResponseModalProps> = ({ answers }) => {
                 {key === "payment" && (
                   <td>
                     {response.payment_type && response.amount
-                      ? `${response.payment_type} - $${response.amount}`
+                      ? `${response.payment_type} - $${formatCurrency([response.amount])[0]}`
                       : "no payment data"}
                   </td>
                 )}

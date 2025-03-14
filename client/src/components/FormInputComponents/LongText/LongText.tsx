@@ -10,21 +10,13 @@ const LongText = ({ field, index }: FieldProps) => {
     register,
     formState: { errors },
   } = useFormContext();
-  const { required, max_length: maxLength } = field.validations ?? {};
 
   const fieldError = (
     errors.answers as { [key: number]: { long_text?: FieldError } } | undefined
   )?.[index]?.long_text;
 
   const { onChange: registerOnChange, ...registerProps } = register(
-    `answers.${index}.long_text`,
-    {
-      required: required && t("required"),
-      maxLength: maxLength && {
-        value: maxLength,
-        message: `${t("longText.maxLength")} ${maxLength}`,
-      },
-    }
+    `answers.${index}.long_text`
   );
 
   const handleTextAreaChange = (

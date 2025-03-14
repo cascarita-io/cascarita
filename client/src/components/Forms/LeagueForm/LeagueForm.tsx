@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "../Form.module.css";
 import Modal from "../../Modal/Modal";
 import { LeagueFormProps, LeagueFormData, LeagueRequest } from "./types";
@@ -29,20 +29,15 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
+    clearErrors,
   } = useForm<LeagueFormData>({
     defaultValues: {
-      name: "",
-      description: "",
+      name: leagueName || "",
+      description: leagueDescription || "",
     },
     resolver: zodResolver(leagueSchema),
   });
-
-  useEffect(() => {
-    setValue("name", leagueName || "");
-    setValue("description", leagueDescription);
-  }, [leagueName, leagueDescription]);
 
   const createLeagueMutation = useCreateLeague();
   const updateLeagueMutation = useUpdateLeague();
@@ -118,7 +113,10 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
                 className={`${styles.input} ${errors.name ? styles.invalid : ""}`}
                 placeholder={t("formContent.namePlaceholder")}
                 id="leagueName"
-                onChange={() => setError("")}
+                onChange={() => {
+                  setError("");
+                  clearErrors("name");
+                }}
               />
               {errors.name && (
                 <span className={styles.error}>{errors.name?.message}</span>
@@ -135,6 +133,9 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
                 className={styles.input}
                 placeholder={t("formContent.descriptionPlaceholder")}
                 id="leagueDesc"
+                onChange={() => {
+                  clearErrors("description");
+                }}
               />
             </div>
           </div>

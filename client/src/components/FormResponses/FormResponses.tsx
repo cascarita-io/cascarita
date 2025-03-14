@@ -10,6 +10,8 @@ import {
 import {
   getMongoFormById,
   getMongoFormResponses,
+  sendApprovalEmail,
+  sendRejectionEmail,
 } from "../../api/forms/service";
 import { useTranslation } from "react-i18next";
 import { Answer } from "../../api/forms/types";
@@ -24,10 +26,15 @@ import {
   updateFormPaymentStatus,
 } from "../../api/forms/service";
 import PaymentCapture from "../PaymentCapture/PaymentCapture";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
-    <StatusLabel status={status} renderDropdown={true}>
+    <StatusLabel
+      className={styles.statusLabel}
+      status={status}
+      renderDropdown={true}
+    >
       {status}
     </StatusLabel>
   );
@@ -88,8 +95,10 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
     []
   );
-  const [openModal, setOpenModal] = useState(false);
-  const [paymentCaptureIndex, setPaymentCaptureIndex] = useState(0);
+  const [openPaymentModal, setOpenPaymentModal] = useState(false);
+  const [currentPaymentIndex, setCurrentPaymentIndex] = useState<number | null>(
+    null
+  );
   const adminEmail = Cookies.get("email") || "";
   const [formDocumentId, setFormDocumentId] = useState("");
   console.log(formDocumentId);
@@ -108,10 +117,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     return date.toLocaleDateString(undefined, options);
   };
 
-  const formatMoney = (amount: number): string => {
-    //formats cents to dollars
-    return `$${(amount / 100).toFixed(2)}`;
-  };
+  const formattedCurrency = formatCurrency(amount);
 
   useEffect(() => {
     (async () => {
@@ -180,9 +186,9 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       await Promise.all(
         formPayments.map(
           async (paymentData: FormPaymentType, index: number) => {
-            if (paymentData.payment_intent_status === "succeeded") {
+            if (paymentData.internal_status_id === 3) {
               statusData[index] = "approved";
-            } else if (paymentData.payment_intent_status === "canceled") {
+            } else if (paymentData.internal_status_id === 11) {
               statusData[index] = "rejected";
             } else {
               statusData[index] = "pending";
@@ -209,13 +215,49 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     const newStatus = [...status];
     newStatus[index] = statusUpdate;
     setStatus(newStatus);
-
     let updatedStatus = statusUpdate as string;
+
+    const leagueName =
+      formResponsesData[index].player.player?.league_name || "";
+    const email = formResponsesData[index]["email"].email;
+    const seasonName =
+      formResponsesData[index].player.player?.season_name || "";
+    const playerName = `${formResponsesData[index]["first_name"].short_text} ${formResponsesData[index]["last_name"].short_text}`;
+    const paymentAmount =
+      Number(formResponsesData[index]["payment"].amount) / 100;
+    const paymentDate = new Date().toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const transactionId =
+      formResponsesData[index]["payment"].paymentIntentId || "";
+
     if (statusUpdate === "pending") {
       updatedStatus = "requires_payment_method";
     } else if (statusUpdate === "approved") {
+      if (email) {
+        await sendApprovalEmail(
+          [email],
+          leagueName,
+          seasonName,
+          playerName,
+          paymentAmount,
+          paymentDate,
+          transactionId
+        );
+      }
       updatedStatus = "succeeded";
     } else {
+      if (email) {
+        await sendRejectionEmail(
+          [email],
+          leagueName,
+          seasonName,
+          playerName,
+          paymentAmount
+        );
+      }
       updatedStatus = "canceled";
     }
 
@@ -225,6 +267,11 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       adminEmail,
       response
     );
+  };
+
+  const handleOpenPaymentModal = (index: number) => {
+    setCurrentPaymentIndex(index);
+    setOpenPaymentModal(true);
   };
 
   const registrationTypeHeaders = [
@@ -243,6 +290,19 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
 
   return (
     <div className={styles.container}>
+      {currentPaymentIndex !== null && (
+        <PaymentCaptureModal
+          openModal={openPaymentModal}
+          setOpenModal={setOpenPaymentModal}
+          status={status[currentPaymentIndex]}
+          amount={formattedCurrency[currentPaymentIndex]}
+          user={user[currentPaymentIndex]}
+          index={currentPaymentIndex}
+          response={formResponsesData[currentPaymentIndex]}
+          handleStatusChange={handleStatusChange}
+        />
+      )}
+
       {formType === 1 ? (
         <DashboardTable
           headers={registrationTypeHeaders}
@@ -256,24 +316,19 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{paymentType[index]}</td>
               {formType === 1 && (
                 <td>
-                  <PaymentCaptureModal
-                    openModal={openModal}
-                    setOpenModal={setOpenModal}
-                    status={status[paymentCaptureIndex]}
-                    amount={formatMoney(amount[paymentCaptureIndex])}
-                    user={user[paymentCaptureIndex]}
-                    index={paymentCaptureIndex}
-                    response={response}
-                    handleStatusChange={handleStatusChange}
-                  />
-                  <DropdownMenuButton trigger={StatusButton(status[index])}>
+                  <DropdownMenuButton
+                    className={styles.dropdown}
+                    trigger={StatusButton(status[index])}
+                  >
                     <DropdownMenuButton.Item
-                      onClick={() => {
-                        setOpenModal(true);
-                        setPaymentCaptureIndex(index);
-                      }}
+                      onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="approved">approved</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="approved"
+                      >
+                        approved
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
 
                     <DropdownMenuButton.Separator
@@ -281,12 +336,14 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => {
-                        setOpenModal(true);
-                        setPaymentCaptureIndex(index);
-                      }}
+                      onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="rejected">rejected</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="rejected"
+                      >
+                        rejected
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
 
                     <DropdownMenuButton.Separator
@@ -294,12 +351,14 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => {
-                        setOpenModal(true);
-                        setPaymentCaptureIndex(index);
-                      }}
+                      onClick={() => handleOpenPaymentModal(index)}
                     >
-                      <StatusLabel status="pending">pending</StatusLabel>
+                      <StatusLabel
+                        className={styles.statusLabel}
+                        status="pending"
+                      >
+                        pending
+                      </StatusLabel>
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>
                 </td>
@@ -328,7 +387,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               </td>
               <td>{formatDate(submittedAt[index])}</td>
               <td>{email[index]}</td>
-              <td>{formatMoney(amount[index])}</td>
+              <td>{`$${formattedCurrency[index]}`}</td>
               <td>
                 {paymentType[index] === "Credit Card / Stripe"
                   ? formatDate(submittedAt[index], 3)

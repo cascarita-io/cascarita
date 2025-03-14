@@ -6,7 +6,7 @@ import {
 
 type divisionQueryKey = [string, number];
 
-const getDivisionByGroupId = async ({
+const getDivisionsByGroupId = async ({
   queryKey,
 }: QueryFunctionContext<divisionQueryKey>) => {
   const [, groupId] = queryKey;
@@ -105,7 +105,7 @@ const deleteDivision = async (data: DivisionRequest): Promise<void> => {
 };
 export {
   getDivisionsBySeasonId,
-  getDivisionByGroupId,
+  getDivisionsByGroupId,
   createDivision,
   updateDivision,
   deleteDivision,

@@ -10,8 +10,6 @@ const MultipleChoice = ({ field, index }: FieldProps) => {
     formState: { errors },
   } = useFormContext();
 
-  const { required } = field.validations ?? {};
-
   const fieldError = (
     errors.answers as
       | {
@@ -51,10 +49,7 @@ const MultipleChoice = ({ field, index }: FieldProps) => {
               {...register(
                 isMultipleSelection
                   ? `answers.${index}.choices.labels`
-                  : `answers.${index}.choice.label`,
-                {
-                  required: required && t("required"),
-                },
+                  : `answers.${index}.choice.label`
               )}
             />
             {choice.label}

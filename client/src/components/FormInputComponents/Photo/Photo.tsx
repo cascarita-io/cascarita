@@ -18,8 +18,10 @@ const Photo = ({ field, index }: FieldProps) => {
     setValue,
   } = useFormContext();
 
-  const [fileUrl, setFileUrl] = useState<File | null>(null);
+  const [fileUrl, setFileUrl] = useState<File | undefined>(undefined);
   register(`answers.${index}.photo`);
+
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const uploadPhoto = async () => {
@@ -30,6 +32,7 @@ const Photo = ({ field, index }: FieldProps) => {
           "player_photo"
         );
         setValue(`answers.${index}.photo`, uploadUrl.image_url);
+        setPhotoUrl(uploadUrl.image_url);
       } else {
         setValue(`answers.${index}.photo`, "");
       }
@@ -59,7 +62,8 @@ const Photo = ({ field, index }: FieldProps) => {
       )}
 
       <FileUpload
-        setFileValue={(url: File | null) => {
+        imagePreview={photoUrl}
+        setFileValue={(url?: File) => {
           setFileUrl(url);
         }}
         className={styles.logoInputContainer}
