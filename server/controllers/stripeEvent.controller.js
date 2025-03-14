@@ -27,8 +27,8 @@ const StripeEventController = function () {
         return {
           success: true,
           skip:
-            existingEvent.status === "completed" ||
-            existingEvent.status === "processing",
+            existingEvent.internal_status === "completed" ||
+            existingEvent.internal_status === "processing",
           data: `event ${eventId} already processed, skipping`,
           status: 200,
         };
@@ -36,9 +36,10 @@ const StripeEventController = function () {
 
       await StripeEvent.create({
         event_id: eventId,
+        stripe_account_id: event.account,
         event_type: eventType,
         payload: event,
-        status: "received",
+        internal_status: "received",
         livemode: event.livemode,
       });
 
@@ -60,7 +61,7 @@ const StripeEventController = function () {
   var updateEventStatus = async function (eventId, status) {
     try {
       await StripeEvent.update(
-        { status: status },
+        { internal_status: status },
         { where: { event_id: eventId } },
       );
     } catch (error) {

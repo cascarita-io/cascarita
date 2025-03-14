@@ -23,11 +23,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(255),
         allowNull: false,
       },
+      stripe_account_id: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
       event_type: {
         type: DataTypes.STRING(255),
         allowNull: false,
       },
-      status: {
+      internal_status: {
         type: DataTypes.ENUM("received", "processing", "completed", "failed"),
         allowNull: false,
         defaultValue: "received",
