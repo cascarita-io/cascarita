@@ -2,6 +2,7 @@
 require("dotenv").config();
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const FormPaymentController = require("../formPayment.controller");
+const StripeEventController = require("../stripeEvent.controller");
 
 const FormTransactionController = function () {
   const endpointSecret = process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET;
@@ -13,6 +14,26 @@ const FormTransactionController = function () {
         req.headers["stripe-signature"],
         endpointSecret,
       );
+
+      const storedStripeEvent = await StripeEventController.validateEvent(
+        event,
+      );
+
+      if (!storedStripeEvent.success) {
+        return res.status(200).json({
+          received: true,
+          success: false,
+          message: storedStripeEvent.error,
+        });
+      }
+
+      if (storedStripeEvent.skip) {
+        return res.status(200).json({
+          received: true,
+          success: true,
+          message: storedStripeEvent.data,
+        });
+      }
 
       const paymentIntent = event.data.object;
 

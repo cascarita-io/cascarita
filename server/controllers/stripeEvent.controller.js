@@ -13,6 +13,7 @@ const StripeEventController = function () {
       if (ignore) {
         return {
           success: true,
+          skip: true,
           data: `not tracking events of type : ${eventType}`,
           status: 200,
         };
@@ -24,7 +25,10 @@ const StripeEventController = function () {
 
       if (existingEvent) {
         return {
-          success: false,
+          success: true,
+          skip:
+            existingEvent.status === "completed" ||
+            existingEvent.status === "processing",
           data: `event ${eventId} already processed, skipping`,
           status: 200,
         };
@@ -40,6 +44,7 @@ const StripeEventController = function () {
 
       return {
         success: true,
+        skip: false,
         data: `successfully saved the event: ${eventId}`,
         status: 200,
       };
