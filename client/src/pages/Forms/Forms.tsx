@@ -11,7 +11,7 @@ import { Form } from "./types";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useTranslation } from "react-i18next";
 import {
-  deleteForm,
+  // deleteForm,
   getMongoFormById,
   getMongoForms,
 } from "../../api/forms/service";
@@ -24,8 +24,8 @@ import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
 import DeleteForm from "../../components/Forms/DeleteForm/DeleteForm";
-import { useDeleteForm } from "../../api/forms/mutations";
-import { string } from "zod";
+// import { useDeleteForm } from "../../api/forms/mutations";
+// import { string } from "zod";
 
 interface ShareModalProps {
   formLink: string;
@@ -82,7 +82,7 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
 }) => (
   <Modal open={isOpen} onOpenChange={onOpen}>
     <Modal.Content title="Delete Form">
-      <DeleteForm afterSave={false} children={undefined}/>
+      <DeleteForm afterSave={false} children={undefined} />
     </Modal.Content>
   </Modal>
 );
@@ -140,10 +140,11 @@ const Forms = () => {
   };
 
   const onDelete = async (id: string) => {
+    console.log("delete", id);
     // const deleteFormMutation = useDeleteForm();
     // const data = deleteFormMutation.data;
     // console.log(data);
-    setIsDeleteOpen(true)
+    setIsDeleteOpen(true);
     // await deleteForm(id);
     // setForms((forms) => forms.filter((form) => form._id !== id));
   };
