@@ -423,13 +423,7 @@ const UserController = function () {
           group_id: group_id,
         },
         attributes: {
-          exclude: [
-            "password",
-            "created_at",
-            "updated_at",
-            "group_id",
-            "language_id",
-          ],
+          exclude: ["created_at", "updated_at", "group_id", "language_id"],
         },
       });
 
