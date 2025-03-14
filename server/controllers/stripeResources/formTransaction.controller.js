@@ -5,7 +5,7 @@ const FormPaymentController = require("../formPayment.controller");
 const StripeEventController = require("../stripeEvent.controller");
 
 const FormTransactionController = function () {
-  const endpointSecret = process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET;
+  const endpointSecret = process.env.STRIPE_PAYMENTS_WEBHOOK_SECRET;
 
   var handleEvent = async function (req, res) {
     try {
