@@ -65,7 +65,12 @@ const StripeEventController = function () {
         { where: { event_id: eventId } },
       );
     } catch (error) {
-      console.error(`Failed to update event status: ${error.message}`);
+      console.error({
+        event: "event_internal_status_update_failed",
+        eventId: eventId,
+        internal_status: status,
+        error: error.message,
+      });
     }
   };
 
