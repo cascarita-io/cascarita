@@ -57,6 +57,17 @@ const StripeEventController = function () {
     }
   };
 
+  var updateEventStatus = async function (eventId, status) {
+    try {
+      await StripeEvent.update(
+        { status: status },
+        { where: { event_id: eventId } },
+      );
+    } catch (error) {
+      console.error(`Failed to update event status: ${error.message}`);
+    }
+  };
+
   var ignoreEvent = function (eventType) {
     const acceptableEvents = [
       "payment_intent.amount_capturable_updated",
@@ -68,6 +79,7 @@ const StripeEventController = function () {
   };
   return {
     validateEvent,
+    updateEventStatus,
   };
 };
 
