@@ -74,8 +74,12 @@ module.exports = (sequelize, DataTypes) => {
           fields: ["event_id"],
         },
         {
+          name: "idx_stripe_events_stripe_account_id",
+          fields: ["stripe_account_id"],
+        },
+        {
           name: "idx_stripe_events_status",
-          fields: ["status"],
+          fields: ["internal_status"],
         },
         {
           name: "idx_stripe_events_event_type",
