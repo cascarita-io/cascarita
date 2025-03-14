@@ -8,13 +8,42 @@ const FormTransactionController = function () {
   const endpointSecret = process.env.STRIPE_PAYMENTS_WEBHOOK_SECRET;
 
   var handleEvent = async function (req, res) {
+    let event;
     try {
-      let event = Stripe.webhooks.constructEvent(
+      event = Stripe.webhooks.constructEvent(
         req.body,
         req.headers["stripe-signature"],
         endpointSecret,
       );
 
+      res.status(200).json({
+        received: true,
+        message: `webhook received, processing event: ${event.id}asynchronously`,
+      });
+
+      processEvent(event).catch((error) => {
+        console.error({
+          event: "webhook_async_processing_error",
+          error: error.message,
+          stack: error.stack,
+          eventId: event.id,
+          eventType: event.type,
+        });
+      });
+    } catch (error) {
+      console.error({
+        event: "webhook_signature_verification_error",
+        error: error.message,
+        stack: error.stack,
+      });
+      return res.status(400).json({
+        message: `webhook signature verification failed: ${error.message}`,
+      });
+    }
+  };
+
+  var processEvent = async function (event) {
+    try {
       const storedStripeEvent = await StripeEventController.validateEvent(
         event,
       );
