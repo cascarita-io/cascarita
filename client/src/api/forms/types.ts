@@ -89,6 +89,11 @@ export interface GetFormsParams {
   order_by?: OrderBy | null;
 }
 
+export interface FormResponse {
+  id: number;
+  error?: string;
+}
+
 export type AnswerType =
   | "short_text"
   | "long_text"

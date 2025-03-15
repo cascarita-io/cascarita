@@ -137,15 +137,12 @@
     border: 1px solid #e2e8f0;
 }
 
-ul,
-ol {
+.subsection ul ol {
     margin-left: 40px;
-    /* Increased padding for indentation */
     margin-bottom: 24px;
 }
 
-ul li,
-ol li {
+.subsection li {
     margin-left: 10px;
     margin-bottom: 8px;
     font-size: 14px;
@@ -154,14 +151,12 @@ ol li {
     /* Added bullet points */
 }
 
-ul li a,
-ol li a {
+.subsection li a {
     color: #3B49DF;
     text-decoration: none;
 }
 
-ul li a:hover,
-ol li a:hover {
+.subsection li a:hover {
     text-decoration: underline;
 }
 

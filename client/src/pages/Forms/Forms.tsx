@@ -23,6 +23,7 @@ import { fetchUser } from "../../api/users/service";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
+import DeleteForm from "../../components/Forms/DeleteForm/DeleteForm";
 
 interface ShareModalProps {
   formLink: string;
@@ -67,12 +68,32 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
   </Modal>
 );
 
+// Delete Form Modal
+interface DeleteFormModalProps {
+  isOpen: boolean;
+  onOpen: (isOpen: boolean) => void;
+}
+
+const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
+  isOpen,
+  onOpen,
+}) => (
+  <Modal open={isOpen} onOpenChange={onOpen}>
+    <Modal.Content title="Delete Form">
+      <DeleteForm destructBtnLabel={"Yes, I'm sure"} className={styles.form}>
+        <p>Are you sure you want to delete this form?</p>
+      </DeleteForm>
+    </Modal.Content>
+  </Modal>
+);
+
 const Forms = () => {
   const { t } = useTranslation("Forms");
   const [sorts, setSorts] = useState("");
   const [forms, setForms] = useState<Form[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [currentFormLink, setCurrentFormLink] = useState("");
   const navigate = useNavigate();
   const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
@@ -118,10 +139,9 @@ const Forms = () => {
     setIsOpen(true);
   };
 
-  // TODO: delete by mongo form ID
   const onDelete = async (id: string) => {
+    setIsDeleteOpen(true);
     await deleteForm(id);
-    setForms((forms) => forms.filter((form) => form._id !== id));
   };
 
   const onOpen = async (id: string) => {
@@ -261,6 +281,13 @@ const Forms = () => {
         <CreateTemplateModal
           isOpen={isCreateOpen}
           onOpen={(isOpen: boolean) => setIsCreateOpen(isOpen)}
+        />
+      )}
+
+      {isDeleteOpen && (
+        <DeleteFormModal
+          isOpen={isDeleteOpen}
+          onOpen={(isOpen: boolean) => setIsDeleteOpen(isOpen)}
         />
       )}
     </Page>
