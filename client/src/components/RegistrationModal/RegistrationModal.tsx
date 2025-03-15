@@ -12,6 +12,8 @@ import { GroupType } from "../../api/groups/types";
 import { RegisterUser } from "../../api/users/types";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Action, State } from "./types";
+import TCRegistration from "./TCRegistration";
+import { getIsPageComplete, getSubtitle, getTitle } from "./helpers";
 interface RegisterModalProps extends ModalProps {
   onRegistrationComplete: () => void;
 }
@@ -29,6 +31,7 @@ const initialState = {
   state: "",
   zipCode: "",
   group_code: "",
+  hasAcceptedTC: false,
 };
 
 function reducer(state: State, action: Action) {
@@ -79,8 +82,15 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
 
   const handleFieldChange =
     (field: keyof State) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      dispatch({ type: "SET_FIELD", field, value: e.target.value });
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | boolean) => {
+      const value =
+        typeof e === "boolean"
+          ? e
+          : e.target.type === "checkbox"
+            ? e.target.checked
+            : e.target.value;
+
+      dispatch({ type: "SET_FIELD", field, value });
     };
 
   const incrementPageNumber = () => {
@@ -91,29 +101,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     dispatch({ type: "PREVIOUS_PAGE" });
   };
 
-  const getIsPageComplete = (pageNumber: number) => {
-    switch (pageNumber) {
-      case 1:
-        return state.firstName.trim() !== "" && state.lastName.trim() !== "";
-
-      case 2:
-        return state.org.trim() !== "" && state.group_code.trim() !== "";
-
-      case 3:
-        return (
-          state.selectedOrg.trim() !== "" &&
-          state.address.trim() !== "" &&
-          state.city.trim() !== "" &&
-          state.state !== "" &&
-          state.zipCode.trim() !== ""
-        );
-      default:
-        return false;
-    }
-  };
-
   const handleRegistrationComplete = async (
-    event: React.FormEvent<HTMLFormElement>,
+    event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
     const token = await getAccessTokenSilently();
@@ -131,10 +120,11 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
       logoUrl: null,
       group_code: state.group_code,
       token: token,
+      hasChecked: state.hasAcceptedTC,
     };
     try {
       const data = await registerUserMutation.mutateAsync(
-        payload as RegisterUser,
+        payload as RegisterUser
       );
       // Handle successful registration here
       if (data.error) {
@@ -154,23 +144,30 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
       <Modal.Content
-        title={
-          state.page === 1
-            ? "Account Information"
-            : state.page === 2
-              ? "Connect Existing Organization"
-              : "Register Your Organization"
-        }
-        subtitle={
-          state.page === 1
-            ? "We just need a few details before we begin!"
-            : state.page === 2
-              ? "If you would like to connect to existing organization, please select 'Yes' and select from list"
-              : "We just need a few details before we begin"
-        }
+        title={getTitle(state.page)}
+        subtitle={getSubtitle(state.page)}
       >
         <form className={formStyles.form} onSubmit={handleRegistrationComplete}>
           {state.page === 1 && (
+            <>
+              <TCRegistration
+                value={state.hasAcceptedTC}
+                onValueChange={(value) =>
+                  handleFieldChange("hasAcceptedTC")(value)
+                }
+              />
+
+              <button
+                className={styles.registerBtn}
+                onClick={incrementPageNumber}
+                disabled={!getIsPageComplete(state, 1)}
+              >
+                Next
+              </button>
+            </>
+          )}
+
+          {state.page === 2 && (
             <>
               <div style={{ display: "grid", gap: "24px" }}>
                 <div className={formStyles.inputContainer}>
@@ -200,6 +197,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                   />
                 </div>
 
+                {/* TODO: UNCOMMENT ONCE WE HAVE LANGUAGES
                 <fieldset className={formStyles.inputContainer}>
                   <legend>Select Preferred Language:</legend>
 
@@ -216,20 +214,29 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                       <label htmlFor={label}>{label}</label>
                     </div>
                   ))}
-                </fieldset>
+                </fieldset> */}
               </div>
 
-              <button
-                className={styles.registerBtn}
-                onClick={incrementPageNumber}
-                disabled={!getIsPageComplete(1)}
-              >
-                Next
-              </button>
+              <div className={formStyles.formBtnContainer}>
+                <button
+                  className={styles.backBtn}
+                  onClick={decrementPageNumber}
+                >
+                  Go Back
+                </button>
+
+                <button
+                  className={styles.registerBtn}
+                  onClick={incrementPageNumber}
+                  disabled={!getIsPageComplete(state, 2)}
+                >
+                  Next
+                </button>
+              </div>
             </>
           )}
 
-          {state.page === 2 && (
+          {state.page === 3 && (
             <>
               <div style={{ display: "grid", gap: "24px" }}>
                 <div className={styles.inputContainer}>
@@ -299,30 +306,35 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 </div>
               </div>
               <div className={formStyles.formBtnContainer}>
-                {state.isExistingOrg ? (
-                  <button type="submit" className={styles.registerBtn}>
-                    Finish
-                  </button>
-                ) : (
-                  <button
-                    className={styles.registerBtn}
-                    onClick={incrementPageNumber}
-                  >
-                    Next
-                  </button>
-                )}
-
                 <button
                   className={styles.backBtn}
                   onClick={decrementPageNumber}
                 >
                   Go Back
                 </button>
+
+                {state.isExistingOrg ? (
+                  <button
+                    type="submit"
+                    className={styles.registerBtn}
+                    disabled={!getIsPageComplete(state, 3)}
+                  >
+                    Finish
+                  </button>
+                ) : (
+                  <button
+                    className={styles.registerBtn}
+                    onClick={incrementPageNumber}
+                    disabled={!getIsPageComplete(state, 3)}
+                  >
+                    Next
+                  </button>
+                )}
               </div>
             </>
           )}
 
-          {state.page === 3 && (
+          {state.page === 4 && (
             <>
               <div style={{ display: "grid", gap: "24px" }}>
                 <div className={formStyles.inputContainer}>
@@ -406,18 +418,18 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
 
               <div className={formStyles.formBtnContainer}>
                 <button
-                  type="submit"
-                  className={styles.registerBtn}
-                  disabled={!getIsPageComplete(3)}
-                >
-                  Register
-                </button>
-
-                <button
                   className={styles.backBtn}
                   onClick={decrementPageNumber}
                 >
                   Go Back
+                </button>
+
+                <button
+                  type="submit"
+                  className={styles.registerBtn}
+                  disabled={!getIsPageComplete(state, 4)}
+                >
+                  Register
                 </button>
               </div>
             </>

@@ -81,7 +81,7 @@ const Home = () => {
               <></>
             </RegisterModal>
           )}
-          <Page title={group?.name}>
+          <Page title={group?.name || "Welcome to Cascarita!"}>
             <Navbar>
               <Navbar.Item href="">Leagues</Navbar.Item>
               <Navbar.Item href="seasons">Seasons</Navbar.Item>

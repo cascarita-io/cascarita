@@ -11,6 +11,7 @@ export interface State {
   zipCode: string;
   selectedOrg: string;
   group_code: string;
+  hasAcceptedTC: boolean;
 }
 
 export type Action =
