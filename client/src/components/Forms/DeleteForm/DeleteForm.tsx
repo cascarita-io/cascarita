@@ -5,7 +5,6 @@ import Modal from "../../Modal/Modal";
 import { useTranslation } from "react-i18next";
 
 const DeleteForm: React.FC<DeleteFormProps> = ({
-  afterSave,
   destructBtnLabel,
   children,
   ...delegated
