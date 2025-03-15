@@ -114,7 +114,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
               </option>
             )
           )}
-          <option value="free-agent">Free Agent</option>
+          <option value="free-agent">Unsure / Free Agent</option>
           <option value="other">Other</option>
         </select>
       </div>
