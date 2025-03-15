@@ -17,7 +17,7 @@ import {
 import CheckoutForm from "../../StripeForm/CheckoutForm";
 import nullthrows from "nullthrows";
 import { useCreatePaymentIntent } from "../../../api/stripe/mutations";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { updateFormPaymentType } from "../../../api/forms/service";
 
 interface CheckoutFormRef {
@@ -111,12 +111,6 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
       paymentIntentId: currentPaymentIntent?.id,
     }),
   }));
-
-  const calcFee = (amount: number) => {
-    const feePercentage = 0.029;
-    const fixedFee = 0.3;
-    return amount * feePercentage + fixedFee;
-  };
 
   return (
     <section className={styles.container}>
