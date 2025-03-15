@@ -3,6 +3,7 @@ import {
   getCompleteUserSettings,
   getPlayersByGroupId,
   getUser,
+  getUsersByGroupId,
 } from "./service";
 
 export const useFetchUser = (email: string, token: string) => {
@@ -24,6 +25,14 @@ export const useGetPlayersByGroupId = (groupId: number) => {
   return useQuery({
     queryKey: ["players", groupId],
     queryFn: getPlayersByGroupId,
+    enabled: groupId !== 0,
+  });
+};
+
+export const useGetUsersByGroupId = (groupId: number) => {
+  return useQuery({
+    queryKey: ["users", groupId],
+    queryFn: getUsersByGroupId,
     enabled: groupId !== 0,
   });
 };

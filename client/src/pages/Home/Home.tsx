@@ -7,18 +7,21 @@ import Cookies from "js-cookie";
 import Navbar from "../../components/NavBar/NavBar";
 import Page from "../../components/Page/Page";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import { useGetGroupById } from "../../api/groups/query";
 
 const Home = () => {
   const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
   const [registered, setRegistered] = useState<boolean | null>(null);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  const { setGroupId } = useGroup();
+  const { setGroupId, groupId } = useGroup();
 
   // Function to handle registration completion
   const handleRegistrationComplete = () => {
     setRegistered(true);
     setIsRegisterModalOpen(false);
   };
+
+  const { data: group } = useGetGroupById(groupId);
 
   useEffect(() => {
     const checkRegistrationStatus = async () => {
@@ -78,7 +81,7 @@ const Home = () => {
               <></>
             </RegisterModal>
           )}
-          <Page title="Welcome!">
+          <Page title={group?.name}>
             <Navbar>
               <Navbar.Item href="">Leagues</Navbar.Item>
               <Navbar.Item href="seasons">Seasons</Navbar.Item>

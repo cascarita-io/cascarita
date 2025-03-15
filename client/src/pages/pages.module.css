@@ -63,13 +63,14 @@
   border-bottom: 1px solid #ccc;
 }
 
-.tableData {
+.tableRow td {
   padding: 16px 10px;
 }
 
-.tableData:first-child {
+.tableRow td:first-child {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .showInDesktop {

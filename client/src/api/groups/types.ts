@@ -1,13 +1,13 @@
 export interface GroupType {
   id: number;
-  name: string | null;
-  street_address: string | null;
-  city: string | null;
-  state: string | null;
-  zip_code: string | null;
-  logo_url: string | null;
-  created_at: string | null;
-  updated_at: string | null;
+  name?: string;
+  street_address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  logo_url?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateNewGroupData {
