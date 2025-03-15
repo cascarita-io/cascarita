@@ -27,7 +27,7 @@ import {
 } from "../../api/forms/service";
 import PaymentCapture from "../PaymentCapture/PaymentCapture";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { getStatusOfStripePayment } from "./helpers";
+import { formatDate, getExpiryDate, getStatusOfStripePayment } from "./helpers";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
@@ -104,25 +104,6 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const [formDocumentId, setFormDocumentId] = useState("");
   console.log(formDocumentId);
   const { t } = useTranslation("FormResponses");
-
-  const formatDate = (dateString: string, daysAhead: number = 0): string => {
-    const date = new Date(dateString);
-    if (daysAhead > 0) {
-      date.setDate(date.getDate() + daysAhead);
-    }
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    return date.toLocaleDateString(undefined, options);
-  };
-
-  const getExpiryDate = (dateString: string): Date => {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 3);
-    return date;
-  };
 
   const formattedCurrency = formatCurrency(amount);
 
