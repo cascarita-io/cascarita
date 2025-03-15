@@ -1,3 +1,4 @@
+const DAYS_BEFORE_EXPIRY = 3;
 /**
  * Maps a stripe payment status to a user-friendly string.
  *
@@ -17,4 +18,40 @@ export const getStatusOfStripePayment = (
     default:
       return defaultValue;
   }
+};
+
+/**
+ * Formats a given date string into a human-readable string, with the option to add a certain number of days.
+ *
+ * @param {string} dateString - the date string to format
+ * @param {number} [daysAhead=0] - the number of days to add to the date
+ * @returns {string} - the formatted date string
+ */
+export const formatDate = (
+  dateString: string,
+  daysAhead: number = 0
+): string => {
+  const date = new Date(dateString);
+  if (daysAhead > 0) {
+    date.setDate(date.getDate() + daysAhead);
+  }
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  return date.toLocaleDateString(undefined, options);
+};
+
+/**
+ * Gets the expiry date for a given date string. The expiry date is
+ * three days after the given date.
+ *
+ * @param {string} dateString - the date string to get the expiry date for
+ * @returns {Date} - the expiry date
+ */
+export const getExpiryDate = (dateString: string): Date => {
+  const date = new Date(dateString);
+  date.setDate(date.getDate() + DAYS_BEFORE_EXPIRY);
+  return date;
 };

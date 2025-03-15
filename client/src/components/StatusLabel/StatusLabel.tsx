@@ -24,7 +24,7 @@ const StatusLabel: React.FC<StatusLabelProps> = ({
 };
 
 const statusLabelStyling = (status: string) => {
-  let label = "";
+  let label: keyof typeof colorTokens = "pending";
   let lowerCaseStatus;
   if (status) {
     lowerCaseStatus = status.toLowerCase();
@@ -42,26 +42,35 @@ const statusLabelStyling = (status: string) => {
     case "restricted":
       label = "rejected";
       break;
+    case "expired":
+      label = "expired";
+      break;
 
     default:
       label = "pending";
       break;
   }
 
-  return {
-    backgroundColor:
-      label === "approved"
-        ? "#e9ffe8"
-        : label === "rejected"
-          ? "#ffeeee"
-          : "#dbe7f98f",
-    color:
-      label === "approved"
-        ? "#045502"
-        : label === "rejected"
-          ? "#970303"
-          : "#084986",
+  const colorTokens = {
+    approved: {
+      backgroundColor: "#e9ffe8",
+      color: "#045502",
+    },
+    rejected: {
+      backgroundColor: "#ffeeee",
+      color: "#970303",
+    },
+    expired: {
+      backgroundColor: "#fff5e6",
+      color: "#b36b00",
+    },
+    pending: {
+      backgroundColor: "#dbe7f98f",
+      color: "#084986",
+    },
   };
+
+  return colorTokens[label];
 };
 
 export default StatusLabel;

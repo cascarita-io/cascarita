@@ -47,6 +47,14 @@
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 5px;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .shareContainer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .boldLabel {
@@ -192,7 +200,6 @@ span.error {
   height: 27px;
   color: #170cb4;
   background-color: white;
-  padding: 0%;
   outline: 0px solid transparent;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -205,11 +212,10 @@ span.error {
 }
 
 .sendBtn {
-  width: 100px;
+  width: 110px;
   height: 27px;
   color: white;
   background-color: #170cb4;
-  padding: 0%;
   outline: 0px solid transparent;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
