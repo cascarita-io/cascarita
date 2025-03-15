@@ -83,7 +83,7 @@ const AccountController = function () {
       productObj.stripeAccountIdString = req.params["account_id"];
 
       // TODO: Set up a more dynamic fee structure !
-      const cascaritaFee = 200;
+      const cascaritaFee = 0;
       const totalAmount = calculateTotalAmount(
         productObj.transactionAmount,
         productObj.isCustomerPayingFee,
@@ -98,7 +98,7 @@ const AccountController = function () {
             enabled: true,
           },
           capture_method: "manual",
-          application_fee_amount: cascaritaFee,
+          //application_fee_amount: cascaritaFee,
         },
         {
           stripeAccount: productObj.stripeAccountIdString,
