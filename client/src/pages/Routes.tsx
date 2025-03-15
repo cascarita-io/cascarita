@@ -23,6 +23,8 @@ import { UserCrumb } from "../components/BreadCrumb/BreadCrumbComponents";
 import NotFound from "./NotFound/NotFound";
 import AccountInfo from "./Settings/AccountInfo/AccountInfo";
 import ThankYou from "../components/ThankYou/ThankYou";
+import Terms from "./Terms/Terms";
+import Privacy from "./Privacy/Privacy";
 
 export const useRouter = () =>
   createBrowserRouter(
@@ -53,6 +55,8 @@ export const useRouter = () =>
         <Route path="forms/:formId" element={<FormPage />} />
         <Route path="login" element={<Login />} />
         <Route path="thanks" element={<ThankYou />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     )

@@ -1,0 +1,184 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    color: #333;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pageTitle {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 24px;
+}
+
+.sidebar {
+    position: sticky;
+    top: 20px;
+    width: 100%;
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8fafc;
+}
+
+.sidebarTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #4a5568;
+}
+
+.navLinks {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navLinks li {
+    margin-bottom: 8px;
+}
+
+.navLinks a {
+    color: #3B49DF;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    padding: 4px 0;
+}
+
+.navLinks a:hover {
+    text-decoration: underline;
+}
+
+.content {
+    flex: 1;
+}
+
+.updateBanner {
+    background-color: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.welcomeSection {
+    margin-bottom: 32px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.sectionTitle {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.lastModified {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 24px;
+}
+
+.subsection {
+    margin-bottom: 24px;
+}
+
+.subsectionTitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 16px;
+}
+
+.subheading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 12px;
+    margin-top: 20px;
+}
+
+.subheadingSmall {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 10px;
+    margin-top: 18px;
+}
+
+.link {
+    color: #3B49DF;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.acceptanceSection {
+    margin-top: 40px;
+    padding: 16px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.subsection ul ol {
+    margin-left: 40px;
+    margin-bottom: 24px;
+}
+
+.subsection li {
+    margin-left: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #4a5568;
+    list-style-type: disc;
+    /* Added bullet points */
+}
+
+.subsection li a {
+    color: #3B49DF;
+    text-decoration: none;
+}
+
+.subsection li a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+    .sidebar {
+        display: none;
+    }
+}
+
+/* Responsive styles */
+@media (min-width: 768px) {
+    .container {
+        flex-direction: row;
+        gap: 40px;
+    }
+
+    .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+    }
+
+    .content {
+        flex: 1;
+    }
+}
