@@ -601,7 +601,6 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                       value={price}
                       onChange={(e) => {
                         setPrice(Number(e.target.value));
-                        console.log(Number(e.target.value));
                         const calcFee = calculateFee(Number(e.target.value));
                         setFeeValue(calcFee);
                       }}
