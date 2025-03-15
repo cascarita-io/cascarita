@@ -77,16 +77,16 @@ const Terms = () => {
               <h3 className={styles.subsectionTitle}>1. Registration</h3>
               <p>
                 In order to access certain features of the Services, you may be
-                required to register for an account ("Account"). In registering
-                for the Services, you agree to (1) provide true, accurate,
-                current, and complete information about yourself as prompted by
-                the Services’ registration form (the "Registration Data"); and
-                (2) maintain and promptly update the Registration Data to keep
-                it true, accurate, current, and complete. You represent that you
-                are (i) of legal age to form a binding contract; and (ii) not a
-                person barred from using the Services under the laws of the
-                United States, your place of residence, or any other applicable
-                jurisdiction.
+                required to register for an account (&quot;Account&quot;). In
+                registering for the Services, you agree to (1) provide true,
+                accurate, current, and complete information about yourself as
+                prompted by the Services&apos; registration form (the
+                &quot;Registration Data&quot;); and (2) maintain and promptly
+                update the Registration Data to keep it true, accurate, current,
+                and complete. You represent that you are (i) of legal age to
+                form a binding contract; and (ii) not a person barred from using
+                the Services under the laws of the United States, your place of
+                residence, or any other applicable jurisdiction.
               </p>
               <p>
                 You are responsible for all activities that occur under your
@@ -109,11 +109,12 @@ const Terms = () => {
                 Cascarita Software LLC is a software-as-a-service (SAAS)
                 platform designed to facilitate recreational sports league
                 management, primarily focused on soccer leagues. The Services
-                may be used by sports organizations (each an "Organization"),
-                team coaches and managers (each a "Team"), sports participants
-                themselves (each a "Player"), or other members of a Player's
-                household (each a "Household Member"). Players refers to sports
-                participants that are participants over the age of 16.
+                may be used by sports organizations (each an
+                &quot;Organization&quot;), team coaches and managers (each a
+                &quot;Team&quot;), sports participants themselves (each a
+                &quot;Player&quot;), or other members of a Player&apos;s
+                household (each a &quot;Household Member&quot;). Players refers
+                to sports participants that are participants over the age of 16.
               </p>
             </div>
 
@@ -142,10 +143,10 @@ const Terms = () => {
               </p>
               <h4 className={styles.subheading}>3.2 Payment Processing</h4>
               <p>
-                Cascarita uses Stripe, Inc. ("Stripe") as a payment processing
-                service for payments made through the Services. When you make
-                payments through the Services, you also agree to be bound by
-                Stripe's Terms of Service (
+                Cascarita uses Stripe, Inc. (&quot;Stripe&quot;) as a payment
+                processing service for payments made through the Services. When
+                you make payments through the Services, you also agree to be
+                bound by Stripe&apos;s Terms of Service (
                 <a
                   href="https://stripe.com/legal/connect-account"
                   className={styles.link}
@@ -162,13 +163,13 @@ const Terms = () => {
                 3.2.1 Stripe Connect Direct Charge Model
               </h4>
               <p>
-                Cascarita utilizes Stripe Connect’s direct charge model for
+                Cascarita utilizes Stripe Connect&apos;s direct charge model for
                 processing payments. Under this model:
               </p>
               <ul>
                 <li>
                   Payments are processed directly between you and the applicable
-                  Organization or Team (the "Merchant") through Stripe
+                  Organization or Team (the &quot;Merchant&quot;) through Stripe
                 </li>
                 <li>
                   The Merchant is responsible for the transaction and will
@@ -259,27 +260,28 @@ const Terms = () => {
                 calculate applicable taxes in all circumstances.
               </p>
               <p>
-                The following terms and conditions ("Terms of Service" or these
-                "Terms") are a legal agreement between you and Cascarita
-                ("Cascarita", "we", "us", "our"), an unincorporated project
+                The following terms and conditions (&quot;Terms of Service&quot;
+                or these &quot;Terms&quot;) are a legal agreement between you
+                and Cascarita (&quot;Cascarita&quot;, &quot;we&quot;,
+                &quot;us&quot;, &quot;our&quot;), an unincorporated project
                 operated by its founders, and govern your access to and use of
-                the Cascarita.com website (the "Website"), using the Cascarita
-                web application (the "App"), and your use of any of the services
-                offered by Cascarita (collectively with the Website and the App,
-                the "Services").
+                the Cascarita.com website (the &quot;Website&quot;), using the
+                Cascarita web application (the &quot;App&quot;), and your use of
+                any of the services offered by Cascarita (collectively with the
+                Website and the App, the &quot;Services&quot;).
               </p>
               <p>
-                By clicking on the "I Agree" checkbox, using the App, or by
-                accessing, browsing, or otherwise using the Website, you agree
-                to be bound by these Terms and any related policies or
+                By clicking on the &quot;I Agree&quot; checkbox, using the App,
+                or by accessing, browsing, or otherwise using the Website, you
+                agree to be bound by these Terms and any related policies or
                 guidelines, including any subsequent changes or modifications to
                 them, and that you have the authority to enter into these Terms
                 personally or on behalf of the organization you have named as
-                the user. The term "you" refers to the individual, team, club,
-                league, or legal entity identified as the user when you
-                registered for the Services. If you do not agree to these Terms
-                or any changes, do not access or otherwise continue to use the
-                Services.
+                the user. The term &quot;you&quot; refers to the individual,
+                team, club, league, or legal entity identified as the user when
+                you registered for the Services. If you do not agree to these
+                Terms or any changes, do not access or otherwise continue to use
+                the Services.
               </p>
               <p>
                 <strong>
@@ -306,8 +308,8 @@ const Terms = () => {
                 The materials displayed or performed or available on or through
                 the Services, including, but not limited to, text, graphics,
                 data, articles, photos, images, illustrations, and so forth (all
-                of the foregoing, the "Content") are protected by copyright
-                and/or other intellectual property laws.
+                of the foregoing, the &quot;Content&quot;) are protected by
+                copyright and/or other intellectual property laws.
               </p>
               <p>
                 Subject to these Terms, we grant each user of the Services a
@@ -377,15 +379,15 @@ const Terms = () => {
               <h4 className={styles.subheading}>6.1 Ownership</h4>
               <p>
                 You are legally responsible for all data, content or other
-                information ("User Content") uploaded, posted or stored through
-                your Account or otherwise through your use of the Services. You
-                are responsible for any User Content that may be lost or
-                unrecoverable through your use of the Services.
+                information (&quot;User Content&quot;) uploaded, posted or
+                stored through your Account or otherwise through your use of the
+                Services. You are responsible for any User Content that may be
+                lost or unrecoverable through your use of the Services.
               </p>
               <h4 className={styles.subheading}>6.2 License to User Content</h4>
               <p>
                 You retain all rights to any content you submit, post, or
-                display on or through the Service ("User Content"). By
+                display on or through the Service (&quot;User Content&quot;). By
                 submitting User Content to the Service, you grant Cascarita and
                 its related companies, affiliates and partners an irrevocable,
                 worldwide, royalty-free license to:
@@ -472,16 +474,16 @@ const Terms = () => {
             <div id="warranties" className={styles.subsection}>
               <h3 className={styles.subsectionTitle}>9. Warranties</h3>
               <p>
-                The services and content are provided on an "as is" and "as
-                available" basis without warranties of any kind, express or
-                implied. You expressly agree that use of the services, including
-                all content or data distributed by or downloaded or accessed
-                from or through the services, is at your sole risk. Cascarita
-                disclaims all warranties, express or implied, including, but not
-                limited to, implied warranties of merchantability, fitness for a
-                particular purpose, title, and non-infringement as to the
-                information, services, and all content available therein the
-                site.
+                The services and content are provided on an &quot;as is&quot;
+                and &quot;as available&quot; basis without warranties of any
+                kind, express or implied. You expressly agree that use of the
+                services, including all content or data distributed by or
+                downloaded or accessed from or through the services, is at your
+                sole risk. Cascarita disclaims all warranties, express or
+                implied, including, but not limited to, implied warranties of
+                merchantability, fitness for a particular purpose, title, and
+                non-infringement as to the information, services, and all
+                content available therein the site.
               </p>
               <p>Cascarita makes no warranty that:</p>
               <ul>

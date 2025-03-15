@@ -24,7 +24,7 @@ import { getDivisionsBySeasonId } from "../../../api/divisions/service";
 import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
 import Tooltip from "@mui/material/Tooltip";
 import { useGetAllStripeAccounts } from "../../../api/stripe/query";
-import { APPLICATION_FEE, calculateFee } from "./helper";
+import { calculateFee } from "./helper";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";

@@ -37,7 +37,7 @@ const Privacy = () => {
               <a href="#emails">9. Email Communications</a>
             </li>
             <li>
-              <a href="#children">10. Children's Privacy</a>
+              <a href="#children">10. Children&apos;s Privacy</a>
             </li>
             <li>
               <a href="#privacy-ca">11. California Privacy Rights</a>
@@ -78,10 +78,11 @@ const Privacy = () => {
             <div id="introduction" className={styles.subsection}>
               <h3 className={styles.subsectionTitle}>1. Introduction</h3>
               <p>
-                This Privacy Policy ("Policy") applies to Cascarita Software LLC
-                and governs data collection and usage. For the purposes of this
-                Privacy Policy, unless otherwise noted, all references to the
-                Company include "we," "us," "our". Our website is a
+                This Privacy Policy (&quot;Policy&quot;) applies to Cascarita
+                Software LLC and governs data collection and usage. For the
+                purposes of this Privacy Policy, unless otherwise noted, all
+                references to the Company include &quot;we,&quot;
+                &quot;us,&quot; &quot;our&quot;. Our website is a
                 Software-As-A-Service (SaaS) website. By using the our website,
                 you consent to the data practices described in this statement.
               </p>
@@ -316,13 +317,17 @@ const Privacy = () => {
               <p>
                 We use Auth0 to manage user authentication. When you log in to
                 our Services, you are also subject to{" "}
-                <a href="https://auth0.com/privacy">Auth0's Privacy Policy</a>
+                <a href="https://auth0.com/privacy">
+                  Auth0&apos;s Privacy Policy
+                </a>
               </p>
               <h4 className={styles.subheading}>6.2 Stripe</h4>
               <p>
                 We use Stripe to process payments. When you make payments
                 through our Services, you are also subject to{" "}
-                <a href="https://stripe.com/privacy">Stripe's Privacy Policy</a>
+                <a href="https://stripe.com/privacy">
+                  Stripe&apos;s Privacy Policy
+                </a>
               </p>
             </div>
             <div id="privacy-rights" className={styles.subsection}>
@@ -355,7 +360,8 @@ const Privacy = () => {
               </ul>
               <p>
                 To exercise these rights, please contact us using the
-                information provided in the "Contact Information" section below.
+                information provided in the &quot;Contact Information&quot;
+                section below.
               </p>
             </div>
             <div id="right-to-delete" className={styles.subsection}>
@@ -435,14 +441,16 @@ const Privacy = () => {
               <p>
                 If you would like to stop receiving marketing or promotional
                 communications via email from us, you may opt out of such
-                communications by contacting{""}
+                communications by contacting{" "}
                 <a href="mailto:support@cascarita.io" className={styles.link}>
                   support@cascarita.io
                 </a>
               </p>
             </div>
             <div id="children" className={styles.subsection}>
-              <h3 className={styles.subsectionTitle}>10. Children's Privacy</h3>
+              <h3 className={styles.subsectionTitle}>
+                10. Children&apos;s Privacy
+              </h3>
               <p>
                 Our Services are not directed to children under 16 years of age.
                 We do not knowingly collect personal information from children
