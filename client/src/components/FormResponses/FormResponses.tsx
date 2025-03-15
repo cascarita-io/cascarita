@@ -27,6 +27,7 @@ import {
 } from "../../api/forms/service";
 import PaymentCapture from "../PaymentCapture/PaymentCapture";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { getStatusOfStripePayment } from "./helpers";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
@@ -390,7 +391,10 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{`$${formattedCurrency[index]}`}</td>
               <td>
                 {paymentType[index] === "Credit Card / Stripe"
-                  ? formatDate(submittedAt[index], 3)
+                  ? getStatusOfStripePayment(
+                      status[index],
+                      formatDate(submittedAt[index], 3)
+                    )
                   : ""}
               </td>
             </tr>
