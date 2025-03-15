@@ -9,5 +9,5 @@ export interface User {
   phone_number: string;
   internally_created: boolean;
   picture: string;
-  UserRoles: UserRole[]; // Enforces only allowed values
+  user_roles: UserRole[]; // Enforces only allowed values
 }

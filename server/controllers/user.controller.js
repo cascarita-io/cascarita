@@ -444,11 +444,11 @@ const UserController = function () {
         throw new Error(`no users were found with group id ${group_id}`);
       }
 
-      const usersWithRoles = users.map(user => {
-        const roles = user.UserRoles.map(userRole => userRole.Role.name);
+      const usersWithRoles = users.map((user) => {
+        const roles = user.UserRoles.map((userRole) => userRole.Role.name);
         return {
           ...user.toJSON(),
-          UserRoles: roles,
+          user_roles: roles,
         };
       });
 

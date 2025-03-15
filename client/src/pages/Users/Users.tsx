@@ -154,16 +154,16 @@ const Users = () => {
                       className={styles.showInMobile}
                       style={{ fontSize: "0.7rem" }}
                     >
-                      {user.UserRoles.length > 0
-                        ? user.UserRoles.join(", ")
+                      {user.user_roles?.length > 0
+                        ? user.user_roles?.join(", ")
                         : "No Role Given"}
                     </p>
                   </div>
                 </td>
 
                 <td className={`${styles.tableData} ${styles.showInDesktop}`}>
-                  {user.UserRoles.length > 0
-                    ? user.UserRoles.join(", ")
+                  {user?.user_roles?.length > 0
+                    ? user.user_roles?.join(", ")
                     : "No Role"}
                 </td>
 
