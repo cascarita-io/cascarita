@@ -423,13 +423,7 @@ const UserController = function () {
           group_id: group_id,
         },
         attributes: {
-          exclude: [
-            "password",
-            "created_at",
-            "updated_at",
-            "group_id",
-            "language_id",
-          ],
+          exclude: ["created_at", "updated_at", "group_id", "language_id"],
         },
         include: [
           {
@@ -450,11 +444,11 @@ const UserController = function () {
         throw new Error(`no users were found with group id ${group_id}`);
       }
 
-      const usersWithRoles = users.map(user => {
-        const roles = user.UserRoles.map(userRole => userRole.Role.name);
+      const usersWithRoles = users.map((user) => {
+        const roles = user.UserRoles.map((userRole) => userRole.Role.name);
         return {
           ...user.toJSON(),
-          UserRoles: roles,
+          user_roles: roles,
         };
       });
 

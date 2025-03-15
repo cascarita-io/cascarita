@@ -71,7 +71,9 @@ const Payment = () => {
         >
           {data?.map((user) => (
             <tr key={user.id}>
-              <td>{user.stripe_account_name}</td>
+              <td>
+                {`${user.first_name} ${user.last_name}` || user.first_name}
+              </td>
               <td>
                 <StatusLabel
                   className={styles.statusLabel}
@@ -80,11 +82,13 @@ const Payment = () => {
                   {user.stripe_status}
                 </StatusLabel>
               </td>
-              <td className={tableStyles.showInDesktop}>
-                {user.account_email}
-              </td>
+              <td className={tableStyles.showInDesktop}>{user.user_email}</td>
               <td>
-                <a href="#">
+                <a
+                  href={user.stripe_account_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <FaExternalLinkAlt />
                 </a>
               </td>
