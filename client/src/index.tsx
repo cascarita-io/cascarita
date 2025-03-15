@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { StrictMode } from "react";
 import App from "./App";
 import { createRoot } from "react-dom/client";
@@ -6,9 +7,9 @@ import { createBrowserHistory } from "history";
 import "./index.module.css";
 import * as Sentry from "@sentry/react";
 
-const NODE_ENV_IS_PROD = (import.meta as any).env.PROD;
+const ENV_IS_PROD = import.meta.env.VITE_MODE === "production";
 
-if (NODE_ENV_IS_PROD) {
+if (ENV_IS_PROD) {
   Sentry.init({
     dsn: "https://c3264debab8e92379efef056a7005b80@o4508911694315520.ingest.us.sentry.io/4508911696609280",
     integrations: [
