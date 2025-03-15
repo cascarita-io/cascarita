@@ -35,7 +35,7 @@
   background-color: #f4f7fb;
 }
 
-.formContainer > button {
+.formContainer>button {
   padding: 10px;
   margin-top: 10px;
   border: none;
@@ -109,13 +109,55 @@
   gap: 4px;
 }
 
+.tcContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tcContainer>h1 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding-top: 12px;
+}
+
+.tcContainer>p {
+  font-size: 1rem;
+  text-align: center;
+}
+
+.tcContainer a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.tcContainer a:hover,
+.tcContainer a:focus {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.tcContainer a:focus {
+  outline: 2px solid #ffcc00;
+}
+
+.tcInputContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+
 .radioContainer {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.radioContainer > div {
+.radioContainer>div {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -150,11 +192,14 @@
 .logo {
   margin-top: 35%;
   /* transform: scale(1.75); Scale the logo to 175% of its original size */
-  height: auto; /* Maintain the aspect ratio */
+  height: auto;
+  /* Maintain the aspect ratio */
   width: auto;
-  margin-bottom: 80%; /* Add margin-bottom if needed */
+  margin-bottom: 80%;
+  /* Add margin-bottom if needed */
   transform: scale(2.2);
-  transition: transform 0.05s ease; /* Add transition for smooth scaling */
+  transition: transform 0.05s ease;
+  /* Add transition for smooth scaling */
 }
 
 .page {
@@ -177,6 +222,7 @@
 /* Adjust scale for smaller viewport widths */
 @media screen and (max-width: 950px) {
   .logo {
-    transform: scale(1.75); /* Adjust the scale value as needed */
+    transform: scale(1.75);
+    /* Adjust the scale value as needed */
   }
 }

@@ -17,7 +17,7 @@ import {
 import CheckoutForm from "../../StripeForm/CheckoutForm";
 import nullthrows from "nullthrows";
 import { useCreatePaymentIntent } from "../../../api/stripe/mutations";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { updateFormPaymentType } from "../../../api/forms/service";
 
 interface CheckoutFormRef {
@@ -25,7 +25,7 @@ interface CheckoutFormRef {
 }
 
 const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
-  const { t } = useTranslation("FormComponents");
+  // const { t } = useTranslation("FormComponents");
   const [options, setOptions] = useState<StripeElementsOptions | undefined>(
     undefined
   );
@@ -151,12 +151,12 @@ const StripeComponent = forwardRef(({ field, sqlFormId }: FieldProps, ref) => {
         <div>
           <p>{field.properties?.description}</p>
           <p>
-            <b>{t("stripe.price")}:</b> ${field.properties?.price?.value}{" "}
+            <b>{"Registration Price"}:</b> ${field.properties?.price?.value}{" "}
             {field.properties?.price?.currency}
           </p>
           {field.properties?.price?.isCustomerPayingFee && (
             <p>
-              <b>{t("stripe.fee")}:</b> ${field.properties?.price?.feeValue}{" "}
+              <b>{"Fees"}:</b> ${field.properties?.price?.feeValue}{" "}
               {field.properties?.price?.currency}
             </p>
           )}

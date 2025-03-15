@@ -24,6 +24,7 @@ import { getDivisionsBySeasonId } from "../../../api/divisions/service";
 import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
 import Tooltip from "@mui/material/Tooltip";
 import { useGetAllStripeAccounts } from "../../../api/stripe/query";
+import { calculateFee } from "./helper";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
@@ -273,14 +274,6 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   const groupId = Number(Cookies.get("group_id")) || 0;
   const email = Cookies.get("email") || "";
   const { getAccessTokenSilently } = useAuth0();
-
-  const calculateStripeFee = (price: number): number => {
-    const feePercentage = 0.029;
-    const fixedFee = 0.3;
-    const fee = price * feePercentage + fixedFee;
-    const finalFee = Math.ceil(fee * 100) / 100;
-    return finalFee;
-  };
 
   const results = useQueries({
     queries: [
@@ -608,9 +601,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                       value={price}
                       onChange={(e) => {
                         setPrice(Number(e.target.value));
-                        const calcFee = calculateStripeFee(
-                          Number(e.target.value)
-                        );
+                        const calcFee = calculateFee(Number(e.target.value));
                         setFeeValue(calcFee);
                       }}
                       required
@@ -619,7 +610,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                   <div className={styles.inputContainer}>
                     <label className={styles.label} htmlFor="fee">
                       Processing Fee $USD
-                      <Tooltip title="This is the fee that Stripe charges for processing payments.">
+                      <Tooltip title="The customer will pay both Stripe and Cascarita processing fees.">
                         <span style={{ color: "grey", paddingLeft: "4px" }}>
                           ?
                         </span>
@@ -652,7 +643,8 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                     required
                   >
                     <option value="">Select Option</option>
-                    <option value="org">Organization</option>
+                    {/* TODO: UNCOMMENT ONCE ORG FEES FIGURED OUT */}
+                    {/* <option value="org">Organization</option> */}
                     <option value="customer">Customer</option>
                   </select>
                 </div>

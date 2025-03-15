@@ -48,6 +48,7 @@ const Liability = ({ field, index }: FieldProps) => {
           <a
             href={field.properties.termsOfService}
             target="_blank"
+            rel="noreferrer"
             className={styles.link}
           >
             Terms of Service
@@ -56,6 +57,7 @@ const Liability = ({ field, index }: FieldProps) => {
         {field.properties?.privacyPolicy && (
           <a
             href={field.properties.privacyPolicy}
+            rel="noreferrer"
             target="_blank"
             className={styles.link}
           >
