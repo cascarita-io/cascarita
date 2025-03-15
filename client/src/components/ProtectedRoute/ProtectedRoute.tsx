@@ -3,7 +3,8 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from "react";
 
 const ProtectedRoute = () => {
-  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, isLoading, getAccessTokenSilently, logout } =
+    useAuth0();
 
   useEffect(() => {
     const renewToken = async () => {
@@ -21,6 +22,9 @@ const ProtectedRoute = () => {
         } catch (error) {
           console.error("Error renewing token:", error);
           // Handle token renewal error (e.g., redirect to login)
+          logout({
+            logoutParams: { returnTo: window.location.origin + "/login" },
+          });
         }
       }
     };
