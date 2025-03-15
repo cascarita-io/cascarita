@@ -29,16 +29,9 @@ const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
 const signatureText =
   "By providing my e-signature below, I consent that I have read, reviewed and accept the terms contained within this registration form.";
-
-const NODE_ENV_IS_PROD = (import.meta as any).env.PROD;
-
 const termsOfServiceText = `By filling this form, I agree to the terms of service and privacy policy of Cascarita.`;
-const termsOfServiceLink = NODE_ENV_IS_PROD
-  ? "https://app.cascarita.io/terms"
-  : "http://localhost/terms";
-const privacyPolicyLink = NODE_ENV_IS_PROD
-  ? "https://app.cascarita.io/privacy"
-  : "http://localhost/privacy";
+const termsOfServiceLink = `${window.location.origin}/terms`;
+const privacyPolicyLink = `${window.location.origin}/privacy`;
 
 const createRegistrationFormData = (
   leagueId: number,
