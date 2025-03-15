@@ -14,6 +14,7 @@ export const StripeAccountSchema = z.object({
   support_email: z.string().nullable(),
   user_email: z.string(),
   user_id: z.number(),
+  stripe_account_link: z.string().optional(),
 });
 
 export type StripeAccount = z.infer<typeof StripeAccountSchema>;

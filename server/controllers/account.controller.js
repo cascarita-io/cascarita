@@ -187,6 +187,7 @@ const AccountController = function () {
         first_name: account.User.first_name,
         last_name: account.User.last_name,
         user_email: account.User.email,
+        stripe_account_link: `https://dashboard.stripe.com/${account.stripe_account_id}`,
       }));
 
       let data = flattenedAccounts.length != 0 ? flattenedAccounts : [];
@@ -281,7 +282,7 @@ const AccountController = function () {
       };
 
       if (!isStripePayment) {
-        updates.internal_status_id = 3 //approved
+        updates.internal_status_id = 3; //approved
       }
 
       await formPayment.update(updates, { validate: true });
@@ -301,7 +302,7 @@ const AccountController = function () {
       }
 
       if (!isStripePayment) {
-        const form_id = formPayment.form_id
+        const form_id = formPayment.form_id;
         const form = await Form.findByPk(form_id);
         const groupId = form.group_id;
 
@@ -325,7 +326,12 @@ const AccountController = function () {
     }
   };
 
-  var cancelPaymentIntent = async function (paymentIntentId, email, isUserAction, isStripePayment) {
+  var cancelPaymentIntent = async function (
+    paymentIntentId,
+    email,
+    isUserAction,
+    isStripePayment,
+  ) {
     try {
       const cancelStatuses = [
         "requires_payment_method",
@@ -347,7 +353,10 @@ const AccountController = function () {
 
       const { userId, formPayment, paymentIntentData } = preparedInfo;
 
-      if (isStripePayment && !cancelStatuses.includes(paymentIntentData.status)) {
+      if (
+        isStripePayment &&
+        !cancelStatuses.includes(paymentIntentData.status)
+      ) {
         return {
           success: false,
           error: `payment intent of status succeeded cannot be canceled: ${paymentIntentId}`,
@@ -392,7 +401,6 @@ const AccountController = function () {
   };
 
   var createFormPayment = async function (formData) {
-
     try {
       const formPayment = await FormPayment.create({
         form_id: formData.form_id,
@@ -457,7 +465,12 @@ const AccountController = function () {
     }
   };
 
-  var preparePaymentIntentOperation = async function (paymentIntentId, email, isUserAction, isStripePayment) {
+  var preparePaymentIntentOperation = async function (
+    paymentIntentId,
+    email,
+    isUserAction,
+    isStripePayment,
+  ) {
     try {
       var user;
 
@@ -529,7 +542,12 @@ const AccountController = function () {
       isStripePayment = true;
     }
     if (userSelectedStatus === "canceled") {
-      return cancelPaymentIntent(paymentIntentId, email, isUserAction, isStripePayment);
+      return cancelPaymentIntent(
+        paymentIntentId,
+        email,
+        isUserAction,
+        isStripePayment,
+      );
     } else {
       return capturePaymentIntent(
         paymentIntentId,
