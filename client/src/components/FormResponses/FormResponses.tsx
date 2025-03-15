@@ -118,6 +118,12 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
     return date.toLocaleDateString(undefined, options);
   };
 
+  const getExpiryDate = (dateString: string): Date => {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 3);
+    return date;
+  };
+
   const formattedCurrency = formatCurrency(amount);
 
   useEffect(() => {
@@ -317,51 +323,60 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{paymentType[index]}</td>
               {formType === 1 && (
                 <td>
-                  <DropdownMenuButton
-                    className={styles.dropdown}
-                    trigger={StatusButton(status[index])}
-                  >
-                    <DropdownMenuButton.Item
-                      onClick={() => handleOpenPaymentModal(index)}
+                  {new Date() > getExpiryDate(submittedAt[index]) ? (
+                    <StatusLabel
+                      className={styles.statusLabel}
+                      status="expired"
                     >
-                      <StatusLabel
-                        className={styles.statusLabel}
-                        status="approved"
-                      >
-                        approved
-                      </StatusLabel>
-                    </DropdownMenuButton.Item>
-
-                    <DropdownMenuButton.Separator
-                      className={styles.separator}
-                    />
-
-                    <DropdownMenuButton.Item
-                      onClick={() => handleOpenPaymentModal(index)}
+                      expired
+                    </StatusLabel>
+                  ) : (
+                    <DropdownMenuButton
+                      className={styles.dropdown}
+                      trigger={StatusButton(status[index])}
                     >
-                      <StatusLabel
-                        className={styles.statusLabel}
-                        status="rejected"
+                      <DropdownMenuButton.Item
+                        onClick={() => handleOpenPaymentModal(index)}
                       >
-                        rejected
-                      </StatusLabel>
-                    </DropdownMenuButton.Item>
+                        <StatusLabel
+                          className={styles.statusLabel}
+                          status="approved"
+                        >
+                          approved
+                        </StatusLabel>
+                      </DropdownMenuButton.Item>
 
-                    <DropdownMenuButton.Separator
-                      className={styles.separator}
-                    />
+                      <DropdownMenuButton.Separator
+                        className={styles.separator}
+                      />
 
-                    <DropdownMenuButton.Item
-                      onClick={() => handleOpenPaymentModal(index)}
-                    >
-                      <StatusLabel
-                        className={styles.statusLabel}
-                        status="pending"
+                      <DropdownMenuButton.Item
+                        onClick={() => handleOpenPaymentModal(index)}
                       >
-                        pending
-                      </StatusLabel>
-                    </DropdownMenuButton.Item>
-                  </DropdownMenuButton>
+                        <StatusLabel
+                          className={styles.statusLabel}
+                          status="rejected"
+                        >
+                          rejected
+                        </StatusLabel>
+                      </DropdownMenuButton.Item>
+
+                      <DropdownMenuButton.Separator
+                        className={styles.separator}
+                      />
+
+                      <DropdownMenuButton.Item
+                        onClick={() => handleOpenPaymentModal(index)}
+                      >
+                        <StatusLabel
+                          className={styles.statusLabel}
+                          status="pending"
+                        >
+                          pending
+                        </StatusLabel>
+                      </DropdownMenuButton.Item>
+                    </DropdownMenuButton>
+                  )}
                 </td>
               )}
               <td>
@@ -390,12 +405,18 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
               <td>{email[index]}</td>
               <td>{`$${formattedCurrency[index]}`}</td>
               <td>
-                {paymentType[index] === "Credit Card / Stripe"
-                  ? getStatusOfStripePayment(
+                {paymentType[index] === "Credit Card / Stripe" ? (
+                  new Date() > getExpiryDate(submittedAt[index]) ? (
+                    <p>Expired</p>
+                  ) : (
+                    getStatusOfStripePayment(
                       status[index],
                       formatDate(submittedAt[index], 3)
                     )
-                  : ""}
+                  )
+                ) : (
+                  ""
+                )}
               </td>
             </tr>
           ))}

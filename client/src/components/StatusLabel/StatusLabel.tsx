@@ -42,6 +42,9 @@ const statusLabelStyling = (status: string) => {
     case "restricted":
       label = "rejected";
       break;
+    case "expired":
+      label = "expired";
+      break;
 
     default:
       label = "pending";
@@ -54,13 +57,17 @@ const statusLabelStyling = (status: string) => {
         ? "#e9ffe8"
         : label === "rejected"
           ? "#ffeeee"
-          : "#dbe7f98f",
+          : label === "expired"
+            ? "#fff5e6"
+            : "#dbe7f98f",
     color:
       label === "approved"
         ? "#045502"
         : label === "rejected"
           ? "#970303"
-          : "#084986",
+          : label === "expired"
+            ? "#b36b00"
+            : "#084986",
   };
 };
 
