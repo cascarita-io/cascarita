@@ -1,3 +1,4 @@
+const DAYS_BEFORE_EXPIRY = 3;
 /**
  * Maps a stripe payment status to a user-friendly string.
  *
@@ -51,6 +52,6 @@ export const formatDate = (
  */
 export const getExpiryDate = (dateString: string): Date => {
   const date = new Date(dateString);
-  date.setDate(date.getDate() + 3);
+  date.setDate(date.getDate() + DAYS_BEFORE_EXPIRY);
   return date;
 };
