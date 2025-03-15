@@ -2,17 +2,63 @@
 require("dotenv").config();
 const Stripe = require("stripe")(process.env.STRIPE_TEST_API_KEY);
 const FormPaymentController = require("../formPayment.controller");
+const StripeEventController = require("../stripeEvent.controller");
 
 const FormTransactionController = function () {
-  const endpointSecret = process.env.STRIPE_CONNECTED_ACCOUNTS_WEBHOOK_SECRET;
+  const endpointSecret = process.env.STRIPE_PAYMENTS_WEBHOOK_SECRET;
 
   var handleEvent = async function (req, res) {
+    let event;
     try {
-      let event = Stripe.webhooks.constructEvent(
+      event = Stripe.webhooks.constructEvent(
         req.body,
         req.headers["stripe-signature"],
         endpointSecret,
       );
+
+      res.status(200).json({
+        received: true,
+        message: `webhook received, processing event: ${event.id}asynchronously`,
+      });
+
+      processEvent(event).catch((error) => {
+        console.error({
+          event: "webhook_async_processing_error",
+          error: error.message,
+          stack: error.stack,
+          eventId: event.id,
+          eventType: event.type,
+        });
+      });
+    } catch (error) {
+      console.error({
+        event: "webhook_signature_verification_error",
+        error: error.message,
+        stack: error.stack,
+      });
+      return res.status(400).json({
+        message: `webhook signature verification failed: ${error.message}`,
+      });
+    }
+  };
+
+  var processEvent = async function (event) {
+    try {
+      const storedStripeEvent = await StripeEventController.validateEvent(
+        event,
+      );
+
+      if (!storedStripeEvent.success) {
+        console.error(`Failed to store event: ${storedStripeEvent.error}`);
+        return;
+      }
+
+      if (storedStripeEvent.skip) {
+        console.log(`Skipping event: ${storedStripeEvent.data}`);
+        return;
+      }
+
+      await StripeEventController.updateEventStatus(event.id, "processing");
 
       const paymentIntent = event.data.object;
 
@@ -20,15 +66,25 @@ const FormTransactionController = function () {
         case "payment_intent.amount_capturable_updated": {
           const paymentUpdateResult =
             await FormPaymentController.updateStripePayment(paymentIntent);
-          return res.status(200).json({
-            received: true,
-            success: paymentUpdateResult.success,
-            message: paymentUpdateResult.success
-              ? paymentUpdateResult.data
-              : {
-                  error: paymentUpdateResult.error,
-                },
+
+          if (!paymentUpdateResult.success) {
+            console.warn({
+              event: "webhook_form_payment_update_failed",
+              message: paymentUpdateResult.error,
+              payment_intent_id: paymentIntent.id,
+            });
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
+          }
+
+          console.log({
+            event: "webhook_form_payment_updated",
+            message: paymentUpdateResult.data,
+            paymentIntentId: paymentIntent.id,
           });
+
+          await StripeEventController.updateEventStatus(event.id, "completed");
+          break;
         }
 
         case "payment_intent.succeeded": {
@@ -36,36 +92,42 @@ const FormTransactionController = function () {
             await FormPaymentController.updateStripePayment(paymentIntent);
 
           if (!paymentUpdateResult.success) {
-            console.warn(
-              `web-hook payment update failed: ${paymentUpdateResult.message}`,
-            );
-            return res.status(200).json({
-              received: true,
-              success: false,
-              error: paymentUpdateResult.message,
+            console.warn({
+              event: "webhook_form_payment_update_failed",
+              message: paymentUpdateResult.error,
+              payment_intent_id: paymentIntent.id,
             });
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
           }
+
+          console.log({
+            event: "webhook_form_payment_updated",
+            message: paymentUpdateResult.data,
+            paymentIntentId: paymentIntent.id,
+          });
 
           const userUpdateResult =
             await FormPaymentController.handleUserUpdateStripe(paymentIntent);
 
           if (!userUpdateResult.success) {
-            console.warn(
-              `web-hook user update failed: ${userUpdateResult.error}`,
-            );
-            return res.status(200).json({
-              received: true,
-              success: false,
+            console.warn({
+              event: "webhook_user_update_failed",
               error: userUpdateResult.error,
+              paymentIntentId: paymentIntent.id,
             });
+
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
           }
 
-          return res.status(200).json({
-            received: true,
-            success: true,
-            message: "User payment processed successfully",
-            data: userUpdateResult.data,
+          console.log({
+            event: "webhook_user_created_or_updated",
+            message: userUpdateResult.data,
+            paymentIntentId: paymentIntent.id,
           });
+          await StripeEventController.updateEventStatus(event.id, "completed");
+          break;
         }
 
         case "payment_intent.canceled": {
@@ -73,35 +135,41 @@ const FormTransactionController = function () {
             await FormPaymentController.updateStripePayment(paymentIntent);
 
           if (!paymentUpdateResult.success) {
-            console.warn(
-              `web-hook payment update failed: ${paymentUpdateResult.message}`,
-            );
-            return res.status(200).json({
-              received: true,
-              success: false,
-              error: paymentUpdateResult.message,
+            console.warn({
+              event: "webhook_form_payment_update_failed",
+              message: paymentUpdateResult.error,
+              payment_intent_id: paymentIntent.id,
             });
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
           }
 
-          return res.status(200).json({
-            received: true,
-            success: true,
+          console.log({
+            event: "webhook_cancel_form_payment",
             message: paymentUpdateResult.data,
+            paymentIntentId: paymentIntent.id,
           });
+
+          await StripeEventController.updateEventStatus(event.id, "completed");
+          break;
         }
         // TODO : Handle a a refund
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);
-          return res.status(200).json({
-            message: "Unhandled event type, but webhook received",
-          });
+          await StripeEventController.updateEventStatus(event.id, "completed");
+          break;
       }
     } catch (error) {
-      console.error("Webhook error:", error);
-      return res.status(400).json({
-        message: `Webhook error: ${error.message}`,
+      console.error({
+        event: "webhook_internal_process_error",
+        error: error.message,
+        stack: error.stack,
       });
+
+      await StripeEventController.updateEventStatus(event.id, "failed");
+
+      return;
     }
   };
 
