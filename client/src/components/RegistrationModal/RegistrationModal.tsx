@@ -57,17 +57,17 @@ function reducer(state: State, action: Action) {
       return state;
   }
 }
-
-const VALID_LANGUAGES = [
-  {
-    label: "English",
-    value: "english",
-  },
-  {
-    label: "Spanish",
-    value: "spanish",
-  },
-];
+//TODO: UNCOMMENT ONCE WE HAVE LANGUAGES
+// const VALID_LANGUAGES = [
+//   {
+//     label: "English",
+//     value: "english",
+//   },
+//   {
+//     label: "Spanish",
+//     value: "spanish",
+//   },
+// ];
 
 const RegisterModal: React.FC<RegisterModalProps> = ({
   open,
