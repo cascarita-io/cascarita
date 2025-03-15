@@ -43,16 +43,38 @@ const Liability = ({ field, index }: FieldProps) => {
         <span className={styles.errorMessage}>{fieldError.message}</span>
       )}
       <p>{field.properties?.description}</p>
-      <div style={{ display: "flex", gap: "10px" }}>
-        <label htmlFor={`liability-${index}`}>{"I have read and agree"}</label>
-        <input
-          type="checkbox"
-          className={styles.input}
-          id={`liability-${index}`}
-          {...register(`answers.${index}.liability`, {
-            required: "Please accept liability before proceeding",
-          })}
-        />
+      <div style={{ display: "flex", gap: "10px", flexDirection: "column" }}>
+        {field.properties?.termsOfService && (
+          <a
+            href={field.properties.termsOfService}
+            target="_blank"
+            className={styles.link}
+          >
+            Terms of Service
+          </a>
+        )}
+        {field.properties?.privacyPolicy && (
+          <a
+            href={field.properties.privacyPolicy}
+            target="_blank"
+            className={styles.link}
+          >
+            Privacy Policy
+          </a>
+        )}
+        <div style={{ display: "flex", gap: "10px" }}>
+          <label htmlFor={`liability-${index}`}>
+            {"I have read and agree"}
+          </label>
+          <input
+            type="checkbox"
+            className={styles.input}
+            id={`liability-${index}`}
+            {...register(`answers.${index}.liability`, {
+              required: "Please accept liability before proceeding",
+            })}
+          />
+        </div>
       </div>
     </section>
   );

@@ -29,6 +29,9 @@ const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
 const signatureText =
   "By providing my e-signature below, I consent that I have read, reviewed and accept the terms contained within this registration form.";
+const termsOfServiceText = `By filling this form, I agree to the terms of service and privacy policy of Cascarita.`;
+const termsOfServiceLink = `${window.location.origin}/terms`;
+const privacyPolicyLink = `${window.location.origin}/privacy`;
 
 const createRegistrationFormData = (
   leagueId: number,
@@ -44,6 +47,7 @@ const createRegistrationFormData = (
   stripeAccountId: string,
   paymentFeeRecipient: string
 ): Form => {
+  const terms_of_service_id = uuidv4();
   const first_name_id = uuidv4();
   const last_name_id = uuidv4();
   const email_id = uuidv4();
@@ -57,6 +61,20 @@ const createRegistrationFormData = (
   const photo_block_id = uuidv4();
 
   const data: Field[] = [
+    {
+      id: terms_of_service_id,
+      ref: terms_of_service_id,
+      type: "liability",
+      title: "Terms of Service and Privacy Policy",
+      properties: {
+        description: termsOfServiceText,
+        termsOfService: termsOfServiceLink,
+        privacyPolicy: privacyPolicyLink,
+      },
+      validations: {
+        required: true,
+      },
+    },
     {
       id: first_name_id,
       ref: first_name_id,
