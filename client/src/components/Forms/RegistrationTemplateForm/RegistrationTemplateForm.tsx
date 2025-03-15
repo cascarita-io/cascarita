@@ -643,6 +643,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                     required
                   >
                     <option value="">Select Option</option>
+                    {/* TODO: UNCOMMENT ONCE ORG FEES FIGURED OUT */}
                     {/* <option value="org">Organization</option> */}
                     <option value="customer">Customer</option>
                   </select>
