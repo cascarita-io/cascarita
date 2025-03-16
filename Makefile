@@ -1,6 +1,9 @@
 setup:
 	./setup.sh
 
+setup-windows:
+	bash setup.sh
+
 reset:
 	docker compose down --volumes --remove-orphans
 	docker compose up -d
