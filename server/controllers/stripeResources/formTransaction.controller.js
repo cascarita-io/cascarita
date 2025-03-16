@@ -154,6 +154,46 @@ const FormTransactionController = function () {
           break;
         }
         // TODO : Handle a a refund
+        case "refund.created": {
+          const refundData = event.data.object;
+          const chargeData = null;
+
+          const refundUpdate = await FormPaymentController.handleStripeRefund(
+            chargeData,
+            refundData,
+          );
+
+          if (!refundUpdate.success) {
+            console.warn({
+              event: "webhook_refund_created_failed",
+              error: refundUpdate.error,
+            });
+
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
+          }
+
+          console.log({
+            event: "webhook_refund_created",
+            message: refundUpdate.data,
+          });
+
+          break;
+        }
+        // case "refund.failed": {
+        //   // should jsut notify the user tha the the refund failed  ( not sure hwo this would happen or why to notify them)
+        //   break;
+        // }
+        case "charge.refunded": {
+          // db operations
+          // remove the user ?
+          //10; refunded
+
+          // notify the user after operations happen ?
+          console.log(" should be refunded : " + JSON.stringify(paymentIntent));
+
+          break;
+        }
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);
