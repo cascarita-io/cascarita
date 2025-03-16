@@ -72,7 +72,6 @@ const NewForm = () => {
   const [title, setTitle] = useState(
     location.state?.title ?? t("formTitlePlaceHolder")
   );
-  const [formLink, setFormLink] = useState(location.state?.link ?? null);
   const canvasRef = useRef<DNDCanvasRef>(null);
   const { getAccessTokenSilently } = useAuth0();
   let currentUser: User;
@@ -146,7 +145,6 @@ const NewForm = () => {
       currentUser?.id,
       "blank"
     );
-    setFormLink(`${window.location.origin}/forms/${response._id}`);
     setFormId(response._id);
     setFields(response.form_data.fields);
     setOpenModal(true);
