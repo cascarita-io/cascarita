@@ -57,6 +57,18 @@ const Photo = ({ field, index }: FieldProps) => {
       <div className={styles.questionContainer}>
         <p>{field.properties?.description}</p>
       </div>
+      <div className={styles.questionContainer} style={{ maxWidth: "550px" }}>
+        <input
+          type="checkbox"
+          {...register(`answers.${index}.liability`, {
+            required: `answers.${index}.photo` !== "",
+          })}
+          className={styles.input}
+          id={`ack-photo-${index}`}
+        />
+        I acknowledge that any pictures I upload are my own property or that I
+        have the necessary rights to post them.
+      </div>
       {fieldError && (
         <span className={styles.errorMessage}>{fieldError.message}</span>
       )}
