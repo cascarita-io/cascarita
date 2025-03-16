@@ -136,6 +136,7 @@ const FormPaymentController = function () {
     }
   };
 
+  var handleStripeRefund = async function (chargeData, refundData) {};
   var updateMongoPaymentResponse = async function (
     paymentData,
     stripePaymentIntent,
@@ -385,6 +386,7 @@ const FormPaymentController = function () {
     updatePaymentStatus,
     handleUserUpdateStripe,
     updateFormPaymentType,
+    handleStripeRefund,
   };
 };
 
