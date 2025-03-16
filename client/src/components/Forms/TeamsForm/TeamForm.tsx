@@ -47,6 +47,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
       season_id: seasonId || 0,
       division_id: divisionId || 0,
       file_url: undefined,
+      ack_photo: undefined,
       link_to_season: divisionId && seasonId ? true : false,
     },
     resolver: zodResolver(teamSchema),
@@ -232,7 +233,23 @@ const TeamForm: React.FC<TeamFormProps> = ({
                 </div>
               </>
             )}
-
+            {fileUrl && (
+              <div className={styles.radioContainer}>
+                <input
+                  type="checkbox"
+                  {...register("ack_photo", {
+                    required: fileUrl !== undefined,
+                  })}
+                  className={styles.input}
+                  id={"ack-photo"}
+                  required={fileUrl !== undefined}
+                />
+                <label className={styles.label}>
+                  I acknowledge that any pictures I upload are my own property
+                  or that I have the necessary rights to post them.
+                </label>
+              </div>
+            )}
             <div className={styles.inputContainer}>
               <label className={styles.label}>{t("formContent.logo")}</label>
               <FileUpload

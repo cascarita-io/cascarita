@@ -20,6 +20,7 @@ interface TeamFormData {
   division_id?: number;
   link_to_season: boolean;
   file_url?: File;
+  ack_photo?: boolean;
 }
 
 interface TeamRequest {
