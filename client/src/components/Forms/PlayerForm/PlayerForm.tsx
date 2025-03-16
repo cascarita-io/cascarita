@@ -193,7 +193,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                   className={styles.input}
                 >
                   <option value={0}>Select a team</option>
-                  <option value={-1}>Free agent</option>
+                  <option value={-1}>Unsure / Free agent</option>
                   {teams
                     ?.filter(
                       (team: TeamType) => team.division_id === selectedDivision

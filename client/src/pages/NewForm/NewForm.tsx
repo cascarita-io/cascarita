@@ -179,7 +179,7 @@ const NewForm = () => {
             onClick={handleCancel}
             className={styles.cancelButton}
           >
-            {t("cancelButton")}
+            {t("backButton")}
           </button>
           <button
             type="button"
@@ -188,13 +188,6 @@ const NewForm = () => {
           >
             {formId == null ? t("createButton") : t("saveButton")}
           </button>
-          {formLink && (
-            <a href={formLink} target="_blank" rel="noopener noreferrer">
-              <button className={styles.previewButton}>
-                {t("previewButton")}
-              </button>
-            </a>
-          )}
         </div>
       </div>
       <ul className={styles.formNav}>

@@ -43,7 +43,7 @@ const createRegistrationFormData = (
   divisionId: number,
   teams: TeamType[],
   price: number,
-  feeValue: number,
+  feeValue: string,
   stripeUser: string,
   stripeAccountId: string,
   paymentFeeRecipient: string
@@ -262,7 +262,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
   const [teams, setTeams] = useState<TeamType[]>([]);
   const [price, setPrice] = useState(0);
-  const [feeValue, setFeeValue] = useState(0);
+  const [feeValue, setFeeValue] = useState("");
   const [stripeAccountId, setStripeAccountId] = useState("");
   const [stripeUser, setStripeUser] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -362,7 +362,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         setErrorMsg("");
       }, 5000);
       return;
-    } else if (price === 0 || feeValue === 0) {
+    } else if (price === 0 || feeValue === "") {
       setErrorMsg("Price cannot be 0.");
       setTimeout(() => {
         setErrorMsg("");

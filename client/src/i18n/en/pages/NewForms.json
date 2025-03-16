@@ -2,7 +2,7 @@
   "pageTitleNew": "New Form",
   "pageTitleEdit": "Edit Form",
   "formTitlePlaceHolder": "Form Title",
-  "cancelButton": "Cancel",
+  "backButton": "Back",
   "createButton": "Create",
   "saveButton": "Save",
   "previewButton": "Preview Form",
