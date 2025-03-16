@@ -28,7 +28,10 @@ const uploadImage = async (req, res) => {
   }
 
   var metadata = await sharp(req.file.buffer).metadata();
-  const exif = exifReader(metadata.exif);
+  var exif;
+  if (metadata.exif) {
+    exif = exifReader(metadata.exif);
+  }
 
   //If the file type is HEIC, convert it to JPEG
   if (req.file.mimetype === "image/heic") {
@@ -60,7 +63,7 @@ const uploadImage = async (req, res) => {
 
   const resizedBuffer = await sharp(req.file.buffer)
     .resize(width, height, { fit: "cover" })
-    .withMetadata({ orientation: exif.Image.Orientation})
+    .withMetadata({ orientation: exif.Image.Orientation || 1 })
     .toFormat("jpeg")
     .toBuffer();
 
