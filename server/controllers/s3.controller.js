@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const sharp = require("sharp");
 const { S3Client, PutObjectCommand, ListObjectsV2Command } = require("@aws-sdk/client-s3");
 const heicConvert = require("heic-convert");
+const exifReader = require('exif-reader');
 const dotenv = require("dotenv");
 
 require("dotenv").config();
@@ -25,6 +26,9 @@ const uploadImage = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
+
+  var metadata = await sharp(req.file.buffer).metadata();
+  const exif = exifReader(metadata.exif);
 
   //If the file type is HEIC, convert it to JPEG
   if (req.file.mimetype === "image/heic") {
@@ -56,14 +60,13 @@ const uploadImage = async (req, res) => {
 
   const resizedBuffer = await sharp(req.file.buffer)
     .resize(width, height, { fit: "cover" })
+    .withMetadata({ orientation: exif.Image.Orientation})
     .toFormat("jpeg")
     .toBuffer();
 
   req.file.buffer = resizedBuffer;
 
-  var name = `${folderName}/${uploadName}-${randomHex}`;
-
-  const fileKey = name;
+  const fileKey = `${folderName}/${uploadName}-${randomHex}`;;
   try {
     const uploadParams = {
       Bucket: process.env.AWS_S3_BUCKET,
