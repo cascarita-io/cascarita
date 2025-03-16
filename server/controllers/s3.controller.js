@@ -63,7 +63,7 @@ const uploadImage = async (req, res) => {
 
   const resizedBuffer = await sharp(req.file.buffer)
     .resize(width, height, { fit: "cover" })
-    .withMetadata({ orientation: exif.Image.Orientation || 1 })
+    .withMetadata({ orientation: exif?.Image.Orientation || 1 })
     .toFormat("jpeg")
     .toBuffer();
 
