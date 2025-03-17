@@ -2,7 +2,7 @@
 
 require("dotenv").config();
 
-const { FormPayment, Form } = require("../models");
+const { FormPayment, Form, InternalPaymentStatus } = require("../models");
 const Response = require("./../mongoModels/response");
 const AccountController = require("./account.controller");
 const createPayerUser = require("../utilityFunctions/createPayerUser");
@@ -136,7 +136,45 @@ const FormPaymentController = function () {
     }
   };
 
-  var handleStripeRefund = async function (chargeData, refundData) {};
+  var handleStripeRefund = async function (data) {
+    try {
+      const paymentIntentId = data.payment_intent;
+
+      const paymentResult = await findFormPaymentByPaymentIntentId(
+        paymentIntentId,
+      );
+
+      if (!paymentResult.success) {
+        return {
+          success: false,
+          error: `error with payment intent when handling a refund: ${paymentResult.message}`,
+        };
+      }
+
+      const existingFormPaymentIntent = paymentResult.data;
+
+      const internalSatus = `refund_${data.status}`;
+
+      const updates = {
+        internal_status_id: await mapStripeStatusWithInternalStatus(
+          internalSatus,
+        ),
+      };
+
+      await existingFormPaymentIntent.update(updates, { validate: true });
+
+      return {
+        success: true,
+        data: "updated form payment and sent out an email to user",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `failed to handle refund with error : ${error.message}`,
+      };
+    }
+  };
+
   var updateMongoPaymentResponse = async function (
     paymentData,
     stripePaymentIntent,

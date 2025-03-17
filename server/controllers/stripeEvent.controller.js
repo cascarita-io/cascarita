@@ -80,8 +80,8 @@ const StripeEventController = function () {
       "payment_intent.succeeded",
       "payment_intent.canceled",
       "refund.created",
-      "refund.failed",
-      "charge.refunded",
+      "refund.updated",
+      // "charge.refunded",
     ];
 
     return !acceptableEvents.includes(eventType);

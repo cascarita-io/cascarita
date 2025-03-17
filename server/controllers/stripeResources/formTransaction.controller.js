@@ -153,14 +153,13 @@ const FormTransactionController = function () {
           await StripeEventController.updateEventStatus(event.id, "completed");
           break;
         }
-        // TODO : Handle a a refund
+
         case "refund.created": {
-          const refundData = event.data.object;
-          const chargeData = null;
+          let data = event.data.object;
+          data.refund_event_type = event.type;
 
           const refundUpdate = await FormPaymentController.handleStripeRefund(
-            chargeData,
-            refundData,
+            data,
           );
 
           if (!refundUpdate.success) {
@@ -178,19 +177,35 @@ const FormTransactionController = function () {
             message: refundUpdate.data,
           });
 
+          await StripeEventController.updateEventStatus(event.id, "completed");
+
           break;
         }
-        // case "refund.failed": {
-        //   // should jsut notify the user tha the the refund failed  ( not sure hwo this would happen or why to notify them)
-        //   break;
-        // }
-        case "charge.refunded": {
-          // db operations
-          // remove the user ?
-          //10; refunded
 
-          // notify the user after operations happen ?
-          console.log(" should be refunded : " + JSON.stringify(paymentIntent));
+        case "refund.updated": {
+          let data = event.data.object;
+          data.refund_event_type = event.type;
+
+          const refundUpdate = await FormPaymentController.handleStripeRefund(
+            data,
+          );
+
+          if (!refundUpdate.success) {
+            console.warn({
+              event: "webhook_refund_update_failed",
+              error: refundUpdate.error,
+            });
+
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
+          }
+
+          console.log({
+            event: "webhook_refund_updated",
+            message: refundUpdate.data,
+          });
+
+          await StripeEventController.updateEventStatus(event.id, "completed");
 
           break;
         }
