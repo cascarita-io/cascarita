@@ -105,7 +105,7 @@ const FormPaymentController = function () {
 
       const existingFormPaymentIntent = paymentResult.data;
 
-      const internalStatusId = mapStripeStatusWithInternalStatus(
+      const internalStatusId = await mapStripeStatusWithInternalStatus(
         paymentIntent.status,
       );
 
@@ -257,19 +257,46 @@ const FormPaymentController = function () {
     }
   };
 
-  var mapStripeStatusWithInternalStatus = function (paymentIntentStatus) {
-    switch (paymentIntentStatus) {
+  var mapStripeStatusWithInternalStatus = async function (stripeDataStatus) {
+    let statusDbCode;
+
+    switch (stripeDataStatus) {
       case "requires_capture":
-        return 2; // 'Awaiting Approval'
+        statusDbCode = "awaiting_approval";
+        break;
       case "succeeded":
-        return 3; // 'Approved'
+        statusDbCode = "approved";
+        break;
       case "requires_payment_method":
-        return 5; // 'Processing'
+        statusDbCode = "processing";
+        break;
       case "canceled":
-        return 11; // 'Cancelled' , did not collect funds before 4-7 experation window
+        statusDbCode = "cancelled";
+        break;
+      case "refund_pending":
+        statusDbCode = "refund_pending";
+        break;
+      case "refund_requires_action":
+        statusDbCode = "refund_requires_action";
+        break;
+      case "refund_succeeded":
+        statusDbCode = "refunded";
+        break;
+      case "refund_failed":
+        statusDbCode = "refund_failed";
+        break;
+      case "refund_canceled":
+        statusDbCode = "refund_canceled";
+        break;
       default:
-        return 7; // 'Failed'
+        statusDbCode = "failed";
     }
+
+    const status = await InternalPaymentStatus.findOne({
+      where: { code: statusDbCode },
+    });
+
+    return status ? status.id : 7;
   };
 
   var handleUserUpdateStripe = async function (paymentIntent) {
