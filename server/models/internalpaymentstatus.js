@@ -32,19 +32,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      updated_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
     },
     {
       sequelize,
       modelName: "InternalPaymentStatus",
       tableName: "InternalPaymentStatuses",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     },
   );
   return InternalPaymentStatus;
