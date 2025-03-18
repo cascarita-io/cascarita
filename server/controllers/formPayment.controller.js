@@ -2,7 +2,12 @@
 
 require("dotenv").config();
 
-const { FormPayment, Form, InternalPaymentStatus } = require("../models");
+const {
+  FormPayment,
+  Form,
+  InternalPaymentStatus,
+  UserStripeAccounts,
+} = require("../models");
 const Response = require("./../mongoModels/response");
 const AccountController = require("./account.controller");
 const createPayerUser = require("../utilityFunctions/createPayerUser");
@@ -151,21 +156,66 @@ const FormPaymentController = function () {
         };
       }
 
-      const existingFormPaymentIntent = paymentResult.data;
+      const existingFormPayment = paymentResult.data;
 
-      const internalSatus = `refund_${data.status}`;
+      let internalSatus = `refund_${data.status}`;
+
+      if (data.destination_details?.card?.reference_status) {
+        const referenceStatus = data.destination_details.card.reference_status;
+
+        if (referenceStatus === "pending") {
+          internalSatus = "refund_pending";
+        } else if (referenceStatus === "available") {
+          internalSatus = "refund_completed";
+        } else if (referenceStatus === "unavailable") {
+          internalSatus = "refund_failed";
+        }
+      }
+
+      const ownerOfStripeAccount = await UserStripeAccounts.findOne({
+        where: {
+          stripe_account_id: existingFormPayment.stripe_account_id_string,
+        },
+      });
+
+      if (!ownerOfStripeAccount) {
+        return {
+          success: false,
+          error: `failed to find the owner of the stripe account associated with the form payment entry`,
+        };
+      }
 
       const updates = {
         internal_status_id: await mapStripeStatusWithInternalStatus(
           internalSatus,
         ),
+        internal_status_updated_at: Date.now(),
+        // refunds are only possible via Stripe Dashboard. Assume only the owner can create a refund
+        internal_status_updated_by: ownerOfStripeAccount.usser_id,
       };
 
-      await existingFormPaymentIntent.update(updates, { validate: true });
+      await existingFormPayment.update(updates, { validate: true });
 
+      data.internal_refund_status = internalSatus;
+      const updatedDocumentResponse = await updateRefundMongoResponse(
+        existingFormPayment,
+        data,
+      );
+
+      if (!updatedDocumentResponse.success) {
+        return updatedDocumentResponse;
+      }
+
+      const isUpdate = data.refund_event_type === "refund.updated";
+      // if (isUpdate && internalSatus === "refund_completed") {
+      //   // TODO: send refund email
+      //   // TODO: REMOVE USER ?
+      // }
       return {
         success: true,
-        data: "updated form payment and sent out an email to user",
+        data: isUpdate
+          ? "updated form payment with refund status and sent email to user"
+          : "updated form payment with refund status",
       };
     } catch (error) {
       return {
@@ -216,6 +266,57 @@ const FormPaymentController = function () {
       );
     } catch (error) {
       throw error;
+    }
+  };
+
+  var updateRefundMongoResponse = async function (formPayment, refundData) {
+    try {
+      const documentId = formPayment.response_document_id;
+      let response = await Response.findById(documentId);
+
+      if (!response) {
+        return {
+          success: false,
+          error: `failed to find a response with porvided document id: ${documentId}`,
+        };
+      }
+      let responseData = response.toObject();
+
+      let paymentAnswer = responseData.response.answers.find(
+        (answer) => answer.type === "payment" && answer.paymentIntentId,
+      );
+
+      paymentAnswer.stripe_refund_status = refundData.internal_refund_status;
+      paymentAnswer.stripe_refunded_at = Date.now();
+
+      const updateDocument = await Response.updateOne(
+        { _id: documentId },
+        {
+          $set: {
+            response: responseData.response,
+          },
+        },
+      );
+
+      if (!updateDocument) {
+        return {
+          success: false,
+          error: `failed to update refund data for document id: ${documentId} `,
+        };
+      }
+
+      return {
+        success: true,
+        data: `response document updated successfully with refund data`,
+      };
+    } catch (error) {
+      console.warn({
+        error_stack: error.stack,
+      });
+      return {
+        success: false,
+        error: `failed update document response with refund data: ${error.message}`,
+      };
     }
   };
 
