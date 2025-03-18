@@ -1,3 +1,5 @@
+import Papa from "papaparse";
+
 const DAYS_BEFORE_EXPIRY = 3;
 /**
  * Maps a stripe payment status to a user-friendly string.
@@ -8,7 +10,7 @@ const DAYS_BEFORE_EXPIRY = 3;
  */
 export const getStatusOfStripePayment = (
   status: string,
-  defaultValue: string
+  defaultValue: string,
 ) => {
   switch (status) {
     case "approved":
@@ -29,7 +31,7 @@ export const getStatusOfStripePayment = (
  */
 export const formatDate = (
   dateString: string,
-  daysAhead: number = 0
+  daysAhead: number = 0,
 ): string => {
   const date = new Date(dateString);
   if (daysAhead > 0) {
@@ -54,4 +56,39 @@ export const getExpiryDate = (dateString: string): Date => {
   const date = new Date(dateString);
   date.setDate(date.getDate() + DAYS_BEFORE_EXPIRY);
   return date;
+};
+
+export const exportToCsv = async <T>(
+  filename: string,
+  data: T[],
+): Promise<void> => {
+  if (data.length === 0) {
+    console.error("No data to export");
+    return;
+  }
+
+  // Preprocess data to convert objects to strings
+  const processedData = data.map((row) => {
+    const processedRow: { [key: string]: string } = {};
+    for (const key in row) {
+      if (Object.prototype.hasOwnProperty.call(row, key)) {
+        const value = row[key];
+        processedRow[key] =
+          typeof value === "object" && value !== null
+            ? JSON.stringify(value)
+            : String(value);
+      }
+    }
+    return processedRow;
+  });
+
+  // Use PapaParse to convert data to CSV format
+  const csv = Papa.unparse(processedData);
+
+  // Create a downloadable CSV file
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
 };

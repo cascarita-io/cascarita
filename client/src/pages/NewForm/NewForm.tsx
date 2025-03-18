@@ -1,6 +1,6 @@
 import DraggableButton from "../../components/DragAndDropComponents/DraggableButton/DraggableButton";
 import Page from "../../components/Page/Page";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import DNDCanvas from "../../components/DragAndDropComponents/DNDCanvas/DNDCanvas";
 import styles from "./NewForm.module.css";
 import { DNDCanvasRef, DroppedItem } from "./types";
@@ -19,6 +19,8 @@ import BlueCheckMarkIcon from "../../assets/Icons/BlueCheckMarkIcon";
 import { Text } from "@radix-ui/themes";
 import Modal from "../../components/Modal/Modal";
 import { useGetFormByDocumentId } from "../../api/forms/query";
+import { AnswerRecordMap } from "../../components/FormResponses/types";
+import { exportToCsv } from "../../components/FormResponses/helpers";
 
 interface CreateFormConfirmationModalProps {
   openModal: boolean;
@@ -57,7 +59,7 @@ const NewForm = () => {
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
   const [openModal, setOpenModal] = useState(false);
   const [formId, setFormId] = useState<string | undefined>(
-    (location.state?.id as string) ?? undefined
+    (location.state?.id as string) ?? undefined,
   );
   const defaultItems = fields
     ? fields.map((field) => ({
@@ -67,14 +69,22 @@ const NewForm = () => {
     : [];
   const [droppedItems, setDroppedItems] = useState<DroppedItem[]>(defaultItems);
   const [description, setDescription] = useState(
-    location.state?.description ?? ""
+    location.state?.description ?? "",
   );
   const [title, setTitle] = useState(
-    location.state?.title ?? t("formTitlePlaceHolder")
+    location.state?.title ?? t("formTitlePlaceHolder"),
   );
   const canvasRef = useRef<DNDCanvasRef>(null);
   const { getAccessTokenSilently } = useAuth0();
   let currentUser: User;
+  const [formResponses, setFormResponses] = useState<AnswerRecordMap>([]);
+
+  const populateResponses = useCallback(
+    (responses: AnswerRecordMap) => {
+      setFormResponses(responses);
+    },
+    [formResponses],
+  );
 
   useEffect(() => {
     (async () => {
@@ -143,7 +153,7 @@ const NewForm = () => {
       description,
       currentUser?.group_id,
       currentUser?.id,
-      "blank"
+      "blank",
     );
     setFormId(response._id);
     setFields(response.form_data.fields);
@@ -160,9 +170,14 @@ const NewForm = () => {
       formId,
       title,
       description,
-      currentUser
+      currentUser,
     );
     setFields(response.fields);
+  };
+
+  // TODO: Implement server side csv download
+  const onDownloadResponses = async () => {
+    await exportToCsv(`${title}_responses`, formResponses);
   };
 
   return (
@@ -179,13 +194,24 @@ const NewForm = () => {
           >
             {t("backButton")}
           </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className={styles.submitButton}
-          >
-            {formId == null ? t("createButton") : t("saveButton")}
-          </button>
+          {activeSection === "questions" && (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className={styles.submitButton}
+            >
+              {formId == null ? t("createButton") : t("saveButton")}
+            </button>
+          )}
+          {activeSection === "responses" && formResponses.length > 0 && (
+            <button
+              type="button"
+              onClick={onDownloadResponses}
+              className={styles.submitButton}
+            >
+              {t("downloadResponses")}
+            </button>
+          )}
         </div>
       </div>
       <ul className={styles.formNav}>
@@ -270,7 +296,10 @@ const NewForm = () => {
         </div>
       )}
       {formId != null && activeSection === "responses" && (
-        <FormResponses formId={formId} />
+        <FormResponses
+          formId={formId}
+          populateResponses={(responses) => populateResponses(responses)}
+        />
       )}
     </Page>
   );
