@@ -13,8 +13,9 @@ import { useGetPlayersByGroupId } from "../../api/users/query";
 import { useGetSeasonsByGroupId } from "../../api/seasons/query";
 import { useGetLeaguesByGroupId } from "../../api/leagues/query";
 import { useGetDivisionsByGroupId } from "../../api/divisions/query";
-import { FaUsers } from "react-icons/fa";
+import { FaPlus, FaUsers } from "react-icons/fa";
 import { Avatar } from "@radix-ui/themes";
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 
 const Players = () => {
   const { t } = useTranslation("Players");
@@ -24,6 +25,7 @@ const Players = () => {
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const { groupId } = useGroup();
 
@@ -61,6 +63,31 @@ const Players = () => {
               <Search onSearchChange={setSearchQuery} />
             )}
           </div>
+
+          <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <Modal.Button asChild className={styles.modalTrigger}>
+              <PrimaryButton
+                className={styles.primaryBtn}
+                onClick={() => setIsCreateOpen(true)}
+              >
+                <p className={styles.btnTextDesktop}>{t("addButton")}</p>
+                <FaPlus className={styles.btnTextMobile} />
+              </PrimaryButton>
+            </Modal.Button>
+
+            <Modal.Content title="Create a New Player">
+              <PlayerForm
+                afterSave={() => {
+                  setIsCreateOpen(false);
+                }}
+                requestType="POST"
+                leagues={leagues}
+                seasons={seasons}
+                divisions={divisions}
+                teams={teams}
+              />
+            </Modal.Content>
+          </Modal>
         </div>
 
         {filteredData == null || filteredData?.length === 0 ? (

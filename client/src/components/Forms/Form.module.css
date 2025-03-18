@@ -82,12 +82,11 @@
 
 .input {
   width: 100%;
+  max-height: 40px;
   border-radius: 4px;
   padding: 8px 13px;
-  font-size: 1rem;
   background-color: #f4f7fb;
-  color: var(--violet-11);
-  box-shadow: 0 0 0 1px var(--violet-7);
+  border: 1.5px solid #e5e7eb;
 }
 
 .input:focus {
@@ -237,7 +236,7 @@ span.error {
 
 @media (min-width: 769px) {
   .form {
-    gap: 18px;
+    gap: 24px;
   }
 
   .formBtnContainer {

@@ -67,6 +67,21 @@ export const useGetPlayerSession = () => {
   });
 };
 
+//TODO: UNCOMMENT ONCE API IS READY
+
+// export const useCreatePlayerTeams = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: (data: PlayerRequest) => create(data),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({
+//         queryKey: ["players"],
+//       });
+//     },
+//   });
+// };
+
 export const useUpdatePlayerTeams = () => {
   const queryClient = useQueryClient();
 
