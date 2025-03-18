@@ -359,6 +359,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                     required
                     name="address"
                     placeholder="Address"
+                    minLength={5}
+                    maxLength={100}
                     type="text"
                     value={state.address}
                     onChange={handleFieldChange("address")}
