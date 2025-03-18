@@ -57,6 +57,16 @@ const Photo = ({ field, index }: FieldProps) => {
       <div className={styles.questionContainer}>
         <p>{field.properties?.description}</p>
       </div>
+      {fieldError && (
+        <span className={styles.errorMessage}>{fieldError.message}</span>
+      )}
+      <FileUpload
+        imagePreview={photoUrl}
+        setFileValue={(url?: File) => {
+          setFileUrl(url);
+        }}
+        className={styles.logoInputContainer}
+      />
       <div className={styles.questionContainer} style={{ maxWidth: "550px" }}>
         <input
           type="checkbox"
@@ -66,20 +76,9 @@ const Photo = ({ field, index }: FieldProps) => {
           className={styles.input}
           id={`ack-photo-${index}`}
         />
-        I acknowledge that any pictures I upload are my own property or that I
-        have the necessary rights to post them.
+        I confirm that I either own the rights to, or have obtained the
+        necessary permissions to share, any images I upload.
       </div>
-      {fieldError && (
-        <span className={styles.errorMessage}>{fieldError.message}</span>
-      )}
-
-      <FileUpload
-        imagePreview={photoUrl}
-        setFileValue={(url?: File) => {
-          setFileUrl(url);
-        }}
-        className={styles.logoInputContainer}
-      />
     </section>
   );
 };
