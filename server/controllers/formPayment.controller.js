@@ -330,11 +330,20 @@ const FormPaymentController = function () {
         statusDbCode = "failed";
     }
 
-    const status = await InternalPaymentStatus.findOne({
-      where: { code: statusDbCode },
-    });
+    try {
+      const status = await InternalPaymentStatus.findOne({
+        where: { code: statusDbCode },
+      });
 
-    return status ? status.id : 7;
+      return status ? status.id : 7;
+    } catch (error) {
+      console.error({
+        meesage: `failed to get internal status id from code`,
+        error: error,
+        stack: error.stack,
+      });
+      return 7;
+    }
   };
 
   var handleUserUpdateStripe = async function (paymentIntent) {
