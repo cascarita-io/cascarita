@@ -40,6 +40,31 @@ const getUserInfoFromAuth0 = require("../utilityFunctions/auth0");
 const SessionController = require("./session.controller");
 
 const UserController = function () {
+
+  var createUser = async function (req, res, next) {
+    try {
+      const user = req.body;
+      user.date = user.date_of_birth;
+
+      const isNewUser = await isEmailUniqueWithinGroup(user.group_id, user.email);
+      if (!isNewUser) {
+        return res
+          .status(400)
+          .json({ error: "Email already exists within the group" });
+      }
+
+      const createdUser = await createUserAndSession(user);
+
+      if (createdUser.success) {
+        return res.status(createdUser.status).json(createdUser.data);
+      } else {
+        return res.status(createdUser.status).json({ error: createdUser.error });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
   var isEmailUniqueWithinGroup = async function (groupId, email) {
     let userFound = await User.findOne({
       where: {
@@ -123,30 +148,40 @@ const UserController = function () {
       language = 2;
     }
 
-    const newUser = {
-      first_name: first_name ? first_name : auth0_first_name,
-      last_name: last_name ? last_name : auth0_last_name,
-      email: userBasicInfo.email,
-      picture: userBasicInfo.picture,
-      language_id: language,
-      group_id: groupId,
-    };
+    first_name = first_name || auth0_first_name;
+    last_name = last_name || auth0_last_name;
+    language_id = language;
+    group_id = groupId;
+    let email = userBasicInfo.email;
+    let picture = userBasicInfo.picture;
+    let internally_created = false;
 
     try {
-      const userFound = await isEmailUniqueWithinGroup(
-        newUser.group_id,
-        newUser.email,
-      );
+      const isNewUser = await isEmailUniqueWithinGroup(group_id, email);
 
-      if (!userFound) {
+      if (!isNewUser) {
         res.status(400);
         throw new Error("email is not unique");
       }
 
-      await User.build(newUser).validate();
-      const result = await User.create(newUser);
+      var createdUser;
+      try {
+        createdUser = await createNewUser(first_name, last_name, email, group_id, language_id, picture, null, null, null, internally_created, null);
+      } catch (error) {
+        return res.status(500).json({
+          error: `failed to create user: ${error.message}`,
+        });
+      }
 
-      let adminRole;
+      try {
+        await assignRole(createdUser.id, "Admin", null);
+      } catch (error) {
+        return res.status(500).json({
+          error: `failed to assign role to user with id ${createdUser.id}: ${error.message}`,
+        }
+        );
+      }
+
       try {
         adminRole = await Role.findOne({ where: { name: "Admin" } });
       } catch (error) {
@@ -155,18 +190,7 @@ const UserController = function () {
         });
       }
 
-      try {
-        await UserRoles.create({
-          user_id: result.id,
-          role_id: adminRole.id,
-        });
-      } catch (error) {
-        return res.status(500).json({
-          error: `failed to assign role to user with id ${result.id}: ${error.message}`,
-        });
-      }
-
-      return res.status(201).json(result);
+      return res.status(201).json(createdUser);
     } catch (error) {
       console.error(error);
       next(error);
@@ -519,33 +543,32 @@ const UserController = function () {
       const { first_name, last_name, email, group_id } = req.body;
 
       // Check if email is unique within the group, so email can appear once per group but can appear across multiple groups
-      const existingUser = await User.findOne({ where: { email, group_id } });
-      if (existingUser) {
-        // TODO: Give client feedback that email already exists within the group
-
+      const isNewUser = await isEmailUniqueWithinGroup(group_id, email);
+      if (!isNewUser) {
         return res
           .status(400)
           .json({ error: "Email already exists within the group" });
       }
 
-      const newUser = {
-        first_name,
-        last_name,
-        email,
-        language_id: 1,
-        group_id,
-      };
+      let language_id = 1;
+      let internally_created = false;
 
-      await User.build(newUser).validate();
-      const result = await User.create(newUser);
+      var createdUser;
+      try {
+        createdUser = await createNewUser(first_name, last_name, email, group_id, language_id, null, null, null, null, internally_created, null);
+      } catch (error) {
+        return res.status(500).json({
+          error: `failed to create user: ${error.message}`,
+        });
+      }
 
-      return res.status(201).json(result);
+      return res.status(201).json(createdUser);
     } catch (error) {
       next(error);
     }
   };
 
-  var createUserViaFromResponse = async function (user) {
+  var createUserAndSession = async function (user) {
     const transaction = await Db.sequelize.transaction();
     try {
       const existingUser = await User.findOne({
@@ -572,21 +595,9 @@ const UserController = function () {
         await existingUser.update(updateData, { transaction });
         currentUser = existingUser;
       } else {
-        const userData = {
-          group_id: user.group_id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          email: user.email,
-          language_id: 1,
-          picture: user.photo,
-          date_of_birth: user.date,
-          phone_number: user.phone_number,
-          address: user.address,
-          internally_created: true,
-        };
-
-        await User.build(userData).validate();
-        currentUser = await User.create(userData, { transaction });
+        const language_id = 1;
+        const internally_created = true;
+        currentUser = await createNewUser(user.first_name, user.last_name, user.email, user.group_id, language_id, user.photo, user.address, user.date, user.phone_number, internally_created, transaction);
       }
 
       const session = await SessionController.getOrCreateSession(
@@ -728,6 +739,36 @@ const UserController = function () {
     }
   };
 
+  var createNewUser = async function (first_name, last_name, email, group_id, language_id, picture, address, date_of_birth, phone_number, internally_created, transaction) {
+    try {
+      const newUser = {
+        first_name,
+        last_name,
+        email,
+        group_id,
+        language_id: language_id || 1,
+        picture,
+        address,
+        date_of_birth,
+        phone_number,
+        internally_created,
+      };
+
+      await User.build(newUser).validate();
+      const options = transaction ? { transaction } : {};
+      let currentUser = await User.create(newUser, options);
+
+      return currentUser;
+    } catch (error) {
+      if (error.name === 'SequelizeValidationError') {
+        console.error('Create User Validation Error:', error.errors);
+        throw new Error('Validation failed. Please check the data and try again.');
+      }
+      console.error('Database Error:', error);
+      throw new Error('An error occurred while creating the user. Please try again later.');
+    }
+  }
+
   return {
     registerUser,
     logInUser,
@@ -741,8 +782,9 @@ const UserController = function () {
     getPlayersByGroupId,
     updatePlayerTeams,
     getSession,
-    createUserViaFromResponse,
+    createUserAndSession,
     getUserSettingsById,
+    createUser,
   };
 };
 
