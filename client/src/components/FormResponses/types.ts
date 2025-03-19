@@ -48,6 +48,7 @@ export interface TypeformFormData {
 // Props for the FormResponses component
 export interface FormResponsesProps {
   formId: string;
+  populateResponses: (responses: AnswerRecordMap) => void;
 }
 
 export interface FormPaymentType {
