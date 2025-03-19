@@ -37,15 +37,15 @@ jobs:
       - name: Prepare server build
         run: |
           cd server
-          npm run create-staging-env
           npm install
+          npm run create-staging-env
           cd ..
 
       - name: Prepare client build
         run: |
           cd client
-          npm run create-staging-env
           pnpm install
+          npm run create-staging-env
           cd ..
 
       - name: Get commit hash
