@@ -16,13 +16,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
       - name: Set up node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -31,14 +34,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
           aws-region: us-west-1
 
-      - name: Install dependencies
-        run: npm install
+      - name: Prepare server build
+        run: |
+          cd server
+          npm run create-staging-env
+          npm install
+          cd ..
 
-      - name: create env file
-        run: npm run create-staging-env
-
-      - name: build
-        run: npm run build
+      - name: Prepare client build
+        run: |
+          cd client
+          npm run create-staging-env
+          pnpm install
+          cd ..
 
       - name: Get commit hash
         id: get-commit-hash
