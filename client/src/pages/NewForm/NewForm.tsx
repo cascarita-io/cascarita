@@ -1,6 +1,6 @@
 import DraggableButton from "../../components/DragAndDropComponents/DraggableButton/DraggableButton";
 import Page from "../../components/Page/Page";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DNDCanvas from "../../components/DragAndDropComponents/DNDCanvas/DNDCanvas";
 import styles from "./NewForm.module.css";
 import { DNDCanvasRef, DroppedItem } from "./types";
@@ -21,11 +21,72 @@ import Modal from "../../components/Modal/Modal";
 import { useGetFormByDocumentId } from "../../api/forms/query";
 import { AnswerRecordMap } from "../../components/FormResponses/types";
 import { exportToCsv } from "../../components/FormResponses/helpers";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface CreateFormConfirmationModalProps {
   openModal: boolean;
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+// TODO: Refactor how we display responses, right now this is tailored to registration form template
+const formatFormResponses = (formResponses: AnswerRecordMap) => {
+  const formattedResponses = [];
+
+  // TODO: Refactor this to be more dynamic and update FormResponseModal.tsx
+  for (const response of formResponses) {
+    const formattedResponse: Record<string, string> = {};
+    for (const key of Object.keys(response)) {
+      console.log(key);
+      const answer = response[key];
+      switch (key) {
+        case "age":
+        case "first_name":
+        case "last_name":
+        case "signature":
+        case "team_name":
+          formattedResponse[key] = answer.short_text ?? "";
+          break;
+        case "address":
+          formattedResponse[key] = answer.long_text ?? "";
+          break;
+        case "date":
+          formattedResponse[key] = answer.date ?? "";
+          break;
+        case "email":
+          formattedResponse[key] = answer.email ?? "";
+          break;
+        case "phone_number":
+          formattedResponse[key] = answer.phone_number ?? "";
+          break;
+        case "photo":
+          formattedResponse[key] = answer.photo ?? "";
+          break;
+        case "liability":
+          formattedResponse[key] = answer.liability ? "Yes" : "No";
+          break;
+        case "payment":
+          formattedResponse[key] =
+            answer.payment_type && answer.amount
+              ? `${answer.payment_type} - $${formatCurrency([answer.amount])[0]}`
+              : "no payment data";
+          break;
+        case "player": {
+          const { player } = answer;
+          formattedResponse["league"] = player?.league_name ?? "";
+          formattedResponse["season"] = player?.season_name ?? "";
+          formattedResponse["division"] = player?.division_name ?? "";
+          formattedResponse["team"] = player?.team_name ?? "";
+          break;
+        }
+        default:
+          formattedResponse[key] = "";
+      }
+    }
+    formattedResponses.push(formattedResponse);
+  }
+  return formattedResponses;
+};
+
 const CreateFormConfirmationModal: React.FC<
   CreateFormConfirmationModalProps
 > = ({ openModal, setOpenModal }) => {
@@ -79,12 +140,9 @@ const NewForm = () => {
   let currentUser: User;
   const [formResponses, setFormResponses] = useState<AnswerRecordMap>([]);
 
-  const populateResponses = useCallback(
-    (responses: AnswerRecordMap) => {
-      setFormResponses(responses);
-    },
-    [formResponses],
-  );
+  const populateResponses = (responses: AnswerRecordMap) => {
+    setFormResponses(responses);
+  };
 
   useEffect(() => {
     (async () => {
@@ -177,7 +235,7 @@ const NewForm = () => {
 
   // TODO: Implement server side csv download
   const onDownloadResponses = async () => {
-    await exportToCsv(`${title}_responses`, formResponses);
+    await exportToCsv(`${title}_responses`, formatFormResponses(formResponses));
   };
 
   return (
@@ -209,7 +267,7 @@ const NewForm = () => {
               onClick={onDownloadResponses}
               className={styles.submitButton}
             >
-              {t("downloadResponses")}
+              {t("download")}
             </button>
           )}
         </div>
