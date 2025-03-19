@@ -19,11 +19,74 @@ import BlueCheckMarkIcon from "../../assets/Icons/BlueCheckMarkIcon";
 import { Text } from "@radix-ui/themes";
 import Modal from "../../components/Modal/Modal";
 import { useGetFormByDocumentId } from "../../api/forms/query";
+import { AnswerRecordMap } from "../../components/FormResponses/types";
+import { exportToCsv } from "../../components/FormResponses/helpers";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 interface CreateFormConfirmationModalProps {
   openModal: boolean;
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+// TODO: Refactor how we display responses, right now this is tailored to registration form template
+const formatFormResponses = (formResponses: AnswerRecordMap) => {
+  const formattedResponses = [];
+
+  // TODO: Refactor this to be more dynamic and update FormResponseModal.tsx
+  for (const response of formResponses) {
+    const formattedResponse: Record<string, string> = {};
+    for (const key of Object.keys(response)) {
+      console.log(key);
+      const answer = response[key];
+      switch (key) {
+        case "age":
+        case "first_name":
+        case "last_name":
+        case "signature":
+        case "team_name":
+          formattedResponse[key] = answer.short_text ?? "";
+          break;
+        case "address":
+          formattedResponse[key] = answer.long_text ?? "";
+          break;
+        case "date":
+          formattedResponse[key] = answer.date ?? "";
+          break;
+        case "email":
+          formattedResponse[key] = answer.email ?? "";
+          break;
+        case "phone_number":
+          formattedResponse[key] = answer.phone_number ?? "";
+          break;
+        case "photo":
+          formattedResponse[key] = answer.photo ?? "";
+          break;
+        case "liability":
+          formattedResponse[key] = answer.liability ? "Yes" : "No";
+          break;
+        case "payment":
+          formattedResponse[key] =
+            answer.payment_type && answer.amount
+              ? `${answer.payment_type} - $${formatCurrency([answer.amount])[0]}`
+              : "no payment data";
+          break;
+        case "player": {
+          const { player } = answer;
+          formattedResponse["league"] = player?.league_name ?? "";
+          formattedResponse["season"] = player?.season_name ?? "";
+          formattedResponse["division"] = player?.division_name ?? "";
+          formattedResponse["team"] = player?.team_name ?? "";
+          break;
+        }
+        default:
+          formattedResponse[key] = "";
+      }
+    }
+    formattedResponses.push(formattedResponse);
+  }
+  return formattedResponses;
+};
+
 const CreateFormConfirmationModal: React.FC<
   CreateFormConfirmationModalProps
 > = ({ openModal, setOpenModal }) => {
@@ -57,7 +120,7 @@ const NewForm = () => {
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
   const [openModal, setOpenModal] = useState(false);
   const [formId, setFormId] = useState<string | undefined>(
-    (location.state?.id as string) ?? undefined
+    (location.state?.id as string) ?? undefined,
   );
   const defaultItems = fields
     ? fields.map((field) => ({
@@ -67,14 +130,19 @@ const NewForm = () => {
     : [];
   const [droppedItems, setDroppedItems] = useState<DroppedItem[]>(defaultItems);
   const [description, setDescription] = useState(
-    location.state?.description ?? ""
+    location.state?.description ?? "",
   );
   const [title, setTitle] = useState(
-    location.state?.title ?? t("formTitlePlaceHolder")
+    location.state?.title ?? t("formTitlePlaceHolder"),
   );
   const canvasRef = useRef<DNDCanvasRef>(null);
   const { getAccessTokenSilently } = useAuth0();
   let currentUser: User;
+  const [formResponses, setFormResponses] = useState<AnswerRecordMap>([]);
+
+  const populateResponses = (responses: AnswerRecordMap) => {
+    setFormResponses(responses);
+  };
 
   useEffect(() => {
     (async () => {
@@ -143,7 +211,7 @@ const NewForm = () => {
       description,
       currentUser?.group_id,
       currentUser?.id,
-      "blank"
+      "blank",
     );
     setFormId(response._id);
     setFields(response.form_data.fields);
@@ -160,9 +228,14 @@ const NewForm = () => {
       formId,
       title,
       description,
-      currentUser
+      currentUser,
     );
     setFields(response.fields);
+  };
+
+  // TODO: Implement server side csv download
+  const onDownloadResponses = async () => {
+    await exportToCsv(`${title}_responses`, formatFormResponses(formResponses));
   };
 
   return (
@@ -179,13 +252,24 @@ const NewForm = () => {
           >
             {t("backButton")}
           </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className={styles.submitButton}
-          >
-            {formId == null ? t("createButton") : t("saveButton")}
-          </button>
+          {activeSection === "questions" && (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className={styles.submitButton}
+            >
+              {formId == null ? t("createButton") : t("saveButton")}
+            </button>
+          )}
+          {activeSection === "responses" && formResponses.length > 0 && (
+            <button
+              type="button"
+              onClick={onDownloadResponses}
+              className={styles.submitButton}
+            >
+              {t("download")}
+            </button>
+          )}
         </div>
       </div>
       <ul className={styles.formNav}>
@@ -270,7 +354,10 @@ const NewForm = () => {
         </div>
       )}
       {formId != null && activeSection === "responses" && (
-        <FormResponses formId={formId} />
+        <FormResponses
+          formId={formId}
+          populateResponses={(responses) => populateResponses(responses)}
+        />
       )}
     </Page>
   );
