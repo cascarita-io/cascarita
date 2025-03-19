@@ -17,6 +17,7 @@ import { uploadPhotoToS3 } from "../../../api/photo/service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "./schema";
 import { useGroup } from "../../GroupProvider/GroupProvider";
+import { toast } from "react-toastify";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
@@ -93,7 +94,10 @@ const TeamForm: React.FC<TeamFormProps> = ({
         );
         if (dataPost.error) {
           setRequestError(dataPost.error);
+          toast.error(dataPost.error);
           return;
+        } else {
+          toast.success("Team Created Successfully");
         }
         break;
       }
@@ -105,7 +109,10 @@ const TeamForm: React.FC<TeamFormProps> = ({
         } as TeamRequest);
         if (dataUpdate.error) {
           setRequestError(dataUpdate.error);
+          toast.error(dataUpdate.error);
           return;
+        } else {
+          toast.success("Team Updated Successfully");
         }
         break;
       }
@@ -122,6 +129,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
     deleteTeamMutation.mutate({
       id: teamId ? teamId : 0,
     } as TeamRequest);
+    toast.success("Team Deleted Successfully");
     afterSave();
   };
 

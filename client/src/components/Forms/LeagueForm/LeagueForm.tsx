@@ -13,6 +13,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { leagueSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGroup } from "../../GroupProvider/GroupProvider";
+import { toast } from "react-toastify";
 
 const LeagueForm: React.FC<LeagueFormProps> = ({
   afterSave,
@@ -61,7 +62,10 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
         );
         if (dataPost.error) {
           setError(dataPost.error);
+          toast.error(dataPost.error);
           return;
+        } else {
+          toast.success("League Created Successfully");
         }
         break;
       }
@@ -72,7 +76,10 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
         } as LeagueRequest);
         if (dataUpdate.error) {
           setError(dataUpdate.error);
+          toast.error(dataUpdate.error);
           return;
+        } else {
+          toast.success("League Updated Successfully");
         }
         break;
       }
@@ -87,8 +94,9 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     e.preventDefault();
     deleteLeagueMutation.mutate({
       id: leagueId ? leagueId : 0,
-    } as LeagueRequest);
-    afterSave();
+    } as LeagueRequest),
+      toast.success("League Deleted Successfully"),
+      afterSave();
   };
 
   return (

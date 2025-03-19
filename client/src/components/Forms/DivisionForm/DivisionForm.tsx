@@ -14,6 +14,7 @@ import { SeasonType } from "../../../pages/Seasons/types";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { divisionSchema } from "./schema";
+import { toast } from "react-toastify";
 
 const DivisionForm: React.FC<DivisionFormProps> = ({
   afterSave,
@@ -66,7 +67,10 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
         );
         if (dataPost.error) {
           setRequestError(dataPost.error);
+          toast.error(dataPost.error);
           return;
+        } else {
+          toast.success("Division Created Successfully");
         }
         break;
       }
@@ -78,7 +82,10 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
         } as DivisionRequest);
         if (dataUpdate.error) {
           setRequestError(dataUpdate.error);
+          toast.error(dataUpdate.error);
           return;
+        } else {
+          toast.success("Division Updated Successfully");
         }
         break;
       }
@@ -92,9 +99,10 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
 
   const onDelete = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    deleteDivisionMutation.mutate({
+    deleteDivisionMutation.mutateAsync({
       id: divisionId ? divisionId : 0,
     } as DivisionRequest);
+    toast.success("Division Deleted Successfully");
     afterSave();
   };
 

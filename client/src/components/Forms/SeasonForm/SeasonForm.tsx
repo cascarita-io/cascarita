@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { seasonSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-toastify";
 
 const SeasonForm: React.FC<SeasonFormProps> = ({
   afterSave,
@@ -71,7 +72,10 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
         );
         if (dataPost.error) {
           setError(dataPost.error);
+          toast.error(dataPost.error);
           return;
+        } else {
+          toast.success("Season Created Successfully");
         }
         break;
       }
@@ -82,7 +86,10 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
         } as SeasonRequest);
         if (dataUpdate.error) {
           setError(dataUpdate.error);
+          toast.error(dataUpdate.error);
           return;
+        } else {
+          toast.success("Season Created Successfully");
         }
         break;
       }
@@ -95,9 +102,10 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
 
   const onDelete = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    deleteSeasonMutation.mutate({
+    deleteSeasonMutation.mutateAsync({
       id: seasonId ? seasonId : 0,
-    } as SeasonRequest);
+    } as SeasonRequest),
+      toast.success("Season Deleted Successfully");
     afterSave();
   };
 
