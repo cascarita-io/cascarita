@@ -170,6 +170,7 @@ const SeasonController = {
       const isUnique = await isNameUniqueWithinLeague(
         form.name,
         form.league_id,
+        false,
       );
       if (!isUnique) {
         return res.status(400).json({ error: "Season name is not unique" });
@@ -198,7 +199,11 @@ const SeasonController = {
       });
 
       const { name, league_id } = season;
-      const isUnique = await isNameUniqueWithinLeague(name, league_id);
+      const isUnique = await isNameUniqueWithinLeague(
+        name,
+        league_id,
+        season.id,
+      );
       if (!isUnique) {
         return res
           .status(400)
@@ -229,15 +234,16 @@ const SeasonController = {
   },
 };
 
-async function isNameUniqueWithinLeague(name, leagueId) {
-  const league = await Season.findOne({
+async function isNameUniqueWithinLeague(name, league_id, seasonId) {
+  const season = await Season.findOne({
     where: {
-      league_id: leagueId,
-      name: name,
+      league_id,
+      name,
+      ...(seasonId && { id: { [Op.ne]: seasonId } }),
     },
   });
 
-  return league === null;
+  return season === null;
 }
 
 module.exports = SeasonController;
