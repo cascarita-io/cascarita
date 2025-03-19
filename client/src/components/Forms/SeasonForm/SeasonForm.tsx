@@ -104,8 +104,9 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
     e.preventDefault();
     deleteSeasonMutation.mutateAsync({
       id: seasonId ? seasonId : 0,
-    } as SeasonRequest),
-      toast.success("Season Deleted Successfully");
+    } as SeasonRequest);
+
+    toast.success("Season Deleted Successfully");
     afterSave();
   };
 

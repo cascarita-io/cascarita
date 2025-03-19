@@ -94,9 +94,10 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     e.preventDefault();
     deleteLeagueMutation.mutate({
       id: leagueId ? leagueId : 0,
-    } as LeagueRequest),
-      toast.success("League Deleted Successfully"),
-      afterSave();
+    } as LeagueRequest);
+
+    toast.success("League Deleted Successfully");
+    afterSave();
   };
 
   return (
