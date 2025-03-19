@@ -553,36 +553,6 @@ const UserController = function () {
     }
   };
 
-  var addUser = async function (req, res, next) {
-    try {
-      const { first_name, last_name, email, group_id } = req.body;
-
-      // Check if email is unique within the group, so email can appear once per group but can appear across multiple groups
-      const isNewUser = await isEmailUniqueWithinGroup(group_id, email);
-      if (!isNewUser) {
-        return res
-          .status(400)
-          .json({ error: "Email already exists within the group" });
-      }
-
-      let language_id = 1;
-      let internally_created = false;
-
-      var createdUser;
-      try {
-        createdUser = await createNewUser(first_name, last_name, email, group_id, language_id, null, null, null, null, internally_created, null);
-      } catch (error) {
-        return res.status(500).json({
-          error: `failed to create user: ${error.message}`,
-        });
-      }
-
-      return res.status(201).json(createdUser);
-    } catch (error) {
-      next(error);
-    }
-  };
-
   var createUserAndSession = async function (user) {
     const transaction = await Db.sequelize.transaction();
     try {
@@ -792,7 +762,6 @@ const UserController = function () {
     getUsersByGroupId,
     deleteUserById,
     updateUserById,
-    addUser,
     fetchUser,
     getPlayersByGroupId,
     updatePlayerTeams,
