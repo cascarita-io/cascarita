@@ -4,4 +4,8 @@ interface DeleteFormProps extends React.ComponentPropsWithoutRef<"form"> {
   children?: React.ReactNode;
 }
 
-export type { DeleteFormProps };
+interface DeleteFormData {
+  form_id: string;
+}
+
+export type { DeleteFormProps, DeleteFormData };
