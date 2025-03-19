@@ -193,15 +193,6 @@ const UserController = function () {
       } catch (error) {
         return res.status(500).json({
           error: `failed to assign role to user with id ${createdUser.id}: ${error.message}`,
-        }
-        );
-      }
-
-      try {
-        adminRole = await Role.findOne({ where: { name: "Admin" } });
-      } catch (error) {
-        return res.status(500).json({
-          error: `failed to find role with name "Admin": ${error.message}`,
         });
       }
 
