@@ -106,8 +106,8 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
           className={styles.form}
           onSubmit={(e) => handleDelete(e, formId)}
         >
-          {responseError && <p style={{ color: "red" }}>{responseError}</p>}
           <p>Are you sure you want to delete this form?</p>
+          {responseError && <p style={{ color: "red" }}>{responseError}</p>}
         </DeleteForm>
       </Modal.Content>
     </Modal>
