@@ -90,7 +90,7 @@ export interface GetFormsParams {
 }
 
 export interface FormResponse {
-  id: number;
+  id?: number;
   error?: string;
 }
 
