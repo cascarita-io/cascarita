@@ -58,6 +58,13 @@ export const getExpiryDate = (dateString: string): Date => {
   return date;
 };
 
+/**
+ * Very basic export json to csv, more documentation https://www.papaparse.com/docs
+ *
+ * @param {string} filename - name of the file to export
+ * @param {T[]} data - can be An array of arrays, an array of objects, or an object explicitly defining fields and data
+ */
+
 export const exportToCsv = async <T>(
   filename: string,
   data: T[],
@@ -67,23 +74,7 @@ export const exportToCsv = async <T>(
     return;
   }
 
-  // Preprocess data to convert objects to strings
-  const processedData = data.map((row) => {
-    const processedRow: { [key: string]: string } = {};
-    for (const key in row) {
-      if (Object.prototype.hasOwnProperty.call(row, key)) {
-        const value = row[key];
-        processedRow[key] =
-          typeof value === "object" && value !== null
-            ? JSON.stringify(value)
-            : String(value);
-      }
-    }
-    return processedRow;
-  });
-
-  // Use PapaParse to convert data to CSV format
-  const csv = Papa.unparse(processedData);
+  const csv = Papa.unparse(data);
 
   // Create a downloadable CSV file
   const blob = new Blob([csv], { type: "text/csv" });
