@@ -52,7 +52,7 @@ interface PaymentCaptureModalProps {
   handleStatusChange: (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>,
+    response: Record<string, Answer>
   ) => void;
 }
 
@@ -91,14 +91,14 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const [email, setEmail] = useState<string[]>([]);
   const [isViewOpen, setIsViewOpen] = useState<{ [key: number]: boolean }>({});
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
-    [],
+    []
   );
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
-    [],
+    []
   );
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [currentPaymentIndex, setCurrentPaymentIndex] = useState<number | null>(
-    null,
+    null
   );
   const adminEmail = Cookies.get("email") || "";
   const { t } = useTranslation("FormResponses");
@@ -112,7 +112,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       const responsesData = await getMongoFormResponses(formData._id);
 
       setSubmittedAt(
-        responsesData.map((response: FormResponse) => response.createdAt),
+        responsesData.map((response: FormResponse) => response.createdAt)
       );
 
       const responsesArray = responsesData.map((res: FormResponse) => {
@@ -183,8 +183,8 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
             } else {
               paymentTypeData[index] = "Cash / Check";
             }
-          },
-        ),
+          }
+        )
       );
 
       setStatus(statusData);
@@ -195,7 +195,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const handleStatusChange = async (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>,
+    response: Record<string, Answer>
   ) => {
     const newStatus = [...status];
     newStatus[index] = statusUpdate;
@@ -229,7 +229,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
           playerName,
           paymentAmount,
           paymentDate,
-          transactionId,
+          transactionId
         );
       }
       updatedStatus = "succeeded";
@@ -240,7 +240,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
           leagueName,
           seasonName,
           playerName,
-          paymentAmount,
+          paymentAmount
         );
       }
       updatedStatus = "canceled";
@@ -250,7 +250,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       paymentIntentIds[index],
       updatedStatus,
       adminEmail,
-      response,
+      response
     );
   };
 
@@ -301,7 +301,10 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
               <td>{paymentType[index]}</td>
               {formType === 1 && (
                 <td>
-                  {new Date() > getExpiryDate(submittedAt[index]) ? (
+                  {paymentType[index] === "Credit Card / Stripe" &&
+                  new Date() > getExpiryDate(submittedAt[index]) &&
+                  status[index] !== "approved" &&
+                  status[index] !== "rejected" ? (
                     <StatusLabel
                       className={styles.statusLabel}
                       status="expired"
@@ -384,16 +387,18 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
               <td>{`$${formattedCurrency[index]}`}</td>
               <td>
                 {paymentType[index] === "Credit Card / Stripe" ? (
-                  new Date() > getExpiryDate(submittedAt[index]) ? (
+                  new Date() > getExpiryDate(submittedAt[index]) &&
+                  status[index] !== "approved" &&
+                  status[index] !== "rejected" ? (
                     <p>Expired</p>
                   ) : (
                     getStatusOfStripePayment(
                       status[index],
-                      formatDate(submittedAt[index], 3),
+                      formatDate(submittedAt[index], 3)
                     )
                   )
                 ) : (
-                  ""
+                  "N/A"
                 )}
               </td>
             </tr>
