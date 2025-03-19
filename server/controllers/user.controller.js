@@ -53,7 +53,22 @@ const UserController = function () {
           .json({ error: "Email already exists within the group" });
       }
 
-      const createdUser = await createUserAndSession(user);
+      let linkTeam = user.link_to_team === "yes" ? true : false;
+      var createdUser;
+
+      if (linkTeam) {
+        createdUser = await createUserAndSession(user);
+      } else {
+        // If the user is not linked to a team, create the user without a session
+        try {
+          createdUser = await createNewUser(user.first_name, user.last_name, user.email, user.group_id, 1, user.photo, user.address, user.date, user.phone_number, false, null);
+          return res.status(201).json(createdUser);
+        } catch (error) {
+          return res.status(500).json({
+            error: `failed to create user: ${error.message}`,
+          });
+        }
+      }
 
       if (createdUser.success) {
         return res.status(createdUser.status).json(createdUser.data);
