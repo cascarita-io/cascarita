@@ -18,5 +18,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Stop existing ECS task
+        run: |
+          TASK_ARN=$(aws ecs list-tasks --cluster ${{ secrets.AWS_ECS_CLUSTER_NAME }} --service-name ${{ secrets.AWS_ECS_SERVICE_NAME }} --region ${{ secrets.AWS_REGION }} --query 'taskArns[0]' --output text)
+          if [ "$TASK_ARN" != "None" ]; then
+            aws ecs stop-task --cluster ${{ secrets.AWS_ECS_CLUSTER_NAME }} --task $TASK_ARN --region ${{ secrets.AWS_REGION }}
+          fi
+
       - name: Update ECS service
         run: aws ecs update-service --cluster ${{ secrets.AWS_ECS_CLUSTER_NAME }} --service ${{ secrets.AWS_ECS_SERVICE_NAME }} --force-new-deployment --region ${{ secrets.AWS_REGION }}
