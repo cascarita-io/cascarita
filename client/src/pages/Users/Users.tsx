@@ -37,7 +37,6 @@ const Users = () => {
     })();
   }, []);
 
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   // const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -67,21 +66,6 @@ const Users = () => {
     };
   }, [searchQuery]);
 
-  useEffect(() => {
-    if (users) {
-      const filteredData = users.filter((user: User) => {
-        const fullName = `${user.first_name.toLowerCase()} ${user.last_name.toLowerCase()}`;
-        const query = debouncedQuery.toLowerCase();
-        return (
-          (fullName.includes(query) ||
-            user.email.toLowerCase().includes(query)) &&
-          user.email !== currentUser?.email
-        ); // Exclude current user
-      });
-      setFilteredUsers(filteredData);
-    }
-  }, [users, debouncedQuery]);
-
   // //TODO: UNCOMMENT ONCE WE CAN ADD USERS
   // const handleEditUser = (user: User) => {
   //   setSelectedUser(user);
@@ -92,6 +76,12 @@ const Users = () => {
   //   setSelectedUser(user);
   //   setIsDeleteOpen(true);
   // };
+
+  const filteredUsers = users?.filter((user: User) => {
+    const fullName = `${user.first_name.toLowerCase()} ${user.last_name.toLowerCase()}`;
+    const query = debouncedQuery.toLowerCase();
+    return fullName.includes(query) || user.email.toLowerCase().includes(query);
+  });
 
   return (
     <Page title={t("title")}>
@@ -134,7 +124,7 @@ const Users = () => {
               <td>Error Fetching Data</td>
             </tr>
           ) : (
-            users?.map((user: User) => (
+            filteredUsers?.map((user: User) => (
               <tr key={user.id} className={styles.tableRow}>
                 <td className={styles.tableData}>
                   <Avatar

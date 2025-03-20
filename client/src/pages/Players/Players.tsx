@@ -79,7 +79,7 @@ const Players = () => {
                 <td>{t("loading")}</td>
               </tr>
             ) : (
-              players?.map((player: PlayerType, idx: number) => (
+              filteredData?.map((player: PlayerType, idx: number) => (
                 <tr key={idx} className={styles.tableRow}>
                   <td className={styles.tableData}>
                     <div

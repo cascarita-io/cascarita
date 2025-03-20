@@ -125,7 +125,7 @@ const Teams = () => {
               <td>{t("error")}</td>
             </tr>
           ) : (
-            teams?.map((team: TeamType, idx: number) => (
+            filteredData?.map((team: TeamType, idx: number) => (
               <tr key={idx} className={styles.tableRow}>
                 <td className={styles.tableData}>
                   <div
