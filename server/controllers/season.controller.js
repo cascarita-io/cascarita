@@ -170,7 +170,7 @@ const SeasonController = {
       const isUnique = await isNameUniqueWithinLeague(
         form.name,
         form.league_id,
-        false,
+        null,
       );
       if (!isUnique) {
         return res.status(400).json({ error: "Season name is not unique" });

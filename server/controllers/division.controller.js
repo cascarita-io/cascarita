@@ -66,7 +66,7 @@ const DivisionController = {
       const isUnique = await isDivisionNameUnique(
         form.group_id,
         form.name,
-        false,
+        null,
       );
       if (!isUnique) {
         return res.status(400).json({ error: "Division name is not unique" });

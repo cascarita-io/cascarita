@@ -44,7 +44,7 @@ const LeagueController = function () {
       const isUnique = await isNameUniqueWithinGroup(
         newLeague.group_id,
         newLeague.name,
-        false,
+        null,
       );
 
       if (!isUnique) {
