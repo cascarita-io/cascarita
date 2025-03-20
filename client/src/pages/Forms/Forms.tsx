@@ -27,6 +27,12 @@ interface ShareModalProps {
   isOpen: boolean;
   onOpen: (isOpen: boolean) => void;
 }
+const MOBILE_WIDTH = 768;
+interface ShareModalProps {
+  formLink: string;
+  isOpen: boolean;
+  onOpen: (isOpen: boolean) => void;
+}
 
 const ShareModal: React.FC<ShareModalProps> = ({
   formLink,
@@ -81,7 +87,6 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
     e.preventDefault();
     try {
       const deleteResult = await deleteMutation.mutateAsync(formId);
-      console.log(deleteResult);
       if (deleteResult.error) {
         setResponseError(deleteResult.error);
       } else {
@@ -170,18 +175,21 @@ const Forms = () => {
   };
 
   const onOpen = async (id: string) => {
-    const form = await getMongoFormById(id);
+    // only enable viewing responses on desktop view
+    if (window.innerWidth >= MOBILE_WIDTH) {
+      const form = await getMongoFormById(id);
 
-    navigate("/forms/edit", {
-      state: {
-        id,
-        title: form.form_data.title,
-        description:
-          form.form_data.welcome_screens?.[0]?.properties?.description ?? "",
-        link: id,
-        fields: form.form_data.fields,
-      },
-    });
+      navigate("/forms/edit", {
+        state: {
+          id,
+          title: form.form_data.title,
+          description:
+            form.form_data.welcome_screens?.[0]?.properties?.description ?? "",
+          link: id,
+          fields: form.form_data.fields,
+        },
+      });
+    }
   };
 
   const onView = async (id: string) => {

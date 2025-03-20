@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { teamSchema } from "./schema";
 import { useGroup } from "../../GroupProvider/GroupProvider";
 import { toast } from "react-toastify";
+import { useGetDivisionsBySeasonId } from "../../../api/divisions/query";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
@@ -27,7 +28,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
   divisionId,
   teamLogo,
   teamId,
-  divisionsData,
   seasonsData,
 }) => {
   const { t } = useTranslation("Teams");
@@ -72,10 +72,19 @@ const TeamForm: React.FC<TeamFormProps> = ({
   }, [fileUrl]);
 
   const isLinkSeason = watch("link_to_season");
+  const [currentSeason, setCurrentSeason] = useState(seasonId);
   const name = watch("name");
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
+
+  const { data: divisions, refetch } = useGetDivisionsBySeasonId(
+    currentSeason as number
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [currentSeason]);
 
   const onSubmit: SubmitHandler<TeamFormData> = async (data: TeamFormData) => {
     const { name, season_id, division_id, link_to_season } = data;
@@ -218,14 +227,15 @@ const TeamForm: React.FC<TeamFormProps> = ({
                       })}
                       id="seasonId"
                       className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
-                      onChange={() => {
+                      onChange={(e) => {
                         clearErrors("season_id");
+                        setCurrentSeason(Number(e.target.value));
                       }}
                     >
                       <option value={0}>Select a season</option>
                       {seasonsData?.map((season: SeasonType) => (
                         <option key={season.id} value={season.id}>
-                          {season.name}
+                          {season.league_name} - {season.name}
                         </option>
                       ))}
                     </select>
@@ -250,7 +260,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
                       onChange={() => clearErrors("division_id")}
                     >
                       <option value={0}>Select a division</option>
-                      {divisionsData?.map((division: DivisionType) => (
+                      {divisions?.map((division: DivisionType) => (
                         <option key={division.id} value={division.id}>
                           {division.name}
                         </option>

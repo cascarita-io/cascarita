@@ -1,6 +1,7 @@
 "use strict";
 
-const { League, Group } = require("../models");
+const { League, Group, Season } = require("../models");
+const { Op } = require("sequelize");
 const modelByPk = require("./utility");
 
 const LeagueController = function () {
@@ -23,11 +24,12 @@ const LeagueController = function () {
     }
   };
 
-  var isNameUniqueWithinGroup = async function (groupId, leagueName) {
+  var isNameUniqueWithinGroup = async function (group_id, name, leagueId) {
     let leagueFound = await League.findOne({
       where: {
-        group_id: groupId,
-        name: leagueName,
+        group_id,
+        name,
+        ...(leagueId && { id: { [Op.ne]: leagueId } }),
       },
     });
 
@@ -42,6 +44,7 @@ const LeagueController = function () {
       const isUnique = await isNameUniqueWithinGroup(
         newLeague.group_id,
         newLeague.name,
+        null,
       );
 
       if (!isUnique) {
@@ -81,6 +84,7 @@ const LeagueController = function () {
       const isUnique = await isNameUniqueWithinGroup(
         currentLeague.group_id,
         currentLeague.name,
+        currentLeague.id,
       );
 
       if (!isUnique) {
@@ -98,9 +102,22 @@ const LeagueController = function () {
 
   var deleteLeague = async function (req, res, next) {
     try {
+      const leagueId = req.params["id"];
+      const hasSeasons = await Season.findAll({
+        where: {
+          league_id: leagueId,
+        },
+      });
+
+      if (hasSeasons.length > 0) {
+        return res.status(409).json({
+          error:
+            "league cannot be deleted if it has at least one season linked to it",
+        });
+      }
       let deletedLeague = await League.destroy({
         where: {
-          id: req.params["id"],
+          id: leagueId,
         },
       });
 

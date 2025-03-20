@@ -14,7 +14,6 @@ import { Avatar } from "@radix-ui/themes";
 import { FaUsers } from "react-icons/fa6";
 import { useGetTeamsByGroupId } from "../../api/teams/query";
 import { useGetSeasonsByGroupId } from "../../api/seasons/query";
-import { useGetDivisionsByGroupId } from "../../api/divisions/query";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
 
 const Teams = () => {
@@ -36,7 +35,6 @@ const Teams = () => {
 
   const { data: teams, isLoading, isError } = useGetTeamsByGroupId(groupId);
   const { data: seasons } = useGetSeasonsByGroupId(groupId);
-  const { data: divisions } = useGetDivisionsByGroupId(groupId);
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -96,7 +94,6 @@ const Teams = () => {
           <Modal.Content title={t("formContent.title")}>
             <TeamForm
               afterSave={() => setIsCreateOpen(false)}
-              divisionsData={divisions}
               seasonsData={seasons}
               requestType="POST"
             />
@@ -125,7 +122,7 @@ const Teams = () => {
               <td>{t("error")}</td>
             </tr>
           ) : (
-            teams?.map((team: TeamType, idx: number) => (
+            filteredData?.map((team: TeamType, idx: number) => (
               <tr key={idx} className={styles.tableRow}>
                 <td className={styles.tableData}>
                   <div
@@ -193,7 +190,6 @@ const Teams = () => {
           <TeamForm
             afterSave={() => setIsEditOpen(false)}
             requestType="PATCH"
-            divisionsData={divisions}
             seasonsData={seasons}
             teamId={currentTeamId}
             teamName={currentTeamName}

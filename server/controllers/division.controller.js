@@ -3,14 +3,15 @@
 const { League, Session, Season, Division, Group } = require("../models");
 const { Op } = require("sequelize");
 const modelByPk = require("./utility");
-const sessionController = require("./session.controller");
+const SessionController = require("./session.controller");
 const { Sequelize } = require("sequelize");
 
-const isDivisionNameUnique = async (groupId, name) => {
+const isDivisionNameUnique = async (group_id, name, divisionId) => {
   const division = await Division.findOne({
     where: {
-      group_id: groupId,
-      name: name,
+      group_id,
+      name,
+      ...(divisionId && { id: { [Op.ne]: divisionId } }),
     },
   });
   return !division;
@@ -62,7 +63,11 @@ const DivisionController = {
 
     try {
       await modelByPk(res, Group, form.group_id);
-      const isUnique = await isDivisionNameUnique(form.group_id, form.name);
+      const isUnique = await isDivisionNameUnique(
+        form.group_id,
+        form.name,
+        null,
+      );
       if (!isUnique) {
         return res.status(400).json({ error: "Division name is not unique" });
       }
@@ -71,7 +76,7 @@ const DivisionController = {
 
       const division = await Division.create(form);
       if (form.season_id) {
-        await sessionController.createSession(division.id, form.season_id);
+        await SessionController.createSession(division.id, form.season_id);
       }
       res.status(201).json(division);
     } catch (error) {
@@ -84,7 +89,11 @@ const DivisionController = {
 
     try {
       const division = await modelByPk(res, Division, id);
-      const isUnique = await isDivisionNameUnique(division.group_id, name);
+      const isUnique = await isDivisionNameUnique(
+        division.group_id,
+        name,
+        division.id,
+      );
       if (!isUnique) {
         return res.status(400).json({ error: "Division name is not unique" });
       }

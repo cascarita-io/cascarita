@@ -20,10 +20,10 @@ interface LeagueRequest {
 }
 
 interface LeagueResponse {
-  id: number;
-  name: string;
-  description: string;
-  group_id: number;
+  id?: number;
+  name?: string;
+  description?: string;
+  group_id?: number;
   error?: string;
 }
 
