@@ -90,11 +90,17 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     afterSave();
   };
 
-  const onDelete = (e: React.FormEvent<HTMLFormElement>) => {
+  const onDelete = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    deleteLeagueMutation.mutate({
+    const deleteResponse = await deleteLeagueMutation.mutateAsync({
       id: leagueId ? leagueId : 0,
     } as LeagueRequest);
+
+    if (deleteResponse.error) {
+      setError(deleteResponse.error);
+      toast.error(deleteResponse.error);
+      return;
+    }
 
     toast.success("League Deleted Successfully");
     afterSave();
@@ -108,6 +114,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
           onSubmit={onDelete}
           className={styles.form}
         >
+          {error && <span className={styles.error}>{error}</span>}
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
