@@ -62,7 +62,9 @@ const updateLeague = async (
   }
 };
 
-const deleteLeague = async (payload: LeagueRequest): Promise<void> => {
+const deleteLeague = async (
+  payload: LeagueRequest
+): Promise<LeagueResponse> => {
   try {
     const response = await fetch(`api/leagues/${payload.id}`, {
       method: "DELETE",
@@ -71,13 +73,12 @@ const deleteLeague = async (payload: LeagueRequest): Promise<void> => {
       },
     });
 
-    if (
-      response.status === 204 ||
-      response.headers.get("Content-Length") === "0"
-    ) {
-      return;
+    if (!response.ok) {
+      throw new Error("Failed to delete form");
     }
-    return response.json();
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
   } catch (error) {
     console.error("Error deleting league: ", error);
     throw error;
