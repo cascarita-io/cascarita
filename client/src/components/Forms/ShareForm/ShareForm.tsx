@@ -2,31 +2,29 @@ import React, { useRef, useState } from "react";
 import styles from "../Form.module.css";
 import { ShareFormProps } from "./types";
 import { sendEmail } from "../../../api/forms/service";
+import { toast } from "react-toastify";
 
 const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
   const textBoxRef = useRef<HTMLInputElement>(null);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [emailed, setEmailed] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
 
   const handleEmail = async (emails: string[], formLink: string) => {
-    await sendEmail(emails, formLink);
+    const response = await sendEmail(emails, formLink);
+    if (response.error) {
+      toast.error("Specify at least one email");
+    } else {
+      toast.success("Form shared! 🎉");
+    }
   };
 
   const handleCopy = () => {
     if (textBoxRef.current) {
       const text = textBoxRef.current.innerText;
-      navigator.clipboard
-        .writeText(text)
-        .then(() => {
-          setCopied(true);
-          setTimeout(() => {
-            setCopied(false);
-          }, 5000);
-        })
-        .catch((err) => {
-          console.error("Failed to copy text: ", err);
-        });
+      toast.success("Copied to clipboard!");
+      navigator.clipboard.writeText(text).catch((err) => {
+        toast.error("Failed to copy text");
+        console.error("Failed to copy text: ", err);
+      });
     }
   };
 
@@ -35,8 +33,6 @@ const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
       <hr />
       <div>
         <label className={styles.boldLabel}>Form Link</label>
-        {copied && <p className={styles.copiedMessage}>Copied to clipboard!</p>}
-        {emailed && <p className={styles.copiedMessage}>Emails sent!</p>}
         <div className={styles.shareContainer}>
           <p ref={textBoxRef}>{formLink}</p>
           <button
@@ -66,12 +62,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
                 .map((e) => e.trim())
                 .filter((e) => e);
               const formLink = textBoxRef.current?.innerText || "";
-              setEmailed(true);
-              handleEmail(emails, formLink).finally(() => {
-                setTimeout(() => {
-                  setEmailed(false);
-                }, 2000);
-              });
+              handleEmail(emails, formLink).finally();
             }}
           >
             send

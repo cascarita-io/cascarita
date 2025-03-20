@@ -8,22 +8,19 @@ import styles from "../pages.module.css";
 import ShareButton from "../../components/ShareButton/ShareButton";
 import { useNavigate } from "react-router-dom";
 import { Form } from "./types";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useTranslation } from "react-i18next";
-import {
-  deleteForm,
-  getMongoFormById,
-  getMongoForms,
-} from "../../api/forms/service";
+import { getMongoFormById } from "../../api/forms/service";
 import Modal from "../../components/Modal/Modal";
 import React from "react";
 import ShareForm from "../../components/Forms/ShareForm/ShareForm";
-import Cookies from "js-cookie";
-import { fetchUser } from "../../api/users/service";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
 import DeleteForm from "../../components/Forms/DeleteForm/DeleteForm";
+import { useDeleteForm } from "../../api/forms/mutations";
+import { useGetMongoForms } from "../../api/forms/query";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import { FetchedForm } from "../FormPage/types";
 
 interface ShareModalProps {
   formLink: string;
@@ -37,11 +34,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
   onOpen,
 }) => (
   <Modal open={isOpen} onOpenChange={onOpen}>
-    <Modal.Button asChild className={styles.modalTrigger}>
-      <button onClick={() => onOpen(true)}>
-        <ShareButton />
-      </button>
-    </Modal.Button>
     <Modal.Content title="Share Form">
       <ShareForm afterClose={() => onOpen(false)} formLink={formLink} />
     </Modal.Content>
@@ -72,25 +64,54 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
 interface DeleteFormModalProps {
   isOpen: boolean;
   onOpen: (isOpen: boolean) => void;
+  formId: string;
 }
-
 const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
   isOpen,
   onOpen,
-}) => (
-  <Modal open={isOpen} onOpenChange={onOpen}>
-    <Modal.Content title="Delete Form">
-      <DeleteForm destructBtnLabel={"Yes, I'm sure"} className={styles.form}>
-        <p>Are you sure you want to delete this form?</p>
-      </DeleteForm>
-    </Modal.Content>
-  </Modal>
-);
+  formId,
+}) => {
+  const deleteMutation = useDeleteForm();
+  const [responseError, setResponseError] = useState("");
+
+  const handleDelete = async (
+    e: React.FormEvent<HTMLFormElement>,
+    formId: string
+  ) => {
+    e.preventDefault();
+    try {
+      const deleteResult = await deleteMutation.mutateAsync(formId);
+      console.log(deleteResult);
+      if (deleteResult.error) {
+        setResponseError(deleteResult.error);
+      } else {
+        onOpen(false);
+      }
+    } catch (error) {
+      console.error("Unexpected error during form deletion:", error);
+      setResponseError("Unexpected error occurred");
+    }
+  };
+
+  return (
+    <Modal open={isOpen} onOpenChange={onOpen}>
+      <Modal.Content title="Delete Form">
+        <DeleteForm
+          destructBtnLabel={"Yes, I'm sure"}
+          className={styles.form}
+          onSubmit={(e) => handleDelete(e, formId)}
+        >
+          <p>Are you sure you want to delete this form?</p>
+          {responseError && <p style={{ color: "red" }}>{responseError}</p>}
+        </DeleteForm>
+      </Modal.Content>
+    </Modal>
+  );
+};
 
 const Forms = () => {
   const { t } = useTranslation("Forms");
   const [sorts, setSorts] = useState("");
-  const [forms, setForms] = useState<Form[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -99,7 +120,8 @@ const Forms = () => {
   const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
-  const { getAccessTokenSilently } = useAuth0();
+  const [currentFormId, setCurrentFormId] = useState("");
+  const { groupId } = useGroup();
 
   const headers = useResponsiveHeader(
     [t("col1"), t("col2"), t("col4"), t("col5")],
@@ -116,15 +138,18 @@ const Forms = () => {
     };
   }, [searchQuery]);
 
+  const { data: forms, refetch } = useGetMongoForms(groupId);
+
   useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const user = await fetchUser(email, token);
-      const mongoForms = await getMongoForms(user?.group_id ?? -1);
-      setForms(mongoForms);
-    })();
-  }, []);
+    setSorts(t("sortOptions.item1"));
+  }, [t]);
+
+  useEffect(() => {
+    if (!isDeleteOpen) {
+      // Re-fetch forms when delete modal is closed
+      refetch();
+    }
+  }, [isDeleteOpen]);
 
   // const handleNewFormClick = () => {
   //   navigate("/forms/edit");
@@ -140,8 +165,8 @@ const Forms = () => {
   };
 
   const onDelete = async (id: string) => {
+    setCurrentFormId(id);
     setIsDeleteOpen(true);
-    await deleteForm(id);
   };
 
   const onOpen = async (id: string) => {
@@ -207,7 +232,7 @@ const Forms = () => {
             className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
             onClick={handleTemplateClick}
           >
-            <p className={styles.btnTextDesktop}>Template</p>
+            <p className={styles.btnTextDesktop}>New Form</p>
             {/* <FaPlus className={styles.btnTextMobile} /> */}
           </PrimaryButton>
 
@@ -225,7 +250,7 @@ const Forms = () => {
         <p className={styles.noItemsMessage}>No forms to display...</p>
       ) : (
         <DashboardTable headers={headers} headerColor="light">
-          {filteredData?.map((form, index) => (
+          {filteredData?.map((form: FetchedForm, index: number) => (
             <tr key={index} className={styles.tableRow}>
               <td className={styles.tableData}>
                 <p>
@@ -288,6 +313,7 @@ const Forms = () => {
         <DeleteFormModal
           isOpen={isDeleteOpen}
           onOpen={(isOpen: boolean) => setIsDeleteOpen(isOpen)}
+          formId={currentFormId}
         />
       )}
     </Page>

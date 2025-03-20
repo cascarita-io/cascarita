@@ -99,7 +99,8 @@ export const deleteForm = async (id: string): Promise<FormResponse> => {
       throw new Error("Failed to delete form");
     }
 
-    return response.json();
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
   } catch (err) {
     console.error("Error deleting form:", err);
     throw err;
@@ -142,21 +143,6 @@ export const createMongoForm = async (
     return response.json();
   } catch (err) {
     console.error("Error creating form:", err);
-    throw err;
-  }
-};
-
-export const getMongoForms = async (groupId: number) => {
-  try {
-    const response = await fetch(`/api/groups/${groupId}/forms`);
-
-    if (!response.ok) {
-      throw new Error(`Error fetching forms: ${response.statusText}`);
-    }
-
-    return response.json();
-  } catch (err) {
-    console.error("Error fetching forms:", err);
     throw err;
   }
 };
@@ -235,9 +221,11 @@ export const sendEmail = async (emails: string[], formLink: string) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Error emailing form: ${response.statusText}`);
+      const errorData = await response.json();
+      return { error: errorData.error || "An unexpected error occurred" };
     }
-    return response.json();
+
+    return { success: true };
   } catch (err) {
     console.error("Error emailing responses:", err);
     throw err;
@@ -416,6 +404,26 @@ export const getFormByDocumentId = async ({
     return response.json();
   } catch (err) {
     console.error("Error fetching form:", err);
+    throw err;
+  }
+};
+
+type MongoFormQueryKey = [string, number];
+
+export const getMongoForms = async ({
+  queryKey,
+}: QueryFunctionContext<MongoFormQueryKey>) => {
+  const [, groupId] = queryKey;
+  try {
+    const response = await fetch(`/api/groups/${groupId}/forms`);
+
+    if (!response.ok) {
+      throw new Error(`Error fetching forms: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (err) {
+    console.error("Error fetching forms:", err);
     throw err;
   }
 };

@@ -52,7 +52,7 @@ interface PaymentCaptureModalProps {
   handleStatusChange: (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => void;
 }
 
@@ -81,7 +81,7 @@ const PaymentCaptureModal: React.FC<PaymentCaptureModalProps> = ({
   );
 };
 
-const FormResponses = ({ formId }: FormResponsesProps) => {
+const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const [formType, setFormType] = useState(0);
   const [user, setUser] = useState<string[]>([]);
   const [amount, setAmount] = useState<number[]>([]);
@@ -91,18 +91,16 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const [email, setEmail] = useState<string[]>([]);
   const [isViewOpen, setIsViewOpen] = useState<{ [key: number]: boolean }>({});
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
-    []
+    [],
   );
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
-    []
+    [],
   );
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [currentPaymentIndex, setCurrentPaymentIndex] = useState<number | null>(
-    null
+    null,
   );
   const adminEmail = Cookies.get("email") || "";
-  const [formDocumentId, setFormDocumentId] = useState("");
-  console.log(formDocumentId);
   const { t } = useTranslation("FormResponses");
 
   const formattedCurrency = formatCurrency(amount);
@@ -110,14 +108,13 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   useEffect(() => {
     (async () => {
       const formData = await getMongoFormById(formId);
-      setFormDocumentId(formData._id);
       setFormType(formData.form_type);
       const responsesData = await getMongoFormResponses(formData._id);
-      const submittedAtData: string[] = [];
-      responsesData.map((response: FormResponse) => {
-        submittedAtData.push(response.createdAt);
-      });
-      setSubmittedAt(submittedAtData);
+
+      setSubmittedAt(
+        responsesData.map((response: FormResponse) => response.createdAt),
+      );
+
       const responsesArray = responsesData.map((res: FormResponse) => {
         const answersMap: { [key: string]: Answer } = {};
         res.response.answers?.forEach((answer: Answer) => {
@@ -131,7 +128,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
         return answersMap;
       });
       setFormResponsesData(responsesArray);
-
+      populateResponses(responsesArray);
       const emailData: string[] = [];
       const userData: string[] = [];
       const amountData: number[] = [];
@@ -186,8 +183,8 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
             } else {
               paymentTypeData[index] = "Cash / Check";
             }
-          }
-        )
+          },
+        ),
       );
 
       setStatus(statusData);
@@ -198,7 +195,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
   const handleStatusChange = async (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => {
     const newStatus = [...status];
     newStatus[index] = statusUpdate;
@@ -232,7 +229,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
           playerName,
           paymentAmount,
           paymentDate,
-          transactionId
+          transactionId,
         );
       }
       updatedStatus = "succeeded";
@@ -243,7 +240,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
           leagueName,
           seasonName,
           playerName,
-          paymentAmount
+          paymentAmount,
         );
       }
       updatedStatus = "canceled";
@@ -253,7 +250,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
       paymentIntentIds[index],
       updatedStatus,
       adminEmail,
-      response
+      response,
     );
   };
 
@@ -392,7 +389,7 @@ const FormResponses = ({ formId }: FormResponsesProps) => {
                   ) : (
                     getStatusOfStripePayment(
                       status[index],
-                      formatDate(submittedAt[index], 3)
+                      formatDate(submittedAt[index], 3),
                     )
                   )
                 ) : (

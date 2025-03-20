@@ -3,7 +3,7 @@ const UserController = require("../controllers/user.controller");
 
 var createPayerUser = async function (formattedAnswers, groupId) {
     const user = getUserDataFromAnswers(formattedAnswers, groupId);
-    const updatedUserResponse = await UserController.createUserViaFromResponse(user);
+    const updatedUserResponse = await UserController.createUserAndSession(user);
     const updatedUser = updatedUserResponse.data;
     const paymentData = {
         payer_id: updatedUser.id,

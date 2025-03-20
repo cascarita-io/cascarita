@@ -19,7 +19,7 @@ module.exports = (checkJwt) => {
   router.get("/group/:group_id", UserController.getUsersByGroupId);
   router.delete("/:id", UserController.deleteUserById);
   router.patch("/:id", UserController.updateUserById);
-  router.post("/", UserController.addUser);
+  router.post("/", UserController.createUser);
   router.get("/settings/:id", UserController.getUserSettingsById);
   router.get("/roles/:id", UserRolesController.getUserRolesByUserId);
   router.patch("/roles/:id", UserRolesController.updateUserRole);
