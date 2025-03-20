@@ -62,6 +62,7 @@ const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {
         {errors.email && (
           <span className={styles.error}>{String(errors.email.message)}</span>
         )}
+        {requestError && <span className={styles.error}>{requestError}</span>}
       </div>
 
       <div className={`${styles.inlineInputContainer}`}>

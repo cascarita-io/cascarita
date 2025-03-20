@@ -4,7 +4,6 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  padding-bottom: 20px;
 }
 
 .dropdown {
@@ -13,7 +12,7 @@
   flex-wrap: wrap;
 }
 
-.dropdown>p {
+.dropdown > p {
   padding-left: 15px;
 }
 
@@ -152,7 +151,6 @@
     overflow-x: hidden;
     scrollbar-width: thin;
     height: 70vh;
-    padding-top: 16px;
   }
 
   .sectionWrapper {

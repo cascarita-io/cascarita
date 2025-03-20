@@ -55,124 +55,120 @@ const Players = () => {
   );
 
   return (
-    <section className={styles.wrapper}>
-      <div className={styles.sectionWrapper}>
-        <div className={styles.filterSearch}>
-          <div className={styles.dropdown}>
-            {players && players.length > 0 && (
-              <Search onSearchChange={setSearchQuery} />
-            )}
-          </div>
-
-          <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <Modal.Button asChild className={styles.modalTrigger}>
-              <PrimaryButton
-                className={styles.primaryBtn}
-                onClick={() => setIsCreateOpen(true)}
-              >
-                <p className={styles.btnTextDesktop}>{t("addButton")}</p>
-                <FaPlus className={styles.btnTextMobile} />
-              </PrimaryButton>
-            </Modal.Button>
-
-            <Modal.Content title="Create a New Player">
-              <PlayerForm
-                afterSave={() => {
-                  setIsCreateOpen(false);
-                }}
-                requestType="POST"
-                leagues={leagues}
-                seasons={seasons}
-                divisions={divisions}
-                teams={teams}
-              />
-            </Modal.Content>
-          </Modal>
+    <>
+      <div className={styles.filterSearch}>
+        <div className={styles.dropdown}>
+          {players && players.length > 0 && (
+            <Search onSearchChange={setSearchQuery} />
+          )}
         </div>
 
-        {filteredData == null || filteredData?.length === 0 ? (
-          <p className={styles.noItemsMessage}>{t("empty")}</p>
-        ) : (
-          <DashboardTable
-            headers={[
-              t("tableHeaders.name"),
-              t("tableHeaders.team"),
-              t("tableHeaders.options"),
-            ]}
-            headerColor="light"
-          >
-            {isLoading ? (
-              <tr>
-                <td>{t("loading")}</td>
-              </tr>
-            ) : (
-              players?.map((player: PlayerType, idx: number) => (
-                <tr key={idx} className={styles.tableRow}>
-                  <td className={styles.tableData}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                      }}
-                    >
-                      <Avatar
-                        src={(player && player.picture) || ""}
-                        className={styles.avatar}
-                        fallback={
-                          <div className={styles.avatarFallback}>
-                            <FaUsers />
-                          </div>
-                        }
-                        radius="full"
-                        size={"4"}
-                      />
-                      {player.first_name} {player.last_name}
-                    </div>
-                  </td>
-                  <td>
-                    {player.teams && player.teams.length > 0 ? (
-                      player.teams.map((team) => team.name).join(", ")
-                    ) : (
-                      <span>Not linked to a team</span>
-                    )}
-                  </td>
-                  <td>
-                    <DropdownMenuButton>
-                      <DropdownMenuButton.Item
-                        onClick={() => handleEdit(player)}
-                      >
-                        {t("edit")}
-                      </DropdownMenuButton.Item>
-                    </DropdownMenuButton>
-                  </td>
-                </tr>
-              ))
-            )}
-          </DashboardTable>
-        )}
+        <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <Modal.Button asChild className={styles.modalTrigger}>
+            <PrimaryButton
+              className={styles.primaryBtn}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <p className={styles.btnTextDesktop}>{t("addButton")}</p>
+              <FaPlus className={styles.btnTextMobile} />
+            </PrimaryButton>
+          </Modal.Button>
 
-        <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <Modal.Content
-            title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name} Teams`}
-          >
-            {currentPlayer && (
-              <PlayerForm
-                afterSave={() => {
-                  setIsEditOpen(false);
-                }}
-                requestType="PATCH"
-                player={currentPlayer}
-                leagues={leagues}
-                divisions={divisions}
-                seasons={seasons}
-                teams={teams}
-              />
-            )}
+          <Modal.Content title="Create a New Player">
+            <PlayerForm
+              afterSave={() => {
+                setIsCreateOpen(false);
+              }}
+              requestType="POST"
+              leagues={leagues}
+              seasons={seasons}
+              divisions={divisions}
+              teams={teams}
+            />
           </Modal.Content>
         </Modal>
       </div>
-    </section>
+
+      {filteredData == null || filteredData?.length === 0 ? (
+        <p className={styles.noItemsMessage}>{t("empty")}</p>
+      ) : (
+        <DashboardTable
+          headers={[
+            t("tableHeaders.name"),
+            t("tableHeaders.team"),
+            t("tableHeaders.options"),
+          ]}
+          headerColor="light"
+        >
+          {isLoading ? (
+            <tr>
+              <td>{t("loading")}</td>
+            </tr>
+          ) : (
+            players?.map((player: PlayerType, idx: number) => (
+              <tr key={idx} className={styles.tableRow}>
+                <td className={styles.tableData}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
+                    <Avatar
+                      src={(player && player.picture) || ""}
+                      className={styles.avatar}
+                      fallback={
+                        <div className={styles.avatarFallback}>
+                          <FaUsers />
+                        </div>
+                      }
+                      radius="full"
+                      size={"4"}
+                    />
+                    {player.first_name} {player.last_name}
+                  </div>
+                </td>
+                <td>
+                  {player.teams && player.teams.length > 0 ? (
+                    player.teams.map((team) => team.name).join(", ")
+                  ) : (
+                    <span>Not linked to a team</span>
+                  )}
+                </td>
+                <td>
+                  <DropdownMenuButton>
+                    <DropdownMenuButton.Item onClick={() => handleEdit(player)}>
+                      {t("edit")}
+                    </DropdownMenuButton.Item>
+                  </DropdownMenuButton>
+                </td>
+              </tr>
+            ))
+          )}
+        </DashboardTable>
+      )}
+
+      <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <Modal.Content
+          title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name} Teams`}
+        >
+          {currentPlayer && (
+            <PlayerForm
+              afterSave={() => {
+                setIsEditOpen(false);
+              }}
+              requestType="PATCH"
+              player={currentPlayer}
+              leagues={leagues}
+              divisions={divisions}
+              seasons={seasons}
+              teams={teams}
+            />
+          )}
+        </Modal.Content>
+      </Modal>
+    </>
   );
 };
 

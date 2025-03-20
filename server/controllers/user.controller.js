@@ -50,7 +50,7 @@ const UserController = function () {
       const isNewUser = await isEmailUnique(user.email);
       console.log("isNewUser: ", isNewUser);
       if (!isNewUser) {
-        return res.status(400).json({ error: "Email already exists" });
+        return res.status(400).json({ error: "Email already exists 😂" });
       }
 
       let linkTeam = user.link_to_team === "yes" ? true : false;
@@ -74,6 +74,7 @@ const UserController = function () {
             false,
             null,
           );
+          await assignRole(createdUser.id, "Player", null);
           return res.status(201).json(createdUser);
         } catch (error) {
           return res.status(500).json({
@@ -412,7 +413,20 @@ const UserController = function () {
   var updatePlayerTeams = async function (req, res, next) {
     try {
       const { user_id } = req.params;
-      const { session_id, team_id } = req.body;
+      const { division_id, season_id, team_id } = req.body;
+
+      const session = await Session.findOne({
+        where: {
+          division_id: division_id,
+          season_id: season_id,
+        },
+      });
+
+      if (!session) {
+        return res.status(404).json({ error: "session not found" });
+      }
+
+      const session_id = session.id;
 
       let team_ref = team_id;
       if (team_id === -1) {

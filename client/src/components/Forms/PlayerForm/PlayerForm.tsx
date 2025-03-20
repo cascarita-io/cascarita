@@ -125,6 +125,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
           toast.error(dataPost.error);
           return;
         }
+        toast.success("Player Created Successfully");
         break;
       }
       case "PATCH": {
@@ -136,6 +137,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
           toast.error(dataUpdate.error);
           return;
         }
+        toast.success("Player Updated Successfully");
         break;
       }
       default:
@@ -178,7 +180,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             <button
               className={`${styles.btn} ${styles.cancelBtn}`}
               onClick={decrementPage}
-              type="submit"
+              type="button"
             >
               Back
             </button>
