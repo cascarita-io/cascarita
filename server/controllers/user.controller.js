@@ -40,17 +40,14 @@ const getUserInfoFromAuth0 = require("../utilityFunctions/auth0");
 const SessionController = require("./session.controller");
 
 const UserController = function () {
-
   var createUser = async function (req, res, next) {
     try {
       const user = req.body;
       user.date = user.date_of_birth;
 
-      const isNewUser = await isEmailUniqueWithinGroup(user.group_id, user.email);
+      const isNewUser = await isEmailUnique(user.email);
       if (!isNewUser) {
-        return res
-          .status(400)
-          .json({ error: "Email already exists within the group" });
+        return res.status(400).json({ error: "Email already exists 😂" });
       }
 
       let linkTeam = user.link_to_team === "yes" ? true : false;
@@ -61,7 +58,20 @@ const UserController = function () {
       } else {
         // If the user is not linked to a team, create the user without a session
         try {
-          createdUser = await createNewUser(user.first_name, user.last_name, user.email, user.group_id, 1, user.photo, user.address, user.date, user.phone_number, false, null);
+          createdUser = await createNewUser(
+            user.first_name,
+            user.last_name,
+            user.email,
+            user.group_id,
+            1,
+            user.photo,
+            user.address,
+            user.date,
+            user.phone_number,
+            false,
+            null,
+          );
+          await assignRole(createdUser.id, "Player", null);
           return res.status(201).json(createdUser);
         } catch (error) {
           return res.status(500).json({
@@ -73,17 +83,18 @@ const UserController = function () {
       if (createdUser.success) {
         return res.status(createdUser.status).json(createdUser.data);
       } else {
-        return res.status(createdUser.status).json({ error: createdUser.error });
+        return res
+          .status(createdUser.status)
+          .json({ error: createdUser.error });
       }
     } catch (error) {
       next(error);
     }
   };
 
-  var isEmailUniqueWithinGroup = async function (groupId, email) {
+  var isEmailUnique = async function (email) {
     let userFound = await User.findOne({
       where: {
-        group_id: groupId,
         email: email,
       },
     });
@@ -172,7 +183,7 @@ const UserController = function () {
     let internally_created = false;
 
     try {
-      const isNewUser = await isEmailUniqueWithinGroup(group_id, email);
+      const isNewUser = await isEmailUnique(email);
 
       if (!isNewUser) {
         res.status(400);
@@ -181,7 +192,19 @@ const UserController = function () {
 
       var createdUser;
       try {
-        createdUser = await createNewUser(first_name, last_name, email, group_id, language_id, picture, null, null, null, internally_created, null);
+        createdUser = await createNewUser(
+          first_name,
+          last_name,
+          email,
+          group_id,
+          language_id,
+          picture,
+          null,
+          null,
+          null,
+          internally_created,
+          null,
+        );
       } catch (error) {
         return res.status(500).json({
           error: `failed to create user: ${error.message}`,
@@ -385,7 +408,20 @@ const UserController = function () {
   var updatePlayerTeams = async function (req, res, next) {
     try {
       const { user_id } = req.params;
-      const { session_id, team_id } = req.body;
+      const { division_id, season_id, team_id } = req.body;
+
+      const session = await Session.findOne({
+        where: {
+          division_id: division_id,
+          season_id: season_id,
+        },
+      });
+
+      if (!session && division_id !== 0 && season_id !== 0) {
+        return res.status(404).json({ error: "session not found" });
+      }
+
+      const session_id = session.id;
 
       let team_ref = team_id;
       if (team_id === -1) {
@@ -576,7 +612,19 @@ const UserController = function () {
       } else {
         const language_id = 1;
         const internally_created = true;
-        currentUser = await createNewUser(user.first_name, user.last_name, user.email, user.group_id, language_id, user.photo, user.address, user.date, user.phone_number, internally_created, transaction);
+        currentUser = await createNewUser(
+          user.first_name,
+          user.last_name,
+          user.email,
+          user.group_id,
+          language_id,
+          user.photo,
+          user.address,
+          user.date,
+          user.phone_number,
+          internally_created,
+          transaction,
+        );
       }
 
       const session = await SessionController.getOrCreateSession(
@@ -718,7 +766,19 @@ const UserController = function () {
     }
   };
 
-  var createNewUser = async function (first_name, last_name, email, group_id, language_id, picture, address, date_of_birth, phone_number, internally_created, transaction) {
+  var createNewUser = async function (
+    first_name,
+    last_name,
+    email,
+    group_id,
+    language_id,
+    picture,
+    address,
+    date_of_birth,
+    phone_number,
+    internally_created,
+    transaction,
+  ) {
     try {
       const newUser = {
         first_name,
@@ -739,14 +799,18 @@ const UserController = function () {
 
       return currentUser;
     } catch (error) {
-      if (error.name === 'SequelizeValidationError') {
-        console.error('Create User Validation Error:', error.errors);
-        throw new Error('Validation failed. Please check the data and try again.');
+      if (error.name === "SequelizeValidationError") {
+        console.error("Create User Validation Error:", error.errors);
+        throw new Error(
+          "Validation failed. Please check the data and try again.",
+        );
       }
-      console.error('Database Error:', error);
-      throw new Error('An error occurred while creating the user. Please try again later.');
+      console.error("Database Error:", error);
+      throw new Error(
+        "An error occurred while creating the user. Please try again later.",
+      );
     }
-  }
+  };
 
   return {
     registerUser,

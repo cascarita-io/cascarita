@@ -5,21 +5,39 @@ import { SeasonType } from "../../../pages/Seasons/types";
 import { TeamType } from "../../../pages/Teams/types";
 
 interface PlayerFormProps {
-  player: PlayerType;
-  leagues: LeagueType[];
-  teams: TeamType[];
-  divisions: DivisionType[];
-  seasons: SeasonType[];
+  player?: PlayerType;
+  leagues?: LeagueType[];
+  teams?: TeamType[];
+  divisions?: DivisionType[];
+  seasons?: SeasonType[];
   afterSave: () => void;
   requestType?: "POST" | "PATCH" | "DELETE";
 }
 
 interface PlayerFormData {
-  link_to_team?: boolean;
-  league_id: number;
-  season_id: number;
-  division_id: number;
-  team_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+  date_of_birth: Date | string;
+  address: string;
+  picture?: File;
+  liability: boolean;
+  link_to_team: "yes" | "no";
+  league_id?: number;
+  season_id?: number;
+  division_id?: number;
+  team_id?: number;
+}
+
+interface PlayerFormPageProps {
+  requestError?: string;
+  setRequestError?: React.Dispatch<React.SetStateAction<string>>;
+  leagues?: LeagueType[];
+  seasons?: SeasonType[];
+  divisions?: DivisionType[];
+  teams?: TeamType[];
+  playerPhoto?: string;
 }
 
 interface PlayerRequest {
@@ -28,4 +46,9 @@ interface PlayerRequest {
   session_id?: number;
 }
 
-export type { PlayerFormProps, PlayerRequest, PlayerFormData };
+export type {
+  PlayerFormProps,
+  PlayerRequest,
+  PlayerFormData,
+  PlayerFormPageProps,
+};

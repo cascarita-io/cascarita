@@ -1,12 +1,7 @@
 import React from "react";
 import { useState } from "react";
 
-import {
-  UserFormProps,
-  DeleteUserData,
-  UpdateUserData,
-  AddUserData,
-} from "./types";
+import { UserFormProps, DeleteUserData, UpdateUserData } from "./types";
 import DeleteForm from "../DeleteForm/DeleteForm";
 import styles from "../Form.module.css";
 import {
@@ -15,6 +10,7 @@ import {
   useAddUser,
 } from "../../../api/users/mutations";
 import Modal from "../../Modal/Modal";
+import { PlayerRequest } from "../PlayerForm/types";
 
 const UserForm: React.FC<UserFormProps> = ({
   afterSave,
@@ -50,7 +46,7 @@ const UserForm: React.FC<UserFormProps> = ({
 
     switch (requestType) {
       case "POST":
-        addUserMutation.mutate(data as AddUserData);
+        addUserMutation.mutate(data as PlayerRequest);
         break;
       case "PATCH":
         updateUserMutation.mutate({
@@ -161,4 +157,3 @@ const UserForm: React.FC<UserFormProps> = ({
 };
 
 export default UserForm;
-

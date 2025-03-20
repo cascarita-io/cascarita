@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DeleteUserData,
   UpdateUserData,
-  AddUserData,
   PlayerSessionRequest,
 } from "../../components/Forms/UserForm/types";
 import {
@@ -19,10 +18,10 @@ export const useAddUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: AddUserData) => addUser(data),
+    mutationFn: (data: PlayerRequest) => addUser(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users"],
+        queryKey: ["players"],
       });
     },
   });
@@ -67,11 +66,26 @@ export const useGetPlayerSession = () => {
   });
 };
 
-export const useUpdatePlayerTeams = () => {
+//TODO: UNCOMMENT ONCE API IS READY
+
+// export const useCreatePlayerTeams = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: (data: PlayerRequest) => create(data),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({
+//         queryKey: ["players"],
+//       });
+//     },
+//   });
+// };
+
+export const useUpdatePlayerTeams = (userId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: PlayerRequest) => updatePlayerTeams(data),
+    mutationFn: (data: PlayerRequest) => updatePlayerTeams(data, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["players"],
