@@ -79,7 +79,7 @@ const Players = () => {
                 <td>{t("loading")}</td>
               </tr>
             ) : (
-              players?.map((player: PlayerType, idx: number) => (
+              filteredData?.map((player: PlayerType, idx: number) => (
                 <tr key={idx} className={styles.tableRow}>
                   <td className={styles.tableData}>
                     <div
@@ -127,7 +127,7 @@ const Players = () => {
 
         <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
           <Modal.Content
-            title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name} Teams`}
+            title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name}`}
           >
             {currentPlayer && (
               <PlayerForm

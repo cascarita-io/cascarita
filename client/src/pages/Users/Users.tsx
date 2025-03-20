@@ -2,8 +2,6 @@ import { useTranslation } from "react-i18next";
 import { Avatar } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
 
-import { fetchUser } from "../../api/users/service";
-
 import Page from "../../components/Page/Page";
 import styles from "../pages.module.css";
 import pagesStyles from "../pages.module.css";
@@ -14,8 +12,6 @@ import Search from "../../components/Search/Search";
 // import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 // import Modal from "../../components/Modal/Modal";
 // import UserForm from "../../components/Forms/UserForm/UserForm";
-import { useAuth0 } from "@auth0/auth0-react";
-import Cookies from "js-cookie";
 import { FaUser } from "react-icons/fa";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
@@ -24,20 +20,6 @@ import { useGetUsersByGroupId } from "../../api/users/query";
 const Users = () => {
   const { t } = useTranslation("Users");
 
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  const { getAccessTokenSilently } = useAuth0();
-
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setCurrentUser(currentUser);
-    })();
-  }, []);
-
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   // const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -67,21 +49,6 @@ const Users = () => {
     };
   }, [searchQuery]);
 
-  useEffect(() => {
-    if (users) {
-      const filteredData = users.filter((user: User) => {
-        const fullName = `${user.first_name.toLowerCase()} ${user.last_name.toLowerCase()}`;
-        const query = debouncedQuery.toLowerCase();
-        return (
-          (fullName.includes(query) ||
-            user.email.toLowerCase().includes(query)) &&
-          user.email !== currentUser?.email
-        ); // Exclude current user
-      });
-      setFilteredUsers(filteredData);
-    }
-  }, [users, debouncedQuery]);
-
   // //TODO: UNCOMMENT ONCE WE CAN ADD USERS
   // const handleEditUser = (user: User) => {
   //   setSelectedUser(user);
@@ -92,6 +59,12 @@ const Users = () => {
   //   setSelectedUser(user);
   //   setIsDeleteOpen(true);
   // };
+
+  const filteredUsers = users?.filter((user: User) => {
+    const fullName = `${user.first_name.toLowerCase()} ${user.last_name.toLowerCase()}`;
+    const query = debouncedQuery.toLowerCase();
+    return fullName.includes(query) || user.email.toLowerCase().includes(query);
+  });
 
   return (
     <Page title={t("title")}>
@@ -134,7 +107,7 @@ const Users = () => {
               <td>Error Fetching Data</td>
             </tr>
           ) : (
-            users?.map((user: User) => (
+            filteredUsers?.map((user: User) => (
               <tr key={user.id} className={styles.tableRow}>
                 <td className={styles.tableData}>
                   <Avatar

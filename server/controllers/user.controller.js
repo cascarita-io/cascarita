@@ -408,8 +408,11 @@ const UserController = function () {
         });
       } else {
         // updating an existing player team association
+        const teamUpdate = {
+          team_id: team_ref,
+        };
         userSession.team_id = team_ref;
-        await userSession.save();
+        await userSession.update(teamUpdate);
       }
 
       return res.status(204).json();
