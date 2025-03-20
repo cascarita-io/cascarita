@@ -2,8 +2,6 @@ import { useTranslation } from "react-i18next";
 import { Avatar } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
 
-import { fetchUser } from "../../api/users/service";
-
 import Page from "../../components/Page/Page";
 import styles from "../pages.module.css";
 import pagesStyles from "../pages.module.css";
@@ -14,8 +12,6 @@ import Search from "../../components/Search/Search";
 // import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 // import Modal from "../../components/Modal/Modal";
 // import UserForm from "../../components/Forms/UserForm/UserForm";
-import { useAuth0 } from "@auth0/auth0-react";
-import Cookies from "js-cookie";
 import { FaUser } from "react-icons/fa";
 import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
@@ -23,19 +19,6 @@ import { useGetUsersByGroupId } from "../../api/users/query";
 
 const Users = () => {
   const { t } = useTranslation("Users");
-
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  const { getAccessTokenSilently } = useAuth0();
-
-  useEffect(() => {
-    (async () => {
-      const token = await getAccessTokenSilently();
-      const email = Cookies.get("email") || "";
-      const currentUser = await fetchUser(email, token);
-      setCurrentUser(currentUser);
-    })();
-  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
