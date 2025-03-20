@@ -19,4 +19,8 @@ jobs:
           aws-region: us-west-1
 
       - name: Update ECS service
-        run: aws ecs update-service --cluster ${{ secrets.AWS_ECS_CLUSTER_NAME }} --service ${{ secrets.AWS_ECS_SERVICE_NAME }} --force-new-deployment --region ${{ secrets.AWS_REGION }}
+        run: aws ecs update-service \
+          --cluster ${{ secrets.AWS_ECS_CLUSTER_NAME }} \
+          --service ${{ secrets.AWS_ECS_SERVICE_NAME }} \
+          --force-new-deployment \
+          --region ${{ secrets.AWS_REGION }}
