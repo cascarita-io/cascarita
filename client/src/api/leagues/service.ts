@@ -73,10 +73,6 @@ const deleteLeague = async (
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to delete form");
-    }
-
     const text = await response.text();
     return text ? JSON.parse(text) : {};
   } catch (error) {

@@ -106,7 +106,7 @@ const LeagueController = function () {
       });
 
       if (hasSeasons.length > 0) {
-        return res.status(200).json({
+        return res.status(409).json({
           error:
             "league cannot be deleted if it has at least one season linked to it",
         });
