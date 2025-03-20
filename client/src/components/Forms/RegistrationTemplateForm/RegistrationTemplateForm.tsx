@@ -146,7 +146,7 @@ const createRegistrationFormData = (
         description: "Make sure its your full face",
       },
       validations: {
-        required: false,
+        required: true,
       },
     },
     {

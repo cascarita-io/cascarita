@@ -33,6 +33,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
   const [requestError, setRequestError] = useState("");
   const [teamPhoto, setTeamPhoto] = useState<string | undefined>(teamLogo);
   const { groupId } = useGroup();
+  const [page, setPage] = useState(0);
 
   const {
     register,
@@ -47,6 +48,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
       season_id: seasonId || 0,
       division_id: divisionId || 0,
       file_url: undefined,
+      ack_photo: undefined,
       link_to_season: divisionId && seasonId ? true : false,
     },
     resolver: zodResolver(teamSchema),
@@ -137,128 +139,190 @@ const TeamForm: React.FC<TeamFormProps> = ({
         </DeleteForm>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-          <div style={{ display: "grid", gap: "24px" }}>
-            <div className={styles.inputContainer}>
-              <label className={styles.label} htmlFor="teamName">
-                {t("formContent.name")}
-              </label>
-              <input
-                {...register("name")}
-                className={`${styles.input} ${errors.name || requestError || name.length > 30 ? styles.invalid : ""}`}
-                placeholder={t("formContent.namePlaceholder")}
-                id="teamName"
-              />
-              {errors.name && (
-                <span className={styles.error}>{errors.name?.message}</span>
-              )}
-              {!errors.name && name.length > 30 && (
-                <span className={styles.error}>
-                  Team name cannot exceed 30 characters
-                </span>
-              )}
-              {requestError && (
-                <span className={styles.error}>{requestError}</span>
-              )}
-            </div>
-
-            <div className={styles.radioContainer}>
-              <input
-                {...register("link_to_season")}
-                type="checkbox"
-                id="isLinkToSeason"
-                onChange={() => {
-                  setValue("link_to_season", !watch("link_to_season"));
-                }}
-              />
-              <label className={styles.label} htmlFor="isLinkToSeason">
-                {t("formContent.linkToSeason")}
-              </label>
-            </div>
-
-            {isLinkSeason && (
-              <>
-                <div className={styles.inputContainer}>
-                  <label className={styles.label} htmlFor="seasonId">
-                    {t("formContent.season")}
-                  </label>
-                  <select
-                    {...register("season_id", {
-                      setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                    })}
-                    id="seasonId"
-                    className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
-                    onChange={() => {
-                      clearErrors("season_id");
-                    }}
-                  >
-                    <option value={0}>Select a season</option>
-                    {seasonsData?.map((season: SeasonType) => (
-                      <option key={season.id} value={season.id}>
-                        {season.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.season_id && (
-                    <span className={styles.error}>
-                      {errors.season_id.message}
-                    </span>
-                  )}
-                </div>
-
-                <div className={styles.inputContainer}>
-                  <label className={styles.label} htmlFor="divisionId">
-                    {t("formContent.division")}
-                  </label>
-                  <select
-                    {...register("division_id", {
-                      setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                    })}
-                    id="divisionId"
-                    className={`${styles.input} ${errors.division_id ? styles.invalid : ""}`}
-                    onChange={() => clearErrors("division_id")}
-                  >
-                    <option value={0}>Select a division</option>
-                    {divisionsData?.map((division: DivisionType) => (
-                      <option key={division.id} value={division.id}>
-                        {division.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.division_id && (
-                    <span className={styles.error}>
-                      {errors.division_id.message}
-                    </span>
-                  )}
-                </div>
-              </>
+          <div>
+            {errors.name && (
+              <span className={styles.error}>{errors.name?.message}</span>
             )}
+            {!errors.name && name.length > 30 && (
+              <span className={styles.error}>
+                Team name cannot exceed 30 characters
+              </span>
+            )}
+            {requestError && (
+              <span className={styles.error}>{requestError}</span>
+            )}
+            {errors.season_id && (
+              <span className={styles.error}>{errors.season_id.message}</span>
+            )}
+            {errors.division_id && (
+              <span className={styles.error}>{errors.division_id.message}</span>
+            )}
+          </div>
+          {page === 0 && (
+            <div style={{ display: "grid", gap: "24px" }}>
+              <div className={styles.inputContainer}>
+                <label className={styles.label} htmlFor="teamName">
+                  {t("formContent.name")}
+                </label>
+                <input
+                  {...register("name")}
+                  className={`${styles.input} ${errors.name || requestError || name.length > 30 ? styles.invalid : ""}`}
+                  placeholder={t("formContent.namePlaceholder")}
+                  id="teamName"
+                />
+                {errors.name && (
+                  <span className={styles.error}>{errors.name?.message}</span>
+                )}
+                {!errors.name && name.length > 30 && (
+                  <span className={styles.error}>
+                    Team name cannot exceed 30 characters
+                  </span>
+                )}
+                {requestError && (
+                  <span className={styles.error}>{requestError}</span>
+                )}
+              </div>
 
-            <div className={styles.inputContainer}>
-              <label className={styles.label}>{t("formContent.logo")}</label>
-              <FileUpload
-                setFileValue={(url?: File) => {
-                  setValue("file_url", url);
-                }}
-                imagePreview={teamPhoto}
-                className={styles.logoInputContainer}
-              />
+              <div className={styles.radioContainer}>
+                <input
+                  {...register("link_to_season")}
+                  type="checkbox"
+                  id="isLinkToSeason"
+                  onChange={() => {
+                    setValue("link_to_season", !watch("link_to_season"));
+                  }}
+                />
+                <label className={styles.label} htmlFor="isLinkToSeason">
+                  {t("formContent.linkToSeason")}
+                </label>
+              </div>
+
+              {isLinkSeason && (
+                <>
+                  <div className={styles.inputContainer}>
+                    <label className={styles.label} htmlFor="seasonId">
+                      {t("formContent.season")}
+                    </label>
+                    <select
+                      {...register("season_id", {
+                        setValueAs: (value) =>
+                          value === "" ? 0 : Number(value),
+                      })}
+                      id="seasonId"
+                      className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
+                      onChange={() => {
+                        clearErrors("season_id");
+                      }}
+                    >
+                      <option value={0}>Select a season</option>
+                      {seasonsData?.map((season: SeasonType) => (
+                        <option key={season.id} value={season.id}>
+                          {season.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.season_id && (
+                      <span className={styles.error}>
+                        {errors.season_id.message}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className={styles.inputContainer}>
+                    <label className={styles.label} htmlFor="divisionId">
+                      {t("formContent.division")}
+                    </label>
+                    <select
+                      {...register("division_id", {
+                        setValueAs: (value) =>
+                          value === "" ? 0 : Number(value),
+                      })}
+                      id="divisionId"
+                      className={`${styles.input} ${errors.division_id ? styles.invalid : ""}`}
+                      onChange={() => clearErrors("division_id")}
+                    >
+                      <option value={0}>Select a division</option>
+                      {divisionsData?.map((division: DivisionType) => (
+                        <option key={division.id} value={division.id}>
+                          {division.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.division_id && (
+                      <span className={styles.error}>
+                        {errors.division_id.message}
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
-          </div>
+          )}
+          {page === 1 && (
+            <div style={{ display: "grid", gap: "24px" }}>
+              <div className={styles.inputContainer}>
+                <label className={styles.label}>{t("formContent.logo")}</label>
+                <FileUpload
+                  setFileValue={(url?: File) => {
+                    setValue("file_url", url);
+                  }}
+                  imagePreview={teamPhoto}
+                  className={styles.logoInputContainer}
+                />
+              </div>
+              {fileUrl && (
+                <div className={styles.radioContainer}>
+                  <input
+                    type="checkbox"
+                    {...register("ack_photo", {
+                      required: fileUrl !== undefined,
+                    })}
+                    className={styles.input}
+                    id={"ack-photo"}
+                    required={fileUrl !== undefined}
+                  />
+                  <label className={styles.label}>
+                    I confirm that I either own the rights to, or have obtained
+                    the necessary permissions to share, any images I upload.
+                  </label>
+                </div>
+              )}
+            </div>
+          )}
 
-          <div className={styles.formBtnContainer}>
-            <button
-              type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}
-            >
-              {isSubmitting
-                ? t("formContent.submitting")
-                : t("formContent.submit")}
-            </button>
+          {page === 0 && (
+            <div className={styles.formBtnContainer}>
+              <button
+                onClick={() => setPage(1)}
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
+                {t("formContent.next")}
+              </button>
 
-            <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
-              {t("formContent.cancel")}
-            </Modal.Close>
-          </div>
+              <Modal.Close className={`${styles.btn} ${styles.cancelBtn}`}>
+                {t("formContent.cancel")}
+              </Modal.Close>
+            </div>
+          )}
+          {page === 1 && (
+            <div className={styles.formBtnContainer}>
+              <button
+                type="submit"
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
+                {isSubmitting
+                  ? t("formContent.submitting")
+                  : t("formContent.submit")}
+              </button>
+
+              <button
+                onClick={() => setPage(0)}
+                className={`${styles.btn} ${styles.cancelBtn}`}
+              >
+                {t("formContent.back")}
+              </button>
+            </div>
+          )}
         </form>
       )}
     </>

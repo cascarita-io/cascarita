@@ -237,7 +237,7 @@ const Forms = () => {
             className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
             onClick={handleTemplateClick}
           >
-            <p className={styles.btnTextDesktop}>Template</p>
+            <p className={styles.btnTextDesktop}>New Form</p>
             {/* <FaPlus className={styles.btnTextMobile} /> */}
           </PrimaryButton>
 
