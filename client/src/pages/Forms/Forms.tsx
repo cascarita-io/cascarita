@@ -87,7 +87,6 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
     e.preventDefault();
     try {
       const deleteResult = await deleteMutation.mutateAsync(formId);
-      console.log(deleteResult);
       if (deleteResult.error) {
         setResponseError(deleteResult.error);
       } else {
