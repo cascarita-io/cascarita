@@ -221,9 +221,11 @@ export const sendEmail = async (emails: string[], formLink: string) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Error emailing form: ${response.statusText}`);
+      const errorData = await response.json();
+      return { error: errorData.error || "An unexpected error occurred" };
     }
-    return response.json();
+
+    return { success: true };
   } catch (err) {
     console.error("Error emailing responses:", err);
     throw err;

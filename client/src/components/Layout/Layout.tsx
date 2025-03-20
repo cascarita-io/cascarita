@@ -7,6 +7,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { matchPath } from "../../utils/matchPath";
 import { Outlet } from "react-router-dom";
 import Header from "../Header/Header";
+import { ToastContainer } from "react-toastify";
 
 const Layout: React.FC<LayoutProps> = () => {
   const { user } = useAuth0();
@@ -14,7 +15,7 @@ const Layout: React.FC<LayoutProps> = () => {
   const [selectedItem, setSelectedItem] = useState("");
 
   const isBlacklisted = blackListRoutes.some((pattern) =>
-    matchPath(window.location.pathname, pattern, blackListExceptions),
+    matchPath(window.location.pathname, pattern, blackListExceptions)
   );
 
   return (
@@ -28,6 +29,18 @@ const Layout: React.FC<LayoutProps> = () => {
           <SideNav
             selectedItem={selectedItem}
             setSelectedItem={setSelectedItem}
+          />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={4000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
           />
         </main>
       ) : (

@@ -60,7 +60,6 @@ const Photo = ({ field, index }: FieldProps) => {
       {fieldError && (
         <span className={styles.errorMessage}>{fieldError.message}</span>
       )}
-
       <FileUpload
         imagePreview={photoUrl}
         setFileValue={(url?: File) => {
@@ -68,6 +67,18 @@ const Photo = ({ field, index }: FieldProps) => {
         }}
         className={styles.logoInputContainer}
       />
+      <div className={styles.questionContainer} style={{ maxWidth: "550px" }}>
+        <input
+          type="checkbox"
+          {...register(`answers.${index}.liability`, {
+            required: `answers.${index}.photo` !== "",
+          })}
+          className={styles.input}
+          id={`ack-photo-${index}`}
+        />
+        I confirm that I either own the rights to, or have obtained the
+        necessary permissions to share, any images I upload.
+      </div>
     </section>
   );
 };
