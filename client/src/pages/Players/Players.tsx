@@ -127,7 +127,7 @@ const Players = () => {
 
         <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
           <Modal.Content
-            title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name} Teams`}
+            title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name}`}
           >
             {currentPlayer && (
               <PlayerForm
