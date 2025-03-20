@@ -17,7 +17,9 @@
     "logo": "Team Logo",
     "submit": "Submit",
     "submitting": "Submitting...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next"
   },
   "tableHeaders": {
     "name": "Team Name",
