@@ -62,7 +62,11 @@ const DivisionController = {
 
     try {
       await modelByPk(res, Group, form.group_id);
-      const isUnique = await isDivisionNameUnique(form.group_id, form.name);
+      const isUnique = await isDivisionNameUnique(
+        form.group_id,
+        form.name,
+        false,
+      );
       if (!isUnique) {
         return res.status(400).json({ error: "Division name is not unique" });
       }
@@ -71,7 +75,7 @@ const DivisionController = {
 
       const division = await Division.create(form);
       if (form.season_id) {
-        await sessionController.createSession(division.id, form.season_id);
+        await SessionController.createSession(division.id, form.season_id);
       }
       res.status(201).json(division);
     } catch (error) {
