@@ -124,18 +124,21 @@ const SessionController = function () {
     }
   };
 
-  var getOrCreateSession = async function (userData, transaction) {
+  var getOrCreateSession = async function (sessionData, transaction) {
     let session = await Session.findOne({
       where: {
-        season_id: userData.season_id,
-        division_id: userData.division_id,
+        season_id: sessionData.season_id,
+        division_id: sessionData.division_id,
       },
       transaction,
     });
 
     if (!session) {
       session = await Session.create(
-        { season_id: userData.season_id, division_id: userData.division_id },
+        {
+          season_id: sessionData.season_id,
+          division_id: sessionData.division_id,
+        },
         { transaction },
       );
     }
