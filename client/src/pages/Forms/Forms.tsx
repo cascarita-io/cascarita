@@ -27,6 +27,12 @@ interface ShareModalProps {
   isOpen: boolean;
   onOpen: (isOpen: boolean) => void;
 }
+const MOBILE_WIDTH = 768;
+interface ShareModalProps {
+  formLink: string;
+  isOpen: boolean;
+  onOpen: (isOpen: boolean) => void;
+}
 
 const ShareModal: React.FC<ShareModalProps> = ({
   formLink,
@@ -171,7 +177,7 @@ const Forms = () => {
 
   const onOpen = async (id: string) => {
     // only enable viewing responses on desktop view
-    if (window.innerWidth >= 768) {
+    if (window.innerWidth >= MOBILE_WIDTH) {
       const form = await getMongoFormById(id);
 
       navigate("/forms/edit", {
