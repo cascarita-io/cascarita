@@ -29,7 +29,6 @@ const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {
               {String(errors.first_name.message)}
             </span>
           )}
-          {requestError && <span className={styles.error}>{requestError}</span>}
         </div>
 
         <div className={`${styles.inputContainer}`}>
@@ -47,7 +46,6 @@ const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {
               {String(errors.last_name.message)}
             </span>
           )}
-          {requestError && <span className={styles.error}>{requestError}</span>}
         </div>
       </div>
 
@@ -64,7 +62,6 @@ const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {
         {errors.email && (
           <span className={styles.error}>{String(errors.email.message)}</span>
         )}
-        {requestError && <span className={styles.error}>{requestError}</span>}
       </div>
 
       <div className={`${styles.inlineInputContainer}`}>
@@ -83,7 +80,6 @@ const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {
               {String(errors.phone_number.message)}
             </span>
           )}
-          {requestError && <span className={styles.error}>{requestError}</span>}
         </div>
 
         <div className={`${styles.inputContainer}`}>
@@ -101,7 +97,6 @@ const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {
               {String(errors.date_of_birth.message)}
             </span>
           )}
-          {requestError && <span className={styles.error}>{requestError}</span>}
         </div>
       </div>
 
@@ -118,7 +113,6 @@ const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {
         {errors.address && (
           <span className={styles.error}>{String(errors.address.message)}</span>
         )}
-        {requestError && <span className={styles.error}>{requestError}</span>}
       </div>
     </>
   );

@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import styles from "../Form.module.css";
 import { PlayerFormData, PlayerFormProps, PlayerRequest } from "./types";
-import {
-  useGetPlayerSession,
-  useUpdatePlayerTeams,
-} from "../../../api/users/mutations";
+import { useAddUser, useUpdatePlayerTeams } from "../../../api/users/mutations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { playerSchema } from "./schema";
 import PlayerFormPageOne from "./PlayerFormPageOne";
@@ -13,6 +10,7 @@ import PlayerFormPageTwo from "./PlayerFormPageTwo";
 import PlayerFormPageThree from "./PlayerFormPageThree";
 import { uploadPhotoToS3 } from "../../../api/photo/service";
 import { useGroup } from "../../GroupProvider/GroupProvider";
+import { toast } from "react-toastify";
 
 const PlayerForm: React.FC<PlayerFormProps> = ({
   afterSave,
@@ -59,14 +57,11 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   });
   const {
     handleSubmit,
-    formState: { isValid, errors },
+    formState: { isValid },
     watch,
   } = formMethods;
 
-  console.log("ERRORS", errors);
-
   const isLiabilityChecked = watch("liability");
-  const isLinkToTeam = watch("link_to_team");
   const fileUrl = watch("picture");
   useEffect(() => {
     const uploadPhoto = async () => {
@@ -82,7 +77,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     uploadPhoto();
   }, [fileUrl]);
 
-  // const createPlayerMutation = useCreatePlayerTeams();
+  const createPlayerMutation = useAddUser();
   const updatePlayerTeamsMutation = useUpdatePlayerTeams();
 
   const onSubmit: SubmitHandler<PlayerFormData> = async (
@@ -101,19 +96,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       date_of_birth,
       address,
       liability,
-      picture,
     } = data;
-
-    if (isLinkToTeam === "yes") {
-      const getSessionDataMutation = useGetPlayerSession();
-      const getPlayerSessionData = {
-        division_id: division_id,
-        season_id: season_id,
-      };
-
-      const session =
-        await getSessionDataMutation.mutateAsync(getPlayerSessionData);
-    }
 
     const payload = {
       first_name,
@@ -122,25 +105,37 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       phone_number,
       date_of_birth,
       address,
-      picture,
+      photo: playerPhoto || "",
       liability,
       team_id,
       league_id,
-      session_id: session.id,
+      division_id,
+      season_id,
+      link_to_team,
       group_id: groupId,
     };
 
-    const updatePlayerTeamsData = {
-      id: player?.id,
-      team_id: link_to_team === "yes" ? team_id : -1,
-      session_id: session.id,
-    };
-
     switch (requestType) {
-      case "PATCH": {
-        updatePlayerTeamsMutation.mutate(
-          updatePlayerTeamsData as PlayerRequest
+      case "POST": {
+        const dataPost = await createPlayerMutation.mutateAsync(
+          payload as PlayerRequest
         );
+        if (dataPost.error) {
+          setRequestError(dataPost.error);
+          toast.error(dataPost.error);
+          return;
+        }
+        break;
+      }
+      case "PATCH": {
+        const dataUpdate = await updatePlayerTeamsMutation.mutateAsync(
+          payload as PlayerRequest
+        );
+        if (dataUpdate.error) {
+          setRequestError(dataUpdate.error);
+          toast.error(dataUpdate.error);
+          return;
+        }
         break;
       }
       default:
@@ -151,10 +146,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
 
   return (
     <FormProvider {...formMethods}>
-      <form
-        className={styles.form}
-        onSubmit={handleSubmit((data) => console.log(data))}
-      >
+      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
         <div style={{ display: "grid", gap: "18px" }}>
           {currentPage === 1 && (
             <>

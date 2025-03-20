@@ -26,8 +26,8 @@ interface UpdatePlayerTeamsData {
 }
 
 interface PlayerSessionRequest {
-  division_id: number;
-  season_id: number;
+  division_id?: number;
+  season_id?: number;
 }
 
 interface UpdateUserTeamData {
@@ -38,12 +38,10 @@ interface UpdateUserTeamData {
 }
 
 interface AddUserData {
-  formData: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    role_id: string;
-  };
+  first_name: string;
+  last_name: string;
+  email: string;
+  role_id: string;
 }
 
 export type {

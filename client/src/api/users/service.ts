@@ -3,7 +3,6 @@ import {
   DeleteUserData,
   UpdateUserData,
   PlayerSessionRequest,
-  AddUserData,
 } from "../../components/Forms/UserForm/types";
 import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
 import {
@@ -103,14 +102,14 @@ const getPlayersByGroupId = async ({
   }
 };
 
-const addUser = async (data: AddUserData): Promise<UserResponse> => {
+const addUser = async (data: PlayerRequest): Promise<UserResponse> => {
   try {
     const response = await fetch(`/api/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data.formData),
+      body: JSON.stringify(data),
     });
 
     const result = await response.json();
@@ -222,7 +221,9 @@ const fetchUser = async (email: string, token: string) => {
   }
 };
 
-const updatePlayerTeams = async (data: PlayerRequest): Promise<void> => {
+const updatePlayerTeams = async (
+  data: PlayerRequest
+): Promise<UserResponse> => {
   try {
     const response = await fetch(`/api/users/${data.id}/players/teams`, {
       method: "PATCH",
@@ -235,7 +236,7 @@ const updatePlayerTeams = async (data: PlayerRequest): Promise<void> => {
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return;
+    return await response.json();
   } catch (error) {
     console.error("Error updating user:", error);
     throw error;
