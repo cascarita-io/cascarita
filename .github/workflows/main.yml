@@ -6,12 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Run the build-and-test job"
+        description: "Run the build-and-lint job"
         default: "run"
         required: true
   workflow_call:
 jobs:
-  build-and-test:
+  build-and-lint:
     runs-on: ubuntu-latest
 
     steps:
