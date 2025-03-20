@@ -34,11 +34,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
   onOpen,
 }) => (
   <Modal open={isOpen} onOpenChange={onOpen}>
-    <Modal.Button asChild className={styles.modalTrigger}>
-      <button onClick={() => onOpen(true)}>
-        <ShareButton />
-      </button>
-    </Modal.Button>
     <Modal.Content title="Share Form">
       <ShareForm afterClose={() => onOpen(false)} formLink={formLink} />
     </Modal.Content>
