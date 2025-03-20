@@ -1,4 +1,3 @@
-import { DivisionType } from "../../../pages/Division/types";
 import { SeasonType } from "../../../pages/Seasons/types";
 
 interface TeamFormProps {
@@ -10,7 +9,6 @@ interface TeamFormProps {
   seasonId?: number;
   divisionId?: number;
   teamLogo?: string;
-  divisionsData?: DivisionType[];
   seasonsData?: SeasonType[];
 }
 

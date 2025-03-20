@@ -142,32 +142,34 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
               )}
             </div>
 
-            <div className={styles.inputContainer}>
-              <label className={styles.label} htmlFor="seasonId">
-                {t("formContent.season")}
-              </label>
-              <select
-                {...register("season_id", {
-                  setValueAs: (value) => (value === "" ? 0 : Number(value)),
-                })}
-                id="seasonId"
-                className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
-                onChange={() => clearErrors("season_id")}
-              >
-                <option value={0}>Select a league</option>
-                {seasonData?.map((season: SeasonType) => (
-                  <option key={season.id} value={season.id}>
-                    {season.name} - {season.league_name}
-                  </option>
-                ))}
-              </select>
+            {requestType === "POST" && (
+              <div className={styles.inputContainer}>
+                <label className={styles.label} htmlFor="seasonId">
+                  {t("formContent.season")}
+                </label>
+                <select
+                  {...register("season_id", {
+                    setValueAs: (value) => (value === "" ? 0 : Number(value)),
+                  })}
+                  id="seasonId"
+                  className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
+                  onChange={() => clearErrors("season_id")}
+                >
+                  <option value={0}>Select a league</option>
+                  {seasonData?.map((season: SeasonType) => (
+                    <option key={season.id} value={season.id}>
+                      {season.name} - {season.league_name}
+                    </option>
+                  ))}
+                </select>
 
-              {errors.season_id && (
-                <span className={styles.error}>
-                  {errors.season_id?.message}
-                </span>
-              )}
-            </div>
+                {errors.season_id && (
+                  <span className={styles.error}>
+                    {errors.season_id?.message}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className={styles.formBtnContainer}>

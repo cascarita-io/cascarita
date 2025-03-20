@@ -116,7 +116,7 @@ const Divisions = () => {
           ]}
           headerColor="light"
         >
-          {divisions?.map((division: DivisionType, idx: number) => (
+          {filteredData?.map((division: DivisionType, idx: number) => (
             <tr key={idx} className={styles.tableRow}>
               <td className={styles.tableData}>{division.name}</td>
               <td className={styles.tableData}>{division.league_name}</td>

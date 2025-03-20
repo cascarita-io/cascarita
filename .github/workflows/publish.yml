@@ -68,10 +68,10 @@ jobs:
           ECR_CLIENT_REPOSITORY: ${{ secrets.CLIENT_REPO_NAME }}
         run: |
           docker tag cascarita-server:latest ${{ env.ECR_REGISTRY }}/${{ env.ECR_SERVER_REPOSITORY }}:latest
-          docker push $ECR_REGISTRY/$ECR_SERVER_REPOSITORY:$IMAGE_TAG
+          docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_SERVER_REPOSITORY }}:latest
 
           docker tag cascarita-client:latest ${{ env.ECR_REGISTRY }}/${{ env.ECR_CLIENT_REPOSITORY }}:latest
-          docker push $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:$IMAGE_TAG
+          docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_CLIENT_REPOSITORY }}:latest
 
       - name: list docker images
         run: docker images
