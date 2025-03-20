@@ -1,4 +1,4 @@
-name: Publish Images
+name: 🐳 Publish Docker Images to ECR
 on:
   # Trigger manually via GitHub UI button
   workflow_dispatch:
@@ -16,36 +16,37 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
       - name: Set up node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
           aws-region: us-west-1
 
-      - name: Install dependencies
-        run: npm install
+      - name: Prepare server build
+        run: |
+          cd server
+          npm install
+          npm run create-staging-env
+          cd ..
 
-      - name: create env file
-        run: npm run create-staging-env
-
-      - name: build
-        run: npm run build
-
-      - name: Get commit hash
-        id: get-commit-hash
-        run: echo "::set-output name=commit-hash::$(git rev-parse --short HEAD)"
-      - name: Get timestamp
-        id: get-timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d-%H-%M')"
+      - name: Prepare client build
+        run: |
+          cd client
+          pnpm install
+          npm run create-staging-env
+          cd ..
 
       - name: Set up QEMU (for cross-platform builds)
         uses: docker/setup-qemu-action@v3
@@ -65,14 +66,12 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_SERVER_REPOSITORY: ${{ secrets.SERVER_REPO_NAME }}
           ECR_CLIENT_REPOSITORY: ${{ secrets.CLIENT_REPO_NAME }}
-          IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
         run: |
-          docker tag cascarita-server:latest ${{ env.ECR_REGISTRY }}/${{ env.ECR_SERVER_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker tag cascarita-server:latest ${{ env.ECR_REGISTRY }}/${{ env.ECR_SERVER_REPOSITORY }}:latest
           docker push $ECR_REGISTRY/$ECR_SERVER_REPOSITORY:$IMAGE_TAG
 
-          # commenting this out until reverse-proxy solution made
-          # docker tag cascarita-client:latest ${{ env.ECR_REGISTRY }}/${{ env.ECR_CLIENT_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          # docker push $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:$IMAGE_TAG
+          docker tag cascarita-client:latest ${{ env.ECR_REGISTRY }}/${{ env.ECR_CLIENT_REPOSITORY }}:latest
+          docker push $ECR_REGISTRY/$ECR_CLIENT_REPOSITORY:$IMAGE_TAG
 
       - name: list docker images
         run: docker images

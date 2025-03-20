@@ -1,0 +1,26 @@
+name: 🚀 Deploy latest images to ECS
+on:
+  # Trigger manually via GitHub UI button
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deploy to ECS"
+        default: "run"
+        required: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Update ECS service
+        run: aws ecs update-service \
+          --cluster ${{ secrets.AWS_ECS_CLUSTER_NAME }} \
+          --service ${{ secrets.AWS_ECS_SERVICE_NAME }} \
+          --force-new-deployment \
+          --region ${{ secrets.AWS_REGION }}
