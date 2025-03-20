@@ -3,14 +3,15 @@
 const { League, Session, Season, Division, Group } = require("../models");
 const { Op } = require("sequelize");
 const modelByPk = require("./utility");
-const sessionController = require("./session.controller");
+const SessionController = require("./session.controller");
 const { Sequelize } = require("sequelize");
 
-const isDivisionNameUnique = async (groupId, name) => {
+const isDivisionNameUnique = async (group_id, name, divisionId) => {
   const division = await Division.findOne({
     where: {
-      group_id: groupId,
-      name: name,
+      group_id,
+      name,
+      ...(divisionId && { id: { [Op.ne]: divisionId } }),
     },
   });
   return !division;
@@ -88,7 +89,11 @@ const DivisionController = {
 
     try {
       const division = await modelByPk(res, Division, id);
-      const isUnique = await isDivisionNameUnique(division.group_id, name);
+      const isUnique = await isDivisionNameUnique(
+        division.group_id,
+        name,
+        division.id,
+      );
       if (!isUnique) {
         return res.status(400).json({ error: "Division name is not unique" });
       }
