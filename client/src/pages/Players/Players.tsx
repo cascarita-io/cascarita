@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../pages.module.css";
 import Search from "../../components/Search/Search";
 import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+// import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import { useTranslation } from "react-i18next";
 import { PlayerType } from "./types";
 import Modal from "../../components/Modal/Modal";
@@ -20,11 +20,11 @@ import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 const Players = () => {
   const { t } = useTranslation("Players");
   // const [sorts, setSorts] = useState("");
-  const [currentPlayer, setCurrentPlayer] = useState<PlayerType | null>(null);
+  // const [currentPlayer, setCurrentPlayer] = useState<PlayerType | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  // const [isEditOpen, setIsEditOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const { groupId } = useGroup();
@@ -35,10 +35,10 @@ const Players = () => {
   const { data: divisions } = useGetDivisionsByGroupId(groupId);
   const { data: leagues } = useGetLeaguesByGroupId(groupId);
 
-  const handleEdit = (player: PlayerType) => {
-    setCurrentPlayer(player);
-    setIsEditOpen(true);
-  };
+  // const handleEdit = (player: PlayerType) => {
+  //   setCurrentPlayer(player);
+  //   setIsEditOpen(true);
+  // };
 
   useEffect(() => {
     const handleDebounce = setTimeout(() => {
@@ -84,6 +84,7 @@ const Players = () => {
               seasons={seasons}
               divisions={divisions}
               teams={teams}
+              // player={currentPlayer || undefined}
             />
           </Modal.Content>
         </Modal>
@@ -93,11 +94,7 @@ const Players = () => {
         <p className={styles.noItemsMessage}>{t("empty")}</p>
       ) : (
         <DashboardTable
-          headers={[
-            t("tableHeaders.name"),
-            t("tableHeaders.team"),
-            t("tableHeaders.options"),
-          ]}
+          headers={[t("tableHeaders.name"), t("tableHeaders.team"), "Email"]}
           headerColor="light"
         >
           {isLoading ? (
@@ -136,12 +133,13 @@ const Players = () => {
                     <span>Not linked to a team</span>
                   )}
                 </td>
-                <td>
-                  <DropdownMenuButton>
+                <td className={styles.showInDesktop}>
+                  {player.email}
+                  {/* <DropdownMenuButton>
                     <DropdownMenuButton.Item onClick={() => handleEdit(player)}>
                       {t("edit")}
                     </DropdownMenuButton.Item>
-                  </DropdownMenuButton>
+                  </DropdownMenuButton> */}
                 </td>
               </tr>
             ))
@@ -149,9 +147,9 @@ const Players = () => {
         </DashboardTable>
       )}
 
-      <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
+      {/* <Modal open={isEditOpen} onOpenChange={setIsEditOpen}>
         <Modal.Content
-          title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name} Teams`}
+          title={`${t("edit")} ${currentPlayer?.first_name} ${currentPlayer?.last_name}`}
         >
           {currentPlayer && (
             <PlayerForm
@@ -167,7 +165,7 @@ const Players = () => {
             />
           )}
         </Modal.Content>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

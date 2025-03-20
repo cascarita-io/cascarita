@@ -43,7 +43,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       last_name: player?.last_name || "",
       email: player?.email || "",
       phone_number: player?.phone_number || "",
-      date_of_birth: "",
+      date_of_birth: player?.date_of_birth || "",
       address: player?.address || "",
       picture: undefined,
       liability: false,
@@ -78,7 +78,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   }, [fileUrl]);
 
   const createPlayerMutation = useAddUser();
-  const updatePlayerTeamsMutation = useUpdatePlayerTeams();
+  const updatePlayerTeamsMutation = useUpdatePlayerTeams(player?.id || 0);
 
   const onSubmit: SubmitHandler<PlayerFormData> = async (
     data: PlayerFormData
@@ -147,68 +147,94 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   };
 
   return (
-    <FormProvider {...formMethods}>
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <div style={{ display: "grid", gap: "18px" }}>
-          {currentPage === 1 && (
-            <>
-              <PlayerFormPageOne
-                requestError={requestError}
-                setRequestError={setRequestError}
+    <>
+      {requestType === "PATCH" ? (
+        <FormProvider {...formMethods}>
+          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+            <div style={{ display: "grid", gap: "18px" }}>
+              <PlayerFormPageTwo
+                leagues={leagues}
+                seasons={seasons}
+                divisions={divisions}
+                teams={teams}
               />
-            </>
-          )}
+            </div>
 
-          {currentPage === 2 && (
-            <PlayerFormPageTwo
-              leagues={leagues}
-              seasons={seasons}
-              divisions={divisions}
-              teams={teams}
-            />
-          )}
+            <div className={styles.formBtnContainer}>
+              <button
+                type="submit"
+                className={`${styles.btn} ${styles.submitBtn}`}
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </FormProvider>
+      ) : (
+        <FormProvider {...formMethods}>
+          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+            <div style={{ display: "grid", gap: "18px" }}>
+              {currentPage === 1 && (
+                <>
+                  <PlayerFormPageOne
+                    requestError={requestError}
+                    setRequestError={setRequestError}
+                  />
+                </>
+              )}
 
-          {currentPage === 3 && (
-            <>
-              <PlayerFormPageThree playerPhoto={playerPhoto} />
-            </>
-          )}
-        </div>
+              {currentPage === 2 && (
+                <PlayerFormPageTwo
+                  leagues={leagues}
+                  seasons={seasons}
+                  divisions={divisions}
+                  teams={teams}
+                />
+              )}
 
-        <div className={styles.formBtnContainer}>
-          {currentPage > 1 && (
-            <button
-              className={`${styles.btn} ${styles.cancelBtn}`}
-              onClick={decrementPage}
-              type="button"
-            >
-              Back
-            </button>
-          )}
+              {currentPage === 3 && (
+                <>
+                  <PlayerFormPageThree playerPhoto={playerPhoto} />
+                </>
+              )}
+            </div>
 
-          {currentPage < TOTAL_PAGES && (
-            <button
-              type="button"
-              onClick={incrementPage}
-              className={`${styles.btn} ${styles.btn}`}
-              disabled={!isValid}
-            >
-              Next
-            </button>
-          )}
+            <div className={styles.formBtnContainer}>
+              {currentPage > 1 && (
+                <button
+                  className={`${styles.btn} ${styles.cancelBtn}`}
+                  onClick={decrementPage}
+                  type="button"
+                >
+                  Back
+                </button>
+              )}
 
-          {currentPage === TOTAL_PAGES && (
-            <button
-              type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}
-              disabled={!isLiabilityChecked}
-            >
-              Submit
-            </button>
-          )}
-        </div>
-      </form>
-    </FormProvider>
+              {currentPage < TOTAL_PAGES && (
+                <button
+                  type="button"
+                  onClick={incrementPage}
+                  className={`${styles.btn} ${styles.btn}`}
+                  disabled={!isValid}
+                >
+                  Next
+                </button>
+              )}
+
+              {currentPage === TOTAL_PAGES && (
+                <button
+                  type="submit"
+                  className={`${styles.btn} ${styles.submitBtn}`}
+                  disabled={!isLiabilityChecked}
+                >
+                  Submit
+                </button>
+              )}
+            </div>
+          </form>
+        </FormProvider>
+      )}
+    </>
   );
 };
 

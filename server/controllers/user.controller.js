@@ -45,10 +45,7 @@ const UserController = function () {
       const user = req.body;
       user.date = user.date_of_birth;
 
-      console.log("User Email", user.email);
-      console.log("User Group", user.group_id);
       const isNewUser = await isEmailUnique(user.email);
-      console.log("isNewUser: ", isNewUser);
       if (!isNewUser) {
         return res.status(400).json({ error: "Email already exists 😂" });
       }
@@ -101,8 +98,6 @@ const UserController = function () {
         email: email,
       },
     });
-
-    console.log("userFound: ", userFound);
 
     return userFound == null;
   };
@@ -422,7 +417,7 @@ const UserController = function () {
         },
       });
 
-      if (!session) {
+      if (!session && division_id !== 0 && season_id !== 0) {
         return res.status(404).json({ error: "session not found" });
       }
 
@@ -597,7 +592,6 @@ const UserController = function () {
           email: user.email,
         },
       });
-      console.log(existingUser);
 
       let currentUser;
 
@@ -612,7 +606,6 @@ const UserController = function () {
           address: user.address,
           internally_created: true,
         };
-        console.log("Before Update user: ", updateData);
 
         await existingUser.update(updateData, { transaction });
         currentUser = existingUser;
@@ -639,8 +632,6 @@ const UserController = function () {
         transaction,
       );
 
-      console.log("Session: ", session);
-
       await assignUserToSession(
         currentUser.id,
         session.id,
@@ -648,11 +639,7 @@ const UserController = function () {
         transaction,
       );
 
-      console.log("After Assign User To Session");
-
       await assignRole(currentUser.id, "Player", transaction);
-
-      console.log("After Assign Role");
 
       await transaction.commit();
 

@@ -222,10 +222,11 @@ const fetchUser = async (email: string, token: string) => {
 };
 
 const updatePlayerTeams = async (
-  data: PlayerRequest
+  data: PlayerRequest,
+  user_id: number
 ): Promise<UserResponse> => {
   try {
-    const response = await fetch(`/api/users/${data.id}/players/teams`, {
+    const response = await fetch(`/api/users/${user_id}/players/teams`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

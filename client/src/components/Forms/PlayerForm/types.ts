@@ -19,7 +19,7 @@ interface PlayerFormData {
   last_name: string;
   email: string;
   phone_number: string;
-  date_of_birth: string;
+  date_of_birth: Date | string;
   address: string;
   picture?: File;
   liability: boolean;

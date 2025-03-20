@@ -81,11 +81,11 @@ export const useGetPlayerSession = () => {
 //   });
 // };
 
-export const useUpdatePlayerTeams = () => {
+export const useUpdatePlayerTeams = (userId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: PlayerRequest) => updatePlayerTeams(data),
+    mutationFn: (data: PlayerRequest) => updatePlayerTeams(data, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["players"],

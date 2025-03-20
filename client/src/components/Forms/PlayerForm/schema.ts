@@ -18,13 +18,15 @@ export const playerSchema = z
       .string()
       .min(9, "Must be greater 9 than digits")
       .max(15, "Must be less than 15 digits"),
-    date_of_birth: z
-      .string()
-      .min(1, "Date of birth is required")
-      .regex(
-        /^\d{4}-\d{2}-\d{2}$/,
-        "Invalid date format (MM-DD-YYYY expected)"
-      ),
+    date_of_birth: z.union([
+      z
+        .string()
+        .regex(
+          /^\d{4}-\d{2}-\d{2}$/,
+          "Invalid date format (YYYY-MM-DD expected)"
+        ),
+      z.date(),
+    ]),
     address: z.string().min(1, "Address is required"),
     link_to_team: z.enum(["yes", "no"]),
     league_id: z.number().optional(),
