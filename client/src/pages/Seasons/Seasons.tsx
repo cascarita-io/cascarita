@@ -66,7 +66,7 @@ const Seasons = () => {
     seasonId: number,
     seasonLeagueId: number,
     seasonStartDate: string,
-    seasonEndDate: string
+    seasonEndDate: string,
   ) => {
     setCurrentSeasonName(seasonName);
     setCurrentSeasonId(seasonId);
@@ -84,7 +84,7 @@ const Seasons = () => {
 
   const filteredSeasons = seasons
     ?.filter((season: SeasonType) =>
-      season.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+      season.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
     )
     ?.sort((a: SeasonType, b: SeasonType) => {
       if (sorts === t("sortOptions.item1")) {
@@ -181,7 +181,7 @@ const Seasons = () => {
                           season.id,
                           season.league_id,
                           season.start_date,
-                          season.end_date
+                          season.end_date,
                         )
                       }
                     >

@@ -23,6 +23,7 @@ interface PlayerFormData {
   address: string;
   picture?: File;
   liability: boolean;
+  liability_minor: boolean;
   link_to_team: "yes" | "no";
   league_id?: number;
   season_id?: number;

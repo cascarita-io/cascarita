@@ -17,10 +17,10 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px dashed grey;
   border-radius: 12px;
   padding: 20px;
 }
+
 .fileIcon {
   margin-bottom: 16px;
 }

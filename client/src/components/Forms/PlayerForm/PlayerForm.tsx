@@ -24,7 +24,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   const [requestError, setRequestError] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [playerPhoto, setPlayerPhoto] = useState<string | undefined>(
-    player?.picture || ""
+    player?.picture || "",
   );
 
   const { groupId } = useGroup();
@@ -47,6 +47,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       address: player?.address || "",
       picture: undefined,
       liability: false,
+      liability_minor: false,
       link_to_team: "no",
       league_id: player?.league_id || 0,
       season_id: player?.season_id || 0,
@@ -62,6 +63,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   } = formMethods;
 
   const isLiabilityChecked = watch("liability");
+  const isLiabilityMinorChecked = watch("liability_minor");
+
   const fileUrl = watch("picture");
   useEffect(() => {
     const uploadPhoto = async () => {
@@ -69,7 +72,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
         const uploadUrl = await uploadPhotoToS3(
           fileUrl,
           "registration_images",
-          "player_photo"
+          "player_photo",
         );
         setPlayerPhoto(uploadUrl.image_url);
       }
@@ -81,7 +84,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   const updatePlayerTeamsMutation = useUpdatePlayerTeams(player?.id || 0);
 
   const onSubmit: SubmitHandler<PlayerFormData> = async (
-    data: PlayerFormData
+    data: PlayerFormData,
   ) => {
     const {
       first_name,
@@ -118,7 +121,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     switch (requestType) {
       case "POST": {
         const dataPost = await createPlayerMutation.mutateAsync(
-          payload as PlayerRequest
+          payload as PlayerRequest,
         );
         if (dataPost.error) {
           setRequestError(dataPost.error);
@@ -130,7 +133,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       }
       case "PATCH": {
         const dataUpdate = await updatePlayerTeamsMutation.mutateAsync(
-          payload as PlayerRequest
+          payload as PlayerRequest,
         );
         if (dataUpdate.error) {
           setRequestError(dataUpdate.error);
@@ -225,7 +228,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                 <button
                   type="submit"
                   className={`${styles.btn} ${styles.submitBtn}`}
-                  disabled={!isLiabilityChecked}
+                  disabled={!isLiabilityChecked || !isLiabilityMinorChecked}
                 >
                   Submit
                 </button>

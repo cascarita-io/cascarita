@@ -36,8 +36,15 @@
 
 .questionContainer {
   display: flex;
-  gap: 5px;
-  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.questionContainer > p,
+.questionContainer > label {
+  font-size: 16px;
+  line-height: 1.4;
+  max-width: 550px;
 }
 
 .logoInputContainer {
@@ -46,14 +53,11 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  height: 200px;
-  width: 75%;
+  width: 90%;
   padding: 20px;
   background-color: #f4f7fb;
-  border-width: 2px;
-  border-radius: 2px;
-  border-color: #ddd;
-  border-style: dashed;
+  border: 2px dashed #ddd;
+  border-radius: 12px;
 }
 
 @media (max-width: 600px) {

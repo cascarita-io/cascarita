@@ -76,8 +76,10 @@ const Photo = ({ field, index }: FieldProps) => {
           className={styles.input}
           id={`ack-photo-${index}`}
         />
-        I confirm that I either own the rights to, or have obtained the
-        necessary permissions to share, any images I upload.
+        <label htmlFor={`ack-photo-${index}`} className={styles.label}>
+          I confirm that I either own the rights to, or have obtained the
+          necessary permissions to share, any images I upload.
+        </label>
       </div>
     </section>
   );
