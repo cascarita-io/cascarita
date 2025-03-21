@@ -59,3 +59,9 @@
   background-color: #fa8072d9;
   border-radius: 50px;
 }
+
+@media (max-width: 420px) {
+  .noShowInMobile {
+    display: none;
+  }
+}

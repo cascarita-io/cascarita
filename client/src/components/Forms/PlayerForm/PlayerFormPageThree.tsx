@@ -43,8 +43,9 @@ const PlayerFormPageThree: React.FC<PlayerFormPageProps> = ({
         <div className={styles.radioContainer}>
           <input {...register("liability_minor")} type="checkbox" />
           <p>
-            I confirm that the player is over 16 or has parental/guardian
-            permission to create an account.
+            I confirm that I have verified the player is either 16 years of age
+            or older, or have obtained and documented explicit permission from
+            their parent/legal guardian to create this account.
           </p>
         </div>
       </div>
