@@ -150,13 +150,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 Drag and drop a file here or{" "}
                 <span className={styles.boldLogoText}>Choose a file</span>
               </p>
-              <p className={styles.textSm}>
+              <p className={`${styles.textSm} ${styles.noShowInMobile}`}>
                 Supported upload types:{" "}
                 <span className={styles.boldLogoText}>
                   jpeg, jpg, png, heic
                 </span>
               </p>
-              <p className={styles.textSm}>
+              <p className={`${styles.textSm} ${styles.noShowInMobile}`}>
                 Ideal photo dimensions:{" "}
                 <span className={styles.boldLogoText}>400x500, 300x300</span>
               </p>

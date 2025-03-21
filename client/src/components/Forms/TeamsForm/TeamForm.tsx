@@ -73,7 +73,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
 
   const isLinkSeason = watch("link_to_season");
   const [currentSeason, setCurrentSeason] = useState(seasonId);
-  const name = watch("name");
   const createTeamMutation = useCreateTeam();
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
@@ -156,25 +155,6 @@ const TeamForm: React.FC<TeamFormProps> = ({
         </DeleteForm>
       ) : (
         <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            {errors.name && (
-              <span className={styles.error}>{errors.name?.message}</span>
-            )}
-            {!errors.name && name.length > 30 && (
-              <span className={styles.error}>
-                Team name cannot exceed 30 characters
-              </span>
-            )}
-            {requestError && (
-              <span className={styles.error}>{requestError}</span>
-            )}
-            {errors.season_id && (
-              <span className={styles.error}>{errors.season_id.message}</span>
-            )}
-            {errors.division_id && (
-              <span className={styles.error}>{errors.division_id.message}</span>
-            )}
-          </div>
           {page === 0 && (
             <div style={{ display: "grid", gap: "24px" }}>
               <div className={styles.inputContainer}>
@@ -183,17 +163,12 @@ const TeamForm: React.FC<TeamFormProps> = ({
                 </label>
                 <input
                   {...register("name")}
-                  className={`${styles.input} ${errors.name || requestError || name.length > 30 ? styles.invalid : ""}`}
+                  className={`${styles.input} ${errors.name || requestError ? styles.invalid : ""}`}
                   placeholder={t("formContent.namePlaceholder")}
                   id="teamName"
                 />
                 {errors.name && (
                   <span className={styles.error}>{errors.name?.message}</span>
-                )}
-                {!errors.name && name.length > 30 && (
-                  <span className={styles.error}>
-                    Team name cannot exceed 30 characters
-                  </span>
                 )}
                 {requestError && (
                   <span className={styles.error}>{requestError}</span>
@@ -205,11 +180,8 @@ const TeamForm: React.FC<TeamFormProps> = ({
                   {...register("link_to_season")}
                   type="checkbox"
                   id="isLinkToSeason"
-                  onChange={() => {
-                    setValue("link_to_season", !watch("link_to_season"));
-                  }}
                 />
-                <label className={styles.label} htmlFor="isLinkToSeason">
+                <label htmlFor="isLinkToSeason">
                   {t("formContent.linkToSeason")}
                 </label>
               </div>
@@ -299,7 +271,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
                     id={"ack-photo"}
                     required={fileUrl !== undefined}
                   />
-                  <label className={styles.label}>
+                  <label htmlFor="ack-photo">
                     I confirm that I either own the rights to, or have obtained
                     the necessary permissions to share, any images I upload.
                   </label>

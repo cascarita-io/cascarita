@@ -33,8 +33,20 @@ const PlayerFormPageThree: React.FC<PlayerFormPageProps> = ({
           {t("formContent.photo_liability")}
         </label>
         <div className={styles.radioContainer}>
-          <input {...register("liability")} type="checkbox" />
-          <p>I agree to the Terms of Service and Privacy Policy</p>
+          <input {...register("liability_photo")} type="checkbox" />
+          <p>
+            I confirm that I either own the rights to, or have obtained the
+            necessary permissions to share, any images I upload.
+          </p>
+        </div>
+
+        <div className={styles.radioContainer}>
+          <input {...register("liability_minor")} type="checkbox" />
+          <p>
+            I confirm that I have verified the player is either 16 years of age
+            or older, or have obtained and documented explicit permission from
+            their parent/legal guardian to create this account.
+          </p>
         </div>
       </div>
       {errors.liability && (

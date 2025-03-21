@@ -17,10 +17,10 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px dashed grey;
   border-radius: 12px;
   padding: 20px;
 }
+
 .fileIcon {
   margin-bottom: 16px;
 }
@@ -58,4 +58,10 @@
   padding: 3px;
   background-color: #fa8072d9;
   border-radius: 50px;
+}
+
+@media (max-width: 420px) {
+  .noShowInMobile {
+    display: none;
+  }
 }

@@ -47,7 +47,7 @@ const UserController = function () {
 
       const isNewUser = await isEmailUnique(user.email);
       if (!isNewUser) {
-        return res.status(400).json({ error: "Email already exists 😂" });
+        return res.status(400).json({ error: "Email already exists" });
       }
 
       let linkTeam = user.link_to_team === "yes" ? true : false;

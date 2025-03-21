@@ -34,7 +34,8 @@ export const playerSchema = z
     division_id: z.number().optional(),
     team_id: z.number().optional(),
     picture: z.instanceof(File).optional(),
-    liability: z.boolean().default(false),
+    liability_photo: z.boolean().default(false),
+    liability_minor: z.boolean().default(false),
   })
   .refine(
     (data) => {

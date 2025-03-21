@@ -65,6 +65,7 @@
   max-height: 90vh;
   min-height: 70vh;
   padding: 25px;
+  overflow-y: auto;
 }
 
 .content[data-state="open"] {
