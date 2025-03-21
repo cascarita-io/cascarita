@@ -23,7 +23,7 @@ export const playerSchema = z
         .string()
         .regex(
           /^\d{4}-\d{2}-\d{2}$/,
-          "Invalid date format (YYYY-MM-DD expected)",
+          "Invalid date format (YYYY-MM-DD expected)"
         ),
       z.date(),
     ]),
@@ -34,7 +34,7 @@ export const playerSchema = z
     division_id: z.number().optional(),
     team_id: z.number().optional(),
     picture: z.instanceof(File).optional(),
-    liability: z.boolean().default(false),
+    liability_photo: z.boolean().default(false),
     liability_minor: z.boolean().default(false),
   })
   .refine(
@@ -56,5 +56,5 @@ export const playerSchema = z
     {
       message: "All fields must be selected if linking to a team.",
       path: ["league_id"],
-    },
+    }
   );

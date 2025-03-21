@@ -33,7 +33,7 @@ const PlayerFormPageThree: React.FC<PlayerFormPageProps> = ({
           {t("formContent.photo_liability")}
         </label>
         <div className={styles.radioContainer}>
-          <input {...register("liability")} type="checkbox" />
+          <input {...register("liability_photo")} type="checkbox" />
           <p>
             I confirm that I either own the rights to, or have obtained the
             necessary permissions to share, any images I upload.

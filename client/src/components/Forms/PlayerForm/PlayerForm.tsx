@@ -24,7 +24,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   const [requestError, setRequestError] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [playerPhoto, setPlayerPhoto] = useState<string | undefined>(
-    player?.picture || "",
+    player?.picture || ""
   );
 
   const { groupId } = useGroup();
@@ -46,7 +46,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       date_of_birth: player?.date_of_birth || "",
       address: player?.address || "",
       picture: undefined,
-      liability: false,
+      liability_photo: false,
       liability_minor: false,
       link_to_team: "no",
       league_id: player?.league_id || 0,
@@ -62,7 +62,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     watch,
   } = formMethods;
 
-  const isLiabilityChecked = watch("liability");
+  const isLiabilityChecked = watch("liability_photo");
   const isLiabilityMinorChecked = watch("liability_minor");
 
   const fileUrl = watch("picture");
@@ -72,7 +72,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
         const uploadUrl = await uploadPhotoToS3(
           fileUrl,
           "registration_images",
-          "player_photo",
+          "player_photo"
         );
         setPlayerPhoto(uploadUrl.image_url);
       }
@@ -84,7 +84,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   const updatePlayerTeamsMutation = useUpdatePlayerTeams(player?.id || 0);
 
   const onSubmit: SubmitHandler<PlayerFormData> = async (
-    data: PlayerFormData,
+    data: PlayerFormData
   ) => {
     const {
       first_name,
@@ -98,7 +98,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       phone_number,
       date_of_birth,
       address,
-      liability,
+      liability_photo,
+      liability_minor,
     } = data;
 
     const payload = {
@@ -109,7 +110,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       date_of_birth,
       address,
       photo: playerPhoto || "",
-      liability,
+      liability_photo,
+      liability_minor,
       team_id,
       league_id,
       division_id,
@@ -121,7 +123,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     switch (requestType) {
       case "POST": {
         const dataPost = await createPlayerMutation.mutateAsync(
-          payload as PlayerRequest,
+          payload as PlayerRequest
         );
         if (dataPost.error) {
           setRequestError(dataPost.error);
@@ -133,7 +135,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       }
       case "PATCH": {
         const dataUpdate = await updatePlayerTeamsMutation.mutateAsync(
-          payload as PlayerRequest,
+          payload as PlayerRequest
         );
         if (dataUpdate.error) {
           setRequestError(dataUpdate.error);

@@ -22,7 +22,7 @@ interface PlayerFormData {
   date_of_birth: Date | string;
   address: string;
   picture?: File;
-  liability: boolean;
+  liability_photo: boolean;
   liability_minor: boolean;
   link_to_team: "yes" | "no";
   league_id?: number;
