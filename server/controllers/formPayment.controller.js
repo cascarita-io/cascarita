@@ -11,20 +11,19 @@ const FormPaymentController = function () {
   var getFormPaymentsByFormId = async function (form_id) {
     try {
       let formPayments = [];
-      let forms = await Form.findAll({
+      let form = await Form.findOne({
         where: {
           document_id: form_id,
         },
       });
 
-      for (let form of forms) {
-        let payments = await FormPayment.findAll({
-          where: {
-            form_id: form.id,
-          },
-        });
-        formPayments = formPayments.concat(payments);
-      }
+      let payments = await FormPayment.findAll({
+        where: {
+          form_id: form.id,
+        },
+      });
+
+      formPayments = formPayments.concat(payments);
 
       return {
         success: true,
