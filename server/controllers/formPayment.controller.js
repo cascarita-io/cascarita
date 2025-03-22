@@ -11,20 +11,19 @@ const FormPaymentController = function () {
   var getFormPaymentsByFormId = async function (form_id) {
     try {
       let formPayments = [];
-      let forms = await Form.findAll({
+      let form = await Form.findOne({
         where: {
           document_id: form_id,
         },
       });
 
-      for (let form of forms) {
-        let payments = await FormPayment.findAll({
-          where: {
-            form_id: form.id,
-          },
-        });
-        formPayments = formPayments.concat(payments);
-      }
+      let payments = await FormPayment.findAll({
+        where: {
+          form_id: form.id,
+        },
+      });
+
+      formPayments = formPayments.concat(payments);
 
       return {
         success: true,
@@ -218,12 +217,16 @@ const FormPaymentController = function () {
         return res.status(formPayments.success).json(formPayments.error);
       }
 
-      const data = formPayments.data;
+      const data = formPayments.data.map((pyt) => {
+        return pyt.dataValues;
+      });
       const completedFormPayment = data.filter(
         (payment) => payment.response_document_id,
       );
 
-      return res.status(200).json(completedFormPayment);
+      const formPaymentsUpdated = addStripeUrl(completedFormPayment);
+
+      return res.status(200).json(formPaymentsUpdated);
     } catch (error) {
       next(error);
     }
@@ -375,6 +378,21 @@ const FormPaymentController = function () {
     }
   };
 
+  var addStripeUrl = function (formPayments) {
+    try {
+      formPayments.forEach((payment) => {
+        payment.stripe_url =
+          payment.payment_method_id === 1
+            ? `https://dashboard.stripe.com/payments/${payment.payment_intent_id}`
+            : null;
+        console.log("Modified payment:", JSON.stringify(payment));
+      });
+
+      return formPayments;
+    } catch (error) {
+      return formPayments;
+    }
+  };
   return {
     getFormPaymentsByFormId,
     connectResponseToFormPayment,
