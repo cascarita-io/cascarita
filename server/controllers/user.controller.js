@@ -103,7 +103,7 @@ const UserController = function () {
   };
 
   var registerUser = async function (req, res, next) {
-    const {
+    var {
       group_id,
       first_name,
       last_name,
@@ -120,8 +120,6 @@ const UserController = function () {
     const userBasicInfo = await getUserInfoFromAuth0(req.headers.authorization);
 
     let groupId = group_id;
-    // const groups = await GroupController.getGroupByName(name);
-    // groupId = groups[0].id;
 
     if (!groupId) {
       try {
