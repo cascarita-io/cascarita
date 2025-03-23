@@ -214,16 +214,11 @@ const FormPaymentController = function () {
         return res.status(formPayments.success).json(formPayments.error);
       }
 
-      const data = formPayments.data.map((pyt) => {
-        return pyt.dataValues;
-      });
-      const completedFormPayment = data.filter(
+      const completedFormPayment = formPayments.data.filter(
         (payment) => payment.response_document_id,
       );
 
-      const formPaymentsUpdated = addStripeUrl(completedFormPayment);
-
-      return res.status(200).json(formPaymentsUpdated);
+      return res.status(200).json(completedFormPayment);
     } catch (error) {
       next(error);
     }
@@ -375,21 +370,6 @@ const FormPaymentController = function () {
     }
   };
 
-  var addStripeUrl = function (formPayments) {
-    try {
-      formPayments.forEach((payment) => {
-        payment.stripe_url =
-          payment.payment_method_id === 1
-            ? `https://dashboard.stripe.com/payments/${payment.payment_intent_id}`
-            : null;
-        // console.log("Modified payment:", JSON.stringify(payment));
-      });
-
-      return formPayments;
-    } catch (error) {
-      return formPayments;
-    }
-  };
   return {
     getFormPaymentsByFormId,
     connectResponseToFormPayment,
