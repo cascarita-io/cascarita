@@ -102,6 +102,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      stripe_url: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          const paymentIntentId = this.payment_intent_id;
+          const paymentMethod = this.payment_method_id;
+          return paymentMethod === 1
+            ? `https://dashboard.stripe.com/payments/${paymentIntentId}`
+            : null;
+        },
+      },
     },
 
     {
