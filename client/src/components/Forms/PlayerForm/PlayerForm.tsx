@@ -46,7 +46,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       date_of_birth: player?.date_of_birth || "",
       address: player?.address || "",
       picture: undefined,
-      liability: false,
+      liability_photo: false,
+      liability_minor: false,
       link_to_team: "no",
       league_id: player?.league_id || 0,
       season_id: player?.season_id || 0,
@@ -61,7 +62,9 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     watch,
   } = formMethods;
 
-  const isLiabilityChecked = watch("liability");
+  const isLiabilityChecked = watch("liability_photo");
+  const isLiabilityMinorChecked = watch("liability_minor");
+
   const fileUrl = watch("picture");
   useEffect(() => {
     const uploadPhoto = async () => {
@@ -95,7 +98,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       phone_number,
       date_of_birth,
       address,
-      liability,
+      liability_photo,
+      liability_minor,
     } = data;
 
     const payload = {
@@ -106,7 +110,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       date_of_birth,
       address,
       photo: playerPhoto || "",
-      liability,
+      liability_photo,
+      liability_minor,
       team_id,
       league_id,
       division_id,
@@ -225,7 +230,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                 <button
                   type="submit"
                   className={`${styles.btn} ${styles.submitBtn}`}
-                  disabled={!isLiabilityChecked}
+                  disabled={!isLiabilityChecked || !isLiabilityMinorChecked}
                 >
                   Submit
                 </button>
