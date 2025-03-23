@@ -93,6 +93,8 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
     []
   );
+  const [stripeUrls, setStripeUrls] = useState<(string | null)[]>([]);
+
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
     []
   );
@@ -167,6 +169,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       setPaymentIntentIds(paymentIntentIdsData);
       const statusData: ("approved" | "rejected" | "pending")[] = [];
       const paymentTypeData: string[] = [];
+      const stripeUrlsData: (string | null)[] = [];
       const formPayments = await getFormPayments(formId);
       await Promise.all(
         formPayments.map(
@@ -183,12 +186,14 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
             } else {
               paymentTypeData[index] = "Cash / Check";
             }
+
+            stripeUrlsData[index] = paymentData.stripe_url || null;
           }
         )
       );
-
       setStatus(statusData);
       setPaymentType(paymentTypeData);
+      setStripeUrls(stripeUrlsData);
     })();
   }, [formId]);
 
@@ -379,6 +384,20 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   </Modal.Button>
                   <Modal.Content maximize={true} title={user[index]}>
                     <FormResponseForm answers={response} />
+                    {stripeUrls[index] && (
+                      <PrimaryButton
+                        className={styles.stripePaymentButton}
+                        onClick={() => {
+                          if (stripeUrls[index]) {
+                            window.open(stripeUrls[index], "_blank");
+                          }
+                        }}
+                      >
+                        <p className={styles.btnTextDesktop}>
+                          View Stripe Payment
+                        </p>
+                      </PrimaryButton>
+                    )}
                   </Modal.Content>
                 </Modal>
               </td>
