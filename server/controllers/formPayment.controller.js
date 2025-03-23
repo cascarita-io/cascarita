@@ -10,7 +10,6 @@ const createPayerUser = require("../utilityFunctions/createPayerUser");
 const FormPaymentController = function () {
   var getFormPaymentsByFormId = async function (form_id) {
     try {
-      let formPayments = [];
       let form = await Form.findOne({
         where: {
           document_id: form_id,
@@ -23,11 +22,9 @@ const FormPaymentController = function () {
         },
       });
 
-      formPayments = formPayments.concat(payments);
-
       return {
         success: true,
-        data: formPayments,
+        data: payments,
         status: 201,
       };
     } catch (error) {
@@ -385,7 +382,7 @@ const FormPaymentController = function () {
           payment.payment_method_id === 1
             ? `https://dashboard.stripe.com/payments/${payment.payment_intent_id}`
             : null;
-        console.log("Modified payment:", JSON.stringify(payment));
+        // console.log("Modified payment:", JSON.stringify(payment));
       });
 
       return formPayments;
