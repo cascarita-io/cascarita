@@ -66,6 +66,7 @@ export interface FormPaymentType {
   updated_at: Date;
   user_stripe_account_id: number;
   response_document_id: string | null;
+  stripe_url: string | null;
 }
 
 export type AnswerRecordMap = Record<string, Answer>[];
