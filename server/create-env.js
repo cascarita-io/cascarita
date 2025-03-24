@@ -6,11 +6,12 @@ const { fromIni } = require("@aws-sdk/credential-provider-ini");
 const fs = require("fs");
 
 const environment = process.argv[2] || "dev";
+const aws_profile = process.argv[3] || "cascarita";
 console.log(`Creating .env file for environment: ${environment}`);
 const secretName = `${environment}/env/server`;
 const region = "us-west-1";
 const envFilePath = ".env";
-const profile = "cascarita";
+const profile = aws_profile;
 
 const client = new SecretsManagerClient({
   region,

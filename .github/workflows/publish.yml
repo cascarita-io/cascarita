@@ -38,14 +38,14 @@ jobs:
         run: |
           cd server
           npm install
-          node create-env.js staging
+          node create-env.js staging default
           cd ..
 
       - name: Prepare client build
         run: |
           cd client
           pnpm install
-          node create-env.cjs staging
+          node create-env.cjs staging default
           cd ..
 
       - name: Set up QEMU (for cross-platform builds)
