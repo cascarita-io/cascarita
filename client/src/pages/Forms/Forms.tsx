@@ -21,6 +21,7 @@ import { useDeleteForm } from "../../api/forms/mutations";
 import { useGetMongoForms } from "../../api/forms/query";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
 import { FetchedForm } from "../FormPage/types";
+import { NewFormSections } from "../NewForm/types";
 
 interface ShareModalProps {
   formLink: string;
@@ -179,7 +180,10 @@ const Forms = () => {
     setIsDeleteOpen(true);
   };
 
-  const onEdit = async (id: string) => {
+  const onEdit = async (
+    id: string,
+    editFormSection: NewFormSections = "questions",
+  ) => {
     // only enable viewing responses on desktop view
     if (window.innerWidth >= MOBILE_WIDTH) {
       const form = await getMongoFormById(id);
@@ -192,6 +196,7 @@ const Forms = () => {
             form.form_data.welcome_screens?.[0]?.properties?.description ?? "",
           link: id,
           fields: form.form_data.fields,
+          activeSection: editFormSection,
         },
       });
     }
@@ -294,6 +299,11 @@ const Forms = () => {
                   </DropdownMenuButton.Item>
                   <DropdownMenuButton.Item onClick={() => onView(form._id)}>
                     {tDropDownButton("view")}
+                  </DropdownMenuButton.Item>
+                  <DropdownMenuButton.Item
+                    onClick={() => onEdit(form._id, "responses")}
+                  >
+                    {tDropDownButton("responses")}
                   </DropdownMenuButton.Item>
                 </DropdownMenuButton>
               </td>
