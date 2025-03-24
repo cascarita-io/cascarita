@@ -33,19 +33,28 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
           aws-region: us-west-1
+          profile-name: cascarita
+          config-file-path: ~/.aws/config
+
+      - name: Configure AWS profile
+        run: |
+          aws configure --profile cascarita  set aws_access_key_id ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws configure --profile cascarita  set aws_secret_access_key ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+          aws configure --profile cascarita set region ${{ secrets.AWS_REGION }}
+          aws configure list
 
       - name: Prepare server build
         run: |
           cd server
           npm install
-          node create-env.js staging default
+          node create-env.js staging
           cd ..
 
       - name: Prepare client build
         run: |
           cd client
           pnpm install
-          node create-env.cjs staging default
+          node create-env.cjs staging
           cd ..
 
       - name: Set up QEMU (for cross-platform builds)
