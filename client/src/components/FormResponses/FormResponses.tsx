@@ -93,7 +93,9 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
     []
   );
-  const [stripeUrls, setStripeUrls] = useState<(string | null)[]>([]);
+  const [stripePaymentIntentUrls, setStripePaymentIntentUrlsData] = useState<
+    (string | null)[]
+  >([]);
 
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
     []
@@ -169,7 +171,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       setPaymentIntentIds(paymentIntentIdsData);
       const statusData: ("approved" | "rejected" | "pending")[] = [];
       const paymentTypeData: string[] = [];
-      const stripeUrlsData: (string | null)[] = [];
+      const stripePaymentIntentUrlsData: (string | null)[] = [];
       const formPayments = await getFormPayments(formId);
       await Promise.all(
         formPayments.map(
@@ -187,13 +189,14 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
               paymentTypeData[index] = "Cash / Check";
             }
 
-            stripeUrlsData[index] = paymentData.stripe_url || null;
+            stripePaymentIntentUrlsData[index] =
+              paymentData.stripe_payment_intent_url || null;
           }
         )
       );
       setStatus(statusData);
       setPaymentType(paymentTypeData);
-      setStripeUrls(stripeUrlsData);
+      setStripePaymentIntentUrlsData(stripePaymentIntentUrlsData);
     })();
   }, [formId]);
 
@@ -384,12 +387,15 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   </Modal.Button>
                   <Modal.Content maximize={true} title={user[index]}>
                     <FormResponseForm answers={response} />
-                    {stripeUrls[index] && (
+                    {stripePaymentIntentUrls[index] && (
                       <PrimaryButton
                         className={styles.stripePaymentButton}
                         onClick={() => {
-                          if (stripeUrls[index]) {
-                            window.open(stripeUrls[index], "_blank");
+                          if (stripePaymentIntentUrls[index]) {
+                            window.open(
+                              stripePaymentIntentUrls[index],
+                              "_blank"
+                            );
                           }
                         }}
                       >
