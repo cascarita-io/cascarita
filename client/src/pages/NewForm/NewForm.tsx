@@ -3,7 +3,7 @@ import Page from "../../components/Page/Page";
 import { useEffect, useRef, useState } from "react";
 import DNDCanvas from "../../components/DragAndDropComponents/DNDCanvas/DNDCanvas";
 import styles from "./NewForm.module.css";
-import { DNDCanvasRef, DroppedItem } from "./types";
+import { DNDCanvasRef, DroppedItem, NewFormSections } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -114,9 +114,11 @@ const CreateFormConfirmationModal: React.FC<
 
 const NewForm = () => {
   const { t } = useTranslation("NewForms");
-  const [activeSection, setActiveSection] = useState("questions");
   const navigate = useNavigate();
   const location = useLocation();
+  const [activeSection, setActiveSection] = useState<NewFormSections>(
+    location.state?.activeSection ?? "questions",
+  );
   const [fields, setFields] = useState<Field[]>(location.state?.fields ?? []);
   const [openModal, setOpenModal] = useState(false);
   const [formId, setFormId] = useState<string | undefined>(
