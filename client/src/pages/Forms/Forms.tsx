@@ -21,6 +21,7 @@ import { useDeleteForm } from "../../api/forms/mutations";
 import { useGetMongoForms } from "../../api/forms/query";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
 import { FetchedForm } from "../FormPage/types";
+import { NewFormSections } from "../NewForm/types";
 
 interface ShareModalProps {
   formLink: string;
@@ -82,7 +83,7 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
 
   const handleDelete = async (
     e: React.FormEvent<HTMLFormElement>,
-    formId: string
+    formId: string,
   ) => {
     e.preventDefault();
     try {
@@ -115,22 +116,27 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
 };
 
 const Forms = () => {
-  const { t } = useTranslation("Forms");
+  const { t: tForms } = useTranslation("Forms");
+  const { t: tDropDownButton } = useTranslation("DropdownMenuButton");
+
   const [sorts, setSorts] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [currentFormLink, setCurrentFormLink] = useState("");
   const navigate = useNavigate();
-  const sortStatuses = [t("sortOptions.item1"), t("sortOptions.item2")];
+  const sortStatuses = [
+    tForms("sortOptions.item1"),
+    tForms("sortOptions.item2"),
+  ];
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
   const [currentFormId, setCurrentFormId] = useState("");
   const { groupId } = useGroup();
 
   const headers = useResponsiveHeader(
-    [t("col1"), t("col2"), t("col4"), t("col5")],
-    [t("col1"), t("col5")]
+    [tForms("col1"), tForms("col2"), tForms("col4"), tForms("col5")],
+    [tForms("col1"), tForms("col5")],
   );
 
   useEffect(() => {
@@ -146,8 +152,8 @@ const Forms = () => {
   const { data: forms, refetch } = useGetMongoForms(groupId);
 
   useEffect(() => {
-    setSorts(t("sortOptions.item1"));
-  }, [t]);
+    setSorts(tForms("sortOptions.item1"));
+  }, [tForms]);
 
   useEffect(() => {
     if (!isDeleteOpen) {
@@ -174,7 +180,10 @@ const Forms = () => {
     setIsDeleteOpen(true);
   };
 
-  const onOpen = async (id: string) => {
+  const onEdit = async (
+    id: string,
+    editFormSection: NewFormSections = "questions",
+  ) => {
     // only enable viewing responses on desktop view
     if (window.innerWidth >= MOBILE_WIDTH) {
       const form = await getMongoFormById(id);
@@ -187,6 +196,7 @@ const Forms = () => {
             form.form_data.welcome_screens?.[0]?.properties?.description ?? "",
           link: id,
           fields: form.form_data.fields,
+          activeSection: editFormSection,
         },
       });
     }
@@ -198,12 +208,12 @@ const Forms = () => {
 
   const filteredData = forms
     ?.filter((form: Form) =>
-      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase())
+      form.form_data.title.toLowerCase().includes(debouncedQuery.toLowerCase()),
     )
     ?.sort((a: Form, b: Form) => {
-      if (sorts === t("sortOptions.item1")) {
+      if (sorts === tForms("sortOptions.item1")) {
         return a.form_data.title.localeCompare(b.form_data.title);
-      } else if (sorts === t("sortOptions.item2")) {
+      } else if (sorts === tForms("sortOptions.item2")) {
         return (
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
@@ -212,14 +222,14 @@ const Forms = () => {
     });
 
   return (
-    <Page title={t("title")}>
+    <Page title={tForms("title")}>
       <div className={styles.filterSearch}>
         <div className={styles.dropdown}>
           <Search onSearchChange={setSearchQuery} />
           <div className={styles.filterContainer}>
-            <p className={styles.filterSubTitle}>{t("sort")}</p>
+            <p className={styles.filterSubTitle}>{tForms("sort")}</p>
             <SelectMenu
-              placeholder={t("sortOptions.item1")}
+              placeholder={tForms("sortOptions.item1")}
               name="sorts"
               value={sorts}
               onValueChange={(value) => setSorts(value)}
@@ -263,7 +273,7 @@ const Forms = () => {
               <td className={styles.tableData}>
                 <p>
                   <button
-                    onClick={() => onOpen(form._id)}
+                    onClick={() => onEdit(form._id)}
                     style={{ cursor: "pointer" }}
                   >
                     {form.form_data.title}
@@ -279,18 +289,30 @@ const Forms = () => {
               </td>
 
               <td className={`${styles.tableData} ${styles.showInDesktop}`}>
-                <DropdownMenuButton
-                  onDelete={() => onDelete(form._id)}
-                  onEdit={() => onOpen(form._id)}
-                  onView={() => onView(form._id)}
-                />
+                <DropdownMenuButton>
+                  <DropdownMenuButton.Item onClick={() => onEdit(form._id)}>
+                    {tDropDownButton("edit")}
+                  </DropdownMenuButton.Item>
+                  <DropdownMenuButton.Separator className={styles.separator} />
+                  <DropdownMenuButton.Item onClick={() => onDelete(form._id)}>
+                    {tDropDownButton("delete")}
+                  </DropdownMenuButton.Item>
+                  <DropdownMenuButton.Item onClick={() => onView(form._id)}>
+                    {tDropDownButton("view")}
+                  </DropdownMenuButton.Item>
+                  <DropdownMenuButton.Item
+                    onClick={() => onEdit(form._id, "responses")}
+                  >
+                    {tDropDownButton("responses")}
+                  </DropdownMenuButton.Item>
+                </DropdownMenuButton>
               </td>
 
               <td className={styles.tableData}>
                 <button
                   onClick={() =>
                     handleShareClick(
-                      `${window.location.origin}/forms/${form._id}`
+                      `${window.location.origin}/forms/${form._id}`,
                     )
                   }
                 >
