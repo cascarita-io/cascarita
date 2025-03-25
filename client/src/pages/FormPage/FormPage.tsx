@@ -48,10 +48,13 @@ const FormPage = () => {
   } = useGetFormByDocumentId(formId === undefined ? "" : formId);
 
   const total = form?.form_data.fields.length ?? 0;
-  const [used, setUsed] = useState(1);
+
+  const localResponse = formId ? getLocalResponse(formId) : null;
+  const parsedResponse = localResponse ? JSON.parse(localResponse) : null;
+  const [used, setUsed] = useState<number>(parsedResponse?.used ?? 1);
 
   const methods = useForm<FormSchemaType>({
-    defaultValues: { answers: {} },
+    defaultValues: { answers: parsedResponse?.answers ?? {} },
     mode: "onChange",
   });
 
@@ -61,19 +64,6 @@ const FormPage = () => {
   const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
     undefined,
   );
-
-  useEffect(() => {
-    if (form == null) {
-      return;
-    }
-    const localResponse = getLocalResponse(form._id);
-    if (localResponse == null) {
-      return;
-    }
-    const parsedResponse = JSON.parse(localResponse);
-    methods.reset({ answers: parsedResponse.answers });
-    setUsed(+parsedResponse.used);
-  }, [form]);
 
   useEffect(() => {
     if (form == null) {
@@ -109,7 +99,6 @@ const FormPage = () => {
   if (error) return <div>An error occurred: {error.message}</div>; // Show error state
 
   const onSubmit = async (data: { answers: Record<string, Answer> }) => {
-    console.log("did it make it to onSubmit");
     const normalizedAnswers: Answer[] =
       form?.form_data.fields.map((field: Field, index: number) => {
         const answerType =
