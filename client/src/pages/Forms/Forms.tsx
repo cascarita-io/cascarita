@@ -203,7 +203,7 @@ const Forms = () => {
   };
 
   const onView = async (id: string) => {
-    navigate(`/forms/${id}`);
+    window.open(`/forms/${id}`, "_blank");
   };
 
   const filteredData = forms

@@ -16,6 +16,19 @@ import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
 import { FormSchemaType } from "./schema";
 import { useGetFormByDocumentId } from "../../api/forms/query";
 
+const saveCurrentFormResponses = (
+  formId: string,
+  answers: Record<string, Answer>,
+  used: number,
+) => {
+  if (formId == null || answers == null) return;
+  localStorage.setItem(`form-${formId}`, JSON.stringify({ answers, used }));
+};
+
+const getLocalResponse = (formId: string) => {
+  return localStorage.getItem(`form-${formId}`);
+};
+
 const FormPage = () => {
   const { formId } = useParams();
   const navigate = useNavigate();
@@ -43,17 +56,33 @@ const FormPage = () => {
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
-    undefined
+    undefined,
   );
   const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
-    if (form) {
-      setCurrentField(form.form_data.fields[used - 1]);
-      setCurrentAnswer(methods.watch(`answers.${used - 1}`));
+    if (form == null) {
+      return;
     }
+    const localResponse = getLocalResponse(form._id);
+    if (localResponse == null) {
+      return;
+    }
+    const parsedResponse = JSON.parse(localResponse);
+    methods.reset({ answers: parsedResponse.answers });
+    setUsed(+parsedResponse.used);
+  }, [form]);
+
+  useEffect(() => {
+    if (form == null) {
+      return;
+    }
+
+    setCurrentField(form.form_data.fields[used - 1]);
+    setCurrentAnswer(methods.watch(`answers.${used - 1}`));
+    saveCurrentFormResponses(form._id, methods.getValues("answers"), used);
   }, [form, used]);
 
   useEffect(() => {
@@ -80,6 +109,7 @@ const FormPage = () => {
   if (error) return <div>An error occurred: {error.message}</div>; // Show error state
 
   const onSubmit = async (data: { answers: Record<string, Answer> }) => {
+    console.log("did it make it to onSubmit");
     const normalizedAnswers: Answer[] =
       form?.form_data.fields.map((field: Field, index: number) => {
         const answerType =
@@ -127,7 +157,7 @@ const FormPage = () => {
           });
           const responsesData = await createMongoResponse(
             formId ?? "",
-            updatedNormalizedAnswers
+            updatedNormalizedAnswers,
           );
           // TODO: Redirect to a thank you page!
           navigate("/thanks");
@@ -153,7 +183,7 @@ const FormPage = () => {
         });
         const responsesData = await createMongoResponse(
           formId ?? "",
-          updatedNormalizedAnswers
+          updatedNormalizedAnswers,
         );
         // TODO: Redirect to a thank you page!
         navigate("/thanks");
@@ -163,13 +193,15 @@ const FormPage = () => {
       // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers
+        normalizedAnswers,
       );
       navigate("/thanks");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);
       throw error;
+    } finally {
+      localStorage.removeItem(`form-${formId}`);
     }
   };
 
