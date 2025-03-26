@@ -18,10 +18,14 @@ import { fetchUser } from "../../api/users/service";
 import BlueCheckMarkIcon from "../../assets/Icons/BlueCheckMarkIcon";
 import { Text } from "@radix-ui/themes";
 import Modal from "../../components/Modal/Modal";
-import { useGetFormByDocumentId } from "../../api/forms/query";
+import {
+  useGetFormByDocumentId,
+  useGetResponsesById,
+} from "../../api/forms/query";
 import { AnswerRecordMap } from "../../components/FormResponses/types";
 import { exportToCsv } from "../../components/FormResponses/helpers";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { Tooltip } from "@mui/material";
 
 interface CreateFormConfirmationModalProps {
   openModal: boolean;
@@ -36,7 +40,6 @@ const formatFormResponses = (formResponses: AnswerRecordMap) => {
   for (const response of formResponses) {
     const formattedResponse: Record<string, string> = {};
     for (const key of Object.keys(response)) {
-      console.log(key);
       const answer = response[key];
       switch (key) {
         case "age":
@@ -168,6 +171,7 @@ const NewForm = () => {
     "Payment",
   ];
   const { data: formData } = useGetFormByDocumentId(formId ?? "");
+  const { data: responsesData } = useGetResponsesById(formId ?? "");
 
   const handleDrop = (label: FieldType) => {
     if (formData.form_type === 1) {
@@ -240,6 +244,8 @@ const NewForm = () => {
     await exportToCsv(`${title}_responses`, formatFormResponses(formResponses));
   };
 
+  const isSavingDisabled = responsesData != null && responsesData.length > 0;
+
   return (
     <Page
       title={formId == null ? t("pageTitleNew") : t("pageTitleEdit")}
@@ -255,13 +261,23 @@ const NewForm = () => {
             {t("backButton")}
           </button>
           {activeSection === "questions" && (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className={styles.submitButton}
+            <Tooltip
+              title="Saving is disabled when a form has been submitted"
+              disableHoverListener={!isSavingDisabled}
             >
-              {formId == null ? t("createButton") : t("saveButton")}
-            </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className={
+                  !isSavingDisabled
+                    ? styles.submitButton
+                    : styles.disabledButton
+                }
+                disabled={isSavingDisabled}
+              >
+                {formId == null ? t("createButton") : t("saveButton")}
+              </button>
+            </Tooltip>
           )}
           {activeSection === "responses" && formResponses.length > 0 && (
             <button
