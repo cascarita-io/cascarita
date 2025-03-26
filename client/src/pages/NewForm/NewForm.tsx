@@ -262,7 +262,7 @@ const NewForm = () => {
           </button>
           {activeSection === "questions" && (
             <Tooltip
-              title="Saving is disabled when a form has been submitted"
+              title="Saving is disabled once a response has been submitted"
               disableHoverListener={!isSavingDisabled}
             >
               <button
