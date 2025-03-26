@@ -10,25 +10,21 @@ const createPayerUser = require("../utilityFunctions/createPayerUser");
 const FormPaymentController = function () {
   var getFormPaymentsByFormId = async function (form_id) {
     try {
-      let formPayments = [];
-      let forms = await Form.findAll({
+      let form = await Form.findOne({
         where: {
           document_id: form_id,
         },
       });
 
-      for (let form of forms) {
-        let payments = await FormPayment.findAll({
-          where: {
-            form_id: form.id,
-          },
-        });
-        formPayments = formPayments.concat(payments);
-      }
+      let payments = await FormPayment.findAll({
+        where: {
+          form_id: form.id,
+        },
+      });
 
       return {
         success: true,
-        data: formPayments,
+        data: payments,
         status: 201,
       };
     } catch (error) {
@@ -218,8 +214,7 @@ const FormPaymentController = function () {
         return res.status(formPayments.success).json(formPayments.error);
       }
 
-      const data = formPayments.data;
-      const completedFormPayment = data.filter(
+      const completedFormPayment = formPayments.data.filter(
         (payment) => payment.response_document_id,
       );
 

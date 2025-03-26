@@ -93,6 +93,10 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
     []
   );
+  const [stripePaymentIntentUrls, setStripePaymentIntentUrlsData] = useState<
+    (string | null)[]
+  >([]);
+
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
     []
   );
@@ -167,6 +171,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       setPaymentIntentIds(paymentIntentIdsData);
       const statusData: ("approved" | "rejected" | "pending")[] = [];
       const paymentTypeData: string[] = [];
+      const stripePaymentIntentUrlsData: (string | null)[] = [];
       const formPayments = await getFormPayments(formId);
       await Promise.all(
         formPayments.map(
@@ -183,12 +188,15 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
             } else {
               paymentTypeData[index] = "Cash / Check";
             }
+
+            stripePaymentIntentUrlsData[index] =
+              paymentData.stripe_payment_intent_url || null;
           }
         )
       );
-
       setStatus(statusData);
       setPaymentType(paymentTypeData);
+      setStripePaymentIntentUrlsData(stripePaymentIntentUrlsData);
     })();
   }, [formId]);
 
@@ -379,6 +387,23 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   </Modal.Button>
                   <Modal.Content maximize={true} title={user[index]}>
                     <FormResponseForm answers={response} />
+                    {stripePaymentIntentUrls[index] && (
+                      <PrimaryButton
+                        className={styles.stripePaymentButton}
+                        onClick={() => {
+                          if (stripePaymentIntentUrls[index]) {
+                            window.open(
+                              stripePaymentIntentUrls[index],
+                              "_blank"
+                            );
+                          }
+                        }}
+                      >
+                        <p className={styles.btnTextDesktop}>
+                          View Stripe Payment
+                        </p>
+                      </PrimaryButton>
+                    )}
                   </Modal.Content>
                 </Modal>
               </td>
