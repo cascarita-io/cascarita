@@ -19,10 +19,9 @@ import { useGetFormByDocumentId } from "../../api/forms/query";
 const saveCurrentFormResponses = (
   formId: string,
   answers: Record<string, Answer>,
-  used: number,
 ) => {
   if (formId == null || answers == null) return;
-  localStorage.setItem(`form-${formId}`, JSON.stringify({ answers, used }));
+  localStorage.setItem(`form-${formId}`, JSON.stringify(answers));
 };
 
 const getLocalResponse = (formId: string) => {
@@ -51,10 +50,12 @@ const FormPage = () => {
 
   const localResponse = formId ? getLocalResponse(formId) : null;
   const parsedResponse = localResponse ? JSON.parse(localResponse) : null;
-  const [used, setUsed] = useState<number>(parsedResponse?.used ?? 1);
+  const [used, setUsed] = useState<number>(1);
 
+  // TODO: Need to handle error validations for default values. This
+  // is safe for now since, values in localStorage are already validated
   const methods = useForm<FormSchemaType>({
-    defaultValues: { answers: parsedResponse?.answers ?? {} },
+    defaultValues: { answers: parsedResponse ?? {} },
     mode: "onChange",
   });
 
@@ -72,7 +73,7 @@ const FormPage = () => {
 
     setCurrentField(form.form_data.fields[used - 1]);
     setCurrentAnswer(methods.watch(`answers.${used - 1}`));
-    saveCurrentFormResponses(form._id, methods.getValues("answers"), used);
+    saveCurrentFormResponses(form._id, methods.getValues("answers"));
   }, [form, used]);
 
   useEffect(() => {
