@@ -1,5 +1,6 @@
 {
-  "option1": "Editar",
-  "option2": "Borrar",
-  "option3": "Ver"
+  "edit": "Editar",
+  "delete": "Borrar",
+  "view": "Ver",
+  "responses": "Respuestas"
 }

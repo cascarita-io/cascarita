@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
 import styles from "./PlayerBlock.module.css";
 import { useTranslation } from "react-i18next";
 import { ShortTeam } from "../../../api/forms/types";
+import { useGetTeamsBySeasonDivisionId } from "../../../api/teams/query";
+import { TeamType } from "../../../pages/Teams/types";
 
 const PlayerBlock = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
   const {
     register,
     setValue,
+    watch,
     formState: { errors },
   } = useFormContext();
 
+  const seasonId = watch(`answers.${index}.player.season_id`);
+  const divisionId = watch(`answers.${index}.player.division_id`);
   const { required } = field.validations ?? {};
   const [isOther, setIsOther] = useState(false);
+  const { data: teams, refetch } = useGetTeamsBySeasonDivisionId(seasonId, divisionId);
+
+  useEffect(() => {
+    refetch();
+  }, [seasonId, divisionId, refetch]);
+
 
   const fieldError = (
     errors.answers as
@@ -107,10 +118,10 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
           })}
         >
           <option value="">{t("dropdown.placeholder")}</option>
-          {field.properties?.player_block_choices?.teams.map(
-            (team: ShortTeam) => (
-              <option key={team.team_id} value={team.team_id}>
-                {team.team_name}
+            {teams?.map(
+            (team: TeamType) => (
+              <option key={team.id} value={team.id}>
+                {team.name}
               </option>
             )
           )}
