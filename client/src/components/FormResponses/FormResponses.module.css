@@ -70,3 +70,17 @@
   flex-direction: column;
   gap: 6px;
 }
+
+.stripePaymentButton {
+  background-color: #635bff;
+  color: white;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  margin: 1.5rem 0;
+  transition: background-color 0.2s ease;
+}
+
+.stripePaymentButton:hover {
+  background-color: #5851db;
+}
