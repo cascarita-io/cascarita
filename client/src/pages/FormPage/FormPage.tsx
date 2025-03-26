@@ -16,7 +16,7 @@ import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
 import { FormSchemaType } from "./schema";
 import { useGetFormByDocumentId } from "../../api/forms/query";
 
-const saveCurrentFormResponses = (
+const saveCurrentFormResponse = (
   formId: string,
   answers: Record<string, Answer>,
 ) => {
@@ -73,7 +73,7 @@ const FormPage = () => {
 
     setCurrentField(form.form_data.fields[used - 1]);
     setCurrentAnswer(methods.watch(`answers.${used - 1}`));
-    saveCurrentFormResponses(form._id, methods.getValues("answers"));
+    saveCurrentFormResponse(form._id, methods.getValues("answers"));
   }, [form, used]);
 
   useEffect(() => {
