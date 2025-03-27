@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from "react";
-import styles from "../Form.module.css";
-import { TeamRequest, TeamFormProps, TeamFormData } from "./types";
-import FileUpload from "../../FileUpload/FileUpload";
-import Modal from "../../Modal/Modal";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { useGetDivisionsBySeasonId } from "../../../api/divisions/query";
+import { uploadPhotoToS3 } from "../../../api/photo/service";
 import {
   useCreateTeam,
   useDeleteTeam,
   useUpdateTeam,
 } from "../../../api/teams/mutations";
-import DeleteForm from "../DeleteForm/DeleteForm";
-import { useTranslation } from "react-i18next";
 import { DivisionType } from "../../../pages/Division/types";
 import { SeasonType } from "../../../pages/Seasons/types";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { uploadPhotoToS3 } from "../../../api/photo/service";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { teamSchema } from "./schema";
+import FileUpload from "../../FileUpload/FileUpload";
 import { useGroup } from "../../GroupProvider/GroupProvider";
-import { toast } from "react-toastify";
-import { useGetDivisionsBySeasonId } from "../../../api/divisions/query";
+import Modal from "../../Modal/Modal";
+import DeleteForm from "../DeleteForm/DeleteForm";
+import styles from "../Form.module.css";
+import { teamSchema } from "./schema";
+import { TeamFormData, TeamFormProps, TeamRequest } from "./types";
 
 const TeamForm: React.FC<TeamFormProps> = ({
   afterSave,
@@ -63,7 +65,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
         const uploadUrl = await uploadPhotoToS3(
           fileUrl,
           "registration_images",
-          "player_photo"
+          "player_photo",
         );
         setTeamPhoto(uploadUrl.image_url);
       }
@@ -78,7 +80,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
   const deleteTeamMutation = useDeleteTeam();
 
   const { data: divisions, refetch } = useGetDivisionsBySeasonId(
-    currentSeason as number
+    currentSeason as number,
   );
 
   useEffect(() => {
@@ -100,7 +102,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
     switch (requestType) {
       case "POST": {
         const dataPost = await createTeamMutation.mutateAsync(
-          payload as TeamRequest
+          payload as TeamRequest,
         );
         if (dataPost.error) {
           setRequestError(dataPost.error);
@@ -149,8 +151,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={onDelete}
-          className={styles.form}
-        >
+          className={styles.form}>
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -202,8 +203,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
                       onChange={(e) => {
                         clearErrors("season_id");
                         setCurrentSeason(Number(e.target.value));
-                      }}
-                    >
+                      }}>
                       <option value={0}>Select a season</option>
                       {seasonsData?.map((season: SeasonType) => (
                         <option key={season.id} value={season.id}>
@@ -229,8 +229,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
                       })}
                       id="divisionId"
                       className={`${styles.input} ${errors.division_id ? styles.invalid : ""}`}
-                      onChange={() => clearErrors("division_id")}
-                    >
+                      onChange={() => clearErrors("division_id")}>
                       <option value={0}>Select a division</option>
                       {divisions?.map((division: DivisionType) => (
                         <option key={division.id} value={division.id}>
@@ -284,8 +283,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
             <div className={styles.formBtnContainer}>
               <button
                 onClick={() => setPage(1)}
-                className={`${styles.btn} ${styles.submitBtn}`}
-              >
+                className={`${styles.btn} ${styles.submitBtn}`}>
                 {t("formContent.next")}
               </button>
 
@@ -298,8 +296,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
             <div className={styles.formBtnContainer}>
               <button
                 type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}
-              >
+                className={`${styles.btn} ${styles.submitBtn}`}>
                 {isSubmitting
                   ? t("formContent.submitting")
                   : t("formContent.submit")}
@@ -307,8 +304,7 @@ const TeamForm: React.FC<TeamFormProps> = ({
 
               <button
                 onClick={() => setPage(0)}
-                className={`${styles.btn} ${styles.cancelBtn}`}
-              >
+                className={`${styles.btn} ${styles.cancelBtn}`}>
                 {t("formContent.back")}
               </button>
             </div>

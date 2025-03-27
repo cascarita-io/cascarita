@@ -149,8 +149,7 @@ const Terms = () => {
                 bound by Stripe&apos;s Terms of Service (
                 <a
                   href="https://stripe.com/legal/connect-account"
-                  className={styles.link}
-                >
+                  className={styles.link}>
                   https://stripe.com/legal/connect-account
                 </a>
                 ) and Privacy Policy (

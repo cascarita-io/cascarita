@@ -1,7 +1,10 @@
+import { forwardRef, useImperativeHandle, useState } from "react";
+
 import { PaymentElement } from "@stripe/react-stripe-js";
-import { useState, forwardRef, useImperativeHandle } from "react";
-import { useStripe, useElements } from "@stripe/react-stripe-js";
+import { useElements, useStripe } from "@stripe/react-stripe-js";
+
 import styles from "./CheckoutForm.module.css";
+
 export interface PaymentResult {
   success: boolean;
   paymentIntentId?: string;

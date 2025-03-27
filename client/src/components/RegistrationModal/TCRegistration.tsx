@@ -1,6 +1,7 @@
 import React from "react";
-import styles from "./RegistrationModal.module.css";
 import { Link } from "react-router-dom";
+
+import styles from "./RegistrationModal.module.css";
 
 interface TCRegistrationProps {
   value: boolean;

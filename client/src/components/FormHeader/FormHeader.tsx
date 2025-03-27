@@ -1,7 +1,8 @@
+import { Text } from "@radix-ui/themes";
+
 import { HomePageLogoIcon } from "../../assets/Icons";
 import ProgressBar from "../ProgressBar/ProgressBar";
 import styles from "./FormHeader.module.css";
-import { Text } from "@radix-ui/themes";
 
 interface FormHeaderProps {
   used: number;

@@ -1,18 +1,20 @@
 import React from "react";
-import styles from "../Form.module.css";
-import Modal from "../../Modal/Modal";
-import { SeasonFormData, SeasonFormProps, SeasonRequest } from "./types";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   useCreateSeason,
   useDeleteSeason,
   useUpdateSeason,
 } from "../../../api/seasons/mutations";
+import Modal from "../../Modal/Modal";
 import DeleteForm from "../DeleteForm/DeleteForm";
-import { useTranslation } from "react-i18next";
-import { useForm, SubmitHandler } from "react-hook-form";
+import styles from "../Form.module.css";
 import { seasonSchema } from "./schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "react-toastify";
+import { SeasonFormData, SeasonFormProps, SeasonRequest } from "./types";
 
 const SeasonForm: React.FC<SeasonFormProps> = ({
   afterSave,
@@ -53,7 +55,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
   const deleteSeasonMutation = useDeleteSeason();
 
   const onSubmit: SubmitHandler<SeasonFormData> = async (
-    data: SeasonFormData
+    data: SeasonFormData,
   ) => {
     const { name, start_date, end_date, league_id } = data;
 
@@ -68,7 +70,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
     switch (requestType) {
       case "POST": {
         const dataPost = await createSeasonMutation.mutateAsync(
-          payload as SeasonRequest
+          payload as SeasonRequest,
         );
         if (dataPost.error) {
           setError(dataPost.error);
@@ -116,8 +118,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={onDelete}
-          className={styles.form}
-        >
+          className={styles.form}>
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -151,8 +152,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
                 })}
                 id="leagueId"
                 className={`${styles.input} ${errors.league_id ? styles.invalid : ""}`}
-                onChange={() => clearErrors("league_id")}
-              >
+                onChange={() => clearErrors("league_id")}>
                 <option value={0}>Select a league</option>
                 {leagueData?.map((league) => (
                   <option key={league.id} value={league.id}>
@@ -199,8 +199,7 @@ const SeasonForm: React.FC<SeasonFormProps> = ({
           <div className={styles.formBtnContainer}>
             <button
               type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}
-            >
+              className={`${styles.btn} ${styles.submitBtn}`}>
               {t("formContent.submit")}
             </button>
 

@@ -1,6 +1,7 @@
-import { UIMatch, useMatches } from "react-router-dom";
-import styles from "./BreadCrumb.module.css";
 import React, { useMemo } from "react";
+import { UIMatch, useMatches } from "react-router-dom";
+
+import styles from "./BreadCrumb.module.css";
 
 type HandleType = {
   crumb: React.ReactNode;

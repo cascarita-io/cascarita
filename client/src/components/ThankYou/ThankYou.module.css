@@ -15,7 +15,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background-color: #3B49DF;
+  background-color: #3b49df;
   margin-bottom: 16px;
 }
 
@@ -37,7 +37,7 @@
 
 .button {
   padding: 10px 20px;
-  border: 1px solid #3B49DF;
+  border: 1px solid #3b49df;
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
@@ -45,11 +45,11 @@
 }
 
 .primaryButton {
-  background-color: #3B49DF;
+  background-color: #3b49df;
   color: #fff;
 }
 
 .secondaryButton {
   background-color: #fff;
-  color: #3B49DF;
+  color: #3b49df;
 }

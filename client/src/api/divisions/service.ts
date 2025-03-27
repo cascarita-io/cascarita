@@ -1,4 +1,5 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
+
 import {
   DivisionRequest,
   DivisionResponse,
@@ -46,7 +47,7 @@ const getDivisionsBySeasonId = async ({
 };
 
 const createDivision = async (
-  data: DivisionRequest
+  data: DivisionRequest,
 ): Promise<DivisionResponse> => {
   try {
     const response = await fetch("/api/divisions", {
@@ -64,7 +65,7 @@ const createDivision = async (
 };
 
 const updateDivision = async (
-  data: DivisionRequest
+  data: DivisionRequest,
 ): Promise<DivisionResponse> => {
   try {
     const response = await fetch(`/api/divisions/${data.id}`, {

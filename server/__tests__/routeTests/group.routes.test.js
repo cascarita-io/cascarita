@@ -51,9 +51,8 @@ describe("Integration Tests for Group", () => {
 
   describe("GET/ Group routes", () => {
     it("successful GET of group information", async () => {
-      const coolGroup = await TestDataGenerator.createDummyGroup(
-        "Sample Group",
-      );
+      const coolGroup =
+        await TestDataGenerator.createDummyGroup("Sample Group");
 
       const response = await request(app).get(`/groups/${coolGroup.id}`);
 

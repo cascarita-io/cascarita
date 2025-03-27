@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd";
-import styles from "./DraggablePhoto.module.css";
-import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
-import Switch from "react-switch";
+import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import Switch from "react-switch";
+
+import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
 import { DraggableProps } from "../types";
+import styles from "./DraggablePhoto.module.css";
 
 const DraggablePhoto: React.FC<DraggableProps> = ({
   index,
@@ -44,8 +45,7 @@ const DraggablePhoto: React.FC<DraggableProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          onClick={handleClick}
-        >
+          onClick={handleClick}>
           <div style={{ position: "relative" }} ref={containerRef}>
             <p className={styles.textElementTypeText}>{"Photo"}</p>
             <div className={styles.draggableContainer}>

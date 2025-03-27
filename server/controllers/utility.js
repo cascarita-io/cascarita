@@ -15,6 +15,6 @@ const modelByPk = async (res, model, id) => {
   }
 
   return instance;
-}
+};
 
 module.exports = modelByPk;

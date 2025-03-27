@@ -17,7 +17,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       const groups = await queryInterface.sequelize.query(
@@ -26,7 +26,7 @@ module.exports = {
           replacements: ["The FA (Football Federation)"],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const groupId = groups[0].id;
@@ -41,7 +41,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
       const divisions = await queryInterface.sequelize.query(
         "SELECT id FROM `Divisions` WHERE group_id = ?",
@@ -49,7 +49,7 @@ module.exports = {
           replacements: [groupId],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const divisionId = divisions[0].id;
@@ -67,7 +67,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       const seasons = await queryInterface.sequelize.query(
@@ -76,7 +76,7 @@ module.exports = {
           replacements: [groupId],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const seasonId = seasons[0].id;
@@ -91,7 +91,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       const leagues = await queryInterface.sequelize.query(
@@ -100,7 +100,7 @@ module.exports = {
           replacements: [groupId],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const leagueId = leagues[0].id;
@@ -116,7 +116,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       await queryInterface.bulkInsert(
@@ -128,7 +128,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       const roles = await queryInterface.sequelize.query(
@@ -137,7 +137,7 @@ module.exports = {
           replacements: ["Staff"],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const roleId = roles[0].id;
@@ -156,7 +156,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       await queryInterface.bulkInsert(
@@ -172,7 +172,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       await queryInterface.bulkInsert(
@@ -184,7 +184,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction: t }
+        { transaction: t },
       );
 
       const imageURL = "fake.url.com";
@@ -195,7 +195,7 @@ module.exports = {
           replacements: ["Saul"],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const userId = users[0].id;
@@ -206,7 +206,7 @@ module.exports = {
           replacements: ["Completed"],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const statusId = statuses[0].id;
@@ -217,7 +217,7 @@ module.exports = {
           replacements: ["Wembly"],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const fieldsId = fields[0].id;
@@ -228,7 +228,7 @@ module.exports = {
           replacements: ["Completed"],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const gameStatusesID = gameStatuses[0].id;
@@ -239,7 +239,7 @@ module.exports = {
           replacements: [divisionId],
           type: Sequelize.QueryTypes.SELECT,
           transaction: t,
-        }
+        },
       );
 
       const sessionsId = sessions[0].id;
@@ -249,7 +249,7 @@ module.exports = {
         "..",
         "mockData",
         "england",
-        "premier-league-team-2015-file.json"
+        "premier-league-team-2015-file.json",
       );
 
       const gamesFilePath = path.join(
@@ -257,7 +257,7 @@ module.exports = {
         "..",
         "mockData",
         "england",
-        "premier-league-game-2015-file.json"
+        "premier-league-game-2015-file.json",
       );
 
       let teamsString = fs.readFileSync(teamsFilePath, "utf-8");

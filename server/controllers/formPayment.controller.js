@@ -51,9 +51,8 @@ const FormPaymentController = function () {
     try {
       const paymentIntentId = paymentEntry.paymentIntentId;
 
-      let paymentResult = await findFormPaymentByPaymentIntentId(
-        paymentIntentId,
-      );
+      let paymentResult =
+        await findFormPaymentByPaymentIntentId(paymentIntentId);
 
       if (!paymentResult.success) {
         return {

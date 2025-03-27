@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable("RolePermissions", {
       id: {
         type: Sequelize.BIGINT,
@@ -26,7 +26,9 @@ module.exports = {
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+        defaultValue: Sequelize.literal(
+          "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+        ),
       },
     });
 
@@ -62,10 +64,19 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeConstraint("RolePermissions", "fk_rolepermissions_role_id");
-    await queryInterface.removeConstraint("RolePermissions", "fk_rolepermissions_permission_id");
-    await queryInterface.removeConstraint("RolePermissions", "unique_role_permission");
+    await queryInterface.removeConstraint(
+      "RolePermissions",
+      "fk_rolepermissions_role_id",
+    );
+    await queryInterface.removeConstraint(
+      "RolePermissions",
+      "fk_rolepermissions_permission_id",
+    );
+    await queryInterface.removeConstraint(
+      "RolePermissions",
+      "unique_role_permission",
+    );
 
     await queryInterface.dropTable("RolePermissions");
-  }
+  },
 };

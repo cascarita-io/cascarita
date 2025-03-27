@@ -7,8 +7,7 @@ export default function BlueCheckMarkIcon(props: SVGProps<SVGSVGElement>) {
       height="100"
       viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
+      {...props}>
       {/* Purple Circle */}
       <circle cx="50" cy="50" r="50" fill="#3B49DF" />
       {/* White Check */}

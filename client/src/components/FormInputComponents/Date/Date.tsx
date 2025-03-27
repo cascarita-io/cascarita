@@ -1,7 +1,8 @@
-import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./Date.module.css";
 import { useTranslation } from "react-i18next";
+
+import { FieldProps } from "../types";
+import styles from "./Date.module.css";
 
 const Date = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");

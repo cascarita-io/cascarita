@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd";
-import styles from "./DraggableMultipleChoice.module.css";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import Switch from "react-switch";
+
 import { PlusCircleIcon } from "../../../assets/Icons";
 import { MinusCircleIcon } from "../../../assets/Icons";
 import { EllipseIcon } from "../../../assets/Icons";
 import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
-import Switch from "react-switch";
-import { useTranslation } from "react-i18next";
 import { DraggableProps } from "../types";
+import styles from "./DraggableMultipleChoice.module.css";
 
 const DraggableMultipleChoice: React.FC<DraggableProps> = ({
   index,

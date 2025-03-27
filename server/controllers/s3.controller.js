@@ -3,9 +3,13 @@ const multer = require("multer");
 const multerS3 = require("multer-s3");
 const crypto = require("crypto");
 const sharp = require("sharp");
-const { S3Client, PutObjectCommand, ListObjectsV2Command } = require("@aws-sdk/client-s3");
+const {
+  S3Client,
+  PutObjectCommand,
+  ListObjectsV2Command,
+} = require("@aws-sdk/client-s3");
 const heicConvert = require("heic-convert");
-const exifReader = require('exif-reader');
+const exifReader = require("exif-reader");
 const dotenv = require("dotenv");
 
 require("dotenv").config();
@@ -20,7 +24,8 @@ const s3 = new S3Client({
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString("hex");
+const randomImageName = (bytes = 32) =>
+  crypto.randomBytes(bytes).toString("hex");
 
 const uploadImage = async (req, res) => {
   if (!req.file) {
@@ -41,7 +46,9 @@ const uploadImage = async (req, res) => {
   }
 
   if (req.file.mimetype !== "image/jpeg" && req.file.mimetype !== "image/png") {
-    return res.status(400).json({ error: "Invalid file type. Only JPEG and PNG files are allowed." });
+    return res.status(400).json({
+      error: "Invalid file type. Only JPEG and PNG files are allowed.",
+    });
   }
 
   // Get folder name from req.body
@@ -69,7 +76,7 @@ const uploadImage = async (req, res) => {
 
   req.file.buffer = resizedBuffer;
 
-  const fileKey = `${folderName}/${uploadName}-${randomHex}`;;
+  const fileKey = `${folderName}/${uploadName}-${randomHex}`;
   try {
     const uploadParams = {
       Bucket: process.env.AWS_S3_BUCKET,
@@ -84,7 +91,9 @@ const uploadImage = async (req, res) => {
     res.json({ image_url: imageUrl });
   } catch (error) {
     console.error("Error uploading to S3:", error);
-    res.status(500).json({ error: "Failed to upload image", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Failed to upload image", details: error.message });
   }
 };
 
@@ -104,7 +113,9 @@ const testS3Connection = async (req, res) => {
     });
   } catch (error) {
     console.error("Error connecting to S3:", error);
-    res.status(500).json({ error: "Failed to connect to S3", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Failed to connect to S3", details: error.message });
   }
 };
 

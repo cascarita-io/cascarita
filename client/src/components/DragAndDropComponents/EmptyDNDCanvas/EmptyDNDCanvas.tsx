@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 import { DropIcon } from "../../../assets/Icons";
 import styles from "./EmptyDNDCanvas.module.css";
-import { useTranslation } from "react-i18next";
+
 const EmptyDNDCanvas = () => {
   const { t } = useTranslation("EmptyDNDCanvas");
   return (

@@ -1,6 +1,7 @@
+import { Button } from "@radix-ui/themes";
+
 import styles from "./NavItem.module.css";
 import { NavButtonProps } from "./types";
-import { Button } from "@radix-ui/themes";
 
 const NavItem: React.FC<NavButtonProps> = ({
   icon,
@@ -21,8 +22,7 @@ const NavItem: React.FC<NavButtonProps> = ({
         variant="soft"
         className={
           selected ? `${styles["button-selected"]} ${className}` : className
-        }
-      >
+        }>
         <span className={selected ? styles["icon-selected"] : undefined}>
           {icon}
         </span>

@@ -1,14 +1,15 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
-import {
-  DeleteUserData,
-  UpdateUserData,
-  PlayerSessionRequest,
-} from "../../components/Forms/UserForm/types";
+
 import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
 import {
-  UserResponse,
+  DeleteUserData,
+  PlayerSessionRequest,
+  UpdateUserData,
+} from "../../components/Forms/UserForm/types";
+import {
   LanguageCodeToLanguageId,
   RegisterUser,
+  UserResponse,
   UserSettingsResponse,
 } from "./types";
 import { User } from "./types";
@@ -17,7 +18,7 @@ type UserSettingsQueryKey = [string, number | undefined];
 
 const updateUsersLanguages = async (
   user_id: number,
-  language: string
+  language: string,
 ): Promise<UserResponse> => {
   const language_id = LanguageCodeToLanguageId[language as "en" | "esp"];
 
@@ -178,7 +179,7 @@ const getUser = async ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     // Check if the response is OK (status in the range 200-299)
@@ -205,7 +206,7 @@ const fetchUser = async (email: string, token: string) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     // Check if the response is OK (status in the range 200-299)
@@ -223,7 +224,7 @@ const fetchUser = async (email: string, token: string) => {
 
 const updatePlayerTeams = async (
   data: PlayerRequest,
-  user_id: number
+  user_id: number,
 ): Promise<UserResponse> => {
   try {
     const response = await fetch(`/api/users/${user_id}/players/teams`, {

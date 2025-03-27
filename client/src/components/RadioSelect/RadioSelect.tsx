@@ -1,6 +1,8 @@
 import React from "react";
-import styles from "./RadioSelect.module.css";
+
 import * as RadioGroup from "@radix-ui/react-radio-group";
+
+import styles from "./RadioSelect.module.css";
 
 interface RadioSelectProps {
   children: React.ReactNode;
@@ -44,8 +46,7 @@ const RadioSelect: React.FC<RadioSelectProps> & {
       onValueChange={onValueChange}
       required={required}
       disabled={disabled}
-      className={radioSelectClassName}
-    >
+      className={radioSelectClassName}>
       {children}
     </RadioGroup.Root>
   );
@@ -63,8 +64,7 @@ const RadioItem: React.FC<RadioSelectItemProp> = ({
       id={id}
       required={required}
       disabled={disabled}
-      className={styles.radioGroupItem}
-    >
+      className={styles.radioGroupItem}>
       <RadioGroup.Indicator className={styles.radioGroupIndicator} />
     </RadioGroup.Item>
   );

@@ -1,8 +1,9 @@
-import styles from "./Plan.module.css";
+import { useTranslation } from "react-i18next";
+
 import DashboardTable from "../../../components/DashboardTable/DashboardTable";
 import ProgressBar from "../../../components/ProgressBar/ProgressBar";
 import { useFormatDate } from "../../../hooks/useFormatDate";
-import { useTranslation } from "react-i18next";
+import styles from "./Plan.module.css";
 
 const Plan = () => {
   const { t } = useTranslation("Settings");

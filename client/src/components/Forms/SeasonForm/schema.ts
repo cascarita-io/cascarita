@@ -17,7 +17,7 @@ export const seasonSchema = z
         },
         {
           message: "Please select a League",
-        }
+        },
       ),
 
     start_date: z
@@ -25,14 +25,14 @@ export const seasonSchema = z
       .min(1, { message: "Please enter a start date" })
       .regex(
         /^\d{4}-\d{2}-\d{2}$/,
-        "Invalid date format (MM-DD-YYYY expected)"
+        "Invalid date format (MM-DD-YYYY expected)",
       ),
     end_date: z
       .string()
       .min(1, { message: "Please enter an end date" })
       .regex(
         /^\d{4}-\d{2}-\d{2}$/,
-        "Invalid date format (MM-DD-YYYY expected)"
+        "Invalid date format (MM-DD-YYYY expected)",
       ),
   })
   .refine(
@@ -49,5 +49,5 @@ export const seasonSchema = z
     {
       message: "Start date cannot be after end date",
       path: ["start_date"],
-    }
+    },
   );

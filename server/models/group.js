@@ -182,7 +182,7 @@ module.exports = (sequelize, DataTypes) => {
             msg: "group code cannot be empty",
           },
         },
-      }
+      },
     },
     {
       sequelize,

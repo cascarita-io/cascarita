@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.addColumn('Groups', 'group_code', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.addColumn("Groups", "group_code", {
       type: Sequelize.STRING(10),
       allowNull: true, // temporary to allow migration
-      unique: true
+      unique: true,
     });
 
     await queryInterface.sequelize.query(`
@@ -20,10 +20,9 @@ module.exports = {
       allowNull: false, // Now set to NOT NULL
       unique: true,
     });
-
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.removeColumn('Groups', 'group_code');
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeColumn("Groups", "group_code");
+  },
 };

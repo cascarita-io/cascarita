@@ -1,20 +1,20 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Sessions', {
+    await queryInterface.createTable("Sessions", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       division_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: "Divisions",
-          key: "id"
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -24,7 +24,7 @@ module.exports = {
         allowNull: false,
         references: {
           model: "Seasons",
-          key: "id"
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -34,22 +34,22 @@ module.exports = {
         allowNull: false,
         references: {
           model: "Leagues",
-          key: "id"
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Sessions');
-  }
+    await queryInterface.dropTable("Sessions");
+  },
 };

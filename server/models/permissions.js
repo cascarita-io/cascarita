@@ -1,10 +1,10 @@
-'use strict';
-const { Model } = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Permission extends Model {
-      static associate(models) {
-        Permission.belongsToMany(models.Role, {
+    static associate(models) {
+      Permission.belongsToMany(models.Role, {
         through: "RolePermissions",
         foreignKey: "permission_id",
         otherKey: "role_id",
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-          },
+      },
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -42,11 +42,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'Permission',
-      tableName: 'Permissions',
+      modelName: "Permission",
+      tableName: "Permissions",
       timestamps: true,
       underscored: true,
-    }
+    },
   );
 
   return Permission;

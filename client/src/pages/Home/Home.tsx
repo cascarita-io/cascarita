@@ -1,13 +1,15 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import { useState, useEffect } from "react";
-import RegisterModal from "../../components/RegistrationModal/RegistrationModal";
-import { fetchUser } from "../../api/users/service";
+
+import { useAuth0 } from "@auth0/auth0-react";
 import Cookies from "js-cookie";
+
+import { useGetGroupById } from "../../api/groups/query";
+import { fetchUser } from "../../api/users/service";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
 import Navbar from "../../components/NavBar/NavBar";
 import Page from "../../components/Page/Page";
-import { useGroup } from "../../components/GroupProvider/GroupProvider";
-import { useGetGroupById } from "../../api/groups/query";
+import RegisterModal from "../../components/RegistrationModal/RegistrationModal";
 
 const Home = () => {
   const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
@@ -76,8 +78,7 @@ const Home = () => {
             <RegisterModal
               open={isRegisterModalOpen}
               onOpenChange={setIsRegisterModalOpen}
-              onRegistrationComplete={handleRegistrationComplete}
-            >
+              onRegistrationComplete={handleRegistrationComplete}>
               <></>
             </RegisterModal>
           )}

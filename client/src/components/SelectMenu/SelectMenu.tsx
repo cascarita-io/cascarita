@@ -1,12 +1,13 @@
 import React from "react";
-import styles from "./SelectMenu.module.css";
 
-import * as Select from "@radix-ui/react-select";
 import {
   CheckIcon,
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
+import * as Select from "@radix-ui/react-select";
+
+import styles from "./SelectMenu.module.css";
 
 interface SelectMenuProps {
   defaultValue?: string;

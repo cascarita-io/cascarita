@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd";
-import styles from "./DraggablePhoneNumber.module.css";
-import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
-import Switch from "react-switch";
+import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import Switch from "react-switch";
+
+import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
 import { DraggableProps } from "../types";
+import styles from "./DraggablePhoneNumber.module.css";
 
 const DraggablePhoneNumber: React.FC<DraggableProps> = ({
   index,
@@ -31,8 +32,7 @@ const DraggablePhoneNumber: React.FC<DraggableProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          onClick={handleClick}
-        >
+          onClick={handleClick}>
           <div style={{ position: "relative" }}>
             <p className={styles.textElementTypeText}>{t("phoneNumber")}</p>
             <div className={styles.draggableContainer}>

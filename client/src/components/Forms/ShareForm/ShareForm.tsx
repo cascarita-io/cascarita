@@ -1,8 +1,9 @@
 import React, { useRef, useState } from "react";
+import { toast } from "react-toastify";
+
+import { sendEmail } from "../../../api/forms/service";
 import styles from "../Form.module.css";
 import { ShareFormProps } from "./types";
-import { sendEmail } from "../../../api/forms/service";
-import { toast } from "react-toastify";
 
 const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
   const textBoxRef = useRef<HTMLInputElement>(null);
@@ -37,8 +38,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
           <p ref={textBoxRef}>{formLink}</p>
           <button
             className={`${styles.btn} ${styles.copyBtn}`}
-            onClick={handleCopy}
-          >
+            onClick={handleCopy}>
             copy
           </button>
         </div>
@@ -63,8 +63,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
                 .filter((e) => e);
               const formLink = textBoxRef.current?.innerText || "";
               handleEmail(emails, formLink).finally();
-            }}
-          >
+            }}>
             send
           </button>
         </div>
@@ -73,8 +72,7 @@ const ShareForm: React.FC<ShareFormProps> = ({ afterClose, formLink }) => {
       <div className={styles.formBtnContainer}>
         <button
           className={`${styles.btn} ${styles.cancelBtn}`}
-          onClick={afterClose}
-        >
+          onClick={afterClose}>
           Close
         </button>
       </div>

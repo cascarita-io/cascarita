@@ -23,7 +23,7 @@ async function createEnvFile() {
       new GetSecretValueCommand({
         SecretId: secretName,
         VersionStage: "AWSCURRENT",
-      })
+      }),
     );
 
     const secretString = response.SecretString;
@@ -41,7 +41,7 @@ async function createEnvFile() {
     fs.writeFileSync(envFilePath, envFileContent);
 
     console.log(
-      `.env file created at ${envFilePath} with secrets from AWS Secrets Manager.`
+      `.env file created at ${envFilePath} with secrets from AWS Secrets Manager.`,
     );
   } catch (error) {
     console.error("Error fetching secret:", error);

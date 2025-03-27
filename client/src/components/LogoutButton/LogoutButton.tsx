@@ -1,8 +1,9 @@
-import { Button } from "@radix-ui/themes";
-import { LogoutButtonProps } from "./types";
-import styles from "./LogoutButton.module.css";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@radix-ui/themes";
 import Cookies from "js-cookie";
+
+import styles from "./LogoutButton.module.css";
+import { LogoutButtonProps } from "./types";
 
 const LogoutButton: React.FC<LogoutButtonProps> = ({
   icon,
@@ -18,8 +19,7 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
         Cookies.remove("email");
       }}
       variant="soft"
-      className={btnStyles}
-    >
+      className={btnStyles}>
       <span>{icon}</span>
       <span>{label}</span>
     </Button>

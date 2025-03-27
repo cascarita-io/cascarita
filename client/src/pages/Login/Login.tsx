@@ -1,6 +1,7 @@
-import styles from "./Login.module.css";
-import { LoginPageLogoIcon } from "../../assets/Icons";
 import { useAuth0 } from "@auth0/auth0-react";
+
+import { LoginPageLogoIcon } from "../../assets/Icons";
+import styles from "./Login.module.css";
 
 const Login = () => {
   const { loginWithRedirect } = useAuth0();
@@ -27,8 +28,7 @@ const Login = () => {
             className={styles.btn}
             onClick={() => {
               loginWithRedirect();
-            }}
-          >
+            }}>
             Sign in
           </button>
           <p>
@@ -37,8 +37,7 @@ const Login = () => {
               className={styles.signUpBtn}
               onClick={() => {
                 loginWithRedirect();
-              }}
-            >
+              }}>
               Sign Up
             </button>
           </p>

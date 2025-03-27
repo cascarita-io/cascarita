@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from "react";
-import styles from "./StripeAccountForm.module.css";
-import { StripeLogoIcon } from "../../../assets/Icons";
-import { StripeAccountFormProps } from "./types";
-import DeleteForm from "../../../components/Forms/DeleteForm/DeleteForm";
-import PrimaryButton from "../../../components/PrimaryButton/PrimaryButton";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { connectStripe } from "../../../api/stripe/service";
+
 import { useAuth0 } from "@auth0/auth0-react";
-import { User } from "../../../api/users/types";
 import Cookies from "js-cookie";
+
+import { connectStripe } from "../../../api/stripe/service";
 import { fetchUser } from "../../../api/users/service";
+import { User } from "../../../api/users/types";
+import { StripeLogoIcon } from "../../../assets/Icons";
+import DeleteForm from "../../../components/Forms/DeleteForm/DeleteForm";
 import Modal from "../../../components/Modal/Modal";
+import PrimaryButton from "../../../components/PrimaryButton/PrimaryButton";
+import styles from "./StripeAccountForm.module.css";
+import { StripeAccountFormProps } from "./types";
 
 const StripeAccountForm: React.FC<StripeAccountFormProps> = ({
   afterSave,
@@ -61,8 +63,7 @@ const StripeAccountForm: React.FC<StripeAccountFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("payment.formContent.delete")}
           onSubmit={handleSubmit}
-          className={styles.form}
-        >
+          className={styles.form}>
           <p>{t("payment.formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -101,8 +102,7 @@ const StripeAccountForm: React.FC<StripeAccountFormProps> = ({
           <div className={styles.stripeBtnContainer}>
             <PrimaryButton
               className={styles.stripeBtn}
-              onClick={handleStripeConnect}
-            >
+              onClick={handleStripeConnect}>
               {t("payment.formContent.connectStripe")}
               <StripeLogoIcon
                 className={styles.stripeLogo}

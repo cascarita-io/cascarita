@@ -13,7 +13,7 @@
   outline: none;
 }
 
-.options>div:focus {
+.options > div:focus {
   background-color: #f4f7fb;
   outline: none;
   border-radius: 5px;

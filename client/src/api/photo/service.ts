@@ -3,7 +3,7 @@ import { UploadPhotoResponse } from "../../components/FormInputComponents/Photo/
 const uploadPhotoToS3 = async (
   file: File,
   folder_name: string,
-  image_type: string
+  image_type: string,
 ): Promise<UploadPhotoResponse> => {
   try {
     const formData = new FormData();

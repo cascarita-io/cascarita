@@ -1,7 +1,8 @@
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { createPaymentIntent } from "./service";
-import { Field } from "../forms/types";
 import { PaymentIntent } from "@stripe/stripe-js";
+import { UseMutationResult, useMutation } from "@tanstack/react-query";
+
+import { Field } from "../forms/types";
+import { createPaymentIntent } from "./service";
 
 const normalizePriceToCents = (price: string | number | undefined): number => {
   if (price === undefined) {
@@ -19,7 +20,7 @@ const normalizePriceToCents = (price: string | number | undefined): number => {
 
 export const useCreatePaymentIntent = (
   field: Field,
-  sqlFormId: string
+  sqlFormId: string,
 ): UseMutationResult<PaymentIntent, Error, void, unknown> => {
   return useMutation({
     mutationFn: async () => {
@@ -43,7 +44,7 @@ export const useCreatePaymentIntent = (
         sqlFormId,
         priceValue,
         feeValue,
-        isCustomerPayingFee
+        isCustomerPayingFee,
       );
 
       if (!paymentIntent) {

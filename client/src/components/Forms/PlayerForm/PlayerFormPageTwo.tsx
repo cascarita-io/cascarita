@@ -1,7 +1,8 @@
 import React from "react";
-import styles from "../Form.module.css";
-import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+
+import styles from "../Form.module.css";
 import { PlayerFormPageProps } from "./types";
 
 const PlayerFormPageTwo: React.FC<PlayerFormPageProps> = ({
@@ -40,8 +41,7 @@ const PlayerFormPageTwo: React.FC<PlayerFormPageProps> = ({
             />
             <label
               className={styles.label}
-              htmlFor={`isLinkToSeason-${option.value}`}
-            >
+              htmlFor={`isLinkToSeason-${option.value}`}>
               {option.label}
             </label>
           </div>
@@ -59,8 +59,7 @@ const PlayerFormPageTwo: React.FC<PlayerFormPageProps> = ({
                 setValueAs: (value) => (value === "" ? 0 : Number(value)),
               })}
               className={`${styles.input} ${errors.team_name ? styles.invalid : ""}`}
-              id="leagueId"
-            >
+              id="leagueId">
               <option value={0}>Select a league</option>
               {leagues?.map((league) => (
                 <option key={league.id} value={league.id}>
@@ -81,8 +80,7 @@ const PlayerFormPageTwo: React.FC<PlayerFormPageProps> = ({
                     setValueAs: (value) => (value === "" ? 0 : Number(value)),
                   })}
                   className={`${styles.input} ${errors.team_name ? styles.invalid : ""}`}
-                  id="seasonId"
-                >
+                  id="seasonId">
                   <option value={0}>Select a season</option>
                   {seasons
                     ?.filter((season) => season.league_id === selectedLeague)
@@ -107,12 +105,11 @@ const PlayerFormPageTwo: React.FC<PlayerFormPageProps> = ({
                     setValueAs: (value) => (value === "" ? 0 : Number(value)),
                   })}
                   className={`${styles.input} ${errors.team_name ? styles.invalid : ""}`}
-                  id="divisionId"
-                >
+                  id="divisionId">
                   <option value={0}>Select a division</option>
                   {divisions
                     ?.filter(
-                      (division) => division.season_id === selectedSeason
+                      (division) => division.season_id === selectedSeason,
                     )
                     .map((division) => (
                       <option key={division.id} value={division.id}>
@@ -134,8 +131,7 @@ const PlayerFormPageTwo: React.FC<PlayerFormPageProps> = ({
                   setValueAs: (value) => (value === "" ? 0 : Number(value)),
                 })}
                 className={`${styles.input} ${errors.team_name ? styles.invalid : ""}`}
-                id="teamName"
-              >
+                id="teamName">
                 <option value={0}>Select a team</option>
                 {teams
                   ?.filter((team) => team.division_id === selectedDivision)

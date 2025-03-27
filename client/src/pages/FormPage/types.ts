@@ -1,16 +1,16 @@
 import { Field } from "../../api/forms/types";
+import Date from "../../components/FormInputComponents/Date/Date";
 import Dropdown from "../../components/FormInputComponents/Dropdown/Dropdown";
 import Email from "../../components/FormInputComponents/Email/Email";
+import Liability from "../../components/FormInputComponents/Liability/Liability";
 import LongText from "../../components/FormInputComponents/LongText/LongText";
 import MultipleChoice from "../../components/FormInputComponents/MultipleChoice/MultipleChoice";
 import PhoneNumber from "../../components/FormInputComponents/PhoneNumber/PhoneNumber";
-import ShortText from "../../components/FormInputComponents/ShortText/ShortText";
-import PlayerBlock from "../../components/FormInputComponents/PlayerBlock/PlayerBlock";
-import StripeComponent from "../../components/FormInputComponents/Stripe/StripeComponent";
-import Liability from "../../components/FormInputComponents/Liability/Liability";
-import Signature from "../../components/FormInputComponents/Signature/Signature";
-import Date from "../../components/FormInputComponents/Date/Date";
 import Photo from "../../components/FormInputComponents/Photo/Photo";
+import PlayerBlock from "../../components/FormInputComponents/PlayerBlock/PlayerBlock";
+import ShortText from "../../components/FormInputComponents/ShortText/ShortText";
+import Signature from "../../components/FormInputComponents/Signature/Signature";
+import StripeComponent from "../../components/FormInputComponents/Stripe/StripeComponent";
 
 export interface WelcomeScreen {
   id: string;

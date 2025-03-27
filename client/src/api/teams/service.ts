@@ -1,4 +1,5 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
+
 import {
   TeamRequest,
   TeamResponse,
@@ -21,7 +22,7 @@ const getTeamsBySeasonDivisionId = async ({
           "Content-Type": "application/json",
         },
         mode: "cors",
-      }
+      },
     );
     return response.json();
   } catch (error) {

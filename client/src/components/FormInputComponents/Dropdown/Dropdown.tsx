@@ -1,7 +1,8 @@
-import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./Dropdown.module.css";
 import { useTranslation } from "react-i18next";
+
+import { FieldProps } from "../types";
+import styles from "./Dropdown.module.css";
 
 const Dropdown = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
@@ -29,8 +30,7 @@ const Dropdown = ({ field, index }: FieldProps) => {
       )}
       <select
         className={styles.input}
-        {...register(`answers.${index}.dropdown`)}
-      >
+        {...register(`answers.${index}.dropdown`)}>
         <option value="">{t("dropdown.placeholder")}</option>
         {field.properties?.choices?.map((choice) => (
           <option key={choice.id} value={choice.label}>

@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from "react";
-import styles from "../Form.module.css";
-import Modal from "../../Modal/Modal";
-import { RegistrationTemplateFormProps } from "./types";
-
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import { createMongoForm } from "../../../api/forms/service";
-import { Currency, Field, Form } from "../../../api/forms/types";
-import { useQueries } from "@tanstack/react-query";
-import { fetchUser } from "../../../api/users/service";
-import { getSeasonsByGroupId } from "../../../api/seasons/services";
-import { getLeaguesByGroupId } from "../../../api/leagues/service";
 
 import { useAuth0 } from "@auth0/auth0-react";
+import Tooltip from "@mui/material/Tooltip";
+import { useQueries } from "@tanstack/react-query";
+import Cookies from "js-cookie";
+import { v4 as uuidv4 } from "uuid";
+
+import { getDivisionsBySeasonId } from "../../../api/divisions/service";
+import { createMongoForm } from "../../../api/forms/service";
+import { Currency, Field, Form } from "../../../api/forms/types";
+import { getLeaguesByGroupId } from "../../../api/leagues/service";
+import { getSeasonsByGroupId } from "../../../api/seasons/services";
+import { useGetAllStripeAccounts } from "../../../api/stripe/query";
+import { getStripeAccounts } from "../../../api/stripe/service";
+import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
+import { fetchUser } from "../../../api/users/service";
+import { DivisionType } from "../../../pages/Division/types";
 import { LeagueType } from "../../../pages/Leagues/types";
 import { SeasonType } from "../../../pages/Seasons/types";
-import { DivisionType } from "../../../pages/Division/types";
 import { TeamType } from "../../../pages/Teams/types";
-import { getStripeAccounts } from "../../../api/stripe/service";
 import { StripeAccount } from "../../DragAndDropComponents/DraggablePayment/types";
-import { getDivisionsBySeasonId } from "../../../api/divisions/service";
-import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
-import Tooltip from "@mui/material/Tooltip";
-import { useGetAllStripeAccounts } from "../../../api/stripe/query";
+import Modal from "../../Modal/Modal";
+import styles from "../Form.module.css";
 import { calculateFee } from "./helper";
+import { RegistrationTemplateFormProps } from "./types";
 
 const liabilityText =
   "I recognize the possibility of bodily harm associated with Soccer, and I voluntarily accept and assume the risk as part of my responsibility as a player with the aforementioned association.  I hereby waive, release, and otherwise indemnify my club and team, Salinas Soccer Femenil, its sponsors, its affiliated organizations, sports facilities and their employees and associated personnel with these organizations, against any claims made by me or on my part, as a result of my participation in programs and competitions.";
@@ -46,7 +46,7 @@ const createRegistrationFormData = (
   feeValue: string,
   stripeUser: string,
   stripeAccountId: string,
-  paymentFeeRecipient: string
+  paymentFeeRecipient: string,
 ): Form => {
   const terms_of_service_id = uuidv4();
   const first_name_id = uuidv4();
@@ -238,8 +238,7 @@ const RedirectToLeagues = () => {
         <div>
           <button
             onClick={handleRedirect}
-            className={`${styles.btn} ${styles.submitBtn}`}
-          >
+            className={`${styles.btn} ${styles.submitBtn}`}>
             Create
           </button>
         </div>
@@ -344,7 +343,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
   useEffect(() => {
     if (stripeAccountsQuery.data) {
       const stripeAccount = stripeAccountsQuery.data.find(
-        (account: StripeAccount) => account.user_email === email
+        (account: StripeAccount) => account.user_email === email,
       );
       if (stripeAccount) {
         setStripeAccountId(stripeAccount.stripe_account_id);
@@ -385,7 +384,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         feeValue,
         stripeUser,
         stripeAccountId,
-        paymentFeeRecipient
+        paymentFeeRecipient,
       );
       const token = await getAccessTokenSilently();
       const currentUser = await fetchUser(email, token);
@@ -396,7 +395,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
         description,
         currentUser?.group_id,
         currentUser?.id,
-        template
+        template,
       );
 
       navigate("/forms/edit", {
@@ -461,8 +460,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
               required
               disabled={
                 stripeAccounts === undefined || stripeAccounts.length === 0
-              }
-            >
+              }>
               <option value="">Select a template</option>
               <option value="registration">Registration</option>
             </select>
@@ -504,14 +502,12 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                       const [name, id] = e.target.value.split(".");
                       setLeagueName(name);
                       setLeagueId(Number(id));
-                    }}
-                  >
+                    }}>
                     <option value="">Select a league</option>
                     {leaguesQuery.data?.map((league: LeagueType) => (
                       <option
                         key={league.id}
-                        value={`${league.name}.${league.id}`}
-                      >
+                        value={`${league.name}.${league.id}`}>
                         {league.name}
                       </option>
                     ))}
@@ -519,7 +515,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                 </div>
                 {leagueId !== 0 &&
                   seasonsQuery.data?.filter(
-                    (season: SeasonType) => season.league_id === leagueId
+                    (season: SeasonType) => season.league_id === leagueId,
                   ).length > 0 && (
                     <div className={styles.inputContainer}>
                       <label className={styles.label} htmlFor="seasonName">
@@ -535,19 +531,17 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                           const [name, id] = e.target.value.split(".");
                           setSeasonName(name);
                           setSeasonId(Number(id));
-                        }}
-                      >
+                        }}>
                         <option value="">Select a season</option>
                         {seasonsQuery.data
                           ?.filter(
                             (season: SeasonType) =>
-                              season.league_id === leagueId
+                              season.league_id === leagueId,
                           )
                           .map((season: SeasonType) => (
                             <option
                               key={season.id}
-                              value={`${season.name}.${season.id}`}
-                            >
+                              value={`${season.name}.${season.id}`}>
                               {season.name}
                             </option>
                           ))}
@@ -569,14 +563,12 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                         const [name, id] = e.target.value.split(".");
                         setDivisionName(name);
                         setDivisionId(Number(id));
-                      }}
-                    >
+                      }}>
                       <option value="">Select a division</option>
                       {divisions.map((division: DivisionType) => (
                         <option
                           key={division.id}
-                          value={`${division.name}.${division.id}`}
-                        >
+                          value={`${division.name}.${division.id}`}>
                           {division.name}
                         </option>
                       ))}
@@ -640,8 +632,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
                     onChange={(e) => {
                       setPaymentFeeRecipient(e.target.value);
                     }}
-                    required
-                  >
+                    required>
                     <option value="">Select Option</option>
                     {/* TODO: UNCOMMENT ONCE ORG FEES FIGURED OUT */}
                     {/* <option value="org">Organization</option> */}
@@ -662,8 +653,7 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
               <button
                 className={`${styles.btn} ${styles.submitBtn}`}
                 onClick={() => setPage(2)}
-                disabled={!getIsPageComplete(1)}
-              >
+                disabled={!getIsPageComplete(1)}>
                 Next
               </button>
             </>
@@ -671,14 +661,12 @@ const FormTemplateForm: React.FC<RegistrationTemplateFormProps> = ({
             <>
               <button
                 className={`${styles.btn} ${styles.cancelBtn}`}
-                onClick={() => setPage(1)}
-              >
+                onClick={() => setPage(1)}>
                 Back
               </button>
               <button
                 type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}
-              >
+                className={`${styles.btn} ${styles.submitBtn}`}>
                 Submit
               </button>
             </>

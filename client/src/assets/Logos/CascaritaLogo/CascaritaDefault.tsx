@@ -9,16 +9,14 @@ export default function CascaritaDefault(props: SVGProps<SVGSVGElement>) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      {...props}
-    >
+      {...props}>
       <rect width="24" height="30" fill="url(#pattern0)" />
       <defs>
         <pattern
           id="pattern0"
           patternContentUnits="objectBoundingBox"
           width="1"
-          height="1"
-        >
+          height="1">
           <use
             xlinkHref="#image0_206_53"
             transform="matrix(0.00196232 0 0 0.00156986 -0.00235479 0)"

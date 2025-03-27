@@ -44,9 +44,8 @@ const FormTransactionController = function () {
 
   var processEvent = async function (event) {
     try {
-      const storedStripeEvent = await StripeEventController.validateEvent(
-        event,
-      );
+      const storedStripeEvent =
+        await StripeEventController.validateEvent(event);
 
       if (!storedStripeEvent.success) {
         console.error(`Failed to store event: ${storedStripeEvent.error}`);

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { getLeaguesByGroupId } from "./service";
 
 export const useGetLeaguesByGroupId = (groupId: number) => {

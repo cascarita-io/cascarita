@@ -16,6 +16,6 @@ export const divisionSchema = z.object({
       },
       {
         message: "Please select a season",
-      }
+      },
     ),
 });

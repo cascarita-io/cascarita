@@ -1,7 +1,8 @@
 import React from "react";
-import styles from "../Form.module.css";
-import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+
+import styles from "../Form.module.css";
 import { PlayerFormPageProps } from "./types";
 
 const PlayerFormPageOne: React.FC<PlayerFormPageProps> = ({ requestError }) => {

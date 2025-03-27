@@ -45,9 +45,8 @@ const ConnectAccountController = function () {
         },
       });
 
-      const stripeStatusId = await AccountController.calculateStripeStatus(
-        account,
-      );
+      const stripeStatusId =
+        await AccountController.calculateStripeStatus(account);
 
       const updates = {
         stripe_account_name: account.business_profile.name,

@@ -1,7 +1,7 @@
-import { Answer, Form, GetFormsParams, FormResponse } from "./types";
+import { QueryFunctionContext } from "@tanstack/react-query";
 
 import { User } from "../users/types";
-import { QueryFunctionContext } from "@tanstack/react-query";
+import { Answer, Form, FormResponse, GetFormsParams } from "./types";
 
 // TODO: Implement a paginated API to call this for our forms
 // This will include filters, query, and sorting
@@ -42,7 +42,7 @@ export const updateForm = async (
   formId: string,
   title: string,
   description: string,
-  user: User | null
+  user: User | null,
 ) => {
   const formData = {
     form_data: {
@@ -113,7 +113,7 @@ export const createMongoForm = async (
   description: string,
   groupId: number | undefined,
   userId: number | undefined,
-  template: string
+  template: string,
 ) => {
   const formData = {
     title,
@@ -180,7 +180,7 @@ export const getMongoFormResponses = async (formId: string) => {
 
 export const createMongoResponse = async (
   formId: string,
-  answer: (string | number | Answer)[]
+  answer: (string | number | Answer)[],
 ) => {
   const data = {
     form_id: formId,
@@ -239,7 +239,7 @@ export const sendApprovalEmail = async (
   playerName: string,
   paymentAmount: number,
   paymentDate: string,
-  transactionId: string
+  transactionId: string,
 ) => {
   try {
     const data = {
@@ -274,7 +274,7 @@ export const sendRejectionEmail = async (
   leagueName: string,
   seasonName: string,
   playerName: string,
-  paymentAmount: number
+  paymentAmount: number,
 ) => {
   try {
     const data = {
@@ -331,7 +331,7 @@ export const updateFormPaymentStatus = async (
   paymentIntentId: string,
   status: string,
   email: string,
-  answers: Record<string, Answer>
+  answers: Record<string, Answer>,
 ) => {
   try {
     const data = {
@@ -362,7 +362,7 @@ export const updateFormPaymentStatus = async (
 
 export const updateFormPaymentType = async (
   paymentIntentId: string,
-  paymentType: number
+  paymentType: number,
 ) => {
   try {
     const data = {
