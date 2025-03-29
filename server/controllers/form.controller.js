@@ -24,7 +24,7 @@ const FormController = function () {
   var createResponse = async function (req, res, next) {
     try {
       const responseData = req.body.data;
-      const doc_form_id = req.body.form_id
+      const doc_form_id = req.body.form_id;
       const insertedResponse = new Response({
         form_id: doc_form_id,
         response: {
@@ -33,19 +33,24 @@ const FormController = function () {
       });
 
       const paymentEntry = responseData.find(
-      (item) => item.field?.type === "payment",
+        (item) => item.field?.type === "payment",
       );
 
-      const hasCashPayment = (paymentEntry && paymentEntry.payment_type === "cash");
+      const hasCashPayment =
+        paymentEntry && paymentEntry.payment_type === "cash";
 
       if (hasCashPayment) {
-
         /* TEMPORARY SOLUTION TO CANCEL THE STRIPE PAYMENT INTENT */
         const paymentIntentToCancel = paymentEntry.paymentIntentId;
         const isUserAction = false; // system is canceling the stripe payment intent
         const isStripePayment = true; // payment is a stripe payment
         const email = null;
-        var cancelRes = await AccountController.cancelPaymentIntent(paymentIntentToCancel, email, isUserAction, isStripePayment);
+        var cancelRes = await AccountController.cancelPaymentIntent(
+          paymentIntentToCancel,
+          email,
+          isUserAction,
+          isStripePayment,
+        );
         if (!cancelRes.success) {
           return res.status(cancelRes.status).json({ error: cancelRes.error });
         }
@@ -70,7 +75,9 @@ const FormController = function () {
       var response;
       // Splits into cash flow
       if (hasCashPayment) {
-        const form = await Form.findOne({ where: { document_id: doc_form_id } });
+        const form = await Form.findOne({
+          where: { document_id: doc_form_id },
+        });
         const form_id = form.id;
 
         const paymentData = {
@@ -87,9 +94,9 @@ const FormController = function () {
       } else {
         // Handle stripe payment response:
         response = await FormPaymentController.connectResponseToFormPayment(
-            responseData,
-            responseIdString,
-          );
+          responseData,
+          responseIdString,
+        );
       }
 
       if (!response.success) {

@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "Roles",
       timestamps: false,
       underscored: true, // Converts camelCase columns to snake_case in DB
-    }
+    },
   );
   return Role;
 };
