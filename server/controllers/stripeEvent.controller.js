@@ -79,6 +79,9 @@ const StripeEventController = function () {
       "payment_intent.amount_capturable_updated",
       "payment_intent.succeeded",
       "payment_intent.canceled",
+      "refund.created",
+      "refund.updated",
+      // "charge.refunded",
     ];
 
     return !acceptableEvents.includes(eventType);

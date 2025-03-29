@@ -153,7 +153,62 @@ const FormTransactionController = function () {
           await StripeEventController.updateEventStatus(event.id, "completed");
           break;
         }
-        // TODO : Handle a a refund
+
+        case "refund.created": {
+          let data = event.data.object;
+          data.refund_event_type = event.type;
+
+          const refundUpdate = await FormPaymentController.handleStripeRefund(
+            data,
+          );
+
+          if (!refundUpdate.success) {
+            console.warn({
+              event: "webhook_refund_created_failed",
+              error: refundUpdate.error,
+            });
+
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
+          }
+
+          console.log({
+            event: "webhook_refund_created",
+            message: refundUpdate.data,
+          });
+
+          await StripeEventController.updateEventStatus(event.id, "completed");
+
+          break;
+        }
+
+        case "refund.updated": {
+          let data = event.data.object;
+          data.refund_event_type = event.type;
+
+          const refundUpdate = await FormPaymentController.handleStripeRefund(
+            data,
+          );
+
+          if (!refundUpdate.success) {
+            console.warn({
+              event: "webhook_refund_update_failed",
+              error: refundUpdate.error,
+            });
+
+            await StripeEventController.updateEventStatus(event.id, "failed");
+            break;
+          }
+
+          console.log({
+            event: "webhook_refund_updated",
+            message: refundUpdate.data,
+          });
+
+          await StripeEventController.updateEventStatus(event.id, "completed");
+
+          break;
+        }
 
         default:
           console.log(`Unhandled webhook event type: ${event.type}`);
