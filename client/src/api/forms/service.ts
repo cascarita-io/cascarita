@@ -42,7 +42,7 @@ export const updateForm = async (
   formId: string,
   title: string,
   description: string,
-  user: User | null
+  user: User | null,
 ) => {
   const formData = {
     form_data: {
@@ -113,7 +113,7 @@ export const createMongoForm = async (
   description: string,
   groupId: number | undefined,
   userId: number | undefined,
-  template: string
+  template: string,
 ) => {
   const formData = {
     title,
@@ -162,8 +162,12 @@ export const getMongoFormById = async (formId: string) => {
   }
 };
 
-// THIS GETS the responses from mongodb:
-export const getMongoFormResponses = async (formId: string) => {
+type MongoFormResponsesQueryKey = [string, string];
+
+export const getMongoFormResponses = async ({
+  queryKey,
+}: QueryFunctionContext<MongoFormResponsesQueryKey>) => {
+  const [, formId] = queryKey;
   try {
     const response = await fetch(`/api/forms/${formId}/responses`);
 
@@ -180,7 +184,7 @@ export const getMongoFormResponses = async (formId: string) => {
 
 export const createMongoResponse = async (
   formId: string,
-  answer: (string | number | Answer)[]
+  answer: (string | number | Answer)[],
 ) => {
   const data = {
     form_id: formId,
@@ -239,7 +243,7 @@ export const sendApprovalEmail = async (
   playerName: string,
   paymentAmount: number,
   paymentDate: string,
-  transactionId: string
+  transactionId: string,
 ) => {
   try {
     const data = {
@@ -274,7 +278,7 @@ export const sendRejectionEmail = async (
   leagueName: string,
   seasonName: string,
   playerName: string,
-  paymentAmount: number
+  paymentAmount: number,
 ) => {
   try {
     const data = {
@@ -331,7 +335,7 @@ export const updateFormPaymentStatus = async (
   paymentIntentId: string,
   status: string,
   email: string,
-  answers: Record<string, Answer>
+  answers: Record<string, Answer>,
 ) => {
   try {
     const data = {
@@ -362,7 +366,7 @@ export const updateFormPaymentStatus = async (
 
 export const updateFormPaymentType = async (
   paymentIntentId: string,
-  paymentType: number
+  paymentType: number,
 ) => {
   try {
     const data = {

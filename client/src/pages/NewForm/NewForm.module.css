@@ -105,13 +105,19 @@ h4 {
 
 .submitButton,
 .cancelButton,
-.previewButton {
+.previewButton,
+.disabledButton {
   font-family: "DM Sans";
   width: 117px;
   height: 43px;
   font-size: 16px;
   line-height: 21px;
   border-radius: 21.5px;
+}
+
+.disabledButton {
+  color: #000000;
+  background: #eaebf0;
 }
 
 .submitButton {

@@ -7,12 +7,7 @@ import {
   FormResponse,
   FormResponsesProps,
 } from "./types";
-import {
-  getMongoFormById,
-  getMongoFormResponses,
-  sendApprovalEmail,
-  sendRejectionEmail,
-} from "../../api/forms/service";
+import { sendApprovalEmail, sendRejectionEmail } from "../../api/forms/service";
 import { useTranslation } from "react-i18next";
 import { Answer } from "../../api/forms/types";
 import StatusLabel from "../StatusLabel/StatusLabel";
@@ -28,6 +23,10 @@ import {
 import PaymentCapture from "../PaymentCapture/PaymentCapture";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate, getExpiryDate, getStatusOfStripePayment } from "./helpers";
+import {
+  useGetFormByDocumentId,
+  useGetResponsesById,
+} from "../../api/forms/query";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
@@ -52,7 +51,7 @@ interface PaymentCaptureModalProps {
   handleStatusChange: (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => void;
 }
 
@@ -91,32 +90,33 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const [email, setEmail] = useState<string[]>([]);
   const [isViewOpen, setIsViewOpen] = useState<{ [key: number]: boolean }>({});
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
-    []
+    [],
   );
   const [stripePaymentIntentUrls, setStripePaymentIntentUrlsData] = useState<
     (string | null)[]
   >([]);
 
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
-    []
+    [],
   );
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [currentPaymentIndex, setCurrentPaymentIndex] = useState<number | null>(
-    null
+    null,
   );
   const adminEmail = Cookies.get("email") || "";
   const { t } = useTranslation("FormResponses");
 
   const formattedCurrency = formatCurrency(amount);
 
+  const { data: formData } = useGetFormByDocumentId(formId ?? "");
+  const { data: responsesData } = useGetResponsesById(formId ?? "");
+
   useEffect(() => {
     (async () => {
-      const formData = await getMongoFormById(formId);
       setFormType(formData.form_type);
-      const responsesData = await getMongoFormResponses(formData._id);
 
       setSubmittedAt(
-        responsesData.map((response: FormResponse) => response.createdAt)
+        responsesData.map((response: FormResponse) => response.createdAt),
       );
 
       const responsesArray = responsesData.map((res: FormResponse) => {
@@ -191,8 +191,8 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
 
             stripePaymentIntentUrlsData[index] =
               paymentData.stripe_payment_intent_url || null;
-          }
-        )
+          },
+        ),
       );
       setStatus(statusData);
       setPaymentType(paymentTypeData);
@@ -203,7 +203,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const handleStatusChange = async (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => {
     const newStatus = [...status];
     newStatus[index] = statusUpdate;
@@ -237,7 +237,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
           playerName,
           paymentAmount,
           paymentDate,
-          transactionId
+          transactionId,
         );
       }
       updatedStatus = "succeeded";
@@ -248,7 +248,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
           leagueName,
           seasonName,
           playerName,
-          paymentAmount
+          paymentAmount,
         );
       }
       updatedStatus = "canceled";
@@ -258,7 +258,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       paymentIntentIds[index],
       updatedStatus,
       adminEmail,
-      response
+      response,
     );
   };
 
@@ -394,7 +394,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                           if (stripePaymentIntentUrls[index]) {
                             window.open(
                               stripePaymentIntentUrls[index],
-                              "_blank"
+                              "_blank",
                             );
                           }
                         }}
@@ -419,7 +419,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   ) : (
                     getStatusOfStripePayment(
                       status[index],
-                      formatDate(submittedAt[index], 3)
+                      formatDate(submittedAt[index], 3),
                     )
                   )
                 ) : (
