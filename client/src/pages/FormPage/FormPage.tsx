@@ -16,6 +16,18 @@ import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
 import { FormSchemaType } from "./schema";
 import { useGetFormByDocumentId } from "../../api/forms/query";
 
+const saveCurrentFormResponse = (
+  formId: string,
+  answers: Record<string, Answer>,
+) => {
+  if (formId == null || answers == null) return;
+  localStorage.setItem(`form-${formId}`, JSON.stringify(answers));
+};
+
+const getLocalResponse = (formId: string) => {
+  return localStorage.getItem(`form-${formId}`);
+};
+
 const FormPage = () => {
   const { formId } = useParams();
   const navigate = useNavigate();
@@ -35,25 +47,33 @@ const FormPage = () => {
   } = useGetFormByDocumentId(formId === undefined ? "" : formId);
 
   const total = form?.form_data.fields.length ?? 0;
-  const [used, setUsed] = useState(1);
 
+  const localResponse = formId ? getLocalResponse(formId) : null;
+  const parsedResponse = localResponse ? JSON.parse(localResponse) : null;
+  const [used, setUsed] = useState<number>(1);
+
+  // TODO: Need to handle error validations for default values. This
+  // is safe for now since, values in localStorage are already validated
   const methods = useForm<FormSchemaType>({
-    defaultValues: { answers: {} },
+    defaultValues: { answers: parsedResponse ?? {} },
     mode: "onChange",
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
-    undefined
+    undefined,
   );
   const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
-    if (form) {
-      setCurrentField(form.form_data.fields[used - 1]);
-      setCurrentAnswer(methods.watch(`answers.${used - 1}`));
+    if (form == null) {
+      return;
     }
+
+    setCurrentField(form.form_data.fields[used - 1]);
+    setCurrentAnswer(methods.watch(`answers.${used - 1}`));
+    saveCurrentFormResponse(form._id, methods.getValues("answers"));
   }, [form, used]);
 
   useEffect(() => {
@@ -127,7 +147,7 @@ const FormPage = () => {
           });
           const responsesData = await createMongoResponse(
             formId ?? "",
-            updatedNormalizedAnswers
+            updatedNormalizedAnswers,
           );
           // TODO: Redirect to a thank you page!
           navigate("/thanks");
@@ -153,7 +173,7 @@ const FormPage = () => {
         });
         const responsesData = await createMongoResponse(
           formId ?? "",
-          updatedNormalizedAnswers
+          updatedNormalizedAnswers,
         );
         // TODO: Redirect to a thank you page!
         navigate("/thanks");
@@ -163,13 +183,15 @@ const FormPage = () => {
       // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers
+        normalizedAnswers,
       );
       navigate("/thanks");
       return responsesData;
     } catch (error) {
       console.error("Error creating responses:", error);
       throw error;
+    } finally {
+      localStorage.removeItem(`form-${formId}`);
     }
   };
 
