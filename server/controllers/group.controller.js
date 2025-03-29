@@ -1,5 +1,5 @@
 "use strict";
-const crypto = require('crypto');
+const crypto = require("crypto");
 const { Group } = require("../models");
 
 const GroupController = function () {
@@ -17,7 +17,9 @@ const GroupController = function () {
     try {
       const group = await findGroupById(req.params["id"]);
       if (!group) {
-        res.status(404).json({ error: `no group was found with id ${req.params["id"]}` });
+        res
+          .status(404)
+          .json({ error: `no group was found with id ${req.params["id"]}` });
         return;
       }
 
@@ -37,7 +39,6 @@ const GroupController = function () {
   };
 
   var createGroup = async function (groupInfo) {
-
     const uniqueCode = await generateUniqueGroupCode();
 
     const newGroup = {
@@ -47,7 +48,7 @@ const GroupController = function () {
       state: groupInfo.state,
       zip_code: groupInfo.zip_code,
       logo_url: groupInfo.logo_url,
-      group_code: uniqueCode
+      group_code: uniqueCode,
     };
 
     try {
@@ -65,7 +66,9 @@ const GroupController = function () {
       let currentGroup = await findGroupById(req.params["id"]);
 
       if (!currentGroup) {
-        res.status(404).json({ error: `no group was found with id ${req.params["id"]}` });
+        res
+          .status(404)
+          .json({ error: `no group was found with id ${req.params["id"]}` });
         return;
       }
 
@@ -83,7 +86,7 @@ const GroupController = function () {
   };
 
   function generateHexCode() {
-    return crypto.randomBytes(4).toString('hex');
+    return crypto.randomBytes(4).toString("hex");
   }
 
   var generateUniqueGroupCode = async function () {
@@ -95,7 +98,9 @@ const GroupController = function () {
       uniqueCode = generateHexCode();
 
       // Check if the code already exists in the database
-      const existingGroup = await Group.findOne({ where: { group_code: uniqueCode } });
+      const existingGroup = await Group.findOne({
+        where: { group_code: uniqueCode },
+      });
 
       if (!existingGroup) {
         return uniqueCode;
@@ -104,8 +109,8 @@ const GroupController = function () {
       attempts++;
     }
 
-  throw new Error('failed to generate a unique group code after 10 attempts');
-}
+    throw new Error("failed to generate a unique group code after 10 attempts");
+  };
 
   return {
     findGroupById,
