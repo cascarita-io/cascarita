@@ -2,29 +2,29 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-
-import Home from "./Home/Home";
-import Login from "./Login/Login";
-import Layout from "../components/Layout/Layout";
 import { Route } from "react-router-dom";
-import Leagues from "./Leagues/Leagues";
-import Seasons from "./Seasons/Seasons";
-import Users from "./Users/Users";
-import Divisions from "./Division/Division";
-import Teams from "./Teams/Teams";
-import Forms from "./Forms/Forms";
-import Players from "./Players/Players";
-import NewForm from "./NewForm/NewForm";
-import Settings from "./Settings/Settings";
-import FormPage from "./FormPage/FormPage";
-import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
-import Payment from "./Settings/Payment/Payment";
+
 import { UserCrumb } from "../components/BreadCrumb/BreadCrumbComponents";
-import NotFound from "./NotFound/NotFound";
-import AccountInfo from "./Settings/AccountInfo/AccountInfo";
+import Layout from "../components/Layout/Layout";
+import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import ThankYou from "../components/ThankYou/ThankYou";
-import Terms from "./Terms/Terms";
+import Divisions from "./Division/Division";
+import FormPage from "./FormPage/FormPage";
+import Forms from "./Forms/Forms";
+import Home from "./Home/Home";
+import Leagues from "./Leagues/Leagues";
+import Login from "./Login/Login";
+import NewForm from "./NewForm/NewForm";
+import NotFound from "./NotFound/NotFound";
+import Players from "./Players/Players";
 import Privacy from "./Privacy/Privacy";
+import Seasons from "./Seasons/Seasons";
+import AccountInfo from "./Settings/AccountInfo/AccountInfo";
+import Payment from "./Settings/Payment/Payment";
+import Settings from "./Settings/Settings";
+import Teams from "./Teams/Teams";
+import Terms from "./Terms/Terms";
+import Users from "./Users/Users";
 
 export const useRouter = () =>
   createBrowserRouter(
@@ -58,6 +58,6 @@ export const useRouter = () =>
         <Route path="terms" element={<Terms />} />
         <Route path="privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
-      </Route>
-    )
+      </Route>,
+    ),
   );

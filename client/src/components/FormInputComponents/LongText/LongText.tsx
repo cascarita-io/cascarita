@@ -1,8 +1,9 @@
 import React from "react";
-import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./LongText.module.css";
 import { useTranslation } from "react-i18next";
+
+import { FieldProps } from "../types";
+import styles from "./LongText.module.css";
 
 const LongText = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
@@ -16,13 +17,13 @@ const LongText = ({ field, index }: FieldProps) => {
   )?.[index]?.long_text;
 
   const { onChange: registerOnChange, ...registerProps } = register(
-    `answers.${index}.long_text`
+    `answers.${index}.long_text`,
   );
 
   const handleTextAreaChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
     initialHeight: string = "auto",
-    maxHeight: number = 500
+    maxHeight: number = 500,
   ) => {
     const textArea = event.target;
     textArea.style.height = initialHeight;

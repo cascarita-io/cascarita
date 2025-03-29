@@ -1,17 +1,18 @@
-import styles from "../pages.module.css";
-import Search from "../../components/Search/Search";
-import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
-import Modal from "../../components/Modal/Modal";
-import LeagueForm from "../../components/Forms/LeagueForm/LeagueForm";
-import { LeagueType } from "./types";
-import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Outlet, useLocation } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
-import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import { Outlet, useLocation } from "react-router-dom";
+
 import { useGetLeaguesByGroupId } from "../../api/leagues/query";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+import LeagueForm from "../../components/Forms/LeagueForm/LeagueForm";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import Modal from "../../components/Modal/Modal";
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+import Search from "../../components/Search/Search";
+import styles from "../pages.module.css";
+import { LeagueType } from "./types";
 
 const Leagues = () => {
   const { t } = useTranslation("Leagues");
@@ -42,7 +43,7 @@ const Leagues = () => {
   const handleEdit = (
     leagueName: string,
     leagueId: number,
-    leagueDescription: string
+    leagueDescription: string,
   ) => {
     setCurrentLeagueName(leagueName);
     setCurrentLeagueId(leagueId);
@@ -57,7 +58,7 @@ const Leagues = () => {
   };
 
   const filteredData = data?.filter((league: LeagueType) =>
-    league.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+    league.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
   );
 
   const location = useLocation();
@@ -79,8 +80,7 @@ const Leagues = () => {
           <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               className={styles.primaryBtn}
-              onClick={() => setIsCreateOpen(true)}
-            >
+              onClick={() => setIsCreateOpen(true)}>
               <p className={styles.btnTextDesktop}>{t("button")}</p>
               <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
@@ -99,8 +99,7 @@ const Leagues = () => {
       ) : (
         <DashboardTable
           headers={[t("tableHeaders.name"), t("tableHeaders.options")]}
-          headerColor="light"
-        >
+          headerColor="light">
           {isLoading ? (
             <tr>
               <td>{t("loading")}</td>
@@ -118,8 +117,7 @@ const Leagues = () => {
                     <DropdownMenuButton.Item
                       onClick={() =>
                         handleEdit(league.name, league.id, league.description)
-                      }
-                    >
+                      }>
                       {t("edit")}
                     </DropdownMenuButton.Item>
 
@@ -128,8 +126,7 @@ const Leagues = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => handleDelete(league.name, league.id)}
-                    >
+                      onClick={() => handleDelete(league.name, league.id)}>
                       {t("delete")}
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>

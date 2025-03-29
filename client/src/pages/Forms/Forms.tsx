@@ -1,27 +1,28 @@
-import Page from "../../components/Page/Page";
-import Search from "../../components/Search/Search";
-import SelectMenu from "../../components/SelectMenu/SelectMenu";
-import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import { useEffect, useState } from "react";
-import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import styles from "../pages.module.css";
-import ShareButton from "../../components/ShareButton/ShareButton";
-import { useNavigate } from "react-router-dom";
-import { Form } from "./types";
-import { useTranslation } from "react-i18next";
-import { getMongoFormById } from "../../api/forms/service";
-import Modal from "../../components/Modal/Modal";
 import React from "react";
-import ShareForm from "../../components/Forms/ShareForm/ShareForm";
-import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import useResponsiveHeader from "../../hooks/useResponsiveHeader";
-import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
-import DeleteForm from "../../components/Forms/DeleteForm/DeleteForm";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
 import { useDeleteForm } from "../../api/forms/mutations";
 import { useGetMongoForms } from "../../api/forms/query";
+import { getMongoFormById } from "../../api/forms/service";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+import DeleteForm from "../../components/Forms/DeleteForm/DeleteForm";
+import FormTemplateForm from "../../components/Forms/RegistrationTemplateForm/RegistrationTemplateForm";
+import ShareForm from "../../components/Forms/ShareForm/ShareForm";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import Modal from "../../components/Modal/Modal";
+import Page from "../../components/Page/Page";
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+import Search from "../../components/Search/Search";
+import SelectMenu from "../../components/SelectMenu/SelectMenu";
+import ShareButton from "../../components/ShareButton/ShareButton";
+import useResponsiveHeader from "../../hooks/useResponsiveHeader";
 import { FetchedForm } from "../FormPage/types";
 import { NewFormSections } from "../NewForm/types";
+import styles from "../pages.module.css";
+import { Form } from "./types";
 
 interface ShareModalProps {
   formLink: string;
@@ -105,8 +106,7 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({
         <DeleteForm
           destructBtnLabel={"Yes, I'm sure"}
           className={styles.form}
-          onSubmit={(e) => handleDelete(e, formId)}
-        >
+          onSubmit={(e) => handleDelete(e, formId)}>
           <p>Are you sure you want to delete this form?</p>
           {responseError && <p style={{ color: "red" }}>{responseError}</p>}
         </DeleteForm>
@@ -232,8 +232,7 @@ const Forms = () => {
               placeholder={tForms("sortOptions.item1")}
               name="sorts"
               value={sorts}
-              onValueChange={(value) => setSorts(value)}
-            >
+              onValueChange={(value) => setSorts(value)}>
               <SelectMenu.Group>
                 {sortStatuses.map((status, idx) => (
                   <SelectMenu.Item key={idx} value={status}>
@@ -248,8 +247,7 @@ const Forms = () => {
         <div style={{ display: "flex", gap: "1rem" }}>
           <PrimaryButton
             className={`${styles.primaryBtnForms} ${styles.showInDesktop}`}
-            onClick={handleTemplateClick}
-          >
+            onClick={handleTemplateClick}>
             <p className={styles.btnTextDesktop}>New Form</p>
             {/* <FaPlus className={styles.btnTextMobile} /> */}
           </PrimaryButton>
@@ -274,8 +272,7 @@ const Forms = () => {
                 <p>
                   <button
                     onClick={() => onEdit(form._id)}
-                    style={{ cursor: "pointer" }}
-                  >
+                    style={{ cursor: "pointer" }}>
                     {form.form_data.title}
                   </button>
                   {/* <a href={`/forms/${form._id}`} style={{ cursor: "pointer" }}>
@@ -301,8 +298,7 @@ const Forms = () => {
                     {tDropDownButton("view")}
                   </DropdownMenuButton.Item>
                   <DropdownMenuButton.Item
-                    onClick={() => onEdit(form._id, "responses")}
-                  >
+                    onClick={() => onEdit(form._id, "responses")}>
                     {tDropDownButton("responses")}
                   </DropdownMenuButton.Item>
                 </DropdownMenuButton>
@@ -314,8 +310,7 @@ const Forms = () => {
                     handleShareClick(
                       `${window.location.origin}/forms/${form._id}`,
                     )
-                  }
-                >
+                  }>
                   <ShareButton />
                 </button>
               </td>

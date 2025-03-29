@@ -1,4 +1,5 @@
 import { QueryFunctionContext } from "@tanstack/react-query";
+
 import {
   SeasonRequest,
   SeasonResponse,
@@ -45,7 +46,7 @@ const getSeasonsByLeagueId = async ({
 };
 
 const createNewSeason = async (
-  data: SeasonRequest
+  data: SeasonRequest,
 ): Promise<SeasonResponse> => {
   try {
     const response = await fetch("/api/seasons", {

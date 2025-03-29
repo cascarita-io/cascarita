@@ -1,17 +1,18 @@
+import { useTranslation } from "react-i18next";
+import { IconType } from "react-icons";
+import { FaListUl, FaPenNib, FaRegCalendarTimes } from "react-icons/fa";
+import { FaDollarSign, FaRegNewspaper, FaUser } from "react-icons/fa6";
+import { GrTextAlignFull } from "react-icons/gr";
 import {
   MdOutlineArrowDropDownCircle,
-  MdOutlineShortText,
   MdOutlineMailOutline,
+  MdOutlineShortText,
 } from "react-icons/md";
-import { IconType } from "react-icons";
+import { MdAddPhotoAlternate } from "react-icons/md";
+import { TiPhoneOutline } from "react-icons/ti";
+
 import styles from "./DraggableButton.module.css";
 import { DraggableButtonKeys, DraggableButtonProps } from "./types";
-import { GrTextAlignFull } from "react-icons/gr";
-import { TiPhoneOutline } from "react-icons/ti";
-import { useTranslation } from "react-i18next";
-import { FaDollarSign, FaUser, FaRegNewspaper } from "react-icons/fa6";
-import { FaListUl, FaRegCalendarTimes, FaPenNib } from "react-icons/fa";
-import { MdAddPhotoAlternate } from "react-icons/md";
 
 const iconMapping: { [key: string]: IconType } = {
   shorttext: MdOutlineShortText,
@@ -62,8 +63,7 @@ const DraggableButton: React.FC<DraggableButtonProps> = ({ label, onDrop }) => {
         className={`${styles.buttonContainer} ${
           label === "Payment" ? styles.paymentButton : styles.standardButton
         }`}
-        onClick={onDrop}
-      >
+        onClick={onDrop}>
         {IconComponent && <IconComponent />}
         <span className={styles.buttonText}>
           {t(`draggableButtons.${label}` as DraggableButtonKeys)}

@@ -1,15 +1,15 @@
-import HomePageLogoIcon from "./HomePageLogoIcon";
+import AcceptIcon from "./AcceptIcon";
 import CopyIcon from "./CopyIcon";
 import DropIcon from "./DropIcon";
 import EllipseIcon from "./EllipseIcon";
+import HomePageLogoIcon from "./HomePageLogoIcon";
 import LoginPageLogoIcon from "./LoginPageLogoIcon";
 import MinusCircleIcon from "./MinusCircleIcon";
 import PlusCircleIcon from "./PlusCircleIcon";
-import TrashBinIcon from "./TrashBinIcon";
+import RejectIcon from "./RejectIcon";
 import StripeConnectionIcon from "./StripeConnectIcon";
 import StripeLogoIcon from "./StripeLogoIcon";
-import AcceptIcon from "./AcceptIcon";
-import RejectIcon from "./RejectIcon";
+import TrashBinIcon from "./TrashBinIcon";
 
 export {
   HomePageLogoIcon,

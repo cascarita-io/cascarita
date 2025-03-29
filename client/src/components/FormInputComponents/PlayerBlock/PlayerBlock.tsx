@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
-import { FieldProps } from "../types";
+import { useEffect, useState } from "react";
 import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./PlayerBlock.module.css";
 import { useTranslation } from "react-i18next";
+
 import { ShortTeam } from "../../../api/forms/types";
 import { useGetTeamsBySeasonDivisionId } from "../../../api/teams/query";
 import { TeamType } from "../../../pages/Teams/types";
+import { FieldProps } from "../types";
+import styles from "./PlayerBlock.module.css";
 
 const PlayerBlock = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
@@ -20,12 +21,14 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
   const divisionId = watch(`answers.${index}.player.division_id`);
   const { required } = field.validations ?? {};
   const [isOther, setIsOther] = useState(false);
-  const { data: teams, refetch } = useGetTeamsBySeasonDivisionId(seasonId, divisionId);
+  const { data: teams, refetch } = useGetTeamsBySeasonDivisionId(
+    seasonId,
+    divisionId,
+  );
 
   useEffect(() => {
     refetch();
   }, [seasonId, divisionId, refetch]);
-
 
   const fieldError = (
     errors.answers as
@@ -97,7 +100,7 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
             onChange: (e) => {
               const selectedTeam =
                 field.properties?.player_block_choices?.teams.find(
-                  (team: ShortTeam) => team.team_id === Number(e.target.value)
+                  (team: ShortTeam) => team.team_id === Number(e.target.value),
                 );
 
               if (e.target.value === "other") {
@@ -111,20 +114,17 @@ const PlayerBlock = ({ field, index }: FieldProps) => {
                 setIsOther(false);
                 setValue(
                   `answers.${index}.player.team_name`,
-                  selectedTeam.team_name
+                  selectedTeam.team_name,
                 );
               }
             },
-          })}
-        >
+          })}>
           <option value="">{t("dropdown.placeholder")}</option>
-            {teams?.map(
-            (team: TeamType) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            )
-          )}
+          {teams?.map((team: TeamType) => (
+            <option key={team.id} value={team.id}>
+              {team.name}
+            </option>
+          ))}
           <option value="free-agent">Unsure / Free Agent</option>
           <option value="other">Other</option>
         </select>

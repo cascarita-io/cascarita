@@ -1,19 +1,21 @@
 import React from "react";
-import styles from "../Form.module.css";
-import Modal from "../../Modal/Modal";
-import { LeagueFormProps, LeagueFormData, LeagueRequest } from "./types";
-import DeleteForm from "../DeleteForm/DeleteForm";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   useCreateLeague,
   useDeleteLeague,
   useUpdateLeague,
 } from "../../../api/leagues/mutations";
-import { useTranslation } from "react-i18next";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { leagueSchema } from "./schema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useGroup } from "../../GroupProvider/GroupProvider";
-import { toast } from "react-toastify";
+import Modal from "../../Modal/Modal";
+import DeleteForm from "../DeleteForm/DeleteForm";
+import styles from "../Form.module.css";
+import { leagueSchema } from "./schema";
+import { LeagueFormData, LeagueFormProps, LeagueRequest } from "./types";
 
 const LeagueForm: React.FC<LeagueFormProps> = ({
   afterSave,
@@ -45,7 +47,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
   const deleteLeagueMutation = useDeleteLeague();
 
   const onSubmit: SubmitHandler<LeagueFormData> = async (
-    data: LeagueFormData
+    data: LeagueFormData,
   ) => {
     const { name, description } = data;
 
@@ -58,7 +60,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
     switch (requestType) {
       case "POST": {
         const dataPost = await createLeagueMutation.mutateAsync(
-          payload as LeagueRequest
+          payload as LeagueRequest,
         );
         if (dataPost.error) {
           setError(dataPost.error);
@@ -112,8 +114,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
         <DeleteForm
           destructBtnLabel={t("formContent.delete")}
           onSubmit={onDelete}
-          className={styles.form}
-        >
+          className={styles.form}>
           {error && <span className={styles.error}>{error}</span>}
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
@@ -159,8 +160,7 @@ const LeagueForm: React.FC<LeagueFormProps> = ({
           <div className={styles.formBtnContainer}>
             <button
               type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}
-            >
+              className={`${styles.btn} ${styles.submitBtn}`}>
               {requestType === "POST"
                 ? t("formContent.create")
                 : t("formContent.edit")}

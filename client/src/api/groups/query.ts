@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { getAllGroups, getGroupById } from "./service";
 
 export const useGetAllGroups = () => {

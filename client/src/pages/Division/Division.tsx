@@ -1,20 +1,21 @@
-import { useState, useEffect } from "react";
-import styles from "../pages.module.css";
-import { useLocation, Outlet } from "react-router-dom";
-// import { useTranslation } from "react-i18next";
-import { DivisionType } from "./types";
-import Search from "../../components/Search/Search";
-// import SelectMenu from "../../components/SelectMenu/SelectMenu";
-import Modal from "../../components/Modal/Modal";
-import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
-import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import DivisionForm from "../../components/Forms/DivisionForm/DivisionForm";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaPlus } from "react-icons/fa";
-import { useGetSeasonsByGroupId } from "../../api/seasons/query";
-import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import { Outlet, useLocation } from "react-router-dom";
+
 import { useGetDivisionsByGroupId } from "../../api/divisions/query";
+import { useGetSeasonsByGroupId } from "../../api/seasons/query";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+import DivisionForm from "../../components/Forms/DivisionForm/DivisionForm";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
+// import SelectMenu from "../../components/SelectMenu/SelectMenu";
+import Modal from "../../components/Modal/Modal";
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+import Search from "../../components/Search/Search";
+import styles from "../pages.module.css";
+// import { useTranslation } from "react-i18next";
+import { DivisionType } from "./types";
 
 const Divisions = () => {
   const { t } = useTranslation("Divisions");
@@ -51,7 +52,7 @@ const Divisions = () => {
   const handleEdit = (
     divisionName: string,
     divisionId: number,
-    seasonId: number
+    seasonId: number,
   ) => {
     setCurrentDivisionName(divisionName);
     setCurrentDivisionId(divisionId);
@@ -66,7 +67,7 @@ const Divisions = () => {
   };
 
   const filteredData = divisions?.filter((division: DivisionType) =>
-    division.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+    division.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
   );
 
   const location = useLocation();
@@ -88,8 +89,7 @@ const Divisions = () => {
           <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               className={styles.primaryBtn}
-              onClick={() => setIsCreateOpen(true)}
-            >
+              onClick={() => setIsCreateOpen(true)}>
               <p className={styles.btnTextDesktop}>{t("addButton")}</p>
               <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
@@ -114,8 +114,7 @@ const Divisions = () => {
             t("tableHeaders.seasonName"),
             t("tableHeaders.options"),
           ]}
-          headerColor="light"
-        >
+          headerColor="light">
           {filteredData?.map((division: DivisionType, idx: number) => (
             <tr key={idx} className={styles.tableRow}>
               <td className={styles.tableData}>{division.name}</td>
@@ -126,16 +125,14 @@ const Divisions = () => {
                   <DropdownMenuButton.Item
                     onClick={() =>
                       handleEdit(division.name, division.id, division.season_id)
-                    }
-                  >
+                    }>
                     {t("edit")}
                   </DropdownMenuButton.Item>
 
                   <DropdownMenuButton.Separator className={styles.separator} />
 
                   <DropdownMenuButton.Item
-                    onClick={() => handleDelete(division.name, division.id)}
-                  >
+                    onClick={() => handleDelete(division.name, division.id)}>
                     {t("delete")}
                   </DropdownMenuButton.Item>
                 </DropdownMenuButton>

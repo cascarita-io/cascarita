@@ -1,5 +1,7 @@
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { SlOptions } from "react-icons/sl";
+
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+
 import styles from "./DropdownMenuButton.module.css";
 import { DropdownMenuButtonProps } from "./types";
 

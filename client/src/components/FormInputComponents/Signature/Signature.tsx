@@ -1,7 +1,8 @@
-import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./Signature.module.css";
 import { useTranslation } from "react-i18next";
+
+import { FieldProps } from "../types";
+import styles from "./Signature.module.css";
 
 const Signature = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");

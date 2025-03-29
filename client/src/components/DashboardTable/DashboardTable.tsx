@@ -1,4 +1,5 @@
 import React from "react";
+
 import styles from "./DashboardTable.module.css";
 
 interface TableProps {
@@ -30,8 +31,7 @@ const DashboardTable: React.FC<TableProps> = ({
             position: "sticky",
             top: 0,
             background: headColor,
-          }}
-        >
+          }}>
           <tr>
             {headers.map((header, idx) => (
               <th key={idx} className={styles.header}>

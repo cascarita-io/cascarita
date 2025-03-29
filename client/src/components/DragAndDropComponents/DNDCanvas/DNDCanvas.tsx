@@ -1,29 +1,31 @@
 import { forwardRef, useEffect, useImperativeHandle } from "react";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import {
   DragDropContext,
   DropResult,
   DroppableProvided,
 } from "react-beautiful-dnd";
+import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+
+import { v4 as uuidv4 } from "uuid";
+
+import { useGetFormByDocumentId } from "../../../api/forms/query";
+import { Currency, Field, Form } from "../../../api/forms/types";
+import { DroppedItem } from "../../../pages/NewForm/types";
+import { StrictModeDroppable } from "../../StrictModeDroppable/StrictModeDroppable";
+import DraggableDate from "../DraggableDate/DraggableDate";
+import DraggableDropdown from "../DraggableDropdown/DraggableDropdown";
+import DraggableEmail from "../DraggableEmail/DraggableEmail";
+import DraggableLiability from "../DraggableLiability/DraggableLiability";
+import DraggableLongText from "../DraggableLongText/DraggableLongText";
+import DraggableMultipleChoice from "../DraggableMultipleChoice/DraggableMultipleChoice";
+import DraggablePayment from "../DraggablePayment/DraggablePayment";
+import DraggablePhoneNumber from "../DraggablePhoneNumber/DraggablePhoneNumber";
 import DraggablePhoto from "../DraggablePhoto/DraggablePhoto";
 import DraggablePlayer from "../DraggablePlayer/DraggablePlayer";
-import DraggableMultipleChoice from "../DraggableMultipleChoice/DraggableMultipleChoice";
 import DraggableShortText from "../DraggableShortText/DraggableShortText";
-import DraggableDropdown from "../DraggableDropdown/DraggableDropdown";
-import DraggableLongText from "../DraggableLongText/DraggableLongText";
-import { DNDCanvasProps } from "./types";
-import { DroppedItem } from "../../../pages/NewForm/types";
-import EmptyDNDCanvas from "../EmptyDNDCanvas/EmptyDNDCanvas";
-import { v4 as uuidv4 } from "uuid";
-import DraggablePhoneNumber from "../DraggablePhoneNumber/DraggablePhoneNumber";
-import DraggableEmail from "../DraggableEmail/DraggableEmail";
-import { StrictModeDroppable } from "../../StrictModeDroppable/StrictModeDroppable";
-import DraggablePayment from "../DraggablePayment/DraggablePayment";
-import { Currency, Field, Form } from "../../../api/forms/types";
-import DraggableLiability from "../DraggableLiability/DraggableLiability";
 import DraggableSignature from "../DraggableSignature/DraggableSignature";
-import DraggableDate from "../DraggableDate/DraggableDate";
-import { useGetFormByDocumentId } from "../../../api/forms/query";
+import EmptyDNDCanvas from "../EmptyDNDCanvas/EmptyDNDCanvas";
+import { DNDCanvasProps } from "./types";
 
 const DNDCanvas = forwardRef(
   (
@@ -35,7 +37,7 @@ const DNDCanvas = forwardRef(
       saveForm,
       importedFields,
     }: DNDCanvasProps,
-    ref
+    ref,
   ) => {
     const methods = useForm<{ fields: Field[] }>({
       defaultValues: { fields: importedFields ?? [] },
@@ -48,7 +50,7 @@ const DNDCanvas = forwardRef(
     }));
 
     const { data: formData } = useGetFormByDocumentId(
-      formId === undefined ? "" : formId
+      formId === undefined ? "" : formId,
     );
 
     const componentMap = {
@@ -227,17 +229,17 @@ const DNDCanvas = forwardRef(
       // Ensure the copied fields has the same fields as the original
       methods.setValue(
         `fields.${index + 1}.title`,
-        methods.getValues(`fields.${index}.title`)
+        methods.getValues(`fields.${index}.title`),
       );
 
       methods.setValue(
         `fields.${index + 1}.validations`,
-        methods.getValues(`fields.${index}.validations`)
+        methods.getValues(`fields.${index}.validations`),
       );
 
       methods.setValue(
         `fields.${index + 1}.properties`,
-        methods.getValues(`fields.${index}.properties`)
+        methods.getValues(`fields.${index}.properties`),
       );
     };
 
@@ -261,8 +263,7 @@ const DNDCanvas = forwardRef(
                 maxHeight: "100%",
                 overflowY: "auto",
                 scrollbarWidth: "thin",
-              }}
-            >
+              }}>
               {items.length === 0 ? (
                 <EmptyDNDCanvas />
               ) : (
@@ -291,7 +292,7 @@ const DNDCanvas = forwardRef(
         </StrictModeDroppable>
       </DragDropContext>
     );
-  }
+  },
 );
 
 DNDCanvas.displayName = "DNDCanvas";

@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { getTeamsByGroupId, getTeamsBySeasonDivisionId } from "./service";
 
 export const useGetTeamsBySeasonDivisionId = (
   seasonId: number,
-  divisionId: number
+  divisionId: number,
 ) => {
   return useQuery({
     queryKey: ["teams", seasonId, divisionId],

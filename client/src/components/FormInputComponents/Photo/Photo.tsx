@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
-import { FieldProps } from "../types";
+import { useEffect, useState } from "react";
 import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./Photo.module.css";
 import { useTranslation } from "react-i18next";
-import FileUpload from "../../FileUpload/FileUpload";
+
 import { uploadPhotoToS3 } from "../../../api/photo/service";
+import FileUpload from "../../FileUpload/FileUpload";
+import { FieldProps } from "../types";
+import styles from "./Photo.module.css";
 
 export interface UploadPhotoResponse {
   image_url: string;
@@ -29,7 +30,7 @@ const Photo = ({ field, index }: FieldProps) => {
         const uploadUrl = await uploadPhotoToS3(
           fileUrl,
           "registration_images",
-          "player_photo"
+          "player_photo",
         );
         setValue(`answers.${index}.photo`, uploadUrl.image_url);
         setPhotoUrl(uploadUrl.image_url);

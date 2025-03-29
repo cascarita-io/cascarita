@@ -1,21 +1,23 @@
-import { useState, useEffect } from "react";
-import styles from "../pages.module.css";
-import Search from "../../components/Search/Search";
-import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import { useEffect, useState } from "react";
 // import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
 import { useTranslation } from "react-i18next";
-import { PlayerType } from "./types";
-import Modal from "../../components/Modal/Modal";
-import PlayerForm from "../../components/Forms/PlayerForm/PlayerForm";
-import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import { FaPlus, FaUsers } from "react-icons/fa";
+
+import { Avatar } from "@radix-ui/themes";
+
+import { useGetDivisionsByGroupId } from "../../api/divisions/query";
+import { useGetLeaguesByGroupId } from "../../api/leagues/query";
+import { useGetSeasonsByGroupId } from "../../api/seasons/query";
 import { useGetTeamsByGroupId } from "../../api/teams/query";
 import { useGetPlayersByGroupId } from "../../api/users/query";
-import { useGetSeasonsByGroupId } from "../../api/seasons/query";
-import { useGetLeaguesByGroupId } from "../../api/leagues/query";
-import { useGetDivisionsByGroupId } from "../../api/divisions/query";
-import { FaPlus, FaUsers } from "react-icons/fa";
-import { Avatar } from "@radix-ui/themes";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import PlayerForm from "../../components/Forms/PlayerForm/PlayerForm";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import Modal from "../../components/Modal/Modal";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+import Search from "../../components/Search/Search";
+import styles from "../pages.module.css";
+import { PlayerType } from "./types";
 
 const Players = () => {
   const { t } = useTranslation("Players");
@@ -51,7 +53,7 @@ const Players = () => {
   }, [searchQuery]);
 
   const filteredData = players?.filter((player: PlayerType) =>
-    player.first_name.toLowerCase().includes(debouncedQuery.toLowerCase())
+    player.first_name.toLowerCase().includes(debouncedQuery.toLowerCase()),
   );
 
   return (
@@ -67,8 +69,7 @@ const Players = () => {
           <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               className={styles.primaryBtn}
-              onClick={() => setIsCreateOpen(true)}
-            >
+              onClick={() => setIsCreateOpen(true)}>
               <p className={styles.btnTextDesktop}>{t("addButton")}</p>
               <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
@@ -95,8 +96,7 @@ const Players = () => {
       ) : (
         <DashboardTable
           headers={[t("tableHeaders.name"), t("tableHeaders.team"), "Email"]}
-          headerColor="light"
-        >
+          headerColor="light">
           {isLoading ? (
             <tr>
               <td>{t("loading")}</td>
@@ -110,8 +110,7 @@ const Players = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: "12px",
-                    }}
-                  >
+                    }}>
                     <Avatar
                       src={(player && player.picture) || ""}
                       className={styles.avatar}

@@ -14,7 +14,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction }
+        { transaction },
       );
 
       await queryInterface.bulkInsert(
@@ -26,7 +26,7 @@ module.exports = {
             updated_at: new Date(),
           },
         ],
-        { transaction }
+        { transaction },
       );
 
       await transaction.commit();

@@ -110,7 +110,7 @@ module.exports = {
           logo_url: "https://example.com/logo",
         },
         null,
-        { transaction }
+        { transaction },
       );
 
       await transaction.commit();

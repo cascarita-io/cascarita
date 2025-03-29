@@ -35,7 +35,7 @@
   background-color: #f4f7fb;
 }
 
-.formContainer>button {
+.formContainer > button {
   padding: 10px;
   margin-top: 10px;
   border: none;
@@ -115,14 +115,14 @@
   gap: 16px;
 }
 
-.tcContainer>h1 {
+.tcContainer > h1 {
   text-align: center;
   font-weight: 700;
   font-size: 1.2rem;
   padding-top: 12px;
 }
 
-.tcContainer>p {
+.tcContainer > p {
   font-size: 1rem;
   text-align: center;
 }
@@ -150,14 +150,13 @@
   gap: 12px;
 }
 
-
 .radioContainer {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.radioContainer>div {
+.radioContainer > div {
   display: flex;
   align-items: center;
   gap: 8px;

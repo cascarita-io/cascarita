@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import styles from "../Form.module.css";
-import { PlayerFormData, PlayerFormProps, PlayerRequest } from "./types";
-import { useAddUser, useUpdatePlayerTeams } from "../../../api/users/mutations";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { playerSchema } from "./schema";
-import PlayerFormPageOne from "./PlayerFormPageOne";
-import PlayerFormPageTwo from "./PlayerFormPageTwo";
-import PlayerFormPageThree from "./PlayerFormPageThree";
-import { uploadPhotoToS3 } from "../../../api/photo/service";
-import { useGroup } from "../../GroupProvider/GroupProvider";
 import { toast } from "react-toastify";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { uploadPhotoToS3 } from "../../../api/photo/service";
+import { useAddUser, useUpdatePlayerTeams } from "../../../api/users/mutations";
+import { useGroup } from "../../GroupProvider/GroupProvider";
+import styles from "../Form.module.css";
+import PlayerFormPageOne from "./PlayerFormPageOne";
+import PlayerFormPageThree from "./PlayerFormPageThree";
+import PlayerFormPageTwo from "./PlayerFormPageTwo";
+import { playerSchema } from "./schema";
+import { PlayerFormData, PlayerFormProps, PlayerRequest } from "./types";
 
 const PlayerForm: React.FC<PlayerFormProps> = ({
   afterSave,
@@ -24,7 +26,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   const [requestError, setRequestError] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [playerPhoto, setPlayerPhoto] = useState<string | undefined>(
-    player?.picture || ""
+    player?.picture || "",
   );
 
   const { groupId } = useGroup();
@@ -72,7 +74,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
         const uploadUrl = await uploadPhotoToS3(
           fileUrl,
           "registration_images",
-          "player_photo"
+          "player_photo",
         );
         setPlayerPhoto(uploadUrl.image_url);
       }
@@ -84,7 +86,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   const updatePlayerTeamsMutation = useUpdatePlayerTeams(player?.id || 0);
 
   const onSubmit: SubmitHandler<PlayerFormData> = async (
-    data: PlayerFormData
+    data: PlayerFormData,
   ) => {
     const {
       first_name,
@@ -123,7 +125,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     switch (requestType) {
       case "POST": {
         const dataPost = await createPlayerMutation.mutateAsync(
-          payload as PlayerRequest
+          payload as PlayerRequest,
         );
         if (dataPost.error) {
           setRequestError(dataPost.error);
@@ -135,7 +137,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
       }
       case "PATCH": {
         const dataUpdate = await updatePlayerTeamsMutation.mutateAsync(
-          payload as PlayerRequest
+          payload as PlayerRequest,
         );
         if (dataUpdate.error) {
           setRequestError(dataUpdate.error);
@@ -168,8 +170,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             <div className={styles.formBtnContainer}>
               <button
                 type="submit"
-                className={`${styles.btn} ${styles.submitBtn}`}
-              >
+                className={`${styles.btn} ${styles.submitBtn}`}>
                 Submit
               </button>
             </div>
@@ -209,8 +210,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                 <button
                   className={`${styles.btn} ${styles.cancelBtn}`}
                   onClick={decrementPage}
-                  type="button"
-                >
+                  type="button">
                   Back
                 </button>
               )}
@@ -220,8 +220,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                   type="button"
                   onClick={incrementPage}
                   className={`${styles.btn} ${styles.btn}`}
-                  disabled={!isValid}
-                >
+                  disabled={!isValid}>
                   Next
                 </button>
               )}
@@ -230,8 +229,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                 <button
                   type="submit"
                   className={`${styles.btn} ${styles.submitBtn}`}
-                  disabled={!isLiabilityChecked || !isLiabilityMinorChecked}
-                >
+                  disabled={!isLiabilityChecked || !isLiabilityMinorChecked}>
                   Submit
                 </button>
               )}

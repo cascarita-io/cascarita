@@ -1,9 +1,10 @@
 import React from "react";
-import styles from "./Modal.module.css";
-import { ModalProps, ModalContentProps } from "./types";
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross1Icon } from "@radix-ui/react-icons";
+
+import styles from "./Modal.module.css";
+import { ModalContentProps, ModalProps } from "./types";
 
 const Modal: React.FC<ModalProps> & {
   Button: React.FC<React.ComponentProps<typeof Dialog.Trigger>>;
@@ -14,8 +15,7 @@ const Modal: React.FC<ModalProps> & {
     <Dialog.Root
       open={open}
       onOpenChange={onOpenChange}
-      defaultOpen={defaultOpen}
-    >
+      defaultOpen={defaultOpen}>
       {children}
     </Dialog.Root>
   );
@@ -31,8 +31,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     <Dialog.Portal>
       <Dialog.Overlay className={styles.overlay} />
       <Dialog.Content
-        className={`${maximize ? styles.maximizeContent : styles.content}`}
-      >
+        className={`${maximize ? styles.maximizeContent : styles.content}`}>
         <Dialog.Title className={styles.title}>{title}</Dialog.Title>
         <Dialog.Description className={styles.subtitle}>
           {subtitle}

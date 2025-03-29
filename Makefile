@@ -29,3 +29,7 @@ test:
 
 eslint:
 	cd client && npm run eslint
+
+format:
+	cd client && npm run format
+	cd server && npm run format

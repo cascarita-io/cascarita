@@ -1,9 +1,8 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-
     // update role_type to name column
     await queryInterface.renameColumn("Roles", "role_type", "name");
     await queryInterface.changeColumn("Roles", "name", {
@@ -31,7 +30,7 @@ module.exports = {
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     // Rename name back to role_type
     await queryInterface.renameColumn("Roles", "name", "role_type");
 
@@ -56,5 +55,5 @@ module.exports = {
       type: Sequelize.DATE,
       allowNull: false,
     });
-  }
+  },
 };

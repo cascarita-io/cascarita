@@ -1,20 +1,22 @@
-import { useState, useEffect } from "react";
-import styles from "../pages.module.css";
-import Search from "../../components/Search/Search";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FaPlus } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa6";
+
+import { Avatar } from "@radix-ui/themes";
+
+import { useGetSeasonsByGroupId } from "../../api/seasons/query";
+import { useGetTeamsByGroupId } from "../../api/teams/query";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
 // import SelectMenu from "../../components/SelectMenu/SelectMenu";
 import Modal from "../../components/Modal/Modal";
 import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import Search from "../../components/Search/Search";
+import styles from "../pages.module.css";
 import { TeamType } from "./types";
-import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
-import TeamForm from "../../components/Forms/TeamsForm/TeamForm";
-import { useTranslation } from "react-i18next";
-import { FaPlus } from "react-icons/fa";
-import { Avatar } from "@radix-ui/themes";
-import { FaUsers } from "react-icons/fa6";
-import { useGetTeamsByGroupId } from "../../api/teams/query";
-import { useGetSeasonsByGroupId } from "../../api/seasons/query";
-import { useGroup } from "../../components/GroupProvider/GroupProvider";
 
 const Teams = () => {
   const { t } = useTranslation("Teams");
@@ -51,7 +53,7 @@ const Teams = () => {
     teamId: number,
     seasonId: number,
     divisionId: number,
-    teamLogo: string
+    teamLogo: string,
   ) => {
     setCurrentTeamName(teamName);
     setCurrentTeamId(teamId);
@@ -68,7 +70,7 @@ const Teams = () => {
   };
 
   const filteredData = teams?.filter((team: TeamType) =>
-    team.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+    team.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
   );
 
   return (
@@ -84,8 +86,7 @@ const Teams = () => {
           <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               className={styles.primaryBtn}
-              onClick={() => setIsCreateOpen(true)}
-            >
+              onClick={() => setIsCreateOpen(true)}>
               <p className={styles.btnTextDesktop}>{t("addButton")}</p>
               <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
@@ -111,8 +112,7 @@ const Teams = () => {
             t("tableHeaders.division"),
             t("tableHeaders.options"),
           ]}
-          headerColor="light"
-        >
+          headerColor="light">
           {isLoading ? (
             <tr>
               <td>{t("loading")}</td>
@@ -130,8 +130,7 @@ const Teams = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: "12px",
-                    }}
-                  >
+                    }}>
                     <Avatar
                       src={team && team.team_logo}
                       className={styles.avatar}
@@ -161,10 +160,9 @@ const Teams = () => {
                           team.id,
                           team.season_id,
                           team.division_id,
-                          team.team_logo
+                          team.team_logo,
                         )
-                      }
-                    >
+                      }>
                       {t("edit")}
                     </DropdownMenuButton.Item>
 
@@ -173,8 +171,7 @@ const Teams = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => handleDelete(team.name, team.id)}
-                    >
+                      onClick={() => handleDelete(team.name, team.id)}>
                       {t("delete")}
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>

@@ -1,20 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import { FormProvider, useForm } from "react-hook-form";
-import { AnswerMap, FieldComponents } from "./types";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { useGetFormByDocumentId } from "../../api/forms/query";
 import { createMongoResponse } from "../../api/forms/service";
-import FormHeader from "../../components/FormHeader/FormHeader";
-import styles from "./FormPage.module.css";
 import {
   Answer,
   AnswerType,
   Field,
   SecondaryType,
 } from "../../api/forms/types";
+import FormHeader from "../../components/FormHeader/FormHeader";
 import ProgressBar from "../../components/ProgressBar/ProgressBar";
 import { PaymentResult } from "../../components/StripeForm/CheckoutForm";
+import styles from "./FormPage.module.css";
 import { FormSchemaType } from "./schema";
-import { useGetFormByDocumentId } from "../../api/forms/query";
+import { AnswerMap, FieldComponents } from "./types";
 
 const FormPage = () => {
   const { formId } = useParams();
@@ -43,10 +44,10 @@ const FormPage = () => {
   });
 
   const [currentField, setCurrentField] = useState<Field | undefined>(
-    undefined
+    undefined,
   );
   const [currentAnswer, setCurrentAnswer] = useState<Answer | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -127,7 +128,7 @@ const FormPage = () => {
           });
           const responsesData = await createMongoResponse(
             formId ?? "",
-            updatedNormalizedAnswers
+            updatedNormalizedAnswers,
           );
           // TODO: Redirect to a thank you page!
           navigate("/thanks");
@@ -153,7 +154,7 @@ const FormPage = () => {
         });
         const responsesData = await createMongoResponse(
           formId ?? "",
-          updatedNormalizedAnswers
+          updatedNormalizedAnswers,
         );
         // TODO: Redirect to a thank you page!
         navigate("/thanks");
@@ -163,7 +164,7 @@ const FormPage = () => {
       // TODO: need to get payment intent id sent into this
       const responsesData = await createMongoResponse(
         formId ?? "",
-        normalizedAnswers
+        normalizedAnswers,
       );
       navigate("/thanks");
       return responsesData;
@@ -199,8 +200,7 @@ const FormPage = () => {
           <FormProvider {...methods}>
             <form
               className={styles.formContent}
-              onSubmit={methods.handleSubmit(onSubmit)}
-            >
+              onSubmit={methods.handleSubmit(onSubmit)}>
               <h1 className={styles.title}>{form?.form_data.title}</h1>
               {form.form_data.fields
                 .filter((_: Field, index: number) => index === used - 1)
@@ -234,8 +234,7 @@ const FormPage = () => {
                     onClick={(e) => {
                       e.preventDefault();
                       setUsed((prev) => prev - 1);
-                    }}
-                  >
+                    }}>
                     Back
                   </button>
                 )}
@@ -243,8 +242,7 @@ const FormPage = () => {
                   <button
                     type="submit"
                     id="submitButton"
-                    className={styles.submitButton}
-                  >
+                    className={styles.submitButton}>
                     Submit
                   </button>
                 ) : (
@@ -256,8 +254,7 @@ const FormPage = () => {
                       e.preventDefault();
                       setUsed((prev) => prev + 1);
                     }}
-                    disabled={hasErrors() || isNotEmpty()}
-                  >
+                    disabled={hasErrors() || isNotEmpty()}>
                     Next
                   </button>
                 )}

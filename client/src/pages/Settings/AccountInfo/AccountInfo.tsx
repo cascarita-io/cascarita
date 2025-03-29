@@ -1,12 +1,14 @@
-import styles from "../Settings.module.css";
-import { Avatar } from "@radix-ui/themes";
-import { FaCopy, FaUser } from "react-icons/fa";
-import { useGetCompleteUserSettings } from "../../../api/users/query";
 import { useEffect, useRef, useState } from "react";
+import { FaCopy, FaUser } from "react-icons/fa";
+
 import { useAuth0 } from "@auth0/auth0-react";
+import { Avatar } from "@radix-ui/themes";
 import Cookies from "js-cookie";
-import { User } from "../../Users/types";
+
+import { useGetCompleteUserSettings } from "../../../api/users/query";
 import { fetchUser } from "../../../api/users/service";
+import { User } from "../../Users/types";
+import styles from "../Settings.module.css";
 
 const AccountInfo = () => {
   // State variables
@@ -64,8 +66,7 @@ const AccountInfo = () => {
               )}
               <button
                 className={`${styles.btn} ${styles.copyBtn}`}
-                onClick={handleCopy}
-              >
+                onClick={handleCopy}>
                 <FaCopy style={{ height: "16px", width: "16px" }} />
               </button>
             </div>

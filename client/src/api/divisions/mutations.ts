@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createDivision, deleteDivision, updateDivision } from "./service";
+
 import { DivisionRequest } from "../../components/Forms/DivisionForm/types";
+import { createDivision, deleteDivision, updateDivision } from "./service";
 
 export const useCreateDivision = () => {
   const queryClient = useQueryClient();

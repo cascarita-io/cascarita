@@ -1,41 +1,42 @@
 import { useEffect, useState } from "react";
-import styles from "./FormResponses.module.css";
+import { useTranslation } from "react-i18next";
+
 import Cookies from "js-cookie";
-import {
-  AnswerRecordMap,
-  FormPaymentType,
-  FormResponse,
-  FormResponsesProps,
-} from "./types";
+
 import {
   getMongoFormById,
   getMongoFormResponses,
   sendApprovalEmail,
   sendRejectionEmail,
 } from "../../api/forms/service";
-import { useTranslation } from "react-i18next";
-import { Answer } from "../../api/forms/types";
-import StatusLabel from "../StatusLabel/StatusLabel";
-import DashboardTable from "../DashboardTable/DashboardTable";
-import DropdownMenuButton from "../DropdownMenuButton/DropdownMenuButton";
-import PrimaryButton from "../PrimaryButton/PrimaryButton";
-import Modal from "../Modal/Modal";
-import FormResponseForm from "../Forms/FormResponseModal/FormResponseModal";
 import {
   getFormPayments,
   updateFormPaymentStatus,
 } from "../../api/forms/service";
-import PaymentCapture from "../PaymentCapture/PaymentCapture";
+import { Answer } from "../../api/forms/types";
 import { formatCurrency } from "../../utils/formatCurrency";
+import DashboardTable from "../DashboardTable/DashboardTable";
+import DropdownMenuButton from "../DropdownMenuButton/DropdownMenuButton";
+import FormResponseForm from "../Forms/FormResponseModal/FormResponseModal";
+import Modal from "../Modal/Modal";
+import PaymentCapture from "../PaymentCapture/PaymentCapture";
+import PrimaryButton from "../PrimaryButton/PrimaryButton";
+import StatusLabel from "../StatusLabel/StatusLabel";
+import styles from "./FormResponses.module.css";
 import { formatDate, getExpiryDate, getStatusOfStripePayment } from "./helpers";
+import {
+  AnswerRecordMap,
+  FormPaymentType,
+  FormResponse,
+  FormResponsesProps,
+} from "./types";
 
 const StatusButton = (status: "approved" | "rejected" | "pending") => {
   return (
     <StatusLabel
       className={styles.statusLabel}
       status={status}
-      renderDropdown={true}
-    >
+      renderDropdown={true}>
       {status}
     </StatusLabel>
   );
@@ -52,7 +53,7 @@ interface PaymentCaptureModalProps {
   handleStatusChange: (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => void;
 }
 
@@ -91,18 +92,18 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const [email, setEmail] = useState<string[]>([]);
   const [isViewOpen, setIsViewOpen] = useState<{ [key: number]: boolean }>({});
   const [status, setStatus] = useState<("approved" | "rejected" | "pending")[]>(
-    []
+    [],
   );
   const [stripePaymentIntentUrls, setStripePaymentIntentUrlsData] = useState<
     (string | null)[]
   >([]);
 
   const [formResponsesData, setFormResponsesData] = useState<AnswerRecordMap>(
-    []
+    [],
   );
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [currentPaymentIndex, setCurrentPaymentIndex] = useState<number | null>(
-    null
+    null,
   );
   const adminEmail = Cookies.get("email") || "";
   const { t } = useTranslation("FormResponses");
@@ -116,7 +117,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       const responsesData = await getMongoFormResponses(formData._id);
 
       setSubmittedAt(
-        responsesData.map((response: FormResponse) => response.createdAt)
+        responsesData.map((response: FormResponse) => response.createdAt),
       );
 
       const responsesArray = responsesData.map((res: FormResponse) => {
@@ -191,8 +192,8 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
 
             stripePaymentIntentUrlsData[index] =
               paymentData.stripe_payment_intent_url || null;
-          }
-        )
+          },
+        ),
       );
       setStatus(statusData);
       setPaymentType(paymentTypeData);
@@ -203,7 +204,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
   const handleStatusChange = async (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => {
     const newStatus = [...status];
     newStatus[index] = statusUpdate;
@@ -237,7 +238,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
           playerName,
           paymentAmount,
           paymentDate,
-          transactionId
+          transactionId,
         );
       }
       updatedStatus = "succeeded";
@@ -248,7 +249,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
           leagueName,
           seasonName,
           playerName,
-          paymentAmount
+          paymentAmount,
         );
       }
       updatedStatus = "canceled";
@@ -258,7 +259,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
       paymentIntentIds[index],
       updatedStatus,
       adminEmail,
-      response
+      response,
     );
   };
 
@@ -300,8 +301,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
         <DashboardTable
           headers={registrationTypeHeaders}
           headerColor="light"
-          className={styles.table}
-        >
+          className={styles.table}>
           {formResponsesData.map((response: Record<string, Answer>, index) => (
             <tr key={index}>
               <td>{index + 1}</td>
@@ -315,22 +315,18 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   status[index] !== "rejected" ? (
                     <StatusLabel
                       className={styles.statusLabel}
-                      status="expired"
-                    >
+                      status="expired">
                       expired
                     </StatusLabel>
                   ) : (
                     <DropdownMenuButton
                       className={styles.dropdown}
-                      trigger={StatusButton(status[index])}
-                    >
+                      trigger={StatusButton(status[index])}>
                       <DropdownMenuButton.Item
-                        onClick={() => handleOpenPaymentModal(index)}
-                      >
+                        onClick={() => handleOpenPaymentModal(index)}>
                         <StatusLabel
                           className={styles.statusLabel}
-                          status="approved"
-                        >
+                          status="approved">
                           approved
                         </StatusLabel>
                       </DropdownMenuButton.Item>
@@ -340,12 +336,10 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                       />
 
                       <DropdownMenuButton.Item
-                        onClick={() => handleOpenPaymentModal(index)}
-                      >
+                        onClick={() => handleOpenPaymentModal(index)}>
                         <StatusLabel
                           className={styles.statusLabel}
-                          status="rejected"
-                        >
+                          status="rejected">
                           rejected
                         </StatusLabel>
                       </DropdownMenuButton.Item>
@@ -355,12 +349,10 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                       />
 
                       <DropdownMenuButton.Item
-                        onClick={() => handleOpenPaymentModal(index)}
-                      >
+                        onClick={() => handleOpenPaymentModal(index)}>
                         <StatusLabel
                           className={styles.statusLabel}
-                          status="pending"
-                        >
+                          status="pending">
                           pending
                         </StatusLabel>
                       </DropdownMenuButton.Item>
@@ -373,15 +365,13 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   open={isViewOpen[index] || false}
                   onOpenChange={(open) =>
                     setIsViewOpen((prev) => ({ ...prev, [index]: open }))
-                  }
-                >
+                  }>
                   <Modal.Button asChild className={styles.modalTrigger}>
                     <PrimaryButton
                       className={styles.primaryBtn}
                       onClick={() =>
                         setIsViewOpen((prev) => ({ ...prev, [index]: true }))
-                      }
-                    >
+                      }>
                       <p className={styles.btnTextDesktop}>View</p>
                     </PrimaryButton>
                   </Modal.Button>
@@ -394,11 +384,10 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                           if (stripePaymentIntentUrls[index]) {
                             window.open(
                               stripePaymentIntentUrls[index],
-                              "_blank"
+                              "_blank",
                             );
                           }
-                        }}
-                      >
+                        }}>
                         <p className={styles.btnTextDesktop}>
                           View Stripe Payment
                         </p>
@@ -419,7 +408,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   ) : (
                     getStatusOfStripePayment(
                       status[index],
-                      formatDate(submittedAt[index], 3)
+                      formatDate(submittedAt[index], 3),
                     )
                   )
                 ) : (
@@ -433,8 +422,7 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
         <DashboardTable
           headers={blankTypeHeaders}
           headerColor="light"
-          className={styles.table}
-        >
+          className={styles.table}>
           {formResponsesData.map((response: Record<string, Answer>, index) => (
             <tr key={index}>
               <td>{index + 1}</td>
@@ -443,15 +431,13 @@ const FormResponses = ({ formId, populateResponses }: FormResponsesProps) => {
                   open={isViewOpen[index] || false}
                   onOpenChange={(open) =>
                     setIsViewOpen((prev) => ({ ...prev, [index]: open }))
-                  }
-                >
+                  }>
                   <Modal.Button asChild className={styles.modalTrigger}>
                     <PrimaryButton
                       className={styles.primaryBtn}
                       onClick={() =>
                         setIsViewOpen((prev) => ({ ...prev, [index]: true }))
-                      }
-                    >
+                      }>
                       <p className={styles.btnTextDesktop}>View</p>
                     </PrimaryButton>
                   </Modal.Button>

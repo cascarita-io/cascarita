@@ -281,9 +281,8 @@ const FormController = function () {
         res.status(404).json([`no form with form id: ${form_id}`]);
       }
 
-      const formPayments = await FormPaymentController.getFormPaymentsByFormId(
-        form_id,
-      );
+      const formPayments =
+        await FormPaymentController.getFormPaymentsByFormId(form_id);
 
       if (!formPayments.success) {
         console.warn("failed to find form with form_id");

@@ -1,7 +1,7 @@
 import { Answer } from "../../../api/forms/types";
+import { formatCurrency } from "../../../utils/formatCurrency";
 import DashboardTable from "../../DashboardTable/DashboardTable";
 import styles from "./FormResponseModal.module.css";
-import { formatCurrency } from "../../../utils/formatCurrency";
 
 interface FormResponseModalProps {
   answers: Record<string, Answer> | undefined;
@@ -18,8 +18,7 @@ const FormResponseModal: React.FC<FormResponseModalProps> = ({ answers }) => {
     <DashboardTable
       headers={headers}
       headerColor="light"
-      className={styles.table}
-    >
+      className={styles.table}>
       <tr>
         {answers &&
           Object.keys(answers).map((key) => {

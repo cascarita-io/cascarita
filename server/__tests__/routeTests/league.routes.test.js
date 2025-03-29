@@ -142,9 +142,8 @@ it("should not create if name is not unique POST /create", async () => {
 });
 
 it("should create a league with the same name from a different group POST /create", async () => {
-  const groupUno = await TestDataGenerator.createDummyGroup(
-    "Watsonville Corp.",
-  );
+  const groupUno =
+    await TestDataGenerator.createDummyGroup("Watsonville Corp.");
   const groupDos = await TestDataGenerator.createDummyGroup("Salinas Inc.");
 
   await testDb.League.create({ group_id: groupUno.id, name: "Summer 2024" });

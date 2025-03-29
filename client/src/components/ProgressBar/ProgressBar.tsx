@@ -1,4 +1,5 @@
 import * as Progress from "@radix-ui/react-progress";
+
 import styles from "./ProgressBar.module.css";
 
 interface ProgressBarProps {
@@ -26,15 +27,13 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       max={total}
       asChild={asChild ? true : false}
       getValueLabel={getLabel}
-      className={progressBarClassName}
-    >
+      className={progressBarClassName}>
       <Progress.ProgressIndicator
         className={styles.progressIndicator}
         style={{
           width: `${(used / total) * 100}%`,
           transition: "width 0.5s ease-in-out",
-        }}
-      >
+        }}>
         {children}
       </Progress.ProgressIndicator>
     </Progress.Root>

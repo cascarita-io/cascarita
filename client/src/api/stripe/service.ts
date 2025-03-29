@@ -1,16 +1,17 @@
-import { loadStripe, PaymentIntent } from "@stripe/stripe-js";
+import { PaymentIntent, loadStripe } from "@stripe/stripe-js";
+import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
+import nullthrows from "nullthrows";
+
 import {
   StripeAccount,
   StripeAccountSchema,
 } from "../../components/DragAndDropComponents/DraggablePayment/types";
-import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
-import nullthrows from "nullthrows";
 
 export const connectStripe = async (
   id: number,
   email: string,
   name: string,
-  description: string
+  description: string,
 ) => {
   const formData = {
     id: id,
@@ -46,7 +47,7 @@ export const createPaymentIntent = async (
   form_id: string,
   transactionAmount: number,
   transactionFee: number,
-  isCustomerPayingFee: boolean
+  isCustomerPayingFee: boolean,
 ): Promise<PaymentIntent | null> => {
   try {
     const response = await fetch(
@@ -62,7 +63,7 @@ export const createPaymentIntent = async (
           form_id,
           isCustomerPayingFee,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -83,7 +84,7 @@ export const getPublishableKey = async (): Promise<string> => {
 
     if (!response.ok) {
       throw new Error(
-        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`
+        `fetching publishable key non-ok-response: ${response.status} - ${response.statusText}`,
       );
     }
 
@@ -123,7 +124,7 @@ export const useStripePromise = (stripeAccount: string) => {
         nullthrows(publishableKey, "Publishable key is missing"),
         {
           stripeAccount,
-        }
+        },
       );
     },
   });

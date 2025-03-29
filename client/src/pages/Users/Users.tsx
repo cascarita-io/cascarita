@@ -1,21 +1,22 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@radix-ui/themes";
-import { useState, useEffect } from "react";
-
-import Page from "../../components/Page/Page";
-import styles from "../pages.module.css";
-import pagesStyles from "../pages.module.css";
-import DashboardTable from "../../components/DashboardTable/DashboardTable";
-// import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
-import { User } from "./types";
-import Search from "../../components/Search/Search";
 // import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 // import Modal from "../../components/Modal/Modal";
 // import UserForm from "../../components/Forms/UserForm/UserForm";
 import { FaUser } from "react-icons/fa";
-import useResponsiveHeader from "../../hooks/useResponsiveHeader";
-import { useGroup } from "../../components/GroupProvider/GroupProvider";
+
+import { Avatar } from "@radix-ui/themes";
+
 import { useGetUsersByGroupId } from "../../api/users/query";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import Page from "../../components/Page/Page";
+import Search from "../../components/Search/Search";
+import useResponsiveHeader from "../../hooks/useResponsiveHeader";
+import styles from "../pages.module.css";
+import pagesStyles from "../pages.module.css";
+// import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+import { User } from "./types";
 
 const Users = () => {
   const { t } = useTranslation("Users");
@@ -30,7 +31,7 @@ const Users = () => {
   const { groupId } = useGroup();
   const tableHeaders = useResponsiveHeader(
     ["Name", "Role", "Email"],
-    ["Name", "Email"]
+    ["Name", "Email"],
   );
 
   const { data: users, isLoading, isError } = useGetUsersByGroupId(groupId);
@@ -125,8 +126,7 @@ const Users = () => {
                     <p>{`${user.first_name} ${user.last_name}`}</p>
                     <p
                       className={styles.showInMobile}
-                      style={{ fontSize: "0.7rem" }}
-                    >
+                      style={{ fontSize: "0.7rem" }}>
                       {user.user_roles?.length > 0
                         ? user.user_roles?.join(", ")
                         : "No Role Given"}

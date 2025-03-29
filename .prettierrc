@@ -5,9 +5,10 @@
   "trailingComma": "all",
   "singleQuote": false,
   "tabWidth": 2,
+  "endOfLine": "lf",
   "semi": true,
-  "importOrder": ["^react(.*)", "@/(.*)", "^[./]"],
+  "importOrder": ["^react(.*)", "<THIRD_PARTY_MODULES>", "^@/(.*)", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "plugins": []
+  "plugins": ["@trivago/prettier-plugin-sort-imports"]
 }

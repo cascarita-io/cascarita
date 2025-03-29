@@ -1,7 +1,8 @@
-import { FieldProps } from "../types";
 import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./MultipleChoice.module.css";
 import { useTranslation } from "react-i18next";
+
+import { FieldProps } from "../types";
+import styles from "./MultipleChoice.module.css";
 
 const MultipleChoice = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
@@ -49,7 +50,7 @@ const MultipleChoice = ({ field, index }: FieldProps) => {
               {...register(
                 isMultipleSelection
                   ? `answers.${index}.choices.labels`
-                  : `answers.${index}.choice.label`
+                  : `answers.${index}.choice.label`,
               )}
             />
             {choice.label}

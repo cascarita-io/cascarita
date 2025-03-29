@@ -1,17 +1,18 @@
-import styles from "./SideNav.module.css";
-import { SideNavProps } from "./types";
-import { RiHomeLine } from "react-icons/ri";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { FiUsers } from "react-icons/fi";
 // import { MdOutlineCalendarToday } from "react-icons/md";
 import { HiOutlinePencilAlt } from "react-icons/hi";
 import { IoSettingsOutline } from "react-icons/io5";
+import { RiHomeLine } from "react-icons/ri";
 import { TbLogout } from "react-icons/tb";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import CascaritaLogo from "../../assets/Logos/CascaritaLogo/CascaritaLogo";
 import LogoutButton from "../LogoutButton/LogoutButton";
 import NavItem from "../NavItem/NavItem";
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import CascaritaLogo from "../../assets/Logos/CascaritaLogo/CascaritaLogo";
+import styles from "./SideNav.module.css";
+import { SideNavProps } from "./types";
 
 const SideNav: React.FC<SideNavProps> = ({ selectedItem, setSelectedItem }) => {
   const navigate = useNavigate();

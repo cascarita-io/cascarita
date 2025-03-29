@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
 import { Draggable } from "react-beautiful-dnd";
-import { StripeAccount } from "./types";
-import styles from "./DraggablePayment.module.css";
-import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
-import Switch from "react-switch";
+import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { SMALL_DRAGGABLE_CONTAINER_WIDTH } from "../constants";
-import { formatPayment } from "../../../utils/formatPayment";
-import { DraggableProps } from "../types";
+import Switch from "react-switch";
+
 import Cookies from "js-cookie";
+
 import { useGetAllStripeAccounts } from "../../../api/stripe/query";
+import { formatPayment } from "../../../utils/formatPayment";
+import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
+import { SMALL_DRAGGABLE_CONTAINER_WIDTH } from "../constants";
+import { DraggableProps } from "../types";
+import styles from "./DraggablePayment.module.css";
+import { StripeAccount } from "./types";
 
 const DraggablePayment: React.FC<DraggableProps> = ({
   index,
@@ -83,8 +85,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
         value={JSON.stringify({
           id: account.id,
           stripe_account_id: account.stripe_account_id,
-        })}
-      >
+        })}>
         {account.first_name}&apos;s Account
       </option>
     ));
@@ -98,8 +99,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          onClick={handleClick}
-        >
+          onClick={handleClick}>
           <div style={{ position: "relative" }} ref={containerRef}>
             <p className={styles.textElementTypeText}>{t("payment")}</p>
             <div className={styles.draggableContainer}>
@@ -237,8 +237,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                         className={styles.addStripeAccountButton}
                         onClick={() =>
                           (window.location.href = "/settings/payment")
-                        }
-                      >
+                        }>
                         Add Stripe Account
                       </button>
                     ) : (
@@ -266,8 +265,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
                                 );
                               }
                             }}
-                            value={JSON.stringify(field.value)}
-                          >
+                            value={JSON.stringify(field.value)}>
                             {displayStripeAccountOptions()}
                           </select>
                         )}
@@ -278,8 +276,7 @@ const DraggablePayment: React.FC<DraggableProps> = ({
               <div
                 className={`${styles.extraOptions} ${
                   isContainerWidthMaxed ? styles.containerSmall : ""
-                }`}
-              >
+                }`}>
                 {formField.validations?.required != null && (
                   <div className={styles.requiredSwitch}>
                     <p className={styles.requiredText}>{t("requiredText")}</p>

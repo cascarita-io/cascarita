@@ -1,7 +1,8 @@
 import React from "react";
-import { NavbarProps, NavbarItemProps } from "./types";
-import styles from "./Navbar.module.css";
 import { NavLink } from "react-router-dom";
+
+import styles from "./Navbar.module.css";
+import { NavbarItemProps, NavbarProps } from "./types";
 
 const Navbar: React.FC<NavbarProps> & {
   Item: React.FC<NavbarItemProps>;
@@ -34,8 +35,7 @@ const NavbarItem: React.FC<NavbarItemProps> = ({
         className={activeClass}
         to={href}
         end // Add the "end" prop to match exactly this path
-        {...delegated}
-      >
+        {...delegated}>
         {children}
       </NavLink>
     </li>

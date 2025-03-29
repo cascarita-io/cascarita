@@ -1,21 +1,23 @@
 import React from "react";
-import { Controller, useFormContext } from "react-hook-form";
-import { Draggable } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
-import styles from "./DraggablePlayer.module.css";
-import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
+import { Draggable } from "react-beautiful-dnd";
+import { Controller, useFormContext } from "react-hook-form";
 import Switch from "react-switch";
-// import { useTranslation } from "react-i18next";
-import { DraggableProps } from "../types";
+
+import Cookies from "js-cookie";
+
+import { getDivisionsBySeasonId } from "../../../api/divisions/service";
 import { getLeaguesByGroupId } from "../../../api/leagues/service";
 import { getSeasonsByLeagueId } from "../../../api/seasons/services";
-import Cookies from "js-cookie";
+import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
+import { DivisionType } from "../../../pages/Division/types";
 import { LeagueType } from "../../../pages/Leagues/types";
 import { SeasonType } from "../../../pages/Seasons/types";
-import { getDivisionsBySeasonId } from "../../../api/divisions/service";
-import { DivisionType } from "../../../pages/Division/types";
-import { getTeamsBySeasonDivisionId } from "../../../api/teams/service";
 import { TeamType } from "../../../pages/Teams/types";
+import DraggableSubMenu from "../DraggableSubMenu/DraggableSubMenu";
+// import { useTranslation } from "react-i18next";
+import { DraggableProps } from "../types";
+import styles from "./DraggablePlayer.module.css";
 
 const DraggablePlayer: React.FC<DraggableProps> = ({
   index,
@@ -27,13 +29,13 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
   const [seasons, setSeasons] = useState<SeasonType[]>([]);
   const [divisions, setDivisions] = useState<DivisionType[]>([]);
   const [selectedDivision, setSelectedDivision] = useState<string>(
-    `${formField.division_name}.${formField.division_id}`
+    `${formField.division_name}.${formField.division_id}`,
   );
   const [selectedSeason, setSelectedSeason] = useState<string>(
-    `${formField.season_name}.${formField.season_id}`
+    `${formField.season_name}.${formField.season_id}`,
   );
   const [selectedLeague, setSelectedLeague] = useState<string>(
-    `${formField.league_name}.${formField.league_id}`
+    `${formField.league_name}.${formField.league_id}`,
   );
   const groupId = Number(Cookies.get("group_id")) || 0;
 
@@ -47,7 +49,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
 
       const uniqueLeagues = leaguesData.filter(
         (league: LeagueType, index: number, self: LeagueType[]) =>
-          index === self.findIndex((l: LeagueType) => l.id === league.id)
+          index === self.findIndex((l: LeagueType) => l.id === league.id),
       );
       setLeagues(uniqueLeagues);
     };
@@ -65,12 +67,12 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
             meta: undefined,
           });
           return seasons;
-        })
+        }),
       );
       const allSeasons = seasonsData.flat();
       const uniqueSeasons = allSeasons.filter(
         (season, index, self) =>
-          index === self.findIndex((s) => s.id === season.id)
+          index === self.findIndex((s) => s.id === season.id),
       );
 
       setSeasons(uniqueSeasons);
@@ -90,7 +92,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
       });
       const uniqueDivisions = divisionData.filter(
         (division, index, self) =>
-          index === self.findIndex((d) => d.id === division.id)
+          index === self.findIndex((d) => d.id === division.id),
       );
       setDivisions(uniqueDivisions);
     };
@@ -117,9 +119,9 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
             }));
             setValue(
               `fields.${index}.properties.player_block_choices.teams`,
-              teams
+              teams,
             );
-          })
+          }),
         );
       };
       if (selectedDivision !== "" && selectedSeason !== "") {
@@ -144,8 +146,7 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          onClick={handleClick}
-        >
+          onClick={handleClick}>
           <div style={{ position: "relative" }}>
             <p className={styles.textElementTypeText}>Player</p>
             <div className={styles.draggableContainer}>
@@ -193,14 +194,12 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                           const leagueName = e.target.value.split(".")[0];
                           setValue(`fields.${index}.league_name`, leagueName);
                           setValue(`fields.${index}.league_id`, leagueId);
-                        }}
-                      >
+                        }}>
                         <option value="">Select a league</option>
                         {leagues.map((league) => (
                           <option
                             key={league.id}
-                            value={`${league.name}.${league.id}`}
-                          >
+                            value={`${league.name}.${league.id}`}>
                             {league.name}
                           </option>
                         ))}
@@ -224,20 +223,18 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                           const seasonName = e.target.value.split(".")[0];
                           setValue(`fields.${index}.season_id `, seasonId);
                           setValue(`fields.${index}.season_name`, seasonName);
-                        }}
-                      >
+                        }}>
                         <option value="">Select a season</option>
                         {seasons
                           .filter(
                             (season) =>
                               season.league_id ===
-                              Number(selectedLeague.split(".")[1])
+                              Number(selectedLeague.split(".")[1]),
                           )
                           .map((season) => (
                             <option
                               key={season.id}
-                              value={`${season.name}.${season.id}`}
-                            >
+                              value={`${season.name}.${season.id}`}>
                               {season.name}
                             </option>
                           ))}
@@ -258,22 +255,20 @@ const DraggablePlayer: React.FC<DraggableProps> = ({
                           field.onChange(e);
                           setSelectedDivision(e.target.value);
                           const divisionId = Number(
-                            e.target.value.split(".")[1]
+                            e.target.value.split(".")[1],
                           );
                           const divisionName = e.target.value.split(".")[0];
                           setValue(`fields.${index}.division_id `, divisionId);
                           setValue(
                             `fields.${index}.division_name`,
-                            divisionName
+                            divisionName,
                           );
-                        }}
-                      >
+                        }}>
                         <option value="">Select a division</option>
                         {divisions.map((division) => (
                           <option
                             key={division.id}
-                            value={`${division.name}.${division.id}`}
-                          >
+                            value={`${division.name}.${division.id}`}>
                             {division.name}
                           </option>
                         ))}

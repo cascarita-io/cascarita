@@ -1,6 +1,8 @@
-import { Text } from "@radix-ui/themes";
-import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import { useNavigate } from "react-router-dom";
+
+import { Text } from "@radix-ui/themes";
+
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
 import styles from "./NotFound.module.css";
 
 export default function NotFound() {
@@ -14,8 +16,7 @@ export default function NotFound() {
       </Text>
       <PrimaryButton
         className={styles.redirectButton}
-        onClick={() => navigate("/")}
-      >
+        onClick={() => navigate("/")}>
         Back to Homepage
       </PrimaryButton>
     </div>

@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import styles from "./FileUpload.module.css";
 import { FileRejection, useDropzone } from "react-dropzone";
-import { ImageIcon, Cross1Icon } from "@radix-ui/react-icons";
-import { FileUploadProps } from "./types";
 import PulseLoader from "react-spinners/PulseLoader";
+
+import { Cross1Icon, ImageIcon } from "@radix-ui/react-icons";
+
+import styles from "./FileUpload.module.css";
+import { FileUploadProps } from "./types";
 
 const focusedStyle = {
   borderColor: "#2196f3",
@@ -23,7 +25,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   imagePreview,
 }) => {
   const [filePreview, setFilePreview] = React.useState<string>(
-    imagePreview || ""
+    imagePreview || "",
   );
   const [isLoading, setIsLoading] = React.useState(imagePreview ? true : false);
 
@@ -89,7 +91,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
     }),
-    [isFocused, isDragAccept, isDragReject]
+    [isFocused, isDragAccept, isDragReject],
   );
 
   const removeFile = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -105,8 +107,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       {...getRootProps({
         className: className,
         style: style,
-      })}
-    >
+      })}>
       {filePreview && (
         <div className={styles.imgContainer}>
           <img

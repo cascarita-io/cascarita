@@ -1,17 +1,18 @@
 import { useState } from "react";
-import styles from "../Payment/Payment.module.css";
-import tableStyles from "../../pages.module.css";
+import { useTranslation } from "react-i18next";
+import { FaExternalLinkAlt, FaPlus } from "react-icons/fa";
 
+import Cookies from "js-cookie";
+
+import { useGetAllStripeAccounts } from "../../../api/stripe/query";
 import DashboardTable from "../../../components/DashboardTable/DashboardTable";
 import Modal from "../../../components/Modal/Modal";
 import PrimaryButton from "../../../components/PrimaryButton/PrimaryButton";
-import StripeAccountForm from "../StripeAccountForm/StripeAccountForm";
-import { useTranslation } from "react-i18next";
-import useResponsiveHeader from "../../../hooks/useResponsiveHeader";
-import { useGetAllStripeAccounts } from "../../../api/stripe/query";
-import Cookies from "js-cookie";
-import { FaExternalLinkAlt, FaPlus } from "react-icons/fa";
 import StatusLabel from "../../../components/StatusLabel/StatusLabel";
+import useResponsiveHeader from "../../../hooks/useResponsiveHeader";
+import tableStyles from "../../pages.module.css";
+import styles from "../Payment/Payment.module.css";
+import StripeAccountForm from "../StripeAccountForm/StripeAccountForm";
 
 const Payment = () => {
   const { t } = useTranslation("Settings");
@@ -28,7 +29,7 @@ const Payment = () => {
       t("payment.headers.name"),
       t("payment.headers.status"),
       t("payment.headers.link"),
-    ]
+    ],
   );
   const groupId = Number(Cookies.get("group_id")) || 0;
 
@@ -43,8 +44,7 @@ const Payment = () => {
           <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               onClick={() => setIsStripeModalOpen(true)}
-              className={styles.btn}
-            >
+              className={styles.btn}>
               <p className={styles.showInDesktop}>{t("payment.addStripe")}</p>
               <FaPlus className={styles.showInMobile} />
             </PrimaryButton>
@@ -67,16 +67,14 @@ const Payment = () => {
         <DashboardTable
           headers={planHeaders}
           headerColor="light"
-          className={styles.table}
-        >
+          className={styles.table}>
           {data?.map((user) => (
             <tr key={user.id}>
               <td>{`${user.first_name} ${user.last_name}`}</td>
               <td>
                 <StatusLabel
                   className={styles.statusLabel}
-                  status={user.stripe_status}
-                >
+                  status={user.stripe_status}>
                   {user.stripe_status}
                 </StatusLabel>
               </td>
@@ -85,8 +83,7 @@ const Payment = () => {
                 <a
                   href={user.stripe_account_link}
                   target="_blank"
-                  rel="noopener noreferrer"
-                >
+                  rel="noopener noreferrer">
                   <FaExternalLinkAlt />
                 </a>
               </td>

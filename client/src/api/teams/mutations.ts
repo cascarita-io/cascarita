@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createNewTeam, updateTeam, deleteTeam } from "./service";
+
 import { TeamRequest } from "../../components/Forms/TeamsForm/types";
+import { createNewTeam, deleteTeam, updateTeam } from "./service";
 
 export const useCreateTeam = () => {
   const queryClient = useQueryClient();

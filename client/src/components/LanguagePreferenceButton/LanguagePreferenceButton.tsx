@@ -1,6 +1,7 @@
-import { TfiWorld } from "react-icons/tfi";
-import LanguageDropdown from "../LanguageDropdown/LanguageDropdown";
 import React, { useState } from "react";
+import { TfiWorld } from "react-icons/tfi";
+
+import LanguageDropdown from "../LanguageDropdown/LanguageDropdown";
 
 interface LanguagePreferenceButtonProps {
   className?: string;

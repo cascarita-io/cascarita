@@ -20,17 +20,17 @@ var setUpForTeamsSession = async function (
   LeagueName,
   SeasonName,
   DivisionName,
-  TeamName
+  TeamName,
 ) {
   const group = await TestDataGenerator.createDummyGroup(groupName);
   const league = await TestDataGenerator.createLeague(LeagueName, group.id);
   const sampleSeason = await TestDataGenerator.createSeason(
     league.id,
-    SeasonName
+    SeasonName,
   );
   const sampleDivision = await TestDataGenerator.createDivision(
     group.id,
-    DivisionName
+    DivisionName,
   );
 
   const sampleSession = await TestDb.Session.create({
@@ -61,7 +61,7 @@ var createSampleTeamsSession = async function () {
     "league",
     "season",
     "division",
-    "team"
+    "team",
   );
   const sampleTeamsSession = await TestDb.TeamsSession.create({
     team_id: data.teamId,
@@ -102,7 +102,7 @@ describe("Session Controller", () => {
         "Best League",
         "Winter 23",
         "U-18",
-        "Sussy Sauls"
+        "Sussy Sauls",
       );
     });
   });
@@ -114,7 +114,7 @@ describe("Session Controller", () => {
         "Best League",
         "Winter 23",
         "U-18",
-        "Sussy Sauls"
+        "Sussy Sauls",
       );
 
       const req = {
@@ -135,7 +135,7 @@ describe("Session Controller", () => {
         expect.objectContaining({
           team_id: sampleData.teamId,
           session_id: sampleData.sessionId,
-        })
+        }),
       );
     });
 
@@ -145,7 +145,7 @@ describe("Session Controller", () => {
         "top League",
         "Summer 23",
         "1st",
-        "Sussy Sauls"
+        "Sussy Sauls",
       );
 
       const req = {
@@ -172,7 +172,7 @@ describe("Session Controller", () => {
             sqlMessage:
               "Incorrect integer value: 'Yo momma' for column 'session_id' at row 1",
           }),
-        })
+        }),
       );
     });
 
@@ -182,7 +182,7 @@ describe("Session Controller", () => {
         "top League 2",
         "Summer 25",
         "2nd",
-        "Sussy Sauls"
+        "Sussy Sauls",
       );
 
       const req = {
@@ -200,7 +200,7 @@ describe("Session Controller", () => {
 
       expect(next).toHaveBeenCalled();
       expect(caughtError.toString()).toMatch(
-        /^SequelizeForeignKeyConstraintError: Cannot add or update a child row:/
+        /^SequelizeForeignKeyConstraintError: Cannot add or update a child row:/,
       );
     });
 
@@ -210,7 +210,7 @@ describe("Session Controller", () => {
         "top League 2",
         "Summer 25",
         "2nd",
-        "Sussy Sauls"
+        "Sussy Sauls",
       );
 
       const req = {
@@ -228,7 +228,7 @@ describe("Session Controller", () => {
 
       expect(next).toHaveBeenCalled();
       expect(caughtError.toString()).toMatch(
-        /^SequelizeForeignKeyConstraintError: Cannot add or update a child row:/
+        /^SequelizeForeignKeyConstraintError: Cannot add or update a child row:/,
       );
     });
   });
@@ -240,7 +240,7 @@ describe("Session Controller", () => {
         "top League 2",
         "Summer 25",
         "2nd",
-        "Sussy Sauls"
+        "Sussy Sauls",
       );
       const oldTeamsSession = await createSampleTeamsSession();
 
@@ -262,7 +262,7 @@ describe("Session Controller", () => {
         expect.objectContaining({
           team_id: sampleData.teamId,
           session_id: oldTeamsSession.teamsSessionData.session_id,
-        })
+        }),
       );
     });
 
@@ -272,7 +272,7 @@ describe("Session Controller", () => {
         "top League",
         "Summer 23",
         "1st",
-        "Sussy Sauls"
+        "Sussy Sauls",
       );
       const oldTeamsSession = await createSampleTeamsSession();
       const newSession = await TestDb.Session.create({
@@ -296,7 +296,7 @@ describe("Session Controller", () => {
 
       expect(next).toHaveBeenCalled();
       expect(caughtError.toString()).toMatch(
-        'Error: WHERE parameter "id" has invalid "undefined" value'
+        'Error: WHERE parameter "id" has invalid "undefined" value',
       );
     });
   });
@@ -317,7 +317,7 @@ describe("Session Controller", () => {
           expect.objectContaining({
             session_id: newTeamsSession.teamsSessionData.session_id,
           }),
-        ])
+        ]),
       );
     });
 
@@ -335,7 +335,7 @@ describe("Session Controller", () => {
 
       expect(next).toHaveBeenCalled();
       expect(caughtError.toString()).toMatch(
-        "Error: group with given id has no teams"
+        "Error: group with given id has no teams",
       );
     });
   });
@@ -368,7 +368,7 @@ describe("Session Controller", () => {
 
       expect(next).toHaveBeenCalled();
       expect(caughtError.toString()).toMatch(
-        "Error: no team session found with the given id"
+        "Error: no team session found with the given id",
       );
     });
   });

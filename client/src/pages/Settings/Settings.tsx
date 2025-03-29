@@ -1,7 +1,8 @@
-import Page from "../../components/Page/Page";
-import Navbar from "../../components/NavBar/NavBar";
-import { Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Outlet } from "react-router-dom";
+
+import Navbar from "../../components/NavBar/NavBar";
+import Page from "../../components/Page/Page";
 import styles from "./Settings.module.css";
 
 const Settings = () => {

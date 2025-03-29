@@ -1,13 +1,15 @@
-import styles from "./Layout.module.css";
-import { LayoutProps, blackListExceptions } from "./types";
-import SideNav from "../SideNav/SideNav";
 import { useState } from "react";
-import { blackListRoutes } from "./blacklist";
-import { useAuth0 } from "@auth0/auth0-react";
-import { matchPath } from "../../utils/matchPath";
 import { Outlet } from "react-router-dom";
-import Header from "../Header/Header";
 import { ToastContainer } from "react-toastify";
+
+import { useAuth0 } from "@auth0/auth0-react";
+
+import { matchPath } from "../../utils/matchPath";
+import Header from "../Header/Header";
+import SideNav from "../SideNav/SideNav";
+import styles from "./Layout.module.css";
+import { blackListRoutes } from "./blacklist";
+import { LayoutProps, blackListExceptions } from "./types";
 
 const Layout: React.FC<LayoutProps> = () => {
   const { user } = useAuth0();
@@ -15,7 +17,7 @@ const Layout: React.FC<LayoutProps> = () => {
   const [selectedItem, setSelectedItem] = useState("");
 
   const isBlacklisted = blackListRoutes.some((pattern) =>
-    matchPath(window.location.pathname, pattern, blackListExceptions)
+    matchPath(window.location.pathname, pattern, blackListExceptions),
   );
 
   return (

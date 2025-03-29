@@ -1,8 +1,9 @@
-import { FieldProps } from "../types";
-import { FieldError, useFormContext } from "react-hook-form";
-import styles from "./Liability.module.css";
-import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
+import { FieldError, useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+
+import { FieldProps } from "../types";
+import styles from "./Liability.module.css";
 
 const Liability = ({ field, index }: FieldProps) => {
   const { t } = useTranslation("FormComponents");
@@ -49,8 +50,7 @@ const Liability = ({ field, index }: FieldProps) => {
             href={field.properties.termsOfService}
             target="_blank"
             rel="noreferrer"
-            className={styles.link}
-          >
+            className={styles.link}>
             Terms of Service
           </a>
         )}
@@ -59,8 +59,7 @@ const Liability = ({ field, index }: FieldProps) => {
             href={field.properties.privacyPolicy}
             rel="noreferrer"
             target="_blank"
-            className={styles.link}
-          >
+            className={styles.link}>
             Privacy Policy
           </a>
         )}

@@ -1,4 +1,5 @@
 import { Button } from "@radix-ui/themes";
+
 import styles from "./PrimaryButton.module.css";
 import { PrimaryButtonProps } from "./types";
 

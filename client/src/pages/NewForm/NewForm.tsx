@@ -1,27 +1,29 @@
-import DraggableButton from "../../components/DragAndDropComponents/DraggableButton/DraggableButton";
-import Page from "../../components/Page/Page";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useAuth0 } from "@auth0/auth0-react";
+import { Text } from "@radix-ui/themes";
+import Cookies from "js-cookie";
+import { v4 as uuidv4 } from "uuid";
+
+import { useGetFormByDocumentId } from "../../api/forms/query";
+import { createMongoForm, updateForm } from "../../api/forms/service";
+import { Field, FieldType, Form } from "../../api/forms/types";
+import { fetchUser } from "../../api/users/service";
+import { User } from "../../api/users/types";
+import BlueCheckMarkIcon from "../../assets/Icons/BlueCheckMarkIcon";
 import DNDCanvas from "../../components/DragAndDropComponents/DNDCanvas/DNDCanvas";
+import DraggableButton from "../../components/DragAndDropComponents/DraggableButton/DraggableButton";
+import FormResponses from "../../components/FormResponses/FormResponses";
+import { exportToCsv } from "../../components/FormResponses/helpers";
+import { AnswerRecordMap } from "../../components/FormResponses/types";
+import Modal from "../../components/Modal/Modal";
+import Page from "../../components/Page/Page";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { toSnakeCase } from "../../utils/toSnakeCase";
 import styles from "./NewForm.module.css";
 import { DNDCanvasRef, DroppedItem, NewFormSections } from "./types";
-import { v4 as uuidv4 } from "uuid";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
-import { useTranslation } from "react-i18next";
-import FormResponses from "../../components/FormResponses/FormResponses";
-import { toSnakeCase } from "../../utils/toSnakeCase";
-import { createMongoForm, updateForm } from "../../api/forms/service";
-import { User } from "../../api/users/types";
-import { Field, FieldType, Form } from "../../api/forms/types";
-import Cookies from "js-cookie";
-import { fetchUser } from "../../api/users/service";
-import BlueCheckMarkIcon from "../../assets/Icons/BlueCheckMarkIcon";
-import { Text } from "@radix-ui/themes";
-import Modal from "../../components/Modal/Modal";
-import { useGetFormByDocumentId } from "../../api/forms/query";
-import { AnswerRecordMap } from "../../components/FormResponses/types";
-import { exportToCsv } from "../../components/FormResponses/helpers";
-import { formatCurrency } from "../../utils/formatCurrency";
 
 interface CreateFormConfirmationModalProps {
   openModal: boolean;
@@ -101,8 +103,7 @@ const CreateFormConfirmationModal: React.FC<
             flexDirection: "column",
             gap: "10px",
             height: "100%",
-          }}
-        >
+          }}>
           <BlueCheckMarkIcon />
           <Text style={{ fontWeight: "bold" }}>Completed </Text>
           <Text>You have successfully created a new form.</Text>
@@ -243,23 +244,20 @@ const NewForm = () => {
   return (
     <Page
       title={formId == null ? t("pageTitleNew") : t("pageTitleEdit")}
-      className={styles.newFormPage}
-    >
+      className={styles.newFormPage}>
       <div className={styles.newFormHeader}>
         <div className={styles.buttonGroup}>
           <button
             type="button"
             onClick={handleCancel}
-            className={styles.cancelButton}
-          >
+            className={styles.cancelButton}>
             {t("backButton")}
           </button>
           {activeSection === "questions" && (
             <button
               type="button"
               onClick={handleSubmit}
-              className={styles.submitButton}
-            >
+              className={styles.submitButton}>
               {formId == null ? t("createButton") : t("saveButton")}
             </button>
           )}
@@ -267,8 +265,7 @@ const NewForm = () => {
             <button
               type="button"
               onClick={onDownloadResponses}
-              className={styles.submitButton}
-            >
+              className={styles.submitButton}>
               {t("download")}
             </button>
           )}
@@ -281,8 +278,7 @@ const NewForm = () => {
               ? styles.activeSection
               : styles.questionsNav
           }
-          onClick={() => setActiveSection("questions")}
-        >
+          onClick={() => setActiveSection("questions")}>
           {t("formNavOptions.questions")}
         </li>
         {formId != null && (
@@ -292,8 +288,7 @@ const NewForm = () => {
                 ? styles.activeSection
                 : styles.responsesNav
             }
-            onClick={() => setActiveSection("responses")}
-          >
+            onClick={() => setActiveSection("responses")}>
             {t("formNavOptions.responses")}
           </li>
         )}

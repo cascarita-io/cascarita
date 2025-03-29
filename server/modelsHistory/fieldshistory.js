@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "FieldsHistory",
       createdAt: "created_at",
       updatedAt: "updated_at",
-    }
+    },
   );
   return FieldsHistory;
 };

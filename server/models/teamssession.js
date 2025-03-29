@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "TeamsSession",
       createdAt: "created_at",
       updatedAt: "updated_at",
-    }
+    },
   );
   return TeamsSession;
 };

@@ -1,8 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+
+import Modal from "../../Modal/Modal";
 import styles from "../Form.module.css";
 import { DeleteFormProps } from "./types";
-import Modal from "../../Modal/Modal";
-import { useTranslation } from "react-i18next";
 
 const DeleteForm: React.FC<DeleteFormProps> = ({
   destructBtnLabel,

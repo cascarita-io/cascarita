@@ -1,16 +1,16 @@
 import React from "react";
 import { useState } from "react";
 
-import { UserFormProps, DeleteUserData, UpdateUserData } from "./types";
-import DeleteForm from "../DeleteForm/DeleteForm";
-import styles from "../Form.module.css";
 import {
+  useAddUser,
   useDeleteUser,
   useUpdateUser,
-  useAddUser,
 } from "../../../api/users/mutations";
 import Modal from "../../Modal/Modal";
+import DeleteForm from "../DeleteForm/DeleteForm";
+import styles from "../Form.module.css";
 import { PlayerRequest } from "../PlayerForm/types";
+import { DeleteUserData, UpdateUserData, UserFormProps } from "./types";
 
 const UserForm: React.FC<UserFormProps> = ({
   afterSave,
@@ -72,8 +72,7 @@ const UserForm: React.FC<UserFormProps> = ({
         <DeleteForm
           destructBtnLabel="Yes, I'm sure"
           onSubmit={handleSubmit}
-          className={styles.form}
-        >
+          className={styles.form}>
           <p>Are you sure you want to delete?</p>
         </DeleteForm>
       ) : (
@@ -131,8 +130,7 @@ const UserForm: React.FC<UserFormProps> = ({
                 name="userRole"
                 value={userRole}
                 onChange={(e) => setUserRole(e.target.value)}
-                required={requestType === "POST"}
-              >
+                required={requestType === "POST"}>
                 <option value="1">Staff</option>
               </select>
             </div>
@@ -141,8 +139,7 @@ const UserForm: React.FC<UserFormProps> = ({
           <div className={styles.formBtnContainer}>
             <button
               type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}
-            >
+              className={`${styles.btn} ${styles.submitBtn}`}>
               {requestType === "POST" ? "Add User" : "Update User"}
             </button>
 

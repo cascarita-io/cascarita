@@ -1,19 +1,22 @@
 import React, { useReducer } from "react";
+
+import { useAuth0 } from "@auth0/auth0-react";
+
+import { useGetAllGroups } from "../../api/groups/query";
+import { GroupType } from "../../api/groups/types";
+import { useRegisterUser } from "../../api/users/mutation";
+import { RegisterUser } from "../../api/users/types";
+import formStyles from "../Forms/Form.module.css";
 import Modal from "../Modal/Modal";
 import { ModalProps } from "../Modal/types";
-import styles from "./RegistrationModal.module.css";
-import formStyles from "../Forms/Form.module.css";
-import SelectMenu from "../SelectMenu/SelectMenu";
-import states from "./states.json";
 import RadioSelect from "../RadioSelect/RadioSelect";
-import { useGetAllGroups } from "../../api/groups/query";
-import { useRegisterUser } from "../../api/users/mutation";
-import { GroupType } from "../../api/groups/types";
-import { RegisterUser } from "../../api/users/types";
-import { useAuth0 } from "@auth0/auth0-react";
-import { Action, State } from "./types";
+import SelectMenu from "../SelectMenu/SelectMenu";
+import styles from "./RegistrationModal.module.css";
 import TCRegistration from "./TCRegistration";
 import { getIsPageComplete, getSubtitle, getTitle } from "./helpers";
+import states from "./states.json";
+import { Action, State } from "./types";
+
 interface RegisterModalProps extends ModalProps {
   onRegistrationComplete: () => void;
 }
@@ -102,7 +105,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   };
 
   const handleRegistrationComplete = async (
-    event: React.FormEvent<HTMLFormElement>
+    event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
     const token = await getAccessTokenSilently();
@@ -124,7 +127,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     };
     try {
       const data = await registerUserMutation.mutateAsync(
-        payload as RegisterUser
+        payload as RegisterUser,
       );
       // Handle successful registration here
       if (data.error) {
@@ -145,8 +148,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     <Modal open={open} onOpenChange={onOpenChange}>
       <Modal.Content
         title={getTitle(state.page)}
-        subtitle={getSubtitle(state.page)}
-      >
+        subtitle={getSubtitle(state.page)}>
         <form className={formStyles.form} onSubmit={handleRegistrationComplete}>
           {state.page === 1 && (
             <>
@@ -160,8 +162,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               <button
                 className={styles.registerBtn}
                 onClick={incrementPageNumber}
-                disabled={!getIsPageComplete(state, 1)}
-              >
+                disabled={!getIsPageComplete(state, 1)}>
                 Next
               </button>
             </>
@@ -220,16 +221,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               <div className={formStyles.formBtnContainer}>
                 <button
                   className={styles.backBtn}
-                  onClick={decrementPageNumber}
-                >
+                  onClick={decrementPageNumber}>
                   Go Back
                 </button>
 
                 <button
                   className={styles.registerBtn}
                   onClick={incrementPageNumber}
-                  disabled={!getIsPageComplete(state, 2)}
-                >
+                  disabled={!getIsPageComplete(state, 2)}>
                   Next
                 </button>
               </div>
@@ -254,8 +253,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                         value: updatedValue,
                       });
                     }}
-                    required
-                  >
+                    required>
                     <div>
                       <label htmlFor="rd-Yes">Yes</label>
                       <RadioSelect.Item value="Yes" id="rd-Yes" />
@@ -276,13 +274,11 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                           dispatch({ type: "SET_FIELD", field: "org", value })
                         }
                         name="groupId"
-                        className={styles.selectMenu1}
-                      >
+                        className={styles.selectMenu1}>
                         {data?.map((group: GroupType) => (
                           <SelectMenu.Item
                             key={group.id}
-                            value={group.id.toString()}
-                          >
+                            value={group.id.toString()}>
                             {group.name}
                           </SelectMenu.Item>
                         ))}
@@ -308,8 +304,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               <div className={formStyles.formBtnContainer}>
                 <button
                   className={styles.backBtn}
-                  onClick={decrementPageNumber}
-                >
+                  onClick={decrementPageNumber}>
                   Go Back
                 </button>
 
@@ -317,16 +312,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                   <button
                     type="submit"
                     className={styles.registerBtn}
-                    disabled={!getIsPageComplete(state, 3)}
-                  >
+                    disabled={!getIsPageComplete(state, 3)}>
                     Finish
                   </button>
                 ) : (
                   <button
                     className={styles.registerBtn}
                     onClick={incrementPageNumber}
-                    disabled={!getIsPageComplete(state, 3)}
-                  >
+                    disabled={!getIsPageComplete(state, 3)}>
                     Next
                   </button>
                 )}
@@ -392,8 +385,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                         dispatch({ type: "SET_FIELD", field: "state", value })
                       }
                       name="state"
-                      className={formStyles.selectMenu2}
-                    >
+                      className={formStyles.selectMenu2}>
                       {states.map((state, idx) => (
                         <SelectMenu.Item key={idx} value={state.abbreviation}>
                           {state.abbreviation}
@@ -421,16 +413,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               <div className={formStyles.formBtnContainer}>
                 <button
                   className={styles.backBtn}
-                  onClick={decrementPageNumber}
-                >
+                  onClick={decrementPageNumber}>
                   Go Back
                 </button>
 
                 <button
                   type="submit"
                   className={styles.registerBtn}
-                  disabled={!getIsPageComplete(state, 4)}
-                >
+                  disabled={!getIsPageComplete(state, 4)}>
                   Register
                 </button>
               </div>

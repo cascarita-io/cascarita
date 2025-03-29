@@ -10,7 +10,7 @@ module.exports = {
       {
         replacements: ["The FA (Football Federation)"],
         type: Sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     const groupId = groups[0].id;
@@ -22,7 +22,7 @@ module.exports = {
       {
         replacements: ["Saul"],
         type: Sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     const userId = users[0].id;
@@ -32,7 +32,7 @@ module.exports = {
       {
         replacements: ["Completed"],
         type: Sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     const statusId = statuses[0].id;
@@ -42,7 +42,7 @@ module.exports = {
       {
         replacements: ["Wembly"],
         type: Sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     const fieldsId = fields[0].id;
@@ -52,7 +52,7 @@ module.exports = {
       "..",
       "mockData",
       "england",
-      "premier-league-team-2015-file.json"
+      "premier-league-team-2015-file.json",
     );
 
     let teamsString = fs.readFileSync(filePath, "utf-8");

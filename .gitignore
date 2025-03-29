@@ -13,7 +13,7 @@ AWSCLIV2.pkg
 coverage
 
 # Build binaries not needed
-client/dist/*
+dist/
 
 # Terraform related files
 terraform/.terraform/*

@@ -1,18 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
 import {
   DeleteUserData,
-  UpdateUserData,
   PlayerSessionRequest,
+  UpdateUserData,
 } from "../../components/Forms/UserForm/types";
 import {
-  deleteUser,
-  updateUser,
   addUser,
+  deleteUser,
   getPlayerSession,
   updatePlayerTeams,
+  updateUser,
 } from "./service";
-import { PlayerRequest } from "../../components/Forms/PlayerForm/types";
 
 export const useAddUser = () => {
   const queryClient = useQueryClient();

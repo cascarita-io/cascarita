@@ -1,7 +1,8 @@
-import styles from "./Header.module.css";
 import { Text } from "@radix-ui/themes";
-import LanguagePreferenceButton from "../LanguagePreferenceButton/LanguagePreferenceButton";
+
 import CascaritaDefault from "../../assets/Logos/CascaritaLogo/CascaritaDefault";
+import LanguagePreferenceButton from "../LanguagePreferenceButton/LanguagePreferenceButton";
+import styles from "./Header.module.css";
 
 const Header = () => {
   return (

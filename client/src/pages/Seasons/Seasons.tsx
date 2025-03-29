@@ -1,18 +1,19 @@
-import Search from "../../components/Search/Search";
-import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
-import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
-import SelectMenu from "../../components/SelectMenu/SelectMenu";
-import Modal from "../../components/Modal/Modal";
-import SeasonForm from "../../components/Forms/SeasonForm/SeasonForm";
-import DashboardTable from "../../components/DashboardTable/DashboardTable";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "../pages.module.css";
 import { FaPlus } from "react-icons/fa";
-import { useGetSeasonsByGroupId } from "../../api/seasons/query";
+
 import { useGetLeaguesByGroupId } from "../../api/leagues/query";
-import { SeasonType } from "./types";
+import { useGetSeasonsByGroupId } from "../../api/seasons/query";
+import DashboardTable from "../../components/DashboardTable/DashboardTable";
+import DropdownMenuButton from "../../components/DropdownMenuButton/DropdownMenuButton";
+import SeasonForm from "../../components/Forms/SeasonForm/SeasonForm";
 import { useGroup } from "../../components/GroupProvider/GroupProvider";
+import Modal from "../../components/Modal/Modal";
+import PrimaryButton from "../../components/PrimaryButton/PrimaryButton";
+import Search from "../../components/Search/Search";
+import SelectMenu from "../../components/SelectMenu/SelectMenu";
+import styles from "../pages.module.css";
+import { SeasonType } from "./types";
 
 const Seasons = () => {
   const { t } = useTranslation("Seasons");
@@ -112,8 +113,7 @@ const Seasons = () => {
                 placeholder={t("sortOptions.item1")}
                 name="sorts"
                 value={sorts}
-                onValueChange={(value) => setSorts(value)}
-              >
+                onValueChange={(value) => setSorts(value)}>
                 <SelectMenu.Group>
                   {sortStatuses.map((status, idx) => (
                     <SelectMenu.Item key={idx} value={status}>
@@ -130,8 +130,7 @@ const Seasons = () => {
           <Modal.Button asChild className={styles.modalTrigger}>
             <PrimaryButton
               className={styles.primaryBtn}
-              onClick={() => setIsCreateOpen(true)}
-            >
+              onClick={() => setIsCreateOpen(true)}>
               <p className={styles.btnTextDesktop}>{t("button")}</p>
               <FaPlus className={styles.btnTextMobile} />
             </PrimaryButton>
@@ -151,8 +150,7 @@ const Seasons = () => {
       ) : (
         <DashboardTable
           headers={[t("col1"), t("col2"), t("col3"), t("col4"), t("col5")]}
-          headerColor="light"
-        >
+          headerColor="light">
           {isSeasonsLoading ? (
             <tr>
               <td>{t("loading")}</td>
@@ -183,8 +181,7 @@ const Seasons = () => {
                           season.start_date,
                           season.end_date,
                         )
-                      }
-                    >
+                      }>
                       {t("edit")}
                     </DropdownMenuButton.Item>
 
@@ -193,8 +190,7 @@ const Seasons = () => {
                     />
 
                     <DropdownMenuButton.Item
-                      onClick={() => handleDelete(season.name, season.id)}
-                    >
+                      onClick={() => handleDelete(season.name, season.id)}>
                       {t("delete")}
                     </DropdownMenuButton.Item>
                   </DropdownMenuButton>

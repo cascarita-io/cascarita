@@ -9,7 +9,8 @@
     "eslint": "npx eslint src/",
     "preview": "vite preview",
     "create-dev-env": "node create-env.cjs dev",
-    "create-staging-env": "node create-env.cjs staging"
+    "create-staging-env": "node create-env.cjs staging",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
@@ -74,6 +75,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.5.2",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.9.0",
     "@types/papaparse": "^5.3.15",
@@ -90,7 +92,7 @@
     "globals": "^15.14.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "prettier": "^3.3.3",
+    "prettier": "^3.5.3",
     "ts-jest": "^29.2.5",
     "typescript": "~5.6.3",
     "typescript-eslint": "^8.14.0",

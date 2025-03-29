@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "TeamsPerformances",
       createdAt: "created_at",
       updatedAt: "updated_at",
-    }
+    },
   );
   return TeamsPerformances;
 };

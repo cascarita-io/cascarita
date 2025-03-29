@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function useResponsiveHeader(headerDesktop: string[], headerMobile: string[]) {
   const [headers, setHeaders] = useState<string[]>([]);

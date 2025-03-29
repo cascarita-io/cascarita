@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+
+import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import { Text } from "@radix-ui/themes";
+
 import { Answer } from "../../api/forms/types";
+import { AcceptIcon, RejectIcon } from "../../assets/Icons";
 import styles from "../Forms/Form.module.css";
 import Modal from "../Modal/Modal";
-import { AcceptIcon, RejectIcon } from "../../assets/Icons";
-import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 
 interface PaymentCaptureModalProps {
   amount: string;
@@ -14,7 +16,7 @@ interface PaymentCaptureModalProps {
   handleStatusChange: (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => void;
 }
 
@@ -32,7 +34,7 @@ interface CapturePaymentProps {
   handleStatusChange: (
     index: number,
     statusUpdate: "approved" | "rejected" | "pending",
-    response: Record<string, Answer>
+    response: Record<string, Answer>,
   ) => void;
 }
 
@@ -62,8 +64,7 @@ const CapturePayment: React.FC<CapturePaymentProps> = ({
           onClick={() => {
             setCaptureStatus(REJECTED);
             handleStatusChange(index, REJECTED, response);
-          }}
-        >
+          }}>
           <CrossCircledIcon style={{ borderRadius: "50%" }} />
           Reject
         </button>
@@ -73,8 +74,7 @@ const CapturePayment: React.FC<CapturePaymentProps> = ({
           onClick={() => {
             setCaptureStatus(APPROVED);
             handleStatusChange(index, APPROVED, response);
-          }}
-        >
+          }}>
           <CheckCircledIcon style={{ borderRadius: "50%" }} />
           Approve
         </button>

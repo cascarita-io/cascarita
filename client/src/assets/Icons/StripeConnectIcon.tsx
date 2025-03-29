@@ -12,8 +12,7 @@ export default function StripeConnectionIcon(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 180 38"
       enableBackground="new 0 0 180 38"
       xmlSpace="preserve"
-      {...props}
-    >
+      {...props}>
       <path
         className="st0"
         d="M4,0h172c2.2,0,4,1.8,4,4v30c0,2.2-1.8,4-4,4H4c-2.2,0-4-1.8-4-4V4C0,1.8,1.8,0,4,0z"

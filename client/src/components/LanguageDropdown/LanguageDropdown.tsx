@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
-import styles from "./LanguageDropdown.module.css";
-import { changeLanguage } from "../../i18n/config";
-import { LanguageDropdownProps } from "./types";
+import React, { useEffect, useState } from "react";
+
 import { useAuth0 } from "@auth0/auth0-react";
-import { User } from "../../api/users/types";
-import { fetchUser } from "../../api/users/service";
 import Cookies from "js-cookie";
+
+import { fetchUser } from "../../api/users/service";
+import { User } from "../../api/users/types";
+import { changeLanguage } from "../../i18n/config";
+import styles from "./LanguageDropdown.module.css";
+import { LanguageDropdownProps } from "./types";
 
 interface LanguageOption {
   value: string;

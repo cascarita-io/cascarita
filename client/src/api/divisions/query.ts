@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getDivisionsBySeasonId, getDivisionsByGroupId } from "./service";
+
+import { getDivisionsByGroupId, getDivisionsBySeasonId } from "./service";
 
 export const useGetDivisionsBySeasonId = (seasonId: number) => {
   return useQuery({

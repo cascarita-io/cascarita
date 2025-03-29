@@ -44,7 +44,7 @@ const FieldController = function () {
         newField.name,
         newField.address,
         newField.length,
-        newField.width
+        newField.width,
       );
 
       if (!fieldFound) {
@@ -85,7 +85,7 @@ const FieldController = function () {
         currentField.name,
         currentField.address,
         currentField.length,
-        currentField.width
+        currentField.width,
       );
 
       if (!fieldFound) {

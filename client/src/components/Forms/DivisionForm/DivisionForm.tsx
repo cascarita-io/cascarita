@@ -1,20 +1,22 @@
 import React, { useState } from "react";
-import styles from "../Form.module.css";
-import Modal from "../../Modal/Modal";
-import { DivisionFormData, DivisionFormProps, DivisionRequest } from "./types";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import Cookies from "js-cookie";
+
 import {
   useCreateDivision,
-  useUpdateDivision,
   useDeleteDivision,
+  useUpdateDivision,
 } from "../../../api/divisions/mutations";
-import DeleteForm from "../DeleteForm/DeleteForm";
-import Cookies from "js-cookie";
-import { useTranslation } from "react-i18next";
 import { SeasonType } from "../../../pages/Seasons/types";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import Modal from "../../Modal/Modal";
+import DeleteForm from "../DeleteForm/DeleteForm";
+import styles from "../Form.module.css";
 import { divisionSchema } from "./schema";
-import { toast } from "react-toastify";
+import { DivisionFormData, DivisionFormProps, DivisionRequest } from "./types";
 
 const DivisionForm: React.FC<DivisionFormProps> = ({
   afterSave,
@@ -50,7 +52,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
   const deleteDivisionMutation = useDeleteDivision();
 
   const onSubmit: SubmitHandler<DivisionFormData> = async (
-    data: DivisionFormData
+    data: DivisionFormData,
   ) => {
     const { name, season_id } = data;
 
@@ -63,7 +65,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
     switch (requestType) {
       case "POST": {
         const dataPost = await createDivisionMutation.mutateAsync(
-          payload as DivisionRequest
+          payload as DivisionRequest,
         );
         if (dataPost.error) {
           setRequestError(dataPost.error);
@@ -112,8 +114,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
         <DeleteForm
           className={styles.form}
           destructBtnLabel={t("formContent.delete")}
-          onSubmit={onDelete}
-        >
+          onSubmit={onDelete}>
           <p>{t("formContent.deleteMessage")}</p>
         </DeleteForm>
       ) : (
@@ -153,8 +154,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
                   })}
                   id="seasonId"
                   className={`${styles.input} ${errors.season_id ? styles.invalid : ""}`}
-                  onChange={() => clearErrors("season_id")}
-                >
+                  onChange={() => clearErrors("season_id")}>
                   <option value={0}>Select a league</option>
                   {seasonData?.map((season: SeasonType) => (
                     <option key={season.id} value={season.id}>
@@ -175,8 +175,7 @@ const DivisionForm: React.FC<DivisionFormProps> = ({
           <div className={styles.formBtnContainer}>
             <button
               type="submit"
-              className={`${styles.btn} ${styles.submitBtn}`}
-            >
+              className={`${styles.btn} ${styles.submitBtn}`}>
               {t("formContent.submit")}
             </button>
 

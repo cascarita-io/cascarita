@@ -65,9 +65,8 @@ describe("Field Routes", () => {
   });
 
   it("should create a field with the same name from a different group POST /create", async () => {
-    const groupUno = await TestDataGenerator.createDummyGroup(
-      "Watsonville Corp.",
-    );
+    const groupUno =
+      await TestDataGenerator.createDummyGroup("Watsonville Corp.");
     const groupDos = await TestDataGenerator.createDummyGroup("Salinas Inc.");
 
     await testDb.Fields.create({

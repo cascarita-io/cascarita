@@ -1,11 +1,13 @@
 /// <reference types="vite/client" />
 import { StrictMode } from "react";
-import App from "./App";
 import { createRoot } from "react-dom/client";
+
 import { Auth0Provider, CacheLocation } from "@auth0/auth0-react";
-import { createBrowserHistory } from "history";
-import "./index.module.css";
 import * as Sentry from "@sentry/react";
+import { createBrowserHistory } from "history";
+
+import App from "./App";
+import "./index.module.css";
 
 const ENV_IS_PROD = import.meta.env.VITE_MODE === "production";
 
@@ -32,7 +34,9 @@ type AppState = {
 
 const onRedirectCallback = (appState: AppState | undefined) => {
   createBrowserHistory().push(
-    appState && appState.returnTo ? appState.returnTo : window.location.pathname
+    appState && appState.returnTo
+      ? appState.returnTo
+      : window.location.pathname,
   );
 };
 
@@ -63,5 +67,5 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />
     </StrictMode>
-  </Auth0Provider>
+  </Auth0Provider>,
 );
